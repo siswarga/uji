@@ -5596,10 +5596,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // 1. Pastikan URL /exec sudah benar
   const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
 
-  // 2. Emulator google.script.run wajib berada di posisi paling atas
   function createRunProxy(sCb, fCb) {
     return new Proxy({}, {
       get(target, fnName) {
@@ -5630,20 +5628,21 @@
               let data = res.data !== undefined ? res.data : res;
               if (sCb) sCb(data);
             } else {
-              let errorMsg = (res && (res.message || res.error)) || "Error pada fungsi " + fnName;
+              let errorMsg = (res && (res.message || res.error)) || "Terjadi kesalahan pada fungsi " + fnName;
               console.error("GAS Error (" + fnName + "):", errorMsg);
               if (fCb) {
                 let errObj = new Error(errorMsg);
-                errObj.message = errorMsg;
+                errObj.message = errorMsg; // Memastikan .message selalu terisi string
                 fCb(errObj);
               }
             }
           })
           .catch(err => {
-            console.error("Fetch Error (" + fnName + "):", err);
+            let errorMsg = err.message || "Gagal terhubung ke server backend.";
+            console.error("Fetch Error (" + fnName + "):", errorMsg);
             if (fCb) {
-              let errObj = new Error(err.message || "Gagal terhubung ke server.");
-              errObj.message = errObj.message;
+              let errObj = new Error(errorMsg);
+              errObj.message = errorMsg; // Memastikan .message aman dari undefined
               fCb(errObj);
             }
           });
