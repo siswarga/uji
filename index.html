@@ -5629,10 +5629,9 @@
               let errorMsg = (res && (res.message || res.error)) || "Terjadi kesalahan pada fungsi " + fnName;
               console.error("GAS Error (" + fnName + "):", errorMsg);
               if (fCb) {
-                // Membuat objek error yang aman dibaca sebagai string maupun .message
-                let errObj = new Error(errorMsg);
+                // Membuat objek String khusus yang kompatibel dengan err.message maupun alert(err)
+                let errObj = new String(errorMsg);
                 errObj.message = errorMsg;
-                errObj.toString = function() { return errorMsg; };
                 fCb(errObj);
               }
             }
@@ -5640,9 +5639,8 @@
           .catch(err => {
             console.error("Fetch Error (" + fnName + "):", err);
             if (fCb) {
-              let errObj = new Error(err.message || "Gagal terhubung ke server backend.");
-              errObj.message = errObj.message;
-              errObj.toString = function() { return errObj.message; };
+              let errObj = new String(err.message || "Gagal terhubung ke server backend.");
+              errObj.message = errObj.toString();
               fCb(errObj);
             }
           });
