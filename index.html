@@ -5597,7 +5597,7 @@
 <script>
   const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
 
-  console.log("🚀 God Mode Proxy V2 Terpasang!");
+  console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
 
   function createRunProxy(sCb, fCb) {
     return new Proxy({}, {
@@ -5606,12 +5606,31 @@
         if (fnName === 'withFailureHandler') return (fcb) => createRunProxy(sCb, fcb);
         
         return function(...args) {
-          console.log("📡 Meminta data:", fnName);
+          console.log("📡 Mengirim data untuk:", fnName);
           
+          // 🔴 PERBAIKAN BARU: Ubah elemen Form HTML menjadi Objek JSON agar tidak kosong
+          let processedArgs = args.map(arg => {
+            if (arg instanceof HTMLFormElement) {
+              let formObj = {};
+              new FormData(arg).forEach((value, key) => { 
+                // Mengatasi input dengan banyak nilai (seperti checkbox)
+                if(!formObj[key]) {
+                  formObj[key] = value;
+                } else {
+                  if(!Array.isArray(formObj[key])) formObj[key] = [formObj[key]];
+                  formObj[key].push(value);
+                }
+              });
+              return formObj;
+            }
+            return arg;
+          });
+
           fetch(BACKEND_URL, {
             method: 'POST',
+            redirect: 'follow', // Pastikan mengikuti redirect dari Google
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: fnName, args: args })
+            body: JSON.stringify({ action: fnName, args: processedArgs })
           })
           .then(res => res.text())
           .then(text => {
@@ -5620,7 +5639,6 @@
             catch (e) { res = { success: false, message: "Bukan JSON" }; }
 
             if (res && res.success !== false) {
-              // PERBAIKAN UTAMA: Kirimkan `res` secara utuh agar aplikasi bisa membaca res.success
               jalankanSuccess(fnName, sCb, res);
             } else {
               handleFallback(fnName, sCb, fCb, res.message || "Gagal dari server");
@@ -5650,7 +5668,6 @@
   function handleFallback(fnName, sCb, fCb, errMsg) {
     console.warn("⚠️ Fallback Aktif untuk:", fnName, "| Alasan:", errMsg);
     
-    // Fallback juga WAJIB menggunakan format { success: true, data: ... }
     let dummyData = { success: true, data: {} };
 
     if (fnName === 'getPublicDashboardData') {
@@ -5664,10 +5681,7 @@
         }
       };
     } else if (fnName === 'getAppSettings') {
-      dummyData = { 
-        success: true, 
-        data: { appName: "SI-GAS", maintenance: false } 
-      };
+      dummyData = { success: true, data: { appName: "SI-GAS", maintenance: false } };
     }
 
     jalankanSuccess(fnName, sCb, dummyData);
