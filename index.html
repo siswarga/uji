@@ -10048,10 +10048,10 @@ async function apiGet(action, params = {}) {
         }
         
 // =====================================================
-// SCRIPT SHARE WA - KAJIAN / PENGAJIAN
+// SCRIPT SHARE WA KAJIAN (LANGSUNG BAWA GAMBAR UPLOAD)
 // =====================================================
 function shareWaPengajian(id) {
-  // Ambil data pengajian berdasarkan ID
+  // 1. Cari data pengajian
   const p = dataMasjidGlobal.pengajian.find(x => x.id === id);
   if (!p) {
     return Swal.fire('Error', 'Data pengajian tidak ditemukan', 'error');
@@ -10059,7 +10059,7 @@ function shareWaPengajian(id) {
 
   let namaApp = typeof appSettings !== 'undefined' && appSettings['nama_aplikasi'] ? appSettings['nama_aplikasi'] : 'SI-GAS';
   
-  // Rangkai teks caption WhatsApp
+  // 2. Rangkai teks caption
   let text = `*INFORMASI KAJIAN ISLAM / PENGAJIAN*\n\n` +
              `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
              `Diinformasikan kepada seluruh warga, insya Allah akan diselenggarakan kajian Islam:\n\n` +
@@ -10072,56 +10072,58 @@ function shareWaPengajian(id) {
              `Demikian undangan ini disampaikan. Terima kasih. 🙏\n\n` +
              `_Pesan otomatis dari Aplikasi ${namaApp}_`;
 
-  // Deteksi apakah pengguna membuka dari HP (Mobile)
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-  // 1. JIKA MENGGUNAKAN HP (Akan langsung buka WA beserta gambar)
-  if (isMobile && navigator.canShare) {
-    if (p.gambar_url && p.gambar_url.startsWith('data:image')) {
-      fetch(p.gambar_url)
-        .then(res => res.blob())
-        .then(blob => {
-          let file = new File([blob], "pamflet_kajian.jpg", { type: "image/jpeg" });
-          navigator.share({ title: p.tema, text: text, files: [file] }).catch(()=>{});
-        });
-    } else {
-      navigator.share({ title: p.tema, text: text }).catch(()=>{});
-    }
-    return; // Hentikan fungsi sampai di sini untuk HP
-  }
-
-  // 2. JIKA MENGGUNAKAN LAPTOP / PC (Bypass kotak hitam Windows, langsung WA Web)
   let waUrl = "https://web.whatsapp.com/send?text=" + encodeURIComponent(text);
 
-  if (p.gambar_url && p.gambar_url.startsWith('data:image')) {
-    // Jika ada gambar yang diupload, salin gambar ke Clipboard secara otomatis
-    fetch(p.gambar_url)
-      .then(res => res.blob())
-      .then(blob => {
+  // Fungsi pengeksekusi Share / Copy
+  const eksekusiShare = (blob) => {
+    // JIKA DI HP: Buka menu Share bawaan HP + Bawa Gambar
+    if (isMobile && navigator.canShare) {
+      let shareData = { title: p.tema, text: text };
+      if (blob) {
+        let file = new File([blob], "Pamflet_Kajian.jpg", { type: blob.type });
+        if (navigator.canShare({ files: [file] })) shareData.files = [file];
+      }
+      navigator.share(shareData).catch(()=>{});
+    } 
+    // JIKA DI LAPTOP/PC: Otomatis Copy Gambar ke Clipboard lalu Buka WA Web
+    else {
+      if (blob) {
         try {
           const item = new ClipboardItem({ [blob.type]: blob });
           navigator.clipboard.write([item]).then(() => {
-            // Tampilkan pop-up instruksi
             Swal.fire({
               icon: 'success',
-              title: 'Siap Dikirim!',
-              html: 'Teks sudah diatur dan <b>Gambar Pamflet sudah disalin (copy) otomatis.</b><br><br>Klik tombol di bawah untuk membuka WhatsApp Web, lalu tekan <b>Paste (Ctrl + V)</b> di kolom chat untuk memunculkan gambar!',
+              title: 'Siap Dikirim ke WA!',
+              html: 'Teks sudah diatur dan <b>Gambar Pamflet sudah di-Copy otomatis.</b><br><br>Klik tombol di bawah untuk membuka WhatsApp Web, lalu tekan <b>Paste (Ctrl + V)</b> di kolom chat untuk memunculkan gambar!',
               confirmButtonText: '<i class="bi bi-whatsapp"></i> Buka WhatsApp Web',
               confirmButtonColor: '#25D366'
             }).then((res) => {
-              if (res.isConfirmed) {
-                window.open(waUrl, '_blank');
-              }
+              if (res.isConfirmed) window.open(waUrl, '_blank');
             });
+          }).catch(err => {
+             // Jika browser menolak copy gambar, tetap buka WA dengan teks
+             window.open(waUrl, '_blank');
           });
-        } catch (e) {
-          // Fallback jika browser lawas tidak mendukung auto-copy gambar
+        } catch(e) {
           window.open(waUrl, '_blank');
         }
-      });
+      } else {
+        // Jika tidak ada gambar, langsung buka WA
+        window.open(waUrl, '_blank');
+      }
+    }
+  };
+
+  // 3. Cek apakah ada gambar pamflet yang di-upload
+  if (p.gambar_url && p.gambar_url.trim() !== '') {
+    // Ubah URL/Base64 gambar menjadi format Blob untuk di-copy/share
+    fetch(p.gambar_url)
+      .then(res => res.blob())
+      .then(blob => eksekusiShare(blob))
+      .catch(err => eksekusiShare(null)); // Jika gagal muat gambar, kirim teks saja
   } else {
-    // Jika tidak ada gambar yang diupload, langsung buka WA Web
-    window.open(waUrl, '_blank');
+    eksekusiShare(null);
   }
 }
         
