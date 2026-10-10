@@ -5608,7 +5608,6 @@ function createRunProxy(sCb, fCb) {
         if (fnName === 'withFailureHandler') {
           return function(fcb) { return createRunProxy(sCb, fcb); };
         }
-        // Eksekusi fungsi ke backend Google Apps Script
         return function(...args) {
           fetch(BACKEND_URL, {
             method: 'POST',
@@ -5617,18 +5616,20 @@ function createRunProxy(sCb, fCb) {
           })
           .then(res => res.json())
           .then(res => {
+            // Jika sukses atau mengembalikan data langsung
             if (res.success !== false && (res.success === true || res.data !== undefined || res.message === undefined)) {
               let data = res.data !== undefined ? res.data : res;
               if (sCb) sCb(data);
             } else {
-              let err = new Error(res.message || 'Terjadi kesalahan pada server');
+              let errorMsg = res.message || res.error || "Terjadi kesalahan pada fungsi " + fnName;
+              let err = new Error(errorMsg);
               if (fCb) fCb(err);
-              else console.error("GAS Error (" + fnName + "):", res.message);
+              else console.error("GAS Error (" + fnName + "):", errorMsg);
             }
           })
           .catch(err => {
+            console.error("Fetch Error (" + fnName + "):", err);
             if (fCb) fCb(err);
-            else console.error("Fetch Error (" + fnName + "):", err);
           });
         };
       }
@@ -5657,20 +5658,6 @@ async function apiGet(action, params = {}) {
   }
 }
 
-// Pengganti google.script.run untuk POST (Kirim/Simpan Data)
-async function apiPost(action, token, data = {}) {
-  try {
-    let response = await fetch(BACKEND_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Mencegah preflight CORS di GAS
-      body: JSON.stringify({ action: action, token: token, data: data })
-    });
-    return await response.json();
-  } catch (error) {
-    console.error("API POST Error:", error);
-    return { success: false, message: error.message };
-  }
-}
   
     // Helper universal untuk mengambil pengaturan aplikasi secara akurat
     function getSetting(key, defaultValue) {
