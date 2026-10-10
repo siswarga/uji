@@ -5601,7 +5601,6 @@
   function createRunProxy(sCb, fCb) {
     return new Proxy({}, {
       get(target, fnName) {
-        console.log("Mencoba memanggil fungsi GAS:", fnName); // Cek nama fungsi di Console F12
         if (fnName === 'withSuccessHandler') {
           return function(cb) { return createRunProxy(cb, fCb); };
         }
@@ -5619,7 +5618,7 @@
             try {
               return JSON.parse(text);
             } catch (e) {
-              throw new Error("Respon server bukan JSON untuk fungsi: " + fnName);
+              throw new Error("Respon server bukan JSON yang valid.");
             }
           })
           .then(res => {
@@ -5627,11 +5626,13 @@
               let data = res.data !== undefined ? res.data : res;
               if (sCb) sCb(data);
             } else {
-              let errorMsg = (res && (res.message || res.error)) || "Fungsi backend '" + fnName + "' tidak ditemukan atau error.";
+              let errorMsg = (res && (res.message || res.error)) || "Terjadi kesalahan pada fungsi " + fnName;
               console.error("GAS Error (" + fnName + "):", errorMsg);
               if (fCb) {
+                // Membuat objek error yang aman dibaca sebagai string maupun .message
                 let errObj = new Error(errorMsg);
-                errObj.message = errorMsg; // Memastikan .message tidak undefined
+                errObj.message = errorMsg;
+                errObj.toString = function() { return errorMsg; };
                 fCb(errObj);
               }
             }
@@ -5641,6 +5642,7 @@
             if (fCb) {
               let errObj = new Error(err.message || "Gagal terhubung ke server backend.");
               errObj.message = errObj.message;
+              errObj.toString = function() { return errObj.message; };
               fCb(errObj);
             }
           });
