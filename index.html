@@ -4070,60 +4070,66 @@
     </div>
   </div>
 
-  <!-- MODAL TAMBAH KAJIAN / PENGAJIAN -->
-  <div class="modal fade" id="modalTambahKajian" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <form id="formTambahKajian" class="modal-content" onsubmit="saveKajian(event)">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title fw-bold">Tambah Pengajian / Kajian</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+ <!-- MODAL TAMBAH KAJIAN / PENGAJIAN -->
+<div class="modal fade" id="modalTambahKajian" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="formTambahKajian" class="modal-content" onsubmit="saveKajian(event)">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold">Tambah Pengajian / Kajian</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row g-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-bold">Tanggal*</label>
+          <!-- Ditambahkan name="tanggal" -->
+          <input type="date" class="form-control" id="kajian_tgl" name="tanggal" required>
         </div>
-        <div class="modal-body row g-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Tanggal*</label>
-            <input type="date" class="form-control" id="kajian_tgl" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Jam (WIB)*</label>
-            <input type="time" class="form-control" id="kajian_jam" required>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Nama Pemateri / Ustadz*</label>
-            <input type="text" class="form-control" id="kajian_pemateri" placeholder="Cth: Ustadz Dr. H. ..." required>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Tema Kajian*</label>
-            <textarea class="form-control" id="kajian_tema" rows="2" placeholder="Cth: Fiqih Ibadah Sehari-hari" required></textarea>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Lokasi*</label>
-            <input type="text" class="form-control" id="kajian_lokasi" value="Masjid Assalam" required>
-          </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-bold">Jam (WIB)*</label>
+          <!-- Ditambahkan name="jam" -->
+          <input type="time" class="form-control" id="kajian_jam" name="jam" required>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-bold">Nama Pemateri / Ustadz*</label>
+          <!-- Ditambahkan name="pemateri" -->
+          <input type="text" class="form-control" id="kajian_pemateri" name="pemateri" placeholder="Cth: Ustadz Dr. H. ..." required>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-bold">Tema Kajian*</label>
+          <!-- Ditambahkan name="tema" -->
+          <textarea class="form-control" id="kajian_tema" name="tema" rows="2" placeholder="Cth: Fiqih Ibadah Sehari-hari" required></textarea>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-bold">Lokasi*</label>
+          <!-- Ditambahkan name="lokasi" -->
+          <input type="text" class="form-control" id="kajian_lokasi" name="lokasi" value="Masjid Assalam" required>
+        </div>
 
-          <!-- TAMBAHAN: UPLOAD GAMBAR / PAMFLET KAJIAN -->
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Pamflet / Brosur Kajian (Opsional)</label>
-            <input type="file" class="form-control" id="kajian_gambar_file" accept="image/*" onchange="previewKajianGambar(this)">
-            <input type="hidden" id="kajian_gambar_url">
-            <div class="mt-2 text-center bg-light p-2 rounded" id="box-preview-kajian" style="display: none;">
-              <img id="kajian_img_preview" src="" alt="Preview Pamflet" style="max-height: 120px; border-radius: 4px;">
-            </div>
+        <!-- TAMBAHAN: UPLOAD GAMBAR / PAMFLET KAJIAN -->
+        <div class="col-md-12">
+          <label class="form-label small fw-bold">Pamflet / Brosur Kajian (Opsional)</label>
+          <input type="file" class="form-control" id="kajian_gambar_file" accept="image/*" onchange="previewKajianGambar(this)">
+          <input type="hidden" id="kajian_gambar_url" name="gambar_url">
+          <div class="mt-2 text-center bg-light p-2 rounded" id="box-preview-kajian" style="display: none;">
+            <img id="kajian_img_preview" src="" alt="Preview Pamflet" style="max-height: 120px; border-radius: 4px;">
           </div>
+        </div>
 
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Buka Donasi / Konsumsi untuk Warga?</label>
-            <select class="form-select" id="kajian_donasi">
-              <option value="Tidak">Tidak</option>
-              <option value="Ya">Ya</option>
-            </select>
-          </div>
+        <div class="col-md-12">
+          <label class="form-label small fw-bold">Buka Donasi / Konsumsi untuk Warga?</label>
+          <!-- Ditambahkan name="openDonasi" -->
+          <select class="form-select" id="kajian_donasi" name="openDonasi">
+            <option value="Tidak">Tidak</option>
+            <option value="Ya">Ya</option>
+          </select>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan & Tampilkan di Kegiatan Warga</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan & Tampilkan di Kegiatan Warga</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- Modal Qurban -->
   <div class="modal fade" id="modalQurban" tabindex="-1">
@@ -10197,6 +10203,34 @@ async function apiGet(action, params = {}) {
       }
     }
     
+	function saveKajian(event) {
+  // 1. Cegah halaman me-refresh sendiri
+  event.preventDefault(); 
+  
+  // 2. Ambil elemen formulir
+  let formElement = document.getElementById('formTambahKajian');
+  
+  // 3. Ambil token (sesuaikan dengan cara aplikasi Anda menyimpan sesi)
+  let token = localStorage.getItem('token') || "dummy_token"; 
+
+  // 4. Kirim data ke code.gs melalui Proxy
+  google.script.run
+    .withSuccessHandler(function(res) {
+       alert(res.message); // Munculkan pop-up berhasil
+       
+       // Tutup modal otomatis jika sukses
+       let modal = bootstrap.Modal.getInstance(document.getElementById('modalTambahKajian'));
+       if(modal) modal.hide();
+       
+       // Bersihkan form
+       formElement.reset();
+    })
+    .withFailureHandler(function(err) {
+       alert("Gagal mengirim data: " + err.message);
+    })
+    .savePengajian(token, formElement); // Ini akan memanggil fungsi di code.gs
+}
+	
         function openModalQurban() { document.getElementById('formQurban').reset(); new bootstrap.Modal(document.getElementById('modalQurban')).show(); }
         
         function saveMuadzin(e) { 
@@ -10208,42 +10242,7 @@ async function apiGet(action, params = {}) {
           }).saveJadwalMuadzin(localStorage.getItem('sigas_token'), {tanggal:document.getElementById('mdz_tgl').value, waktuSholat:document.getElementById('mdz_waktu').value, imam:document.getElementById('mdz_imam').value, muadzin:document.getElementById('mdz_muadzin').value, keterangan:document.getElementById('mdz_ket').value}); 
         }
         
-        function savePengajian(token, p) {
-          const session = verifySession(token);
-          if (!isAuthorized(token, 'menu-dewan-masjid')) return { success: false, message: "Akses ditolak" };
-          const ss = SpreadsheetApp.getActiveSpreadsheet();
-          
-          // 1. Simpan ke Database Dewan Masjid
-          const sheet = ss.getSheetByName(SHEETS.JADWAL_PENGAJIAN);
-          let id = "KJN-" + new Date().getTime();
-          sheet.appendRow([id, p.tanggal, p.jam, p.pemateri, p.tema, p.lokasi, 'Akan Datang', new Date()]);
-        
-          // 2. OTOMATIS TAMBAHKAN KE JADWAL KEGIATAN UTAMA (DASHBOARD WARGA)
-          const sheetKgt = ss.getSheetByName(SHEETS.JADWAL_KEGIATAN);
-          if (sheetKgt) {
-        const lastRowKgt = sheetKgt.getLastRow();
-        let newIdNum = 1;
-        if (lastRowKgt > 1) {
-          let match = String(sheetKgt.getRange(lastRowKgt, 1).getValue()).match(/\d+$/);
-          if (match) newIdNum = parseInt(match[0], 10) + 1;
-        }
-        let idKgt = "KGT-" + ("000000" + newIdNum).slice(-6);
-        
-        let tglObj = new Date(p.tanggal);
-        let namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][tglObj.getDay()] || '-',
-            deskripsiKajian = "Kajian Islam: " + p.tema + " (: " + p.pemateri + ")";
-        
-        // Format kolom: [ID Kegiatan, Tanggal, Hari, Waktu, Deskripsi, Lokasi, Status, Notifikasi, Created By, Created At, Updated At, Waktu Selesai, Sesi, Open Donasi, Tanggal Selesai]
-        sheetKgt.appendRow([
-          idKgt, p.tanggal, namaHari, p.jam, deskripsiKajian, p.lokasi || 'Masjid Komplek', 
-          'Akan Datang', 'Belum Dikirim', session.data.nama, new Date(), new Date(),
-          p.jam, 'Masjid', p.openDonasi || 'Tidak', p.tanggal
-        ]);
-          }
-        
-          recordHistory(session.data.nama, "Dewan Masjid", "Jadwal kajian & sinkronisasi kegiatan: " + p.tema);
-          return { success: true, message: "Jadwal Pengajian berhasil disimpan & otomatis tampil di Kegiatan Warga!" };
-        }
+       
         
         function delMasjid(tipe, id) {
           Swal.fire({title:'Hapus Data?', text:'Tindakan ini tidak dapat dibatalkan', icon:'warning', showCancelButton:true, confirmButtonColor:'#dc3545', confirmButtonText:'Ya, Hapus'})
