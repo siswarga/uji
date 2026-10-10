@@ -5601,77 +5601,58 @@
   function createRunProxy(sCb, fCb) {
     return new Proxy({}, {
       get(target, fnName) {
-        console.log("Memanggil fungsi GAS:", fnName);
-        if (fnName === 'withSuccessHandler') {
-          return function(cb) { return createRunProxy(cb, fCb); };
-        }
-        if (fnName === 'withFailureHandler') {
-          return function(fcb) { return createRunProxy(sCb, fcb); };
-        }
+        if (fnName === 'withSuccessHandler') return (cb) => createRunProxy(cb, fCb);
+        if (fnName === 'withFailureHandler') return (fcb) => createRunProxy(sCb, fcb);
+        
         return function(...args) {
           fetch(BACKEND_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: fnName, args: args })
           })
-          .then(async res => {
-            let text = await res.text();
-            try {
-              return JSON.parse(text);
-            } catch (e) {
-              throw new Error("Respon server bukan JSON");
-            }
-          })
-          .then(res => {
-            if (res && res.success !== false && (res.success === true || res.data !== undefined || res.message === undefined)) {
+          .then(res => res.text())
+          .then(text => {
+            let res;
+            try { res = JSON.parse(text); } 
+            catch (e) { res = { success: false, message: "Server tidak merespons format JSON" }; }
+
+            if (res && res.success !== false) {
               let data = res.data !== undefined ? res.data : res;
-              if (sCb) sCb(data);
+              // PENTING: setTimeout memutus rantai Promise agar tidak terjadi looping error!
+              if (sCb) setTimeout(() => sCb(data), 0);
             } else {
-              // Jika backend error, alihkan ke fungsi fallback agar aplikasi tidak crash
-              handleFallback(fnName, sCb, fCb, res.message || "Error server");
+              handleFallback(fnName, sCb, fCb, res.message || "Gagal memuat fungsi");
             }
           })
           .catch(err => {
-            // Jika koneksi gagal, alihkan ke fungsi fallback
-            handleFallback(fnName, sCb, fCb, err.message);
+            handleFallback(fnName, sCb, fCb, "Gagal koneksi ke server");
           });
         };
       }
     });
   }
 
-  // Fungsi pengaman agar aplikasi tetap terbuka normal meskipun backend bermasalah
   function handleFallback(fnName, sCb, fCb, errMsg) {
-    console.warn("Mengaktifkan Fallback untuk:", fnName, "| Alasan:", errMsg);
-    
     if (fnName === 'getPublicDashboardData') {
-      // Memberikan data kosong/aman agar dashboard langsung terbuka
-      if (sCb) sCb({
+      let dummyData = {
         warga: { totalWarga: 0, lakiLaki: 0, perempuan: 0, domisiliKtp: 0, nonDomisili: 0, kontrak: 0, kepalaKeluarga: 0, usia: { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 } },
         kasWarga: { saldoUmum: 0, inUmum: 0, outUmum: 0, saldoJimpitan: 0, inJimpitan: 0, outJimpitan: 0, nunggak: 0, listTunggakan: [] },
         kasMasjid: { saldo: 0, in: 0, out: 0 },
-        ronda: [],
-        kegiatan: [],
-        pengurus: []
-      });
+        ronda: [], kegiatan: [], pengurus: []
+      };
+      if (sCb) setTimeout(() => sCb(dummyData), 0);
     } else if (fnName === 'getAppSettings') {
-      // Memberikan pengaturan default aplikasi
-      if (sCb) sCb({ appName: "SI-GAS" });
+      if (sCb) setTimeout(() => sCb({ appName: "SI-GAS" }), 0);
     } else {
-      // Untuk fungsi lain, jalankan failure handler normal
       if (fCb) {
         let errObj = new Error(errMsg);
         errObj.message = errMsg;
-        fCb(errObj);
+        setTimeout(() => fCb(errObj), 0);
       }
     }
   }
 
-  window.google = {
-    script: {
-      run: createRunProxy(null, null)
-    }
-  };
+  window.google = { script: { run: createRunProxy(null, null) } };
 </script>
 
 <script>
