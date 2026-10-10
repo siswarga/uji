@@ -5598,7 +5598,7 @@
   <script>
   
  
-  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
+ const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
 
   function createRunProxy(sCb, fCb) {
     return new Proxy({}, {
@@ -5620,7 +5620,7 @@
             try {
               return JSON.parse(text);
             } catch (e) {
-              throw new Error("Respon server bukan JSON (Pastikan Deploy sudah 'New Version').");
+              throw new Error("Respon server bukan JSON yang valid.");
             }
           })
           .then(res => {
@@ -5628,7 +5628,7 @@
               let data = res.data !== undefined ? res.data : res;
               if (sCb) sCb(data);
             } else {
-              let errorMsg = (res && (res.message || res.error)) || "Terjadi kesalahan pada fungsi " + fnName;
+              let errorMsg = (res && (res.message || res.error)) || "Fungsi backend '" + fnName + "' tidak ditemukan atau error.";
               let err = new Error(errorMsg);
               if (fCb) fCb(err);
               else console.error("GAS Error (" + fnName + "):", errorMsg);
