@@ -10122,7 +10122,7 @@ function shareWaPengajian(id) {
       .withFailureHandler(function(err) {
         Swal.fire('Error', "Koneksi ke server gagal: " + err.message, 'error');
       })
-      .kirimPesanWaGateway(noGrupTujuan, text, p.gambar_url); // Sesuaikan dengan nama fungsi di code.gs Anda
+      .sendWhatsAppMessage(noGrupTujuan, text, p.gambar_url);
       
     return; // Hentikan proses agar tidak buka WA manual
   }
