@@ -5597,7 +5597,7 @@
 <script>
   const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
 
-  console.log("🚀 God Mode Proxy Terpasang!");
+  console.log("🚀 God Mode Proxy V2 Terpasang!");
 
   function createRunProxy(sCb, fCb) {
     return new Proxy({}, {
@@ -5620,8 +5620,8 @@
             catch (e) { res = { success: false, message: "Bukan JSON" }; }
 
             if (res && res.success !== false) {
-              let data = res.data !== undefined ? res.data : res;
-              jalankanSuccess(fnName, sCb, data);
+              // PERBAIKAN UTAMA: Kirimkan `res` secara utuh agar aplikasi bisa membaca res.success
+              jalankanSuccess(fnName, sCb, res);
             } else {
               handleFallback(fnName, sCb, fCb, res.message || "Gagal dari server");
             }
@@ -5634,7 +5634,6 @@
     });
   }
 
-  // Fungsi khusus untuk menjalankan Success Handler secara aman
   function jalankanSuccess(fnName, sCb, data) {
     if (sCb) {
       setTimeout(() => {
@@ -5642,29 +5641,35 @@
           sCb(data); 
           console.log("✅ Sukses memproses:", fnName);
         } catch (err) { 
-          console.error("🔥 INTERNAL ERROR: Aplikasi Anda gagal memproses data dari fungsi [" + fnName + "]. Detail error:", err); 
+          console.error("🔥 INTERNAL ERROR di fungsi [" + fnName + "]:", err); 
         }
       }, 0);
     }
   }
 
-  // Fungsi pengaman agar kotak dialog error TIDAK PERNAH MUNCUL
   function handleFallback(fnName, sCb, fCb, errMsg) {
     console.warn("⚠️ Fallback Aktif untuk:", fnName, "| Alasan:", errMsg);
     
-    let dummyData = {};
+    // Fallback juga WAJIB menggunakan format { success: true, data: ... }
+    let dummyData = { success: true, data: {} };
+
     if (fnName === 'getPublicDashboardData') {
       dummyData = {
-        warga: { totalWarga: 0, lakiLaki: 0, perempuan: 0, domisiliKtp: 0, nonDomisili: 0, kontrak: 0, kepalaKeluarga: 0, usia: { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 } },
-        kasWarga: { saldoUmum: 0, inUmum: 0, outUmum: 0, saldoJimpitan: 0, inJimpitan: 0, outJimpitan: 0, nunggak: 0, listTunggakan: [] },
-        kasMasjid: { saldo: 0, in: 0, out: 0 },
-        ronda: [], kegiatan: [], pengurus: []
+        success: true,
+        data: {
+          warga: { totalWarga: 0, lakiLaki: 0, perempuan: 0, domisiliKtp: 0, nonDomisili: 0, kontrak: 0, kepalaKeluarga: 0, usia: { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 } },
+          kasWarga: { saldoUmum: 0, inUmum: 0, outUmum: 0, saldoJimpitan: 0, inJimpitan: 0, outJimpitan: 0, nunggak: 0, listTunggakan: [] },
+          kasMasjid: { saldo: 0, in: 0, out: 0 },
+          ronda: [], kegiatan: [], pengurus: []
+        }
       };
     } else if (fnName === 'getAppSettings') {
-      dummyData = { appName: "SI-GAS", maintenance: false };
+      dummyData = { 
+        success: true, 
+        data: { appName: "SI-GAS", maintenance: false } 
+      };
     }
 
-    // PAKSA jalankan Success Handler dengan data kosong, blokir Failure Handler!
     jalankanSuccess(fnName, sCb, dummyData);
   }
 
