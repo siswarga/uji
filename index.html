@@ -7237,41 +7237,62 @@ async function apiGet(action, params = {}) {
     }
     
     // Fungsi pengirim yang mengambil data langsung dari array global berdasarkan index
-    function kirimPengingatOtomatis(index) {
-      let item = dataListTunggakanGlobal[index];
-      let namaKK = typeof item === 'object' ? item.nama : item;
-      let waKK = typeof item === 'object' && item.wa ? item.wa : '-';
-      
-      let num = String(waKK).replace(/\D/g, '');
-      if (num.startsWith('0')) num = '62' + num.substring(1);
-    
-      let waText = `*PEMBERITAHUAN TUNGGAKAN IURAN*\n\n` +
-                   `Halo Bapak/Ibu *${namaKK}*,\n\n` +
-                   `Pengurus mencatat iuran Kas Warga Anda untuk bulan ini belum lunas/tercatat.\n\n` +
-                   `Mohon untuk segera melakukan pembayaran. Terima kasih perhatiannya 🙏`;
-    
-      Swal.fire({
-        title: 'Mengirim Pesan...',
-        text: `Mengirim pengingat ke ${namaKK}`,
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-      });
-    
-      google.script.run
-        .withSuccessHandler(() => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: `Pengingat untuk ${namaKK} berhasil dikirim otomatis.`,
-            timer: 1500,
-            showConfirmButton: false
-          });
-        })
-        .withFailureHandler(err => {
-          Swal.fire('Gagal', String(err), 'error');
-        })
-        .sendWhatsAppMessage(num, waText);
-    }
+    // Fungsi pengirim yang mengambil data langsung dari array global berdasarkan index
+function kirimPengingatOtomatis(index) {
+  let item = dataListTunggakanGlobal[index];
+  let namaKK = typeof item === 'object' ? item.nama : item;
+  let waKK = typeof item === 'object' && item.wa ? item.wa : '-';
+  
+  // 1. PERBAIKAN FORMAT NOMOR WA (Sangat Penting)
+  let num = String(waKK).replace(/\D/g, ''); // Buang karakter selain angka
+  
+  if (num.startsWith('0')) {
+    num = '62' + num.substring(1); // Ubah 0812... jadi 62812...
+  } else if (num.startsWith('8')) {
+    num = '62' + num;              // Ubah 811... jadi 62811...
+  } else if (!num.startsWith('62')) {
+    num = '62' + num;              // Jaga-jaga jika formatnya aneh
+  }
+
+  // 2. Rangkai teks pesan
+  let waText = `*PEMBERITAHUAN TUNGGAKAN IURAN*\n\n` +
+               `Halo Bapak/Ibu *${namaKK}*,\n\n` +
+               `Pengurus mencatat iuran Kas Warga Anda untuk bulan ini belum lunas/tercatat.\n\n` +
+               `Mohon untuk segera melakukan pembayaran. Terima kasih perhatiannya 🙏`;
+
+  // 3. CEK PENGATURAN SAKLAR OTOMATIS
+  let isGatewayAktif = typeof appSettings !== 'undefined' && (appSettings['wa_mode_otomatis'] === true || appSettings['wa_mode_otomatis'] === 'true' || appSettings['wa_mode_otomatis'] === 'Ya');
+
+  // JIKA SAKLAR OTOMATIS AKTIF (Kirim via Gateway tanpa buka WA)
+  if (isGatewayAktif) {
+    Swal.fire({
+      title: 'Mengirim Pesan...',
+      text: `Mengirim pengingat ke ${namaKK}`,
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    google.script.run
+      .withSuccessHandler(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: `Pengingat untuk ${namaKK} berhasil dikirim otomatis.`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      })
+      .withFailureHandler(err => {
+        Swal.fire('Gagal', String(err), 'error');
+      })
+      .sendWhatsAppMessage(num, waText); // Pastikan fungsi ini ada dan berjalan normal di code.gs
+  } 
+  // JIKA SAKLAR DIMATIKAN (Langsung buka aplikasi WA manual)
+  else {
+    let waUrl = "https://api.whatsapp.com/send?phone=" + num + "&text=" + encodeURIComponent(waText);
+    window.open(waUrl, '_blank');
+  }
+}
         
         // UPDATE EXPORT KAS WARGA DIBUAT DUA MACAM:
         function exportKasWargaPDF(tipeLaporan) { 
