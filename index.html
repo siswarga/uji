@@ -5597,9 +5597,10 @@
 
   <script>
   
+  <script>
   const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
 
-function createRunProxy(sCb, fCb) {
+  function createRunProxy(sCb, fCb) {
     return new Proxy({}, {
       get(target, fnName) {
         if (fnName === 'withSuccessHandler') {
@@ -5614,14 +5615,20 @@ function createRunProxy(sCb, fCb) {
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: fnName, args: args })
           })
-          .then(res => res.json())
+          .then(async res => {
+            let text = await res.text();
+            try {
+              return JSON.parse(text);
+            } catch (e) {
+              throw new Error("Respon server bukan JSON (Pastikan Deploy sudah 'New Version').");
+            }
+          })
           .then(res => {
-            // Jika sukses atau mengembalikan data langsung
-            if (res.success !== false && (res.success === true || res.data !== undefined || res.message === undefined)) {
+            if (res && res.success !== false && (res.success === true || res.data !== undefined || res.message === undefined)) {
               let data = res.data !== undefined ? res.data : res;
               if (sCb) sCb(data);
             } else {
-              let errorMsg = res.message || res.error || "Terjadi kesalahan pada fungsi " + fnName;
+              let errorMsg = (res && (res.message || res.error)) || "Terjadi kesalahan pada fungsi " + fnName;
               let err = new Error(errorMsg);
               if (fCb) fCb(err);
               else console.error("GAS Error (" + fnName + "):", errorMsg);
@@ -5629,7 +5636,8 @@ function createRunProxy(sCb, fCb) {
           })
           .catch(err => {
             console.error("Fetch Error (" + fnName + "):", err);
-            if (fCb) fCb(err);
+            let errObj = new Error(err.message || "Gagal terhubung ke server backend.");
+            if (fCb) fCb(errObj);
           });
         };
       }
@@ -5641,6 +5649,7 @@ function createRunProxy(sCb, fCb) {
       run: createRunProxy(null, null)
     }
   };
+
 
 // Pengganti google.script.run untuk GET (Ambil Data)
 async function apiGet(action, params = {}) {
