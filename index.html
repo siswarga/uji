@@ -10048,7 +10048,7 @@ async function apiGet(action, params = {}) {
         }
         
 // =====================================================
-// SCRIPT SHARE WA KAJIAN (LANGSUNG BAWA GAMBAR UPLOAD)
+// SCRIPT SMART SHARE WA (GATEWAY OTOMATIS ATAU MANUAL)
 // =====================================================
 function shareWaPengajian(id) {
   // 1. Cari data pengajian
@@ -10057,9 +10057,8 @@ function shareWaPengajian(id) {
     return Swal.fire('Error', 'Data pengajian tidak ditemukan', 'error');
   }
 
-  let namaApp = typeof appSettings !== 'undefined' && appSettings['nama_aplikasi'] ? appSettings['nama_aplikasi'] : 'SI-GAS';
-  
   // 2. Rangkai teks caption
+  let namaApp = typeof appSettings !== 'undefined' && appSettings['nama_aplikasi'] ? appSettings['nama_aplikasi'] : 'SI-GAS';
   let text = `*INFORMASI KAJIAN ISLAM / PENGAJIAN*\n\n` +
              `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
              `Diinformasikan kepada seluruh warga, insya Allah akan diselenggarakan kajian Islam:\n\n` +
@@ -10072,12 +10071,49 @@ function shareWaPengajian(id) {
              `Demikian undangan ini disampaikan. Terima kasih. 🙏\n\n` +
              `_Pesan otomatis dari Aplikasi ${namaApp}_`;
 
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  let waUrl = "https://web.whatsapp.com/send?text=" + encodeURIComponent(text);
+  // =====================================================
+  // CEK PENGATURAN WA GATEWAY (Mode Latar Belakang)
+  // =====================================================
+  // PERBAIKAN: Menggunakan wa_mode_otomatis sesuai pengaturan Anda
+  let isGatewayAktif = typeof appSettings !== 'undefined' && (appSettings['wa_mode_otomatis'] === true || appSettings['wa_mode_otomatis'] === 'true' || appSettings['wa_mode_otomatis'] === 'Ya'); 
+  let noGrupTujuan = typeof appSettings !== 'undefined' ? appSettings['wa_group_jid'] : ""; 
 
-  // Fungsi pengeksekusi Share / Copy
-  const eksekusiShare = (blob) => {
-    // JIKA DI HP: Buka menu Share bawaan HP + Bawa Gambar
+  // JIKA SAKLAR GATEWAY AKTIF & NOMOR GRUP ADA
+  if (isGatewayAktif && noGrupTujuan) {
+    
+    // Tampilkan loading
+    Swal.fire({
+      title: 'Mengirim Pesan...',
+      text: 'Pesan sedang dikirim ke Grup WhatsApp warga di latar belakang.',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    // Panggil fungsi pengirim pesan Gateway di code.gs
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if(res.success) {
+           Swal.fire('Berhasil!', 'Pesan kajian telah terkirim otomatis ke Grup WhatsApp.', 'success');
+        } else {
+           Swal.fire('Gagal', res.message, 'error');
+        }
+      })
+      .withFailureHandler(function(err) {
+        Swal.fire('Error', "Koneksi ke server gagal: " + err.message, 'error');
+      })
+      .kirimPesanWaGateway(noGrupTujuan, text, p.gambar_url); // Sesuaikan dengan nama fungsi di code.gs Anda
+      
+    return; // Hentikan proses agar tidak buka WA manual
+  }
+
+  // =====================================================
+  // JIKA SAKLAR MATI (ATAU GRUP KOSONG): JALANKAN MODE MANUAL
+  // =====================================================
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  let waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+
+  const eksekusiShareManual = (blob) => {
+    // MODE HP
     if (isMobile && navigator.canShare) {
       let shareData = { title: p.tema, text: text };
       if (blob) {
@@ -10086,44 +10122,32 @@ function shareWaPengajian(id) {
       }
       navigator.share(shareData).catch(()=>{});
     } 
-    // JIKA DI LAPTOP/PC: Otomatis Copy Gambar ke Clipboard lalu Buka WA Web
+    // MODE LAPTOP/PC
     else {
       if (blob) {
         try {
           const item = new ClipboardItem({ [blob.type]: blob });
           navigator.clipboard.write([item]).then(() => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Siap Dikirim ke WA!',
-              html: 'Teks sudah diatur dan <b>Gambar Pamflet sudah di-Copy otomatis.</b><br><br>Klik tombol di bawah untuk membuka WhatsApp Web, lalu tekan <b>Paste (Ctrl + V)</b> di kolom chat untuk memunculkan gambar!',
-              confirmButtonText: '<i class="bi bi-whatsapp"></i> Buka WhatsApp Web',
-              confirmButtonColor: '#25D366'
-            }).then((res) => {
-              if (res.isConfirmed) window.open(waUrl, '_blank');
-            });
+            window.open(waUrl, '_blank');
           }).catch(err => {
-             // Jika browser menolak copy gambar, tetap buka WA dengan teks
              window.open(waUrl, '_blank');
           });
         } catch(e) {
           window.open(waUrl, '_blank');
         }
       } else {
-        // Jika tidak ada gambar, langsung buka WA
         window.open(waUrl, '_blank');
       }
     }
   };
 
-  // 3. Cek apakah ada gambar pamflet yang di-upload
   if (p.gambar_url && p.gambar_url.trim() !== '') {
-    // Ubah URL/Base64 gambar menjadi format Blob untuk di-copy/share
     fetch(p.gambar_url)
       .then(res => res.blob())
-      .then(blob => eksekusiShare(blob))
-      .catch(err => eksekusiShare(null)); // Jika gagal muat gambar, kirim teks saja
+      .then(blob => eksekusiShareManual(blob))
+      .catch(err => eksekusiShareManual(null));
   } else {
-    eksekusiShare(null);
+    eksekusiShareManual(null);
   }
 }
         
