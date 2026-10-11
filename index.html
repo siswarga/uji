@@ -9173,53 +9173,84 @@ async function apiGet(action, params = {}) {
         }
         
         // Fungsi Eksekusi Simpan Semua QRIS
-        function saveAllQris() {
-      const btn = document.getElementById('btn-save-qris');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-      }
+function saveAllQris() {
+  const btn = document.getElementById('btn-save-qris');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+  }
+
+  let qrisData = {};
+  let uploadPromises = [];
+
+  for(let i = 1; i <= 4; i++) {
+    // Siapkan wadah datanya
+    qrisData['qris_'+i] = {
+      nama: document.getElementById('qris_'+i+'_nama') ? document.getElementById('qris_'+i+'_nama').value : '',
+      wa: document.getElementById('qris_'+i+'_wa') ? document.getElementById('qris_'+i+'_wa').value : '',
+      base64: null // Gambar di-set kosong dulu
+    };
+
+    // PERBAIKAN: Cara benar membaca file gambar yang di-upload
+    let fileInput = document.getElementById('qris_'+i+'_file'); // Pastikan ID input file Anda adalah qris_1_file, qris_2_file, dst
     
-      let qrisData = {};
-      for(let i=1; i<=4; i++) {
-        qrisData['qris_'+i] = {
-          nama: document.getElementById('qris_'+i+'_nama') ? document.getElementById('qris_'+i+'_nama').value : '',
-          wa: document.getElementById('qris_'+i+'_wa') ? document.getElementById('qris_'+i+'_wa').value : '',
-          base64: document.getElementById('qris_'+i+'_base64') ? document.getElementById('qris_'+i+'_base64').value : ''
+    if (fileInput && fileInput.files.length > 0) {
+      let file = fileInput.files[0];
+      
+      // Buat proses pembacaan gambar (FileReader)
+      let promise = new Promise((resolve, reject) => {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          qrisData['qris_'+i].base64 = e.target.result; // Masukkan hasil bacaan ke data
+          resolve();
         };
-      }
-    
-      // Ambil status saklar mode WA otomatis di tab QRIS
-      let waModeVal = document.getElementById('set_wa_mode_otomatis') && document.getElementById('set_wa_mode_otomatis').checked ? 'Aktif' : 'Nonaktif';
-    
-      // 1. Simpan data gambar & nomor WA QRIS
-      google.script.run
-        .withSuccessHandler(res => {
-          // 2. Simpan status saklar ke database pengaturan
-          google.script.run.withSuccessHandler(() => {
-            if (btn) {
-              btn.disabled = false;
-              btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
-            }
-            Swal.fire({
-              icon: 'success', 
-              title: 'Berhasil', 
-              text: 'Pengaturan QRIS dan Mode WA Otomatis berhasil disimpan!', 
-              timer: 1500, 
-              showConfirmButton: false
-            });
-            if (typeof loadAppSettingsAndInit === 'function') loadAppSettingsAndInit();
-          }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), { 'wa_mode_otomatis': waModeVal });
-        })
-        .withFailureHandler(err => {
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      uploadPromises.push(promise);
+    }
+  }
+
+  // Ambil status saklar mode WA otomatis di tab QRIS
+  let waModeVal = document.getElementById('set_wa_mode_otomatis') && document.getElementById('set_wa_mode_otomatis').checked ? 'Aktif' : 'Nonaktif';
+
+  // TUNGGU SEMUA GAMBAR SELESAI DIBACA BROWSER, LALU KIRIM
+  Promise.all(uploadPromises).then(() => {
+    // 1. Simpan data gambar & nomor WA QRIS
+    google.script.run
+      .withSuccessHandler(res => {
+        // 2. Simpan status saklar ke database pengaturan
+        google.script.run.withSuccessHandler(() => {
           if (btn) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
           }
-          Swal.fire('Error', String(err), 'error');
-        })
-        .saveQrisSettings(localStorage.getItem('sigas_token'), qrisData);
+          Swal.fire({
+            icon: 'success', 
+            title: 'Berhasil', 
+            text: 'Pengaturan QRIS dan Mode WA Otomatis berhasil disimpan!', 
+            timer: 1500, 
+            showConfirmButton: false
+          });
+          if (typeof loadAppSettingsAndInit === 'function') loadAppSettingsAndInit();
+        }).updateAppSettingsBulk(localStorage.getItem('token') || localStorage.getItem('sigas_token'), { 'wa_mode_otomatis': waModeVal });
+      })
+      .withFailureHandler(err => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
+        }
+        Swal.fire('Error', String(err), 'error');
+      })
+      .saveQrisSettings(localStorage.getItem('token') || localStorage.getItem('sigas_token'), qrisData);
+  }).catch(err => {
+    if (btn) {
+       btn.disabled = false;
+       btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
     }
+    Swal.fire('Error', 'Gagal memproses gambar QRIS.', 'error');
+  });
+}
         
         function renderKonfirmasiKasWarga(pend) {
           const ar = document.getElementById('area-konfirmasi-warga');
