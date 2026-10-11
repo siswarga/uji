@@ -13809,6 +13809,66 @@ function loadPendingOrgKas() {
         // Ketika pengurus klik tombol "Setujui", panggil: approveOrgTransaction(orgType, rowIdx)
     }).getKasOrgData();
 }
+
+// Fungsi untuk menampilkan modal QRIS Organisasi (PKK / Karang Taruna)
+        function showQrisOrg(orgType) {
+            let title = orgType === 'PKK' ? 'QRIS 4 - Kas PKK' : 'QRIS 3 - Kas Karang Taruna';
+            let qrisImageSettingKey = orgType === 'PKK' ? 'qris_pkk_img' : 'qris_karta_img';
+            // Ambil gambar QRIS dari appSettings atau gunakan default qris umum
+            let qrisImgUrl = (typeof appSettings !== 'undefined' && appSettings[qrisImageSettingKey]) ? appSettings[qrisImageSettingKey] : (appSettings['qris_umum_img'] || '');
+
+            Swal.fire({
+                title: `<i class="fas fa-qrcode text-success me-2"></i>${title}`,
+                html: `
+                    <div class="text-center">
+                        ${qrisImgUrl ? `<img src="${qrisImgUrl}" class="img-fluid rounded mb-3 shadow-sm" style="max-height: 220px;" alt="QRIS">` : `<div class="alert alert-warning py-2 small">Gambar QRIS belum diatur di menu Pengaturan. Silakan scan atau transfer manual.</div>`}
+                        <p class="text-muted small mb-3">Silakan lakukan pembayaran/transfer melalui QRIS di atas, lalu isi formulir konfirmasi di bawah ini.</p>
+                        
+                        <div class="form-floating mb-2">
+                            <input type="number" class="form-control form-control-sm" id="qrisNominal" placeholder="Nominal">
+                            <label for="qrisNominal">Nominal Transfer (Rp)</label>
+                        </div>
+                        <div class="form-floating mb-2">
+                            <input type="text" class="form-control form-control-sm" id="qrisKeterangan" placeholder="Keterangan">
+                            <label for="qrisKeterangan">Keterangan / Nama Pembayar</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control form-control-sm" id="qrisWa" placeholder="No WhatsApp">
+                            <label for="qrisWa">No WhatsApp Konfirmasi</label>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Kirim Konfirmasi',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#198754',
+                preConfirm: () => {
+                    let nominal = document.getElementById('qrisNominal').value;
+                    let keterangan = document.getElementById('qrisKeterangan').value;
+                    let noWa = document.getElementById('qrisWa').value;
+                    if (!nominal || nominal <= 0) {
+                        Swal.showValidationMessage('Masukkan nominal transfer dengan benar!');
+                        return false;
+                    }
+                    return { nominal, keterangan, noWa };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    showLoading();
+                    google.script.run.withSuccessHandler(res => {
+                        hideLoading();
+                        if (res && res.success) {
+                            Swal.fire('Berhasil!', res.message, 'success');
+                        } else {
+                            Swal.fire('Gagal', res.message || 'Terjadi kesalahan sistem.', 'error');
+                        }
+                    }).withFailureHandler(err => {
+                        hideLoading();
+                        Swal.fire('Error', 'Gagal terhubung ke server: ' + err, 'error');
+                    }).submitQrisOrgPayment(orgType, result.value);
+                }
+            });
+        }
   </script>
   </body>
 </html>
