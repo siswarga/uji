@@ -10199,9 +10199,11 @@ function shareWaPengajian(id) {
   // =====================================================
   // CEK PENGATURAN WA GATEWAY (Mode Latar Belakang)
   // =====================================================
-  // PERBAIKAN: Menggunakan wa_mode_otomatis sesuai pengaturan Anda
-  let isGatewayAktif = typeof appSettings !== 'undefined' && (appSettings['wa_mode_otomatis'] === true || appSettings['wa_mode_otomatis'] === 'true' || appSettings['wa_mode_otomatis'] === 'Ya'); 
-  let noGrupTujuan = typeof appSettings !== 'undefined' ? appSettings['wa_group_jid'] : ""; 
+  let rawMode = appSettings['wa_mode_otomatis'] || '';
+  let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
+  
+  // Deteksi berbagai kemungkinan nama kunci JID grup di appSettings
+  let noGrupTujuan = appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'] || '6287834250249-1630667600@g.us'; 
 
   // JIKA SAKLAR GATEWAY AKTIF & NOMOR GRUP ADA
   if (isGatewayAktif && noGrupTujuan) {
@@ -10209,7 +10211,7 @@ function shareWaPengajian(id) {
     // Tampilkan loading
     Swal.fire({
       title: 'Mengirim Pesan...',
-      text: 'Pesan sedang dikirim ke Grup WhatsApp warga di latar belakang.',
+      text: 'Pesan kajian sedang dikirim ke Grup WhatsApp warga di latar belakang.',
       allowOutsideClick: false,
       didOpen: () => { Swal.showLoading(); }
     });
@@ -10217,14 +10219,14 @@ function shareWaPengajian(id) {
     // Panggil fungsi pengirim pesan Gateway di code.gs
     google.script.run
       .withSuccessHandler(function(res) {
-        if(res.success) {
+        if(res && res.success) {
            Swal.fire('Berhasil!', 'Pesan kajian telah terkirim otomatis ke Grup WhatsApp.', 'success');
         } else {
-           Swal.fire('Gagal', res.message, 'error');
+           Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
         }
       })
       .withFailureHandler(function(err) {
-        Swal.fire('Error', "Koneksi ke server gagal: " + err.message, 'error');
+        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
       })
       .sendWhatsAppMessage(noGrupTujuan, text, p.gambar_url);
       
