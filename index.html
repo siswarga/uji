@@ -7420,29 +7420,80 @@ async function apiGet(action, params = {}) {
         }
         
         function kirimWaRonda(tanggal, namaList) {
-        // Mengambil Nama Komplek dari pengaturan, jika kosong gunakan default 'Lingkungan Kita'
-        let namaKomplek = appSettings['nama_komplek'] || 'Lingkungan Kita';
-        let namaApp = appSettings['nama_aplikasi'] || 'SI-GAS';
-    
-        // Mengolah daftar nama agar tampil rapi ke bawah (mengubah koma menjadi format list)
-        let daftarNamaRapi = namaList.split(',').map(nama => `• ${nama.trim()}`).join('\n');
-    
-        // Template Pesan WA Sesuai Permintaan
-        let text = `Assalamualaikum, Ronda Malam Jaga *${namaKomplek}*, Jaga Keluarga, Jaga Kebersamaan!\n\n` +
-                   `*Jadwal Ronda: ${tanggal}*\n\n` +
-                   `*Petugas Jaga:*\n${daftarNamaRapi}\n\n` +
+    let rawMode = appSettings['wa_mode_otomatis'];
+    let isGatewayAktif = String(rawMode || '').toLowerCase().trim() === 'aktif';
+
+    let namaKomplek = appSettings['nama_komplek'] || 'Lingkungan Kita';
+    let namaApp = appSettings['nama_aplikasi'] || 'SI-GAS';
+    let daftarNamaRapi = namaList.split(',').map(nama => `• ${nama.trim()}`).join('\n');
+
+    // Teks untuk Grup WA
+    let textGrup = `Assalamualaikum, Ronda Malam Jaga *${namaKomplek}*, Jaga Keluarga, Jaga Kebersamaan!\n\n` +
+                   `*Jadwal Ronda: ${tanggal}*\n\n*Petugas Jaga:*\n${daftarNamaRapi}\n\n` +
                    `Keamanan *${namaKomplek}* adalah tanggung jawab kita bersama, bukan hanya tugas sebagian orang! Lingkungan yang aman lahir dari kepedulian yang nyata. Mari hadir di pos ronda demi ketenteraman bersama.\n\n` +
                    `_Pesan otomatis dari Aplikasi ${namaApp}_`;
-    
-        // Membuka WhatsApp Web / App
-        let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
-    
-        // Update status di server
+
+    if (isGatewayAktif) {
+        // TAMPILKAN PILIHAN JIKA GATEWAY AKTIF
+        Swal.fire({
+            title: 'Tujuan Pengingat Ronda',
+            text: `Jadwal: ${tanggal}`,
+            icon: 'question',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-users"></i> Ke Grup WA',
+            denyButtonText: '<i class="fas fa-user"></i> Japri Petugas',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#198754',
+            denyButtonColor: '#0d6efd'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                eksekusiKirimServer('grup', textGrup);
+            } else if (result.isDenied) {
+                eksekusiKirimServer('personal', ''); // Teks personal dirakit di backend agar bisa menyebut nama masing-masing
+            }
+        });
+    } else {
+        // JIKA SAKLAR MATI, HANYA BISA BUKA TAB WA (Default ke Grup)
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textGrup)}`, '_blank');
+        updateStatusServer();
+    }
+
+    // --- Fungsi Bantuan untuk Menghubungi Backend ---
+    function eksekusiKirimServer(mode, textBroadcast) {
+        Swal.fire({title: 'Memproses...', text: 'Mengirim pesan WA...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+        
+        let token = localStorage.getItem('sigas_token') || localStorage.getItem('token');
+        let payload = {
+            tanggal: tanggal,
+            namaList: namaList,
+            mode: mode,
+            textGrup: textBroadcast,
+            grupJid: appSettings['wa_group_jid'] || '',
+            namaKomplek: namaKomplek,
+            namaApp: namaApp
+        };
+
+        google.script.run
+            .withSuccessHandler(res => {
+                if (res.success) {
+                    Swal.fire('Berhasil!', `Pengingat ronda mode ${mode === 'grup' ? 'Grup' : 'Japri'} terkirim.`, 'success');
+                    updateStatusServer();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            })
+            .withFailureHandler(err => Swal.fire('Error', String(err), 'error'))
+            .prosesKirimRondaOtomatis(token, payload); // Memanggil fungsi baru di code.gs
+    }
+
+    function updateStatusServer() {
+        let token = localStorage.getItem('sigas_token') || localStorage.getItem('token');
         google.script.run.withSuccessHandler(res => { 
-            if(res.success) loadDataRonda(); 
-        }).updateNotifRondaTerkirim(localStorage.getItem('sigas_token'), tanggal);
-    	}
+            if(res.success && typeof loadDataRonda === 'function') loadDataRonda(); 
+        }).updateNotifRondaTerkirim(token, tanggal);
+    }
+}
         
         function openModalEditRonda(id) {
            const p = window.dataRondaGlobal.find(x => x.id === id); if(!p) return;
