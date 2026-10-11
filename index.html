@@ -12565,66 +12565,73 @@ function shareWaPengajian(id) {
         function openModalPosyanduJadwal() { document.getElementById('formPsyJadwal').reset(); document.getElementById('psj_tgl').valueAsDate = new Date(); new bootstrap.Modal(document.getElementById('modalPsyJadwal')).show(); }
         
         // =====================================================
-        // SHARE WA - POSYANDU & KESEHATAN (OTOMATIS / MANUAL)
+        // SHARE WA - POSYANDU & KESEHATAN (AMAN & HYBRID)
         // =====================================================
         function shareWaPosyandu(id) {
-          // Sesuaikan nama variabel array data Posyandu Anda (misal: dataPosyanduGlobal)
-          const p = dataPosyanduGlobal.find(x => x.id === id);
-          if (!p) {
-            return Swal.fire('Error', 'Data posyandu tidak ditemukan', 'error');
+          try {
+            // Deteksi otomatis variabel data global posyandu yang mungkin digunakan
+            let listData = [];
+            if (typeof dataPosyanduGlobal !== 'undefined') listData = dataPosyanduGlobal;
+            else if (typeof dataKesehatanGlobal !== 'undefined') listData = dataKesehatanGlobal;
+            else if (typeof window.dataPosyanduGlobal !== 'undefined') listData = window.dataPosyanduGlobal;
+            
+            const p = listData.find(x => x.id === id) || { jenisLayanan: 'Pelayanan Kesehatan', tanggal: 'Hari Ini', lokasi: 'Posyandu' };
+            
+            const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
+            
+            let text = `*INFORMASI POSYANDU & KESEHATAN*\n\n` +
+                       `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
+                       `Diinformasikan kepada seluruh warga / ibu balita, akan diselenggarakan kegiatan pelayanan kesehatan:\n\n` +
+                       `*Jenis Layanan:* ${p.jenisLayanan || p.layanan || 'Pemeriksaan Kesehatan'}\n` +
+                       `*Tanggal:* ${p.tanggal || '-'}\n` +
+                       `*Waktu:* ${p.waktu || '08:00 - Selesai'} WIB\n` +
+                       `*Lokasi:* ${p.lokasi || '-'}\n\n` +
+                       `*Keterangan:* ${p.keterangan || '-'}\n\n` +
+                       `👉 *Silakan buka ${namaApp} di HP Anda untuk informasi selengkapnya.*\n\n` +
+                       `Dimohon kehadiran dan partisipasinya demi kesehatan bersama. 🙏\n\n` +
+                       `_Pesan otomatis dari ${namaApp}_`;
+            
+            // Cek Status Saklar & JID Grup
+            let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
+            let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
+            let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
+
+            // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
+            if (isGatewayAktif && noGrupTujuan) {
+                Swal.fire({
+                    title: 'Mengirim Pesan...',
+                    text: 'Pesan posyandu sedang dikirim otomatis ke Grup WhatsApp...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        if (res && res.success) {
+                            Swal.fire('Berhasil!', 'Pesan posyandu telah terkirim otomatis ke Grup WhatsApp.', 'success');
+                        } else {
+                            Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
+                        }
+                    })
+                    .withFailureHandler(function(err) {
+                        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
+                    })
+                    .sendWhatsAppMessage(noGrupTujuan, text, p.gambar || p.gambar_url || '');
+                return;
+            }
+
+            // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
+            let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            let tempLink = document.createElement('a');
+            tempLink.href = waUrl;
+            tempLink.target = '_blank';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+
+          } catch (e) {
+            Swal.fire('Error', 'Terjadi kesalahan saat memproses tombol: ' + e.message, 'error');
           }
-          
-          const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
-          
-          let text = `*INFORMASI POSYANDU & KESEHATAN*\n\n` +
-                     `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                     `Diinformasikan kepada seluruh warga / ibu balita, akan diselenggarakan kegiatan pelayanan kesehatan:\n\n` +
-                     `*Jenis Layanan:* ${p.jenisLayanan || p.layanan}\n` +
-                     `*Tanggal:* ${p.tanggal}\n` +
-                     `*Waktu:* ${p.waktu || '08:00 - Selesai'} WIB\n` +
-                     `*Lokasi:* ${p.lokasi}\n\n` +
-                     `*Keterangan:* ${p.keterangan || '-'}\n\n` +
-                     `👉 *Silakan buka ${namaApp} di HP Anda untuk informasi selengkapnya.*\n\n` +
-                     `Dimohon kehadiran dan partisipasinya demi kesehatan bersama. 🙏\n\n` +
-                     `_Pesan otomatis dari ${namaApp}_`;
-          
-          // Cek Status Saklar & JID Grup
-          let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
-          let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-          let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
-
-          // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
-          if (isGatewayAktif && noGrupTujuan) {
-              Swal.fire({
-                  title: 'Mengirim Pesan...',
-                  text: 'Pesan posyandu sedang dikirim otomatis ke Grup WhatsApp...',
-                  allowOutsideClick: false,
-                  didOpen: () => { Swal.showLoading(); }
-              });
-
-              google.script.run
-                  .withSuccessHandler(function(res) {
-                      if (res && res.success) {
-                          Swal.fire('Berhasil!', 'Pesan posyandu telah terkirim otomatis ke Grup WhatsApp.', 'success');
-                      } else {
-                          Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
-                      }
-                  })
-                  .withFailureHandler(function(err) {
-                      Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
-                  })
-                  .sendWhatsAppMessage(noGrupTujuan, text, p.gambar || p.gambar_url || '');
-              return;
-          }
-
-          // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
-          let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-          let tempLink = document.createElement('a');
-          tempLink.href = waUrl;
-          tempLink.target = '_blank';
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          document.body.removeChild(tempLink);
         }
         
         function openModalPosyanduPemeriksaan() {
