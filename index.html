@@ -12745,16 +12745,76 @@ function shareWaPengajian(id) {
         });
         }
         
+        // =====================================================
+        // SHARE WA - AGENDA PKK (AMAN & HYBRID)
+        // =====================================================
         function shareWaPkk(id) {
-        const k = dataPkkGlobal.kegiatan.find(x => x.id === id);
-        if (!k) return Swal.fire('Error', 'Agenda tidak ditemukan', 'error');
-        
-        // Tarik nama aplikasi dinamis
-        let namaApp = appSettings['nama_aplikasi'] || 'SI-GAS';
-        
-        let text = `*AGENDA KEGIATAN IBU-IBU PKK*\n\nAssalamualaikum Ibu-ibu,\nDiinformasikan agenda kegiatan PKK:\n\n*Agenda:* ${k.nama}\n*Tanggal:* ${k.tanggal}\n*Waktu:* ${k.waktu} WIB\n*Lokasi:* ${k.lokasi}\n\nKehadiran Ibu-ibu sangat dinantikan. Terima kasih 🙏\n\n_Pesan otomatis dari Aplikasi ${namaApp}_`;
-        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-    }
+          try {
+            let p = {};
+            try {
+              let listData = window.dataPkkGlobal || dataPkkGlobal || window.agendaPkkGlobal || [];
+              if (Array.isArray(listData)) {
+                p = listData.find(x => x.id === id) || {};
+              }
+            } catch (err) {
+              p = {};
+            }
+
+            const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
+            
+            let text = `*INFORMASI AGENDA PKK*\n\n` +
+                       `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
+                       `Diinformasikan kepada seluruh warga / pengurus PKK, akan diselenggarakan kegiatan:\n\n` +
+                       `*Nama Kegiatan:* ${p.namaKegiatan || p.agenda || 'Penyuluhan Warga'}\n` +
+                       `*Tanggal & Waktu:* ${p.tanggal || 'Hari Ini'} ${p.waktu || ''}\n` +
+                       `*Lokasi:* ${p.lokasi || 'Balai Warga'}\n` +
+                       `*Anggaran:* ${p.anggaran || '-'}\n\n` +
+                       `👉 *Silakan buka ${namaApp} di HP Anda untuk informasi selengkapnya.*\n\n` +
+                       `Demikian disampaikan, terima kasih atas perhatian dan partisipasinya. 🙏\n\n` +
+                       `_Pesan otomatis dari ${namaApp}_`;
+            
+            // Cek Status Saklar & JID Grup
+            let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
+            let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
+            let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
+
+            // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
+            if (isGatewayAktif && noGrupTujuan) {
+                Swal.fire({
+                    title: 'Mengirim Pesan...',
+                    text: 'Pesan agenda PKK sedang dikirim otomatis ke Grup WhatsApp...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        if (res && res.success) {
+                            Swal.fire('Berhasil!', 'Pesan agenda PKK telah terkirim otomatis ke Grup WhatsApp.', 'success');
+                        } else {
+                            Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
+                        }
+                    })
+                    .withFailureHandler(function(err) {
+                        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
+                    })
+                    .sendWhatsAppMessage(noGrupTujuan, text, p.gambar || p.gambar_url || '');
+                return;
+            }
+
+            // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
+            let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            let tempLink = document.createElement('a');
+            tempLink.href = waUrl;
+            tempLink.target = '_blank';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+
+          } catch (e) {
+            Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
+          }
+        }
         
         function renderTablePkkDasawisma() {
         let tb = document.getElementById('tbody-pkk-dasawisma');
