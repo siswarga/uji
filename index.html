@@ -10814,29 +10814,66 @@ function shareWaPengajian(id) {
           }).savePemudikMandiri(p);
         }
         
-        // Fungsi Broadcast Pesan Lapor Mudik ke WhatsApp Group / Warga
+        // =====================================================
+        // BROADCAST WA - PESAN LAPOR MUDIK (AMAN & HYBRID)
+        // =====================================================
         function shareWaBroadcastPemudik() {
-      let namaKomplek = getSetting('nama_komplek', 'Warga Komplek');
-      let namaApp = getSetting('nama_aplikasi', 'SI-GAS');
-      
-      let text = "*HIMBAUAN KEAMANAN & PELAPORAN RUMAH KOSONG (MUDIK)*\n\n" +
-                 "Assalamualaikum Warahmatullahi Wabarakatuh,\n\n" +
-                 "Kepada seluruh warga *" + namaKomplek + "* yang berencana melaksanakan mudik/pulang kampung:\n\n" +
-                 "Demi keamanan dan ketertiban lingkungan bersama, mohon bagi warga yang akan meninggalkan rumah untuk:\n" +
-                 "1. Memeriksa kembali kompor, aliran listrik, dan mengunci pintu/jendela dengan rapat.\n" +
-                 "2. Melaporkan rencana mudik Anda agar keamanan/petugas ronda dapat meningkatkan patroli di sekitar rumah Anda.\n\n" +
-                 "Silakan buka Aplikasi Portal Warga (" + namaApp + ") di HP Anda, lalu pilih menu Lapor Mudik untuk mengisi formulir pendataan rumah kosong.\n\n" +
-                 "Mari kita saling jaga keamanan lingkungan kita. Selamat mudik, semoga selamat sampai tujuan dan kembali dalam keadaan sehat walafiat. Aamiin.\n\n" +
-                 "_Pesan otomatis dari Sistem Informasi " + namaApp + "_";
-    
-      let waUrl = "https://wa.me/?text=" + encodeURIComponent(text);
-      let tempLink = document.createElement('a');
-      tempLink.href = waUrl;
-      tempLink.target = '_blank';
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      document.body.removeChild(tempLink);
-    }
+          try {
+            let namaKomplek = (typeof getSetting === 'function' ? getSetting('nama_komplek', 'Warga Komplek') : 'Warga Komplek');
+            let namaApp = (typeof getSetting === 'function' ? getSetting('nama_aplikasi', 'SI-GAS') : 'SI-GAS');
+            
+            let text = "*HIMBAUAN KEAMANAN & PELAPORAN RUMAH KOSONG (MUDIK)*\n\n" +
+                       "Assalamualaikum Warahmatullahi Wabarakatuh,\n\n" +
+                       "Kepada seluruh warga *" + namaKomplek + "* yang berencana melaksanakan mudik/pulang kampung:\n\n" +
+                       "Demi keamanan dan ketertiban lingkungan bersama, mohon bagi warga yang akan meninggalkan rumah untuk:\n" +
+                       "1. Memeriksa kembali kompor, aliran listrik, dan mengunci pintu/jendela dengan rapat.\n" +
+                       "2. Melaporkan rencana mudik Anda agar keamanan/petugas ronda dapat meningkatkan patroli di sekitar rumah Anda.\n\n" +
+                       "Silakan buka Aplikasi Portal Warga (" + namaApp + ") di HP Anda, lalu pilih menu Lapor Mudik untuk mengisi formulir pendataan rumah kosong.\n\n" +
+                       "Mari kita saling jaga keamanan lingkungan kita. Selamat mudik, semoga selamat sampai tujuan dan kembali dalam keadaan sehat walafiat. Aamiin.\n\n" +
+                       "_Pesan otomatis dari Sistem Informasi " + namaApp + "_";
+            
+            // Cek Status Saklar & JID Grup
+            let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
+            let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
+            let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
+
+            // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
+            if (isGatewayAktif && noGrupTujuan) {
+                Swal.fire({
+                    title: 'Mengirim Broadcast...',
+                    text: 'Pesan himbauan mudik sedang dikirim otomatis ke Grup WhatsApp...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        if (res && res.success) {
+                            Swal.fire('Berhasil!', 'Broadcast himbauan mudik telah terkirim otomatis ke Grup WhatsApp.', 'success');
+                        } else {
+                            Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
+                        }
+                    })
+                    .withFailureHandler(function(err) {
+                        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
+                    })
+                    .sendWhatsAppMessage(noGrupTujuan, text, null);
+                return;
+            }
+
+            // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
+            let waUrl = "https://wa.me/?text=" + encodeURIComponent(text);
+            let tempLink = document.createElement('a');
+            tempLink.href = waUrl;
+            tempLink.target = '_blank';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+
+          } catch (e) {
+            Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
+          }
+        }
         
         
         let activeQrisIndex = 1;
