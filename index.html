@@ -6728,64 +6728,21 @@ async function apiGet(action, params = {}) {
               document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
             
               if(pubChartJkInstance) pubChartJkInstance.destroy(); 
-              if(pubChartUsiaInstance) pubChartUsiaInstance.destroy(); 
               
-              // 1. Grafik Donat Jenis Kelamin
+              // 1. Grafik Donat Jenis Kelamin (Bulat) di Kolom Kiri
               pubChartJkInstance = new Chart(document.getElementById('pubChartJk'),{
                   type:'doughnut',
-                  data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[d.warga.lakiLaki, d.warga.perempuan],backgroundColor:['#198754','#ffc107']}]},
+                  data:{
+                      labels:['Laki-laki','Perempuan'],
+                      datasets:[{
+                          data:[d.warga.lakiLaki, d.warga.perempuan],
+                          backgroundColor:['#198754','#ffc107']
+                      }]
+                  },
                   options:{responsive:true,maintainAspectRatio:false}
               }); 
-              
-              // 2. Grafik Rentang Usia & Gender (Stacked Bar - Memanjang ke Atas)
-              pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'), {
-                  type: 'bar',
-                  data: {
-                      labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
-                      datasets: [
-                          {
-                              label: 'Laki-laki',
-                              data: [
-                                  d.warga.usia.balita.l, 
-                                  d.warga.usia.anak.l, 
-                                  d.warga.usia.remaja.l, 
-                                  d.warga.usia.dewasa.l, 
-                                  d.warga.usia.lansia.l
-                              ],
-                              backgroundColor: '#198754', // Hijau
-                              borderRadius: 4
-                          },
-                          {
-                              label: 'Perempuan',
-                              data: [
-                                  d.warga.usia.balita.p, 
-                                  d.warga.usia.anak.p, 
-                                  d.warga.usia.remaja.p, 
-                                  d.warga.usia.dewasa.p, 
-                                  d.warga.usia.lansia.p
-                              ],
-                              backgroundColor: '#ffc107', // Kuning
-                              borderRadius: 4
-                          }
-                      ]
-                  },
-                  options: {
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                          legend: {
-                              position: 'bottom',
-                              labels: { boxWidth: 12, font: { size: 11 } }
-                          }
-                      },
-                      scales: {
-                          x: { stacked: true, grid: { display: false } },
-                          y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
-                      }
-                  }
-              });
             
-              // 3. Binding Kas PKK & Karang Taruna ke Kotak Kanan
+              // 2. Binding Data Kas PKK & Karang Taruna ke Kolom Kanan
               if (d.kasOrganisasi) {
                   if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
                   if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
