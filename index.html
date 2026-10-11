@@ -8579,35 +8579,48 @@ async function apiGet(action, params = {}) {
     }
         
         function saveSettingUmum(e) { 
-          e.preventDefault(); 
-          const p = {
-            'iuran_warga': document.getElementById('set_iuran_warga').value, 
-            'denda_ronda': document.getElementById('set_denda_ronda').value, 
-            'jenis_permohonan': document.getElementById('set_jenis_permohonan').value,
-            'cctv_1_nama': document.getElementById('set_cctv_1_nama').value,
-            'cctv_1_url': document.getElementById('set_cctv_1_url').value,
-            'cctv_2_nama': document.getElementById('set_cctv_2_nama').value,
-            'cctv_2_url': document.getElementById('set_cctv_2_url').value,
-            'running_text': document.getElementById('set_running_text').value,
-            'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value,
-            'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value,
-            'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value,
-            'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value 
-          };
-          
-          const btnSave = document.getElementById('btn-save-setting');
-          if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
-          
-          google.script.run.withSuccessHandler(res => {
-            if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan'; }
-            if (res.success) {
-              Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
-              Object.assign(appSettings, p); 
-            } else {
-              Swal.fire('Gagal', res.message, 'error');
-            }
-          }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), p); 
-        }
+  e.preventDefault(); 
+  
+  // Fungsi kecil pembantu: pastikan angka tidak menghilang jika diisi 0
+  const getVal = (id) => {
+    let el = document.getElementById(id);
+    if (!el) return "";
+    let val = el.value.trim();
+    // Jika value sama dengan "0", kembalikan "0" (jangan biarkan dianggap kosong)
+    if (val === "0") return "0"; 
+    // Jika value benar-benar kosong, kembalikan string kosong
+    if (val === "") return "";
+    return val;
+  };
+
+  const p = {
+    'iuran_warga': getVal('set_iuran_warga'), 
+    'denda_ronda': getVal('set_denda_ronda'), 
+    'jenis_permohonan': getVal('set_jenis_permohonan'),
+    'cctv_1_nama': getVal('set_cctv_1_nama'),
+    'cctv_1_url': getVal('set_cctv_1_url'),
+    'cctv_2_nama': getVal('set_cctv_2_nama'),
+    'cctv_2_url': getVal('set_cctv_2_url'),
+    'running_text': getVal('set_running_text'),
+    'ronda_reminder_time': getVal('set_ronda_reminder_time'),
+    'ronda_reminder_mode': getVal('set_ronda_reminder_mode'),
+    'arrears_reminder_date': getVal('set_arrears_reminder_date'),
+    'arrears_reminder_time': getVal('set_arrears_reminder_time') 
+  };
+  
+  const btnSave = document.getElementById('btn-save-setting');
+  if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
+  
+  google.script.run.withSuccessHandler(res => {
+    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan'; }
+    if (res.success) {
+      Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
+      Object.assign(appSettings, p); 
+    } else {
+      Swal.fire('Gagal', res.message, 'error');
+    }
+  }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), p); 
+}
         
         // --- FUNGSI LOAD & SAVE SUPERADMIN ---
         function loadDataSuperadmin() {
