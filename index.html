@@ -6713,359 +6713,155 @@ async function apiGet(action, params = {}) {
             sidebar.classList.toggle('active');
         }
         
-        // =====================================================
-// DASHBOARD (VERSI PERBAIKAN PARSER TANGGAL & KAS ORGANISASI)
-// =====================================================
-function getPublicDashboardData() {
-  try {
-    autoDeleteJadwalRonda();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const tz = Session.getScriptTimeZone();
-    const today = new Date();
-
-    function getCleanData(sheetName) {
-      const sheet = ss.getSheetByName(sheetName);
-      if (!sheet) return [];
-      const lastRow = sheet.getLastRow();
-      const lastCol = sheet.getLastColumn();
-      if (lastRow <= 1 || lastCol === 0) return [];
-      return sheet.getRange(1, 1, lastRow, lastCol).getValues();
-    }
-
-    // -- STATISTIK WARGA (BERBASIS HEADER KOLOM) --
-    const dWarga = getCleanData(SHEETS.WARGA);
-    let statsW = { 
-      totalWarga: 0, 
-      lakiLaki: 0, 
-      perempuan: 0, 
-      domisiliKtp: 0, 
-      nonDomisili: 0, 
-      kontrak: 0, 
-      kepalaKeluarga: 0, 
-      usia: { 
-        balita: { l: 0, p: 0 }, 
-        anak: { l: 0, p: 0 }, 
-        remaja: { l: 0, p: 0 }, 
-        dewasa: { l: 0, p: 0 }, 
-        lansia: { l: 0, p: 0 } 
-      } 
-    };
-    let kkAktif = [];
-    
-    if (dWarga.length > 1) {
-      let headers = dWarga[0].map(h => String(h).trim());
-      let idxNik = headers.indexOf('NIK');
-      let idxJk = headers.indexOf('Jenis Kelamin');
-      let idxTglLahir = headers.indexOf('Tanggal Lahir');
-      let idxStatusTinggal = headers.indexOf('Status Tinggal');
-      let idxStatusKeluarga = headers.indexOf('Status Keluarga'); // Atau Status Hubungan Keluarga
-      let idxStatusAktif = headers.indexOf('Status Warga'); // Sesuaikan jika ada kolom status aktif
-
-      for (let i = 1; i < dWarga.length; i++) {
-        let r = dWarga[i];
-        if (idxNik !== -1 && !r[idxNik]) continue; // Lewati jika baris kosong
-
-        // Jika kolom Status Aktif ada, pastikan statusnya Aktif (jika tidak ada kolomnya, abaikan pengecekan ini)
-        if (idxStatusAktif !== -1 && String(r[idxStatusAktif]).trim() !== 'Aktif') continue;
-        
-        statsW.totalWarga++;
-        let jenisKelamin = idxJk !== -1 ? String(r[idxJk]).trim() : "";
-        if (jenisKelamin === 'Laki-laki') statsW.lakiLaki++;
-        if (jenisKelamin === 'Perempuan') statsW.perempuan++;
-
-        // KLASIFIKASI KEPALA KELUARGA
-        let statusKeluarga = idxStatusKeluarga !== -1 ? String(r[idxStatusKeluarga]).trim() : "";
-        if (statusKeluarga.includes('Kepala Keluarga')) {
-          statsW.kepalaKeluarga++;
-          // Ambil nama dari kolom Nama (misal indeks 1 atau cari header 'Nama')
-          let idxNama = headers.indexOf('Nama');
-          let namaWarga = idxNama !== -1 ? String(r[idxNama] || "").trim() : String(r[1] || "").trim();
-          let idxWa = headers.indexOf('No Handphone');
-          let noWaWarga = idxWa !== -1 ? String(r[idxWa] || "").trim() : "";
-          
-          kkAktif.push({ nama: namaWarga, wa: noWaWarga });
-
-          let statusTinggal = idxStatusTinggal !== -1 ? String(r[idxStatusTinggal]).trim() : "";
-          let idxAlamatKtp = headers.indexOf('Alamat KTP');
-          let idxAlamatTinggal = headers.indexOf('Alamat Tinggal');
-          let alamatKtp = idxAlamatKtp !== -1 ? String(r[idxAlamatKtp] || "").trim() : "";
-          let alamatTinggal = idxAlamatTinggal !== -1 ? String(r[idxAlamatTinggal] || "").trim() : "";
-
-          if (statusTinggal === 'Kontrak') {
-            statsW.kontrak++;
-          } else {
-            if (alamatKtp && alamatTinggal && alamatKtp !== alamatTinggal) {
-              statsW.nonDomisili++;
-            } else {
-              statsW.domisiliKtp++;
-            }
-          }
-        }
-        
-        // HITUNG USIA & GENDER BERDASARKAN TANGGAL LAHIR (FORMAT YYYY-MM-DD)
-        let tl = idxTglLahir !== -1 ? r[idxTglLahir] : null;
-        let birthDate = null;
-        if (tl instanceof Date) {
-            birthDate = tl;
-        } else if (typeof tl === 'string' && tl.trim() !== '') {
-            birthDate = new Date(tl.trim());
-        }
-        
-        if (birthDate && !isNaN(birthDate.getTime())) {
-          let age = today.getFullYear() - birthDate.getFullYear();
-          let m = today.getMonth() - birthDate.getMonth();
-          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-
-          let isLaki = (jenisKelamin === 'Laki-laki');
-
-          if (age <= 5) {
-            if (isLaki) statsW.usia.balita.l++; else statsW.usia.balita.p++;
-          } else if (age <= 12) {
-            if (isLaki) statsW.usia.anak.l++; else statsW.usia.anak.p++;
-          } else if (age <= 17) {
-            if (isLaki) statsW.usia.remaja.l++; else statsW.usia.remaja.p++;
-          } else if (age <= 59) {
-            if (isLaki) statsW.usia.dewasa.l++; else statsW.usia.dewasa.p++;
-          } else {
-            if (isLaki) statsW.usia.lansia.l++; else statsW.usia.lansia.p++;
-          }
-        }
-      }
-    }
-
-    // -- KAS WARGA --
-    const dKasW = getCleanData(SHEETS.KAS_WARGA);
-    let kwInUmum = 0, kwOutUmum = 0, kwInJimpitan = 0, kwOutJimpitan = 0;
-    let currBln = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][today.getMonth()];
-    let currThn = today.getFullYear();
-    let kkBayar = [];
-    let nunggak = 0;
-    let listTunggakan = [];
-
-    if (dKasW.length > 0) {
-        let headerKasWarga = dKasW[0];
-        let statusIndex = headerKasWarga.indexOf('Status');
-        let kategoriIndex = headerKasWarga.indexOf('Kategori');
-        let asalDanaIndex = headerKasWarga.indexOf('Asal Dana');
-        let nominalIndex = headerKasWarga.indexOf('Nominal');
-        let jenisIndex = headerKasWarga.indexOf('Jenis Transaksi');
-        let thnIndex = headerKasWarga.indexOf('Tahun');
-        let blnIndex = headerKasWarga.indexOf('Bulan Pembayaran');
-        let kkIndex = headerKasWarga.indexOf('Nama Kepala Keluarga');
-
-        for (let i = 1; i < dKasW.length; i++) {
-          let row = dKasW[i];
-          let n = parseFloat(row[nominalIndex]) || 0;
-          let kategori = kategoriIndex >= 0 ? String(row[kategoriIndex] || "").trim() : "";
-          let asalDana = asalDanaIndex >= 0 ? String(row[asalDanaIndex] || "").trim() : "";
-          let statusTrx = statusIndex >= 0 ? String(row[statusIndex] || "").trim() : "";
-          let jenisTrx = jenisIndex >= 0 ? String(row[jenisIndex] || "").trim() : "";
-          let thnTrx = thnIndex >= 0 ? String(row[thnIndex]).trim() : "";
-          let blnTrx = blnIndex >= 0 ? String(row[blnIndex]).trim() : "";
-          let namaKKTrx = kkIndex >= 0 ? String(row[kkIndex]).trim() : "";
-
-          if (statusTrx === 'Selesai') {
-            if (jenisTrx === 'Kas Masuk') {
-              if (kategori === 'Jimpitan') kwInJimpitan += n;
-              else kwInUmum += n;
-            } else if (jenisTrx === 'Kas Keluar') {
-              if (asalDana === 'Jimpitan') kwOutJimpitan += n;
-              else kwOutUmum += n;
-            }
-          }
-          
-          if (kategori === 'Iuran Warga' && thnTrx == String(currThn) && blnTrx.includes(currBln) && statusTrx === 'Selesai') {
-            kkBayar.push(namaKKTrx);
-          }
-        }
-    }
-    
-    kkAktif.forEach(kkObj => {
-      if (!kkBayar.includes(kkObj.nama)) {
-        nunggak++;
-        listTunggakan.push(kkObj);
-      }
-    });
-
-    // -- KAS MASJID --
-    const dKasM = getCleanData(SHEETS.KAS_MASJID);
-    let kmIn = 0, kmOut = 0;
-    if (dKasM.length > 0) {
-        let headerM = dKasM[0];
-        let nomIdxM = headerM.indexOf('Nominal');
-        let statIdxM = headerM.indexOf('Status');
-        let jenisIdxM = headerM.indexOf('Jenis Transaksi');
-        
-        if (nomIdxM !== -1 && statIdxM !== -1 && jenisIdxM !== -1) {
-            for (let i = 1; i < dKasM.length; i++) {
-              let n = parseFloat(dKasM[i][nomIdxM]) || 0;
-              let s = String(dKasM[i][statIdxM]).trim();
-              let j = String(dKasM[i][jenisIdxM]).trim();
-              if (s === 'Selesai') {
-                if (j === 'Kas Masuk') kmIn += n;
-                if (j === 'Kas Keluar') kmOut += n;
+        function loadPublicData() {
+          showLoading();
+          google.script.run.withSuccessHandler(res => {
+            hideLoading();
+            if (res && res.success) {
+              let d = res.data;
+              
+              document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
+              document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
+              document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
+              document.getElementById('pub-totK').innerText = d.warga.kontrak;
+              document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
+              document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
+            
+              if(pubChartJkInstance) pubChartJkInstance.destroy(); 
+              
+              // 1. Grafik Donat Jenis Kelamin (Bulat) di Kolom Kiri
+              // Grafik Batang Bersebelahan (Grouped Bar) Usia & Gender di Kolom Kiri
+              pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'), {
+                  type: 'bar',
+                  data: {
+                      labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
+                      datasets: [
+                          {
+                              label: 'Laki-laki',
+                              data: [
+                                  d.warga.usia.balita.l, 
+                                  d.warga.usia.anak.l, 
+                                  d.warga.usia.remaja.l, 
+                                  d.warga.usia.dewasa.l, 
+                                  d.warga.usia.lansia.l
+                              ],
+                              backgroundColor: '#198754', // Hijau
+                              borderRadius: 4
+                          },
+                          {
+                              label: 'Perempuan',
+                              data: [
+                                  d.warga.usia.balita.p, 
+                                  d.warga.usia.anak.p, 
+                                  d.warga.usia.remaja.p, 
+                                  d.warga.usia.dewasa.p, 
+                                  d.warga.usia.lansia.p
+                              ],
+                              backgroundColor: '#ffc107', // Kuning
+                              borderRadius: 4
+                          }
+                      ]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                          legend: {
+                              position: 'bottom',
+                              labels: { boxWidth: 12, font: { size: 11 } }
+                          }
+                      },
+                      scales: {
+                          x: { 
+                              stacked: false, // Diubah ke false agar batang L dan P bersebelahan
+                              grid: { display: false } 
+                          },
+                          y: { 
+                              stacked: false, // Diubah ke false
+                              beginAtZero: true, 
+                              ticks: { stepSize: 1 } 
+                          }
+                      }
+                  }
+              });
+            
+              // 2. Binding Data Kas PKK & Karang Taruna ke Kolom Kanan
+              if (d.kasOrganisasi) {
+                  if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
+                  if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
+                  if(document.getElementById('valTotalKasGabungan')) document.getElementById('valTotalKasGabungan').innerText = formatRupiah(d.kasOrganisasi.totalGabungan);
               }
-            }
-        }
-    }
 
-    // -- AMBIL DATA KAS PKK & KARANG TARUNA (PENCARIAN SHEET FLEKSIBEL) --
-    let saldoPkk = 0;
-    let allSheets = ss.getSheets();
-    let sheetPkk = allSheets.find(s => s.getName().toLowerCase().includes('pkk'));
-    if (sheetPkk) {
-      let dataPkk = sheetPkk.getDataRange().getValues();
-      if (dataPkk.length > 1) {
-        let lastRowVal = dataPkk[dataPkk.length - 1];
-        saldoPkk = parseFloat(lastRowVal[lastRowVal.length - 1]) || parseFloat(lastRowVal[3]) || 0;
-      }
-    }
-
-    let saldoKarangTaruna = 0;
-    let sheetKt = allSheets.find(s => s.getName().toLowerCase().includes('karang') || s.getName().toLowerCase().includes('karta'));
-    if (sheetKt) {
-      let dataKt = sheetKt.getDataRange().getValues();
-      if (dataKt.length > 1) {
-        let lastRowVal = dataKt[dataKt.length - 1];
-        saldoKarangTaruna = parseFloat(lastRowVal[lastRowVal.length - 1]) || parseFloat(lastRowVal[3]) || 0;
-      }
-    }
-
-    // -- JADWAL RONDA --
-    const dRonda = getCleanData(SHEETS.JADWAL_RONDA);
-    let rondaList = [];
-    const todayClean = new Date();
-    const todayNoon = new Date(todayClean.getFullYear(), todayClean.getMonth(), todayClean.getDate(), 12, 0, 0);
-
-    if (dRonda.length > 0) {
-        for (let i = 1; i < dRonda.length; i++) {
-          let statusRonda = String(dRonda[i][7] || "").trim();
-          if (statusRonda.toLowerCase().includes('belum')) {
-            let tglVal = drondaDateParser(dRonda[i][1]);
-            if (tglVal) {
-              let tNoon = new Date(tglVal.getFullYear(), tglVal.getMonth(), tglVal.getDate(), 12, 0, 0);
-              let diffTime = tNoon.getTime() - todayNoon.getTime();
-              let diffDays = Math.round(diffTime / (1000 * 3600 * 24));
-
-              if (diffDays >= -2 && diffDays <= 1) {
-                rondaList.push({
-                  tgl: Utilities.formatDate(tglVal, tz, "dd/MM/yyyy"),
-                  hari: String(dRonda[i][2] || ""),
-                  nama: String(dRonda[i][5] || "")
+              // BINDING SPLIT KAS WARGA PUBLIK
+              document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
+              document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
+              document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
+              document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
+              document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
+              document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
+              document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
+              
+              document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
+              document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
+              document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
+              
+              if (document.getElementById('pub-zakat-muzakki')) {
+                  document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
+              }
+              if (document.getElementById('pub-qurban-peserta')) {
+                  let q = d.kasMasjid.qurban || { peserta: 0, sapi: 0, kambing: 0 };
+                  document.getElementById('pub-qurban-peserta').innerText = q.peserta + ' Orang';
+                  document.getElementById('pub-qurban-hewan').innerText = q.sapi + ' Sapi, ' + q.kambing + ' Kambing';
+              }
+              
+              const tr = document.getElementById('pub-tb-ronda'); 
+              tr.innerHTML = '';
+              if (d.ronda.length === 0) {
+                tr.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada jadwal aktif</td></tr>';
+              } else {
+                const gd = new Map();
+                d.ronda.forEach(r => {
+                  if(!gd.has(r.tgl)) { gd.set(r.tgl, { tgl: r.tgl, hari: r.hari, petugas: [] }); }
+                  gd.get(r.tgl).petugas.push(r.nama);
+                });
+                gd.forEach(g => {
+                  let lp = g.petugas.map(p => `<div class="mb-1"><i class="fas fa-user-shield text-success me-1"></i> ${p}</div>`).join('');
+                  tr.innerHTML += `<tr><td style="width: 35%;"><b>${g.tgl}</b><br><small class="text-muted">${g.hari}</small></td><td>${lp}</td><td><span class="badge bg-warning text-dark">Aktif</span></td></tr>`;
                 });
               }
-            }
-          }
-        }
-    }
-
-    // -- JADWAL KEGIATAN --
-    const kgtSheet = ss.getSheetByName(SHEETS.JADWAL_KEGIATAN);
-    const dKgt = getCleanData(SHEETS.JADWAL_KEGIATAN);
-    let kgtList = [];
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    
-    if (dKgt.length > 0) {
-        for (let i = 1; i < dKgt.length; i++) {
-          let status = String(dKgt[i][6]).trim();
-          let tglMulai = dKgt[i][1];
-          let waktuMulai = dKgt[i][3];
-          let waktuSelesai = dKgt[i][11] || waktuMulai;
-          let tglSelesai = dKgt[i][14] || tglMulai;
-
-          if (status === 'Akan Datang') {
-            let isPast = false;
-            let eventDate = new Date();
             
-            if (tglSelesai instanceof Date) {
-              eventDate = new Date(tglSelesai.getTime());
-            } else if (typeof tglSelesai === 'string' && tglSelesai.trim() !== '') {
-              let p = tglSelesai.split('-');
-              if (p.length === 3) eventDate = new Date(p[0], parseInt(p[1]) - 1, p[2]);
-              else eventDate = new Date(tglSelesai);
-            }
-            
-            if (!isNaN(eventDate.getTime())) {
-              if (waktuSelesai instanceof Date) {
-                eventDate.setHours(waktuSelesai.getHours(), waktuSelesai.getMinutes(), 0);
-              } else if (typeof waktuSelesai === 'string' && waktuSelesai.includes(':')) {
-                let p = String(waktuSelesai).split(':');
-                eventDate.setHours(parseInt(p[0], 10), parseInt(p[1], 10), 0);
+              const tk = document.getElementById('pub-tb-kegiatan'); 
+              tk.innerHTML = '';
+              if (d.kegiatan.length === 0) {
+                  tk.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">Belum ada kegiatan mendatang</td></tr>';
               } else {
-                eventDate.setHours(23, 59, 59);
+                  d.kegiatan.forEach(k => {
+                      let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
+                      tk.innerHTML += `<tr>
+                          <td style="width: 35%;">
+                              <b>${k.tgl}</b><br>
+                              <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
+                          </td>
+                          <td>
+                              <b>${k.nama}</b><br>
+                              <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
+                              ${btnDonasi}
+                          </td>
+                      </tr>`;
+                  });
               }
-              if (eventDate < startOfToday) isPast = true;
-            }
-            
-            if (isPast && kgtSheet) {
-              kgtSheet.getRange(i + 1, 7).setValue('Selesai');
+              
+              loadPublicVoting();
+              
             } else {
-              kgtList.push({
-                id: String(dKgt[i][0] || ""),
-                openDonasi: String(dKgt[i][13] || 'Tidak'),
-                tgl: tglMulai instanceof Date ? Utilities.formatDate(tglMulai, tz, "dd/MM/yyyy") : String(tglMulai || ""),
-                waktu: waktuMulai instanceof Date ? Utilities.formatDate(waktuMulai, tz, "HH:mm") : String(waktuMulai || ""),
-                nama: String(dKgt[i][4] || ""),
-                lokasi: String(dKgt[i][5] || "")
-              });
+              Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
             }
-          }
+          }).withFailureHandler(err => { 
+            hideLoading(); 
+            Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
+          }).getPublicDashboardData();
         }
-    }
-
-    // -- PENGURUS --
-    const dPgr = getCleanData(SHEETS.PENGURUS);
-    let pgrList = [];
-    if (dPgr.length > 0) {
-        let startRow = (String(dPgr[0][0]).trim() === 'ID') ? 1 : 0;
-        for (let i = startRow; i < dPgr.length; i++) {
-          if (dPgr[i][0] && String(dPgr[i][4]).trim() === 'Aktif') {
-            pgrList.push({
-              id: String(dPgr[i][0] || ""),
-              jabatan: String(dPgr[i][1] || ""),
-              nama: String(dPgr[i][2] || ""),
-              noWa: String(dPgr[i][3] || ""),
-              urutan: parseInt(dPgr[i][5]) || 0
-            });
-          }
-        }
-        pgrList.sort((a, b) => a.urutan - b.urutan);
-    }
-
-    return {
-      success: true,
-      data: {
-        warga: statsW,
-        kasWarga: {
-          saldoUmum: kwInUmum - kwOutUmum,
-          inUmum: kwInUmum,
-          outUmum: kwOutUmum,
-          saldoJimpitan: kwInJimpitan - kwOutJimpitan,
-          inJimpitan: kwInJimpitan,
-          outJimpitan: kwOutJimpitan,
-          nunggak: nunggak,
-          listTunggakan: listTunggakan
-        },
-        kasMasjid: {
-          saldo: kmIn - kmOut,
-          in: kmIn,
-          out: kmOut
-        },
-        kasOrganisasi: {
-          pkk: saldoPkk,
-          karangTaruna: saldoKarangTaruna,
-          totalGabungan: saldoPkk + saldoKarangTaruna
-        },
-        ronda: rondaList,
-        kegiatan: kgtList,
-        pengurus: pgrList
-      }
-    };
-  } catch (e) {
-    return { success: false, message: e.name + ": " + e.message };
-  }
-}
+        
         
            function renderMenu() {
         const mc = document.getElementById('sidebar-menu'); 
