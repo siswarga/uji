@@ -591,29 +591,28 @@
           </div>
         </div>
 
-        <!-- Kolom Kanan: Kas PKK & Karang Taruna -->
+        <!-- Kolom Kanan: Kas PKK & Karang Taruna (Tanpa Total Gabungan + Tombol QRIS 3 & 4) -->
         <div class="col-lg-6">
           <div class="card card-custom p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="fw-bold text-dark m-0">
                 <i class="fas fa-wallet text-success me-2"></i>Kas PKK & Karang Taruna
               </h6>
-              <span class="badge bg-success-subtle text-success border border-success px-2 py-1" style="font-size: 11px;">Update Keuangan</span>
+              <div>
+                <button class="btn btn-sm btn-outline-primary me-1 fw-bold" onclick="showQrisOrg('Karang Taruna')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS 3 (Karta)</button>
+                <button class="btn btn-sm btn-outline-success fw-bold" onclick="showQrisOrg('PKK')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS 4 (PKK)</button>
+              </div>
             </div>
 
             <div style="height: 230px; overflow-y: auto;" class="d-flex flex-column justify-content-between">
               <div class="list-group list-group-flush small">
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
                   <span><i class="fas fa-coins text-success me-2"></i><b>Kas PKK</b> (Saldo Akhir)</span>
-                  <span class="badge bg-success rounded-pill px-3 py-2" id="valKasPkk" style="font-size: 12px;">Rp 0</span>
+                  <span class="badge bg-success rounded-pill px-3 py-2" id="valKasPkk" style="font-size: 13px;">Rp 0</span>
                 </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
                   <span><i class="fas fa-coins text-primary me-2"></i><b>Kas Karang Taruna</b> (Saldo Akhir)</span>
-                  <span class="badge bg-primary rounded-pill px-3 py-2" id="valKasKarangTaruna" style="font-size: 12px;">Rp 0</span>
-                </div>
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-light mt-3 rounded px-2">
-                  <span class="fw-bold text-dark">Total Saldo Gabungan</span>
-                  <span class="fw-bold text-success fs-6" id="valTotalKasGabungan">Rp 0</span>
+                  <span class="badge bg-primary rounded-pill px-3 py-2" id="valKasKarangTaruna" style="font-size: 13px;">Rp 0</span>
                 </div>
               </div>
               <div class="text-center mt-2">
@@ -622,7 +621,6 @@
             </div>
           </div>
         </div>
-      </div>
 
       <!-- BARIS 5: Arus Kas Warga & Masjid -->
       <div class="row g-4 mb-4">
@@ -6789,7 +6787,6 @@ async function apiGet(action, params = {}) {
               if (d.kasOrganisasi) {
                   if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
                   if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
-                  if(document.getElementById('valTotalKasGabungan')) document.getElementById('valTotalKasGabungan').innerText = formatRupiah(d.kasOrganisasi.totalGabungan);
               }
 
               // BINDING SPLIT KAS WARGA PUBLIK
@@ -13805,6 +13802,13 @@ function shareWaPengajian(id) {
     reader.readAsDataURL(file);
       }
     }
+
+function loadPendingOrgKas() {
+    google.script.run.withSuccessHandler(res => {
+        // Render daftar transaksi pending PKK & Karang Taruna di tabel konfirmasi pengurus
+        // Ketika pengurus klik tombol "Setujui", panggil: approveOrgTransaction(orgType, rowIdx)
+    }).getKasOrgData();
+}
   </script>
   </body>
 </html>
