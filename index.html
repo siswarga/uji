@@ -7833,33 +7833,63 @@ async function apiGet(action, params = {}) {
         // =====================================================
         // SHARE WA - KEGIATAN & DONASI (TANPA LINK)
         // =====================================================
+       // =====================================================
+        // SHARE WA - KEGIATAN WARGA (OTOMATIS / MANUAL)
+        // =====================================================
         function shareWaKegiatan(id) {
           const k = dataKegiatanGlobal.find(x => x.id === id);
           if (!k) {
-            Swal.fire('Error', 'Data kegiatan tidak ditemukan', 'error');
-            return;
+            return Swal.fire('Error', 'Data kegiatan tidak ditemukan', 'error');
           }
           
-          // Mengambil nama aplikasi dinamis
-          const namaApp = appSettings['nama_aplikasi'] || 'Aplikasi Warga';
+          const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
           
           let text = `*PENGUMUMAN KEGIATAN WARGA*\n\n` +
-                 `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                 `Diinformasikan kepada seluruh warga Bapak/Ibu, bahwa akan diadakan kegiatan lingkungan:\n\n` +
-                 `*Agenda:* ${k.deskripsi}\n` +
-                 `*Tanggal:* ${k.tanggalIndo} (${k.hari})\n` +
-                 `*Waktu:* ${k.waktu} s/d ${k.waktuSelesai} WIB\n` +
-                 `*Lokasi:* ${k.lokasi}\n\n`;
+                     `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
+                     `Diinformasikan kepada seluruh warga Bapak/Ibu, bahwa akan diadakan kegiatan lingkungan:\n\n` +
+                     `*Agenda:* ${k.deskripsi}\n` +
+                     `*Tanggal:* ${k.tanggalIndo} (${k.hari})\n` +
+                     `*Waktu:* ${k.waktu} s/d ${k.waktuSelesai} WIB\n` +
+                     `*Lokasi:* ${k.lokasi}\n\n`;
           
           if (k.openDonasi === 'Ya') {
             text += `*PARTISIPASI DONASI / KONSUMSI*\nPanitia membuka kesempatan bagi warga yang ingin berpartisipasi menyumbang konsumsi/donasi.\n\n`;
           }
           
-          // Kalimat ajakan membuka aplikasi (Sudah Dinamis)
           text += `👉 *Silakan buka ${namaApp} di HP Anda untuk melihat info lebih lanjut atau ikut berpartisipasi.*\n\n` +
-              `Dimohon kehadiran dan partisipasinya. Terima kasih. 🙏\n\n` +
-              `_Pesan otomatis dari ${namaApp}_`;
+                  `Dimohon kehadiran dan partisipasinya. Terima kasih. 🙏\n\n` +
+                  `_Pesan otomatis dari ${namaApp}_`;
           
+          // Cek Status Saklar & JID Grup
+          let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
+          let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
+          let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
+
+          // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
+          if (isGatewayAktif && noGrupTujuan) {
+              Swal.fire({
+                  title: 'Mengirim Pesan...',
+                  text: 'Pesan kegiatan sedang dikirim otomatis ke Grup WhatsApp...',
+                  allowOutsideClick: false,
+                  didOpen: () => { Swal.showLoading(); }
+              });
+
+              google.script.run
+                  .withSuccessHandler(function(res) {
+                      if (res && res.success) {
+                          Swal.fire('Berhasil!', 'Pesan kegiatan telah terkirim otomatis ke Grup WhatsApp.', 'success');
+                      } else {
+                          Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
+                      }
+                  })
+                  .withFailureHandler(function(err) {
+                      Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
+                  })
+                  .sendWhatsAppMessage(noGrupTujuan, text, k.gambar || k.gambar_url || '');
+              return;
+          }
+
+          // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
           let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
           let tempLink = document.createElement('a');
           tempLink.href = waUrl;
@@ -7870,31 +7900,56 @@ async function apiGet(action, params = {}) {
         }
         
         // =====================================================
-        // SHARE WA - POLLING / E-VOTING (TANPA LINK)
+        // SHARE WA - POLLING / E-VOTING (OTOMATIS / MANUAL)
         // =====================================================
         function shareWaVoting(id) {
           const v = dataVotingGlobal.find(x => x.id === id);
           if (!v) {
-            Swal.fire('Error', 'Data polling tidak ditemukan', 'error');
-            return;
+            return Swal.fire('Error', 'Data polling tidak ditemukan', 'error');
           }
           
-          // Mengambil nama aplikasi dinamis
-          const namaApp = appSettings['nama_aplikasi'] || 'Aplikasi Warga';
+          const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
           
           let text = `*E-VOTING / POLLING WARGA*\n\n` +
-                 `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                 `Mohon partisipasi Bapak/Ibu/Sdr/i untuk memberikan suara atau pendapat pada polling berikut:\n\n` +
-                 `*Judul:* ${v.judul}\n` +
-                 `*Keterangan:* ${v.deskripsi}\n` +
-                 `*Pilihan Tersedia:* ${v.opsi}\n\n` +
-                 
-                 // Kalimat ajakan membuka aplikasi (Sudah Dinamis)
-                 `👉 *Silakan buka ${namaApp} di HP Anda untuk mulai memberikan suara.*\n\n` +
-                 
-                 `Satu suara dari Anda sangat berarti demi kemajuan lingkungan kita bersama. 🙏\n\n` +
-                 `_Pesan otomatis dari ${namaApp}_`;
+                     `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
+                     `Mohon partisipasi Bapak/Ibu/Sdr/i untuk memberikan suara atau pendapat pada polling berikut:\n\n` +
+                     `*Judul:* ${v.judul}\n` +
+                     `*Keterangan:* ${v.deskripsi}\n` +
+                     `*Pilihan Tersedia:* ${v.opsi}\n\n` +
+                     `👉 *Silakan buka ${namaApp} di HP Anda untuk mulai memberikan suara.*\n\n` +
+                     `Satu suara dari Anda sangat berarti demi kemajuan lingkungan kita bersama. 🙏\n\n` +
+                     `_Pesan otomatis dari ${namaApp}_`;
           
+          // Cek Status Saklar & JID Grup
+          let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
+          let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
+          let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
+
+          // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
+          if (isGatewayAktif && noGrupTujuan) {
+              Swal.fire({
+                  title: 'Mengirim Pesan...',
+                  text: 'Pesan voting sedang dikirim otomatis ke Grup WhatsApp...',
+                  allowOutsideClick: false,
+                  didOpen: () => { Swal.showLoading(); }
+              });
+
+              google.script.run
+                  .withSuccessHandler(function(res) {
+                      if (res && res.success) {
+                          Swal.fire('Berhasil!', 'Pesan polling/voting telah terkirim otomatis ke Grup WhatsApp.', 'success');
+                      } else {
+                          Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
+                      }
+                  })
+                  .withFailureHandler(function(err) {
+                      Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
+                  })
+                  .sendWhatsAppMessage(noGrupTujuan, text, v.gambar || v.gambar_url || '');
+              return;
+          }
+
+          // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
           let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
           let tempLink = document.createElement('a');
           tempLink.href = waUrl;
