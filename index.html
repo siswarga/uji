@@ -7469,7 +7469,8 @@ async function apiGet(action, params = {}) {
             namaList: namaList,
             mode: mode,
             textGrup: textBroadcast,
-            grupJid: appSettings['wa_group_jid'] || '',
+            // PERBAIKAN: Masukkan JID Grup secara langsung agar aman dan tidak kosong
+            grupJid: appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || '6287834250249-1630667600@g.us',
             namaKomplek: namaKomplek,
             namaApp: namaApp
         };
@@ -7484,7 +7485,7 @@ async function apiGet(action, params = {}) {
                 }
             })
             .withFailureHandler(err => Swal.fire('Error', String(err), 'error'))
-            .prosesKirimRondaOtomatis(token, payload); // Memanggil fungsi baru di code.gs
+            .prosesKirimRondaOtomatis(token, payload);
     }
 
     function updateStatusServer() {
