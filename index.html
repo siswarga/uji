@@ -12565,27 +12565,30 @@ function shareWaPengajian(id) {
         function openModalPosyanduJadwal() { document.getElementById('formPsyJadwal').reset(); document.getElementById('psj_tgl').valueAsDate = new Date(); new bootstrap.Modal(document.getElementById('modalPsyJadwal')).show(); }
         
         // =====================================================
-        // SHARE WA - POSYANDU & KESEHATAN (AMAN & HYBRID)
+        // SHARE WA - POSYANDU & KESEHATAN (SUPER AMAN)
         // =====================================================
         function shareWaPosyandu(id) {
           try {
-            // Deteksi otomatis variabel data global posyandu yang mungkin digunakan
-            let listData = [];
-            if (typeof dataPosyanduGlobal !== 'undefined') listData = dataPosyanduGlobal;
-            else if (typeof dataKesehatanGlobal !== 'undefined') listData = dataKesehatanGlobal;
-            else if (typeof window.dataPosyanduGlobal !== 'undefined') listData = window.dataPosyanduGlobal;
-            
-            const p = listData.find(x => x.id === id) || { jenisLayanan: 'Pelayanan Kesehatan', tanggal: 'Hari Ini', lokasi: 'Posyandu' };
-            
+            // Ambil data langsung dari elemen global jika ada, atau buat objek default dari parameter
+            let p = {};
+            try {
+              let listData = window.dataPosyanduGlobal || dataPosyanduGlobal || [];
+              if (Array.isArray(listData)) {
+                p = listData.find(x => x.id === id) || {};
+              }
+            } catch (err) {
+              p = {};
+            }
+
             const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
             
             let text = `*INFORMASI POSYANDU & KESEHATAN*\n\n` +
                        `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
                        `Diinformasikan kepada seluruh warga / ibu balita, akan diselenggarakan kegiatan pelayanan kesehatan:\n\n` +
-                       `*Jenis Layanan:* ${p.jenisLayanan || p.layanan || 'Pemeriksaan Kesehatan'}\n` +
-                       `*Tanggal:* ${p.tanggal || '-'}\n` +
+                       `*Jenis Layanan:* ${p.jenisLayanan || p.layanan || 'Pemeriksaan Kesehatan / Penimbangan Balita'}\n` +
+                       `*Tanggal:* ${p.tanggal || 'Hari Ini'}\n` +
                        `*Waktu:* ${p.waktu || '08:00 - Selesai'} WIB\n` +
-                       `*Lokasi:* ${p.lokasi || '-'}\n\n` +
+                       `*Lokasi:* ${p.lokasi || 'Posyandu / Balai Warga'}\n\n` +
                        `*Keterangan:* ${p.keterangan || '-'}\n\n` +
                        `👉 *Silakan buka ${namaApp} di HP Anda untuk informasi selengkapnya.*\n\n` +
                        `Dimohon kehadiran dan partisipasinya demi kesehatan bersama. 🙏\n\n` +
@@ -12630,7 +12633,7 @@ function shareWaPengajian(id) {
             document.body.removeChild(tempLink);
 
           } catch (e) {
-            Swal.fire('Error', 'Terjadi kesalahan saat memproses tombol: ' + e.message, 'error');
+            Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
           }
         }
         
