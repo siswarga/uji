@@ -6715,104 +6715,153 @@ async function apiGet(action, params = {}) {
         function loadPublicData() {
           showLoading();
           google.script.run.withSuccessHandler(res => {
-        hideLoading();
-        if (res && res.success) {
-          let d = res.data;
-          
-          document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
-        	  document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
-          document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
-          document.getElementById('pub-totK').innerText = d.warga.kontrak;
-          document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
-          document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
-        
-          if(pubChartJkInstance) pubChartJkInstance.destroy(); 
-          if(pubChartUsiaInstance) pubChartUsiaInstance.destroy(); 
-          
-          pubChartJkInstance = new Chart(document.getElementById('pubChartJk'),{
-              type:'doughnut',
-              data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[d.warga.lakiLaki, d.warga.perempuan],backgroundColor:['#198754','#ffc107']}]},
-              options:{responsive:true,maintainAspectRatio:false}
-          }); 
-          
-          pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'),{
-              type:'bar',
-              data:{labels:['Balita','Anak','Remaja','Dewasa','Lansia'],datasets:[{label:'Jiwa',data:[d.warga.usia.balita, d.warga.usia.anak, d.warga.usia.remaja, d.warga.usia.dewasa, d.warga.usia.lansia],backgroundColor:'#198754'}]},
-              options:{responsive:true,maintainAspectRatio:false}
-          });
-        
-          // BINDING SPLIT KAS WARGA PUBLIK
-          document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
-          document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
-          document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
-          
-          document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
-          document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
-          document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
-        
-          document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
-          
-          document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
-          document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
-          document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
-    		if (document.getElementById('pub-zakat-muzakki')) {
-              document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
-          }
-          if (document.getElementById('pub-qurban-peserta')) {
-              let q = d.kasMasjid.qurban || { peserta: 0, sapi: 0, kambing: 0 };
-              document.getElementById('pub-qurban-peserta').innerText = q.peserta + ' Orang';
-              document.getElementById('pub-qurban-hewan').innerText = q.sapi + ' Sapi, ' + q.kambing + ' Kambing';
-          }
-          const tr = document.getElementById('pub-tb-ronda'); 
-          tr.innerHTML = '';
-          if (d.ronda.length === 0) {
-            tr.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada jadwal aktif</td></tr>';
-          } else {
-            const gd = new Map();
-            d.ronda.forEach(r => {
-              if(!gd.has(r.tgl)) { gd.set(r.tgl, { tgl: r.tgl, hari: r.hari, petugas: [] }); }
-              gd.get(r.tgl).petugas.push(r.nama);
-            });
-            gd.forEach(g => {
-              let lp = g.petugas.map(p => `<div class="mb-1"><i class="fas fa-user-shield text-success me-1"></i> ${p}</div>`).join('');
-              tr.innerHTML += `<tr><td style="width: 35%;"><b>${g.tgl}</b><br><small class="text-muted">${g.hari}</small></td><td>${lp}</td><td><span class="badge bg-warning text-dark">Aktif</span></td></tr>`;
-            });
-          }
-        
-          const tk = document.getElementById('pub-tb-kegiatan'); 
-          tk.innerHTML = '';
-          if (d.kegiatan.length === 0) {
-              tk.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">Belum ada kegiatan mendatang</td></tr>';
-          } else {
-              d.kegiatan.forEach(k => {
-                  let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
-                  
-                  tk.innerHTML += `<tr>
-                      <td style="width: 35%;">
-                          <b>${k.tgl}</b><br>
-                          <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
-                      </td>
-                      <td>
-                          <b>${k.nama}</b><br>
-                          <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
-                          ${btnDonasi}
-                      </td>
-                  </tr>`;
+            hideLoading();
+            if (res && res.success) {
+              let d = res.data;
+              
+              document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
+              document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
+              document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
+              document.getElementById('pub-totK').innerText = d.warga.kontrak;
+              document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
+              document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
+            
+              if(pubChartJkInstance) pubChartJkInstance.destroy(); 
+              if(pubChartUsiaInstance) pubChartUsiaInstance.destroy(); 
+              
+              // Grafik Donat Jenis Kelamin
+              pubChartJkInstance = new Chart(document.getElementById('pubChartJk'),{
+                  type:'doughnut',
+                  data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[d.warga.lakiLaki, d.warga.perempuan],backgroundColor:['#198754','#ffc107']}]},
+                  options:{responsive:true,maintainAspectRatio:false}
+              }); 
+              
+              // Grafik Rentang Usia & Gender (Stacked Bar - Memanjang ke Atas)
+              pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'),{
+                  type: 'bar',
+                  data: {
+                      labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
+                      datasets: [
+                          {
+                              label: 'Laki-laki',
+                              data: [
+                                  d.warga.usia.balita.l, 
+                                  d.warga.usia.anak.l, 
+                                  d.warga.usia.remaja.l, 
+                                  d.warga.usia.dewasa.l, 
+                                  d.warga.usia.lansia.l
+                              ],
+                              backgroundColor: '#198754', // Hijau
+                              borderRadius: 4
+                          },
+                          {
+                              label: 'Perempuan',
+                              data: [
+                                  d.warga.usia.balita.p, 
+                                  d.warga.usia.anak.p, 
+                                  d.warga.usia.remaja.p, 
+                                  d.warga.usia.dewasa.p, 
+                                  d.warga.usia.lansia.p
+                              ],
+                              backgroundColor: '#ffc107', // Kuning
+                              borderRadius: 4
+                          }
+                      ]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                          legend: {
+                              position: 'bottom',
+                              labels: { boxWidth: 12, font: { size: 11 } }
+                          }
+                      },
+                      scales: {
+                          x: { stacked: true, grid: { display: false } },
+                          y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+                      }
+                  }
               });
-          }
-          
-          loadPublicVoting();
-          
-        } else {
-          // Perbaikan: Notifikasi visual jika ada error di backend agar tidak diam saja
-          Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
-        }
+            
+              // BINDING KAS PKK & KARANG TARUNA KE KOTAK KANAN
+              if (d.kasOrganisasi) {
+                  if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
+                  if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
+                  if(document.getElementById('valTotalKasGabungan')) document.getElementById('valTotalKasGabungan').innerText = formatRupiah(d.kasOrganisasi.totalGabungan);
+              }
+
+              // BINDING SPLIT KAS WARGA PUBLIK
+              document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
+              document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
+              document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
+              
+              document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
+              document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
+              document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
+            
+              document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
+              
+              document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
+              document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
+              document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
+              if (document.getElementById('pub-zakat-muzakki')) {
+                  document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
+              }
+              if (document.getElementById('pub-qurban-peserta')) {
+                  let q = d.kasMasjid.qurban || { peserta: 0, sapi: 0, kambing: 0 };
+                  document.getElementById('pub-qurban-peserta').innerText = q.peserta + ' Orang';
+                  document.getElementById('pub-qurban-hewan').innerText = q.sapi + ' Sapi, ' + q.kambing + ' Kambing';
+              }
+              
+              const tr = document.getElementById('pub-tb-ronda'); 
+              tr.innerHTML = '';
+              if (d.ronda.length === 0) {
+                tr.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada jadwal aktif</td></tr>';
+              } else {
+                const gd = new Map();
+                d.ronda.forEach(r => {
+                  if(!gd.has(r.tgl)) { gd.set(r.tgl, { tgl: r.tgl, hari: r.hari, petugas: [] }); }
+                  gd.get(r.tgl).petugas.push(r.nama);
+                });
+                gd.forEach(g => {
+                  let lp = g.petugas.map(p => `<div class="mb-1"><i class="fas fa-user-shield text-success me-1"></i> ${p}</div>`).join('');
+                  tr.innerHTML += `<tr><td style="width: 35%;"><b>${g.tgl}</b><br><small class="text-muted">${g.hari}</small></td><td>${lp}</td><td><span class="badge bg-warning text-dark">Aktif</span></td></tr>`;
+                });
+              }
+            
+              const tk = document.getElementById('pub-tb-kegiatan'); 
+              tk.innerHTML = '';
+              if (d.kegiatan.length === 0) {
+                  tk.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">Belum ada kegiatan mendatang</td></tr>';
+              } else {
+                  d.kegiatan.forEach(k => {
+                      let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
+                      
+                      tk.innerHTML += `<tr>
+                          <td style="width: 35%;">
+                              <b>${k.tgl}</b><br>
+                              <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
+                          </td>
+                          <td>
+                              <b>${k.nama}</b><br>
+                              <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
+                              ${btnDonasi}
+                          </td>
+                      </tr>`;
+                  });
+              }
+              
+              loadPublicVoting();
+              
+            } else {
+              Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
+            }
           }).withFailureHandler(err => { 
-        hideLoading(); 
-        Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
+            hideLoading(); 
+            Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
           }).getPublicDashboardData();
         }
-        
         
            function renderMenu() {
         const mc = document.getElementById('sidebar-menu'); 
