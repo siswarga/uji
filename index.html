@@ -5833,7 +5833,7 @@ async function apiGet(action, params = {}) {
         let idleTimer;
         const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // Waktu maksimal diam: 15 menit (dalam milidetik)
         let isTimerResetting = false;
-        setInterval(() => {
+        //setInterval(() => {
         // 1. Jika sedang berada di Portal Publik (Dashboard Warga)
         let publicPage = document.getElementById('public-page');
         if (publicPage && publicPage.style.display !== 'none') {
@@ -6571,7 +6571,7 @@ console.log("=== LOGO DIKLIK 2X ===");
     }
     
     // Jalankan polling periodik
-    setInterval(fetchNotificationCounts, 15000);
+   // setInterval(fetchNotificationCounts, 15000);
     
     /**
      * 3. Pembaruan Fungsi Login: SELALU PAKSA BUKA DASHBOARD SAAT LOGIN BARU
