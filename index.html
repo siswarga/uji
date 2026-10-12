@@ -6726,18 +6726,10 @@ async function apiGet(action, params = {}) {
               document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
               document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
             
-              if(pubChartJkInstance) pubChartJkInstance.destroy(); 
               if(pubChartUsiaInstance) pubChartUsiaInstance.destroy(); 
               
-              // Grafik Donat Jenis Kelamin
-              pubChartJkInstance = new Chart(document.getElementById('pubChartJk'),{
-                  type:'doughnut',
-                  data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[d.warga.lakiLaki, d.warga.perempuan],backgroundColor:['#198754','#ffc107']}]},
-                  options:{responsive:true,maintainAspectRatio:false}
-              }); 
-              
-              // Grafik Rentang Usia & Gender (Stacked Bar - Memanjang ke Atas)
-              pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'),{
+             // Grafik Batang Bersebelahan (Grouped Bar) Usia & Gender di Kolom Kiri
+              pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'), {
                   type: 'bar',
                   data: {
                       labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
@@ -6778,13 +6770,20 @@ async function apiGet(action, params = {}) {
                           }
                       },
                       scales: {
-                          x: { stacked: true, grid: { display: false } },
-                          y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+                          x: { 
+                              stacked: false, // Diubah ke false agar batang L dan P bersebelahan
+                              grid: { display: false } 
+                          },
+                          y: { 
+                              stacked: false, // Diubah ke false
+                              beginAtZero: true, 
+                              ticks: { stepSize: 1 } 
+                          }
                       }
                   }
               });
             
-              // BINDING KAS PKK & KARANG TARUNA KE KOTAK KANAN
+              // Binding Kas PKK & Karang Taruna ke Kolom Kanan
               if (d.kasOrganisasi) {
                   if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
                   if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
@@ -6795,16 +6794,15 @@ async function apiGet(action, params = {}) {
               document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
               document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
               document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
-              
               document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
               document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
               document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
-            
               document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
               
               document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
               document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
               document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
+              
               if (document.getElementById('pub-zakat-muzakki')) {
                   document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
               }
@@ -6837,7 +6835,6 @@ async function apiGet(action, params = {}) {
               } else {
                   d.kegiatan.forEach(k => {
                       let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
-                      
                       tk.innerHTML += `<tr>
                           <td style="width: 35%;">
                               <b>${k.tgl}</b><br>
