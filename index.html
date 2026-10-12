@@ -581,18 +581,45 @@
         </div>
       </div>
 
-      <!-- BARIS 4: Grafik Demografi -->
+     <!-- BARIS 4: Grafik Usia & Gender & Kas Organisasi -->
       <div class="row g-4 mb-4">
+        <!-- Kolom Kiri: Grafik Batang Bertumpuk (Usia & Jenis Kelamin) -->
         <div class="col-lg-6">
           <div class="card card-custom p-4 h-100">
-            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-venus-mars text-success me-2"></i>Proporsi Jenis Kelamin</h6>
-            <div style="height: 230px;"><canvas id="pubChartJk"></canvas></div>
+            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-chart-bar text-success me-2"></i>Rentang Usia & Jenis Kelamin Warga</h6>
+            <div style="height: 230px;"><canvas id="pubChartUsia"></canvas></div>
           </div>
         </div>
+
+        <!-- Kolom Kanan: Kas PKK & Karang Taruna -->
         <div class="col-lg-6">
           <div class="card card-custom p-4 h-100">
-            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-chart-bar text-success me-2"></i>Rentang Usia Warga</h6>
-            <div style="height: 230px;"><canvas id="pubChartUsia"></canvas></div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold text-dark m-0">
+                <i class="fas fa-wallet text-success me-2"></i>Kas PKK & Karang Taruna
+              </h6>
+              <span class="badge bg-success-subtle text-success border border-success px-2 py-1" style="font-size: 11px;">Update Keuangan</span>
+            </div>
+
+            <div style="height: 230px; overflow-y: auto;" class="d-flex flex-column justify-content-between">
+              <div class="list-group list-group-flush small">
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                  <span><i class="fas fa-coins text-success me-2"></i><b>Kas PKK</b> (Saldo Akhir)</span>
+                  <span class="badge bg-success rounded-pill px-3 py-2" id="valKasPkk" style="font-size: 12px;">Rp 0</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                  <span><i class="fas fa-coins text-primary me-2"></i><b>Kas Karang Taruna</b> (Saldo Akhir)</span>
+                  <span class="badge bg-primary rounded-pill px-3 py-2" id="valKasKarangTaruna" style="font-size: 12px;">Rp 0</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-light mt-3 rounded px-2">
+                  <span class="fw-bold text-dark">Total Saldo Gabungan</span>
+                  <span class="fw-bold text-success fs-6" id="valTotalKasGabungan">Rp 0</span>
+                </div>
+              </div>
+              <div class="text-center mt-2">
+                <span class="text-muted" style="font-size: 11px;"><i class="fas fa-sync-alt me-1"></i> Disinkronkan otomatis dari pembukuan organisasi.</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
