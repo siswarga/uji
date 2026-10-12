@@ -6419,20 +6419,32 @@ async function apiGet(action, params = {}) {
           }
         }
         
-        function triggerAdminLogin() { 
-    const publicPage = document.getElementById('public-page');
-    const loginPage = document.getElementById('login-page');
+       function triggerAdminLogin() { 
+    console.log("=== LOGO DIKLIK 2X ===");
+    
+    // Mencari berbagai kemungkinan ID pembungkus halaman
+    const publicPage = document.getElementById('public-page') || document.getElementById('dashboard-public') || document.querySelector('.public-view');
+    const loginPage = document.getElementById('login-page') || document.getElementById('admin-login-page') || document.querySelector('.login-view');
+
+    console.log("Elemen Public Page:", publicPage);
+    console.log("Elemen Login Page:", loginPage);
 
     if (publicPage) {
         publicPage.style.display = 'none';
     } else {
-        console.warn("Elemen dengan ID 'public-page' tidak ditemukan di HTML.");
+        console.warn("Peringatan: Pembungkus halaman publik tidak ditemukan.");
     }
 
     if (loginPage) {
         loginPage.style.display = 'flex';
     } else {
-        console.warn("Elemen dengan ID 'login-page' tidak ditemukan di HTML. Pastikan ID pada form login Anda benar.");
+        // Coba alternatif jika menggunakan modal Bootstrap
+        if (typeof $ !== 'undefined' && $('#adminLoginModal').length > 0) {
+            $('#adminLoginModal').modal('show');
+        } else {
+            console.error("Error: Elemen halaman/modal login pengurus tidak ditemukan di HTML!");
+            alert("Gagal membuka login: ID elemen halaman login tidak cocok dengan kode.");
+        }
     }
 }
         
