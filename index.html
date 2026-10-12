@@ -62,25 +62,25 @@
     
   #login-page {
     display: none; /* Status awal disembunyikan */
-    position: fixed; /* KUNCI UTAMA: Membuatnya mengambang menutupi layar penuh */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #f8f9fa; /* Warna latar belakang halaman login */
-    align-items: center;
-    justify-content: center;
-    z-index: 9999; /* Lapisan paling atas di atas elemen lain */
-	}
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: #ffffff !important; /* Latar belakang putih solid */
+    z-index: 99999 !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
 
-	.login-card {
-    background: white;
+.login-card {
+    background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     padding: 40px;
     width: 100%;
     max-width: 400px;
-	}
+}
     
     .btn-primary {
       background-color: var(--primary-color);
