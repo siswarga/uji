@@ -581,62 +581,21 @@
         </div>
       </div>
 
-     <!-- BARIS 4: Grafik Usia & Gender & Kas Organisasi -->
+      <!-- BARIS 4: Grafik Demografi -->
       <div class="row g-4 mb-4">
-        <!-- Kolom Kiri: Grafik Batang Bertumpuk (Usia & Jenis Kelamin) -->
         <div class="col-lg-6">
           <div class="card card-custom p-4 h-100">
-            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-chart-bar text-success me-2"></i>Rentang Usia & Jenis Kelamin Warga</h6>
+            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-venus-mars text-success me-2"></i>Proporsi Jenis Kelamin</h6>
+            <div style="height: 230px;"><canvas id="pubChartJk"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card card-custom p-4 h-100">
+            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-chart-bar text-success me-2"></i>Rentang Usia Warga</h6>
             <div style="height: 230px;"><canvas id="pubChartUsia"></canvas></div>
           </div>
         </div>
-
-        <!-- Kolom Kanan: Kas PKK & Karang Taruna (Modern & Rinci) -->
-        <div class="col-lg-6">
-          <div class="card card-custom p-4 h-100 border-0 shadow-sm rounded-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold text-dark m-0">
-                <i class="fas fa-wallet text-success me-2"></i>Kas PKK & Karang Taruna
-              </h6>
-              <div>
-                <button class="btn btn-sm btn-outline-primary me-1 fw-bold rounded-pill px-3" onclick="showQrisOrg('Karang Taruna')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS 3 (Karta)</button>
-                <button class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3" onclick="showQrisOrg('PKK')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS 4 (PKK)</button>
-              </div>
-            </div>
-
-            <div style="height: 250px; overflow-y: auto;" class="d-flex flex-column justify-content-between pe-1">
-              <div class="list-group list-group-flush small gap-3">
-                <!-- PKK Item -->
-                <div class="p-3 bg-light rounded-4 border">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-bold text-success"><i class="fas fa-users me-1"></i> Kas PKK</span>
-                    <span class="badge bg-success rounded-pill px-3 py-2 fs-6" id="valKasPkk">Rp 0</span>
-                  </div>
-                  <div class="d-flex justify-content-between text-muted border-top pt-2" style="font-size: 11.5px;">
-                    <span><i class="fas fa-arrow-down text-success me-1"></i> Masuk: <b id="valPkkIn" class="text-dark">Rp 0</b></span>
-                    <span><i class="fas fa-arrow-up text-danger me-1"></i> Keluar: <b id="valPkkOut" class="text-dark">Rp 0</b></span>
-                  </div>
-                </div>
-
-                <!-- Karang Taruna Item -->
-                <div class="p-3 bg-light rounded-4 border">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-bold text-primary"><i class="fas fa-user-friends me-1"></i> Kas Karang Taruna</span>
-                    <span class="badge bg-primary rounded-pill px-3 py-2 fs-6" id="valKasKarangTaruna">Rp 0</span>
-                  </div>
-                  <div class="d-flex justify-content-between text-muted border-top pt-2" style="font-size: 11.5px;">
-                    <span><i class="fas fa-arrow-down text-success me-1"></i> Masuk: <b id="valKtIn" class="text-dark">Rp 0</b></span>
-                    <span><i class="fas fa-arrow-up text-danger me-1"></i> Keluar: <b id="valKtOut" class="text-dark">Rp 0</b></span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="text-center mt-3">
-                <span class="text-muted" style="font-size: 11px;"><i class="fas fa-sync-alt me-1"></i> Disinkronkan otomatis dari pembukuan organisasi.</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
 
       <!-- BARIS 5: Arus Kas Warga & Masjid -->
       <div class="row g-4 mb-4">
@@ -5778,7 +5737,6 @@ async function apiGet(action, params = {}) {
         let dataWargaGlobal=[], currentPage=1, dataPerPage=10; 
         let chartJkInstance=null, chartUsiaInstance=null, pubChartJkInstance=null, pubChartUsiaInstance=null;
         let dataKasGlobal=[], currentPageKas=1, dataKasMasjidGlobal=[];
-		let dataKasPkkGlobal=[], dataKasKarangTarunaGlobal=[];
         let dataKegiatanGlobal=[], currentPageKegiatan=1; 
         let dataPengaduanGlobal=[], currentPagePengaduan=1;
         let dataPermohonanGlobal=[], currentPagePermohonan=1, listWargaPrmTemp=[];
@@ -6420,24 +6378,9 @@ async function apiGet(action, params = {}) {
         }
         
         function triggerAdminLogin() { 
-    console.log("=== LOGO DIKLIK 2X ===");
-    
-    const loginPage = document.getElementById('login-page');
-
-    if (loginPage) {
-        // KUNCI: Kita biarkan public-page tetap tampil (tidak diubah display: none).
-        // Kita cukup panggil login-page agar menutupi layar dari atas (overlay).
-        loginPage.style.cssText = 'display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background-color: #f8f9fa !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important;';
-        
-        // Memastikan kartu form terlihat rapi di tengah
-        const loginCard = loginPage.querySelector('.login-card');
-        if (loginCard) {
-            loginCard.style.cssText = 'background: white !important; padding: 40px !important; border-radius: 20px !important; width: 90% !important; max-width: 400px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; z-index: 9999999 !important; display: block !important; position: relative !important;';
+          document.getElementById('public-page').style.display = 'none'; 
+          document.getElementById('login-page').style.display = 'flex'; 
         }
-    } else {
-        console.error("Elemen login-page tidak ditemukan!");
-    }
-}
         
         function showPublicDashboard() { 
         		clearTimeout(idleTimer);
@@ -6596,23 +6539,7 @@ async function apiGet(action, params = {}) {
           p.value = '';
     
           Swal.fire({icon:'success', title:'Login Berhasil', timer:1000, showConfirmButton:false});
-          
-          // ==========================================
-          // SOLUSI BLANK PUTIH: Paksa Reset Tampilan
-          // ==========================================
-          let loginPage = document.getElementById('login-page');
-          if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
-          
-          let publicPage = document.getElementById('public-page');
-          if (publicPage) publicPage.style.display = 'none';
-          
-          let appLayout = document.getElementById('app-layout');
-          if (appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;';
-          // ==========================================
-
-          // Lanjutkan memuat data dashboard
           showApp();
-          
         } else { 
           if (res.isBlocked && res.remainingSecs > 0) {
             startLoginCountdown(res.remainingSecs);
@@ -6761,153 +6688,101 @@ async function apiGet(action, params = {}) {
         function loadPublicData() {
           showLoading();
           google.script.run.withSuccessHandler(res => {
-            hideLoading();
-            if (res && res.success) {
-              let d = res.data;
-              
-              document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
-              document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
-              document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
-              document.getElementById('pub-totK').innerText = d.warga.kontrak;
-              document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
-              document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
-            
-              if(pubChartJkInstance) pubChartJkInstance.destroy(); 
-              
-              // 1. Grafik Donat Jenis Kelamin (Bulat) di Kolom Kiri
-              // Grafik Batang Bersebelahan (Grouped Bar) Usia & Gender di Kolom Kiri
-              pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'), {
-                  type: 'bar',
-                  data: {
-                      labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
-                      datasets: [
-                          {
-                              label: 'Laki-laki',
-                              data: [
-                                  d.warga.usia.balita.l, 
-                                  d.warga.usia.anak.l, 
-                                  d.warga.usia.remaja.l, 
-                                  d.warga.usia.dewasa.l, 
-                                  d.warga.usia.lansia.l
-                              ],
-                              backgroundColor: '#198754', // Hijau
-                              borderRadius: 4
-                          },
-                          {
-                              label: 'Perempuan',
-                              data: [
-                                  d.warga.usia.balita.p, 
-                                  d.warga.usia.anak.p, 
-                                  d.warga.usia.remaja.p, 
-                                  d.warga.usia.dewasa.p, 
-                                  d.warga.usia.lansia.p
-                              ],
-                              backgroundColor: '#ffc107', // Kuning
-                              borderRadius: 4
-                          }
-                      ]
-                  },
-                  options: {
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                          legend: {
-                              position: 'bottom',
-                              labels: { boxWidth: 12, font: { size: 11 } }
-                          }
-                      },
-                      scales: {
-                          x: { 
-                              stacked: false, // Diubah ke false agar batang L dan P bersebelahan
-                              grid: { display: false } 
-                          },
-                          y: { 
-                              stacked: false, // Diubah ke false
-                              beginAtZero: true, 
-                              ticks: { stepSize: 1 } 
-                          }
-                      }
-                  }
+        hideLoading();
+        if (res && res.success) {
+          let d = res.data;
+          
+          document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
+        	  document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
+          document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
+          document.getElementById('pub-totK').innerText = d.warga.kontrak;
+          document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
+          document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
+        
+          if(pubChartJkInstance) pubChartJkInstance.destroy(); 
+          if(pubChartUsiaInstance) pubChartUsiaInstance.destroy(); 
+          
+          pubChartJkInstance = new Chart(document.getElementById('pubChartJk'),{
+              type:'doughnut',
+              data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[d.warga.lakiLaki, d.warga.perempuan],backgroundColor:['#198754','#ffc107']}]},
+              options:{responsive:true,maintainAspectRatio:false}
+          }); 
+          
+          pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'),{
+              type:'bar',
+              data:{labels:['Balita','Anak','Remaja','Dewasa','Lansia'],datasets:[{label:'Jiwa',data:[d.warga.usia.balita, d.warga.usia.anak, d.warga.usia.remaja, d.warga.usia.dewasa, d.warga.usia.lansia],backgroundColor:'#198754'}]},
+              options:{responsive:true,maintainAspectRatio:false}
+          });
+        
+          // BINDING SPLIT KAS WARGA PUBLIK
+          document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
+          document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
+          document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
+          
+          document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
+          document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
+          document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
+        
+          document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
+          
+          document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
+          document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
+          document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
+    		if (document.getElementById('pub-zakat-muzakki')) {
+              document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
+          }
+          if (document.getElementById('pub-qurban-peserta')) {
+              let q = d.kasMasjid.qurban || { peserta: 0, sapi: 0, kambing: 0 };
+              document.getElementById('pub-qurban-peserta').innerText = q.peserta + ' Orang';
+              document.getElementById('pub-qurban-hewan').innerText = q.sapi + ' Sapi, ' + q.kambing + ' Kambing';
+          }
+          const tr = document.getElementById('pub-tb-ronda'); 
+          tr.innerHTML = '';
+          if (d.ronda.length === 0) {
+            tr.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada jadwal aktif</td></tr>';
+          } else {
+            const gd = new Map();
+            d.ronda.forEach(r => {
+              if(!gd.has(r.tgl)) { gd.set(r.tgl, { tgl: r.tgl, hari: r.hari, petugas: [] }); }
+              gd.get(r.tgl).petugas.push(r.nama);
+            });
+            gd.forEach(g => {
+              let lp = g.petugas.map(p => `<div class="mb-1"><i class="fas fa-user-shield text-success me-1"></i> ${p}</div>`).join('');
+              tr.innerHTML += `<tr><td style="width: 35%;"><b>${g.tgl}</b><br><small class="text-muted">${g.hari}</small></td><td>${lp}</td><td><span class="badge bg-warning text-dark">Aktif</span></td></tr>`;
+            });
+          }
+        
+          const tk = document.getElementById('pub-tb-kegiatan'); 
+          tk.innerHTML = '';
+          if (d.kegiatan.length === 0) {
+              tk.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">Belum ada kegiatan mendatang</td></tr>';
+          } else {
+              d.kegiatan.forEach(k => {
+                  let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
+                  
+                  tk.innerHTML += `<tr>
+                      <td style="width: 35%;">
+                          <b>${k.tgl}</b><br>
+                          <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
+                      </td>
+                      <td>
+                          <b>${k.nama}</b><br>
+                          <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
+                          ${btnDonasi}
+                      </td>
+                  </tr>`;
               });
-            
-              // 2. Binding Data Kas PKK & Karang Taruna ke Kolom Kanan
-              if (d.kasOrganisasi) {
-                  if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
-                  if(document.getElementById('valPkkIn')) document.getElementById('valPkkIn').innerText = formatRupiah(d.kasOrganisasi.pkkIn);
-                  if(document.getElementById('valPkkOut')) document.getElementById('valPkkOut').innerText = formatRupiah(d.kasOrganisasi.pkkOut);
-
-                  if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
-                  if(document.getElementById('valKtIn')) document.getElementById('valKtIn').innerText = formatRupiah(d.kasOrganisasi.karangTarunaIn);
-                  if(document.getElementById('valKtOut')) document.getElementById('valKtOut').innerText = formatRupiah(d.kasOrganisasi.karangTarunaOut);
-              }
-
-              // BINDING SPLIT KAS WARGA PUBLIK
-              document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
-              document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
-              document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
-              document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
-              document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
-              document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
-              document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
-              
-              document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
-              document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
-              document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
-              
-              if (document.getElementById('pub-zakat-muzakki')) {
-                  document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
-              }
-              if (document.getElementById('pub-qurban-peserta')) {
-                  let q = d.kasMasjid.qurban || { peserta: 0, sapi: 0, kambing: 0 };
-                  document.getElementById('pub-qurban-peserta').innerText = q.peserta + ' Orang';
-                  document.getElementById('pub-qurban-hewan').innerText = q.sapi + ' Sapi, ' + q.kambing + ' Kambing';
-              }
-              
-              const tr = document.getElementById('pub-tb-ronda'); 
-              tr.innerHTML = '';
-              if (d.ronda.length === 0) {
-                tr.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada jadwal aktif</td></tr>';
-              } else {
-                const gd = new Map();
-                d.ronda.forEach(r => {
-                  if(!gd.has(r.tgl)) { gd.set(r.tgl, { tgl: r.tgl, hari: r.hari, petugas: [] }); }
-                  gd.get(r.tgl).petugas.push(r.nama);
-                });
-                gd.forEach(g => {
-                  let lp = g.petugas.map(p => `<div class="mb-1"><i class="fas fa-user-shield text-success me-1"></i> ${p}</div>`).join('');
-                  tr.innerHTML += `<tr><td style="width: 35%;"><b>${g.tgl}</b><br><small class="text-muted">${g.hari}</small></td><td>${lp}</td><td><span class="badge bg-warning text-dark">Aktif</span></td></tr>`;
-                });
-              }
-            
-              const tk = document.getElementById('pub-tb-kegiatan'); 
-              tk.innerHTML = '';
-              if (d.kegiatan.length === 0) {
-                  tk.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">Belum ada kegiatan mendatang</td></tr>';
-              } else {
-                  d.kegiatan.forEach(k => {
-                      let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
-                      tk.innerHTML += `<tr>
-                          <td style="width: 35%;">
-                              <b>${k.tgl}</b><br>
-                              <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
-                          </td>
-                          <td>
-                              <b>${k.nama}</b><br>
-                              <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
-                              ${btnDonasi}
-                          </td>
-                      </tr>`;
-                  });
-              }
-              
-              loadPublicVoting();
-              
-            } else {
-              Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
-            }
+          }
+          
+          loadPublicVoting();
+          
+        } else {
+          // Perbaikan: Notifikasi visual jika ada error di backend agar tidak diam saja
+          Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
+        }
           }).withFailureHandler(err => { 
-            hideLoading(); 
-            Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
+        hideLoading(); 
+        Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
           }).getPublicDashboardData();
         }
         
@@ -7545,81 +7420,29 @@ async function apiGet(action, params = {}) {
         }
         
         function kirimWaRonda(tanggal, namaList) {
-    let rawMode = appSettings['wa_mode_otomatis'];
-    let isGatewayAktif = String(rawMode || '').toLowerCase().trim() === 'aktif';
-
-    let namaKomplek = appSettings['nama_komplek'] || 'Lingkungan Kita';
-    let namaApp = appSettings['nama_aplikasi'] || 'SI-GAS';
-    let daftarNamaRapi = namaList.split(',').map(nama => `• ${nama.trim()}`).join('\n');
-
-    // Teks untuk Grup WA
-    let textGrup = `Assalamualaikum, Ronda Malam Jaga *${namaKomplek}*, Jaga Keluarga, Jaga Kebersamaan!\n\n` +
-                   `*Jadwal Ronda: ${tanggal}*\n\n*Petugas Jaga:*\n${daftarNamaRapi}\n\n` +
+        // Mengambil Nama Komplek dari pengaturan, jika kosong gunakan default 'Lingkungan Kita'
+        let namaKomplek = appSettings['nama_komplek'] || 'Lingkungan Kita';
+        let namaApp = appSettings['nama_aplikasi'] || 'SI-GAS';
+    
+        // Mengolah daftar nama agar tampil rapi ke bawah (mengubah koma menjadi format list)
+        let daftarNamaRapi = namaList.split(',').map(nama => `• ${nama.trim()}`).join('\n');
+    
+        // Template Pesan WA Sesuai Permintaan
+        let text = `Assalamualaikum, Ronda Malam Jaga *${namaKomplek}*, Jaga Keluarga, Jaga Kebersamaan!\n\n` +
+                   `*Jadwal Ronda: ${tanggal}*\n\n` +
+                   `*Petugas Jaga:*\n${daftarNamaRapi}\n\n` +
                    `Keamanan *${namaKomplek}* adalah tanggung jawab kita bersama, bukan hanya tugas sebagian orang! Lingkungan yang aman lahir dari kepedulian yang nyata. Mari hadir di pos ronda demi ketenteraman bersama.\n\n` +
                    `_Pesan otomatis dari Aplikasi ${namaApp}_`;
-
-    if (isGatewayAktif) {
-        // TAMPILKAN PILIHAN JIKA GATEWAY AKTIF
-        Swal.fire({
-            title: 'Tujuan Pengingat Ronda',
-            text: `Jadwal: ${tanggal}`,
-            icon: 'question',
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-users"></i> Ke Grup WA',
-            denyButtonText: '<i class="fas fa-user"></i> Japri Petugas',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: '#198754',
-            denyButtonColor: '#0d6efd'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                eksekusiKirimServer('grup', textGrup);
-            } else if (result.isDenied) {
-                eksekusiKirimServer('personal', ''); // Teks personal dirakit di backend agar bisa menyebut nama masing-masing
-            }
-        });
-    } else {
-        // JIKA SAKLAR MATI, HANYA BISA BUKA TAB WA (Default ke Grup)
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textGrup)}`, '_blank');
-        updateStatusServer();
-    }
-
-    // --- Fungsi Bantuan untuk Menghubungi Backend ---
-    function eksekusiKirimServer(mode, textBroadcast) {
-        Swal.fire({title: 'Memproses...', text: 'Mengirim pesan WA...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-        
-        let token = localStorage.getItem('sigas_token') || localStorage.getItem('token');
-        let payload = {
-            tanggal: tanggal,
-            namaList: namaList,
-            mode: mode,
-            textGrup: textBroadcast,
-            // PERBAIKAN: Masukkan JID Grup secara langsung agar aman dan tidak kosong
-            grupJid: appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || '6287834250249-1630667600@g.us',
-            namaKomplek: namaKomplek,
-            namaApp: namaApp
-        };
-
-        google.script.run
-            .withSuccessHandler(res => {
-                if (res.success) {
-                    Swal.fire('Berhasil!', `Pengingat ronda mode ${mode === 'grup' ? 'Grup' : 'Japri'} terkirim.`, 'success');
-                    updateStatusServer();
-                } else {
-                    Swal.fire('Gagal', res.message, 'error');
-                }
-            })
-            .withFailureHandler(err => Swal.fire('Error', String(err), 'error'))
-            .prosesKirimRondaOtomatis(token, payload);
-    }
-
-    function updateStatusServer() {
-        let token = localStorage.getItem('sigas_token') || localStorage.getItem('token');
+    
+        // Membuka WhatsApp Web / App
+        let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    
+        // Update status di server
         google.script.run.withSuccessHandler(res => { 
-            if(res.success && typeof loadDataRonda === 'function') loadDataRonda(); 
-        }).updateNotifRondaTerkirim(token, tanggal);
-    }
-}
+            if(res.success) loadDataRonda(); 
+        }).updateNotifRondaTerkirim(localStorage.getItem('sigas_token'), tanggal);
+    	}
         
         function openModalEditRonda(id) {
            const p = window.dataRondaGlobal.find(x => x.id === id); if(!p) return;
@@ -7958,63 +7781,33 @@ async function apiGet(action, params = {}) {
         // =====================================================
         // SHARE WA - KEGIATAN & DONASI (TANPA LINK)
         // =====================================================
-       // =====================================================
-        // SHARE WA - KEGIATAN WARGA (OTOMATIS / MANUAL)
-        // =====================================================
         function shareWaKegiatan(id) {
           const k = dataKegiatanGlobal.find(x => x.id === id);
           if (!k) {
-            return Swal.fire('Error', 'Data kegiatan tidak ditemukan', 'error');
+            Swal.fire('Error', 'Data kegiatan tidak ditemukan', 'error');
+            return;
           }
           
-          const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
+          // Mengambil nama aplikasi dinamis
+          const namaApp = appSettings['nama_aplikasi'] || 'Aplikasi Warga';
           
           let text = `*PENGUMUMAN KEGIATAN WARGA*\n\n` +
-                     `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                     `Diinformasikan kepada seluruh warga Bapak/Ibu, bahwa akan diadakan kegiatan lingkungan:\n\n` +
-                     `*Agenda:* ${k.deskripsi}\n` +
-                     `*Tanggal:* ${k.tanggalIndo} (${k.hari})\n` +
-                     `*Waktu:* ${k.waktu} s/d ${k.waktuSelesai} WIB\n` +
-                     `*Lokasi:* ${k.lokasi}\n\n`;
+                 `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
+                 `Diinformasikan kepada seluruh warga Bapak/Ibu, bahwa akan diadakan kegiatan lingkungan:\n\n` +
+                 `*Agenda:* ${k.deskripsi}\n` +
+                 `*Tanggal:* ${k.tanggalIndo} (${k.hari})\n` +
+                 `*Waktu:* ${k.waktu} s/d ${k.waktuSelesai} WIB\n` +
+                 `*Lokasi:* ${k.lokasi}\n\n`;
           
           if (k.openDonasi === 'Ya') {
             text += `*PARTISIPASI DONASI / KONSUMSI*\nPanitia membuka kesempatan bagi warga yang ingin berpartisipasi menyumbang konsumsi/donasi.\n\n`;
           }
           
+          // Kalimat ajakan membuka aplikasi (Sudah Dinamis)
           text += `👉 *Silakan buka ${namaApp} di HP Anda untuk melihat info lebih lanjut atau ikut berpartisipasi.*\n\n` +
-                  `Dimohon kehadiran dan partisipasinya. Terima kasih. 🙏\n\n` +
-                  `_Pesan otomatis dari ${namaApp}_`;
+              `Dimohon kehadiran dan partisipasinya. Terima kasih. 🙏\n\n` +
+              `_Pesan otomatis dari ${namaApp}_`;
           
-          // Cek Status Saklar & JID Grup
-          let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
-          let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-          let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
-
-          // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
-          if (isGatewayAktif && noGrupTujuan) {
-              Swal.fire({
-                  title: 'Mengirim Pesan...',
-                  text: 'Pesan kegiatan sedang dikirim otomatis ke Grup WhatsApp...',
-                  allowOutsideClick: false,
-                  didOpen: () => { Swal.showLoading(); }
-              });
-
-              google.script.run
-                  .withSuccessHandler(function(res) {
-                      if (res && res.success) {
-                          Swal.fire('Berhasil!', 'Pesan kegiatan telah terkirim otomatis ke Grup WhatsApp.', 'success');
-                      } else {
-                          Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
-                      }
-                  })
-                  .withFailureHandler(function(err) {
-                      Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
-                  })
-                  .sendWhatsAppMessage(noGrupTujuan, text, k.gambar || k.gambar_url || '');
-              return;
-          }
-
-          // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
           let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
           let tempLink = document.createElement('a');
           tempLink.href = waUrl;
@@ -8025,56 +7818,31 @@ async function apiGet(action, params = {}) {
         }
         
         // =====================================================
-        // SHARE WA - POLLING / E-VOTING (OTOMATIS / MANUAL)
+        // SHARE WA - POLLING / E-VOTING (TANPA LINK)
         // =====================================================
         function shareWaVoting(id) {
           const v = dataVotingGlobal.find(x => x.id === id);
           if (!v) {
-            return Swal.fire('Error', 'Data polling tidak ditemukan', 'error');
+            Swal.fire('Error', 'Data polling tidak ditemukan', 'error');
+            return;
           }
           
-          const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
+          // Mengambil nama aplikasi dinamis
+          const namaApp = appSettings['nama_aplikasi'] || 'Aplikasi Warga';
           
           let text = `*E-VOTING / POLLING WARGA*\n\n` +
-                     `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                     `Mohon partisipasi Bapak/Ibu/Sdr/i untuk memberikan suara atau pendapat pada polling berikut:\n\n` +
-                     `*Judul:* ${v.judul}\n` +
-                     `*Keterangan:* ${v.deskripsi}\n` +
-                     `*Pilihan Tersedia:* ${v.opsi}\n\n` +
-                     `👉 *Silakan buka ${namaApp} di HP Anda untuk mulai memberikan suara.*\n\n` +
-                     `Satu suara dari Anda sangat berarti demi kemajuan lingkungan kita bersama. 🙏\n\n` +
-                     `_Pesan otomatis dari ${namaApp}_`;
+                 `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
+                 `Mohon partisipasi Bapak/Ibu/Sdr/i untuk memberikan suara atau pendapat pada polling berikut:\n\n` +
+                 `*Judul:* ${v.judul}\n` +
+                 `*Keterangan:* ${v.deskripsi}\n` +
+                 `*Pilihan Tersedia:* ${v.opsi}\n\n` +
+                 
+                 // Kalimat ajakan membuka aplikasi (Sudah Dinamis)
+                 `👉 *Silakan buka ${namaApp} di HP Anda untuk mulai memberikan suara.*\n\n` +
+                 
+                 `Satu suara dari Anda sangat berarti demi kemajuan lingkungan kita bersama. 🙏\n\n` +
+                 `_Pesan otomatis dari ${namaApp}_`;
           
-          // Cek Status Saklar & JID Grup
-          let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
-          let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-          let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
-
-          // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
-          if (isGatewayAktif && noGrupTujuan) {
-              Swal.fire({
-                  title: 'Mengirim Pesan...',
-                  text: 'Pesan voting sedang dikirim otomatis ke Grup WhatsApp...',
-                  allowOutsideClick: false,
-                  didOpen: () => { Swal.showLoading(); }
-              });
-
-              google.script.run
-                  .withSuccessHandler(function(res) {
-                      if (res && res.success) {
-                          Swal.fire('Berhasil!', 'Pesan polling/voting telah terkirim otomatis ke Grup WhatsApp.', 'success');
-                      } else {
-                          Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
-                      }
-                  })
-                  .withFailureHandler(function(err) {
-                      Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
-                  })
-                  .sendWhatsAppMessage(noGrupTujuan, text, v.gambar || v.gambar_url || '');
-              return;
-          }
-
-          // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
           let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
           let tempLink = document.createElement('a');
           tempLink.href = waUrl;
@@ -8811,48 +8579,35 @@ async function apiGet(action, params = {}) {
     }
         
         function saveSettingUmum(e) { 
-  e.preventDefault(); 
-  
-  // Fungsi kecil pembantu: pastikan angka tidak menghilang jika diisi 0
-  const getVal = (id) => {
-    let el = document.getElementById(id);
-    if (!el) return "";
-    let val = el.value.trim();
-    // Jika value sama dengan "0", kembalikan "0" (jangan biarkan dianggap kosong)
-    if (val === "0") return "0"; 
-    // Jika value benar-benar kosong, kembalikan string kosong
-    if (val === "") return "";
-    return val;
-  };
-
-  const p = {
-    'iuran_warga': getVal('set_iuran_warga'), 
-    'denda_ronda': getVal('set_denda_ronda'), 
-    'jenis_permohonan': getVal('set_jenis_permohonan'),
-    'cctv_1_nama': getVal('set_cctv_1_nama'),
-    'cctv_1_url': getVal('set_cctv_1_url'),
-    'cctv_2_nama': getVal('set_cctv_2_nama'),
-    'cctv_2_url': getVal('set_cctv_2_url'),
-    'running_text': getVal('set_running_text'),
-    'ronda_reminder_time': getVal('set_ronda_reminder_time'),
-    'ronda_reminder_mode': getVal('set_ronda_reminder_mode'),
-    'arrears_reminder_date': getVal('set_arrears_reminder_date'),
-    'arrears_reminder_time': getVal('set_arrears_reminder_time') 
-  };
-  
-  const btnSave = document.getElementById('btn-save-setting');
-  if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
-  
-  google.script.run.withSuccessHandler(res => {
-    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan'; }
-    if (res.success) {
-      Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
-      Object.assign(appSettings, p); 
-    } else {
-      Swal.fire('Gagal', res.message, 'error');
-    }
-  }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), p); 
-}
+          e.preventDefault(); 
+          const p = {
+            'iuran_warga': document.getElementById('set_iuran_warga').value, 
+            'denda_ronda': document.getElementById('set_denda_ronda').value, 
+            'jenis_permohonan': document.getElementById('set_jenis_permohonan').value,
+            'cctv_1_nama': document.getElementById('set_cctv_1_nama').value,
+            'cctv_1_url': document.getElementById('set_cctv_1_url').value,
+            'cctv_2_nama': document.getElementById('set_cctv_2_nama').value,
+            'cctv_2_url': document.getElementById('set_cctv_2_url').value,
+            'running_text': document.getElementById('set_running_text').value,
+            'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value,
+            'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value,
+            'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value,
+            'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value 
+          };
+          
+          const btnSave = document.getElementById('btn-save-setting');
+          if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
+          
+          google.script.run.withSuccessHandler(res => {
+            if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan'; }
+            if (res.success) {
+              Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
+              Object.assign(appSettings, p); 
+            } else {
+              Swal.fire('Gagal', res.message, 'error');
+            }
+          }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), p); 
+        }
         
         // --- FUNGSI LOAD & SAVE SUPERADMIN ---
         function loadDataSuperadmin() {
@@ -9418,84 +9173,53 @@ async function apiGet(action, params = {}) {
         }
         
         // Fungsi Eksekusi Simpan Semua QRIS
-function saveAllQris() {
-  const btn = document.getElementById('btn-save-qris');
-  if (btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-  }
-
-  let qrisData = {};
-  let uploadPromises = [];
-
-  for(let i = 1; i <= 4; i++) {
-    // Siapkan wadah datanya
-    qrisData['qris_'+i] = {
-      nama: document.getElementById('qris_'+i+'_nama') ? document.getElementById('qris_'+i+'_nama').value : '',
-      wa: document.getElementById('qris_'+i+'_wa') ? document.getElementById('qris_'+i+'_wa').value : '',
-      base64: null // Gambar di-set kosong dulu
-    };
-
-    // PERBAIKAN: Cara benar membaca file gambar yang di-upload
-    let fileInput = document.getElementById('qris_'+i+'_file'); // Pastikan ID input file Anda adalah qris_1_file, qris_2_file, dst
+        function saveAllQris() {
+      const btn = document.getElementById('btn-save-qris');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+      }
     
-    if (fileInput && fileInput.files.length > 0) {
-      let file = fileInput.files[0];
-      
-      // Buat proses pembacaan gambar (FileReader)
-      let promise = new Promise((resolve, reject) => {
-        let reader = new FileReader();
-        reader.onload = function(e) {
-          qrisData['qris_'+i].base64 = e.target.result; // Masukkan hasil bacaan ke data
-          resolve();
+      let qrisData = {};
+      for(let i=1; i<=4; i++) {
+        qrisData['qris_'+i] = {
+          nama: document.getElementById('qris_'+i+'_nama') ? document.getElementById('qris_'+i+'_nama').value : '',
+          wa: document.getElementById('qris_'+i+'_wa') ? document.getElementById('qris_'+i+'_wa').value : '',
+          base64: document.getElementById('qris_'+i+'_base64') ? document.getElementById('qris_'+i+'_base64').value : ''
         };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-      uploadPromises.push(promise);
-    }
-  }
-
-  // Ambil status saklar mode WA otomatis di tab QRIS
-  let waModeVal = document.getElementById('set_wa_mode_otomatis') && document.getElementById('set_wa_mode_otomatis').checked ? 'Aktif' : 'Nonaktif';
-
-  // TUNGGU SEMUA GAMBAR SELESAI DIBACA BROWSER, LALU KIRIM
-  Promise.all(uploadPromises).then(() => {
-    // 1. Simpan data gambar & nomor WA QRIS
-    google.script.run
-      .withSuccessHandler(res => {
-        // 2. Simpan status saklar ke database pengaturan
-        google.script.run.withSuccessHandler(() => {
+      }
+    
+      // Ambil status saklar mode WA otomatis di tab QRIS
+      let waModeVal = document.getElementById('set_wa_mode_otomatis') && document.getElementById('set_wa_mode_otomatis').checked ? 'Aktif' : 'Nonaktif';
+    
+      // 1. Simpan data gambar & nomor WA QRIS
+      google.script.run
+        .withSuccessHandler(res => {
+          // 2. Simpan status saklar ke database pengaturan
+          google.script.run.withSuccessHandler(() => {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
+            }
+            Swal.fire({
+              icon: 'success', 
+              title: 'Berhasil', 
+              text: 'Pengaturan QRIS dan Mode WA Otomatis berhasil disimpan!', 
+              timer: 1500, 
+              showConfirmButton: false
+            });
+            if (typeof loadAppSettingsAndInit === 'function') loadAppSettingsAndInit();
+          }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), { 'wa_mode_otomatis': waModeVal });
+        })
+        .withFailureHandler(err => {
           if (btn) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
           }
-          Swal.fire({
-            icon: 'success', 
-            title: 'Berhasil', 
-            text: 'Pengaturan QRIS dan Mode WA Otomatis berhasil disimpan!', 
-            timer: 1500, 
-            showConfirmButton: false
-          });
-          if (typeof loadAppSettingsAndInit === 'function') loadAppSettingsAndInit();
-        }).updateAppSettingsBulk(localStorage.getItem('token') || localStorage.getItem('sigas_token'), { 'wa_mode_otomatis': waModeVal });
-      })
-      .withFailureHandler(err => {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
-        }
-        Swal.fire('Error', String(err), 'error');
-      })
-      .saveQrisSettings(localStorage.getItem('token') || localStorage.getItem('sigas_token'), qrisData);
-  }).catch(err => {
-    if (btn) {
-       btn.disabled = false;
-       btn.innerHTML = '<i class="fas fa-upload"></i> Simpan Pengaturan QRIS';
+          Swal.fire('Error', String(err), 'error');
+        })
+        .saveQrisSettings(localStorage.getItem('sigas_token'), qrisData);
     }
-    Swal.fire('Error', 'Gagal memproses gambar QRIS.', 'error');
-  });
-}
         
         function renderKonfirmasiKasWarga(pend) {
           const ar = document.getElementById('area-konfirmasi-warga');
@@ -10379,11 +10103,9 @@ function shareWaPengajian(id) {
   // =====================================================
   // CEK PENGATURAN WA GATEWAY (Mode Latar Belakang)
   // =====================================================
-  let rawMode = appSettings['wa_mode_otomatis'] || '';
-  let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-  
-  // Deteksi berbagai kemungkinan nama kunci JID grup di appSettings
-  let noGrupTujuan = appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'] || '6287834250249-1630667600@g.us'; 
+  // PERBAIKAN: Menggunakan wa_mode_otomatis sesuai pengaturan Anda
+  let isGatewayAktif = typeof appSettings !== 'undefined' && (appSettings['wa_mode_otomatis'] === true || appSettings['wa_mode_otomatis'] === 'true' || appSettings['wa_mode_otomatis'] === 'Ya'); 
+  let noGrupTujuan = typeof appSettings !== 'undefined' ? appSettings['wa_group_jid'] : ""; 
 
   // JIKA SAKLAR GATEWAY AKTIF & NOMOR GRUP ADA
   if (isGatewayAktif && noGrupTujuan) {
@@ -10391,7 +10113,7 @@ function shareWaPengajian(id) {
     // Tampilkan loading
     Swal.fire({
       title: 'Mengirim Pesan...',
-      text: 'Pesan kajian sedang dikirim ke Grup WhatsApp warga di latar belakang.',
+      text: 'Pesan sedang dikirim ke Grup WhatsApp warga di latar belakang.',
       allowOutsideClick: false,
       didOpen: () => { Swal.showLoading(); }
     });
@@ -10399,14 +10121,14 @@ function shareWaPengajian(id) {
     // Panggil fungsi pengirim pesan Gateway di code.gs
     google.script.run
       .withSuccessHandler(function(res) {
-        if(res && res.success) {
+        if(res.success) {
            Swal.fire('Berhasil!', 'Pesan kajian telah terkirim otomatis ke Grup WhatsApp.', 'success');
         } else {
-           Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
+           Swal.fire('Gagal', res.message, 'error');
         }
       })
       .withFailureHandler(function(err) {
-        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
+        Swal.fire('Error', "Koneksi ke server gagal: " + err.message, 'error');
       })
       .sendWhatsAppMessage(noGrupTujuan, text, p.gambar_url);
       
@@ -10939,66 +10661,29 @@ function shareWaPengajian(id) {
           }).savePemudikMandiri(p);
         }
         
-        // =====================================================
-        // BROADCAST WA - PESAN LAPOR MUDIK (AMAN & HYBRID)
-        // =====================================================
+        // Fungsi Broadcast Pesan Lapor Mudik ke WhatsApp Group / Warga
         function shareWaBroadcastPemudik() {
-          try {
-            let namaKomplek = (typeof getSetting === 'function' ? getSetting('nama_komplek', 'Warga Komplek') : 'Warga Komplek');
-            let namaApp = (typeof getSetting === 'function' ? getSetting('nama_aplikasi', 'SI-GAS') : 'SI-GAS');
-            
-            let text = "*HIMBAUAN KEAMANAN & PELAPORAN RUMAH KOSONG (MUDIK)*\n\n" +
-                       "Assalamualaikum Warahmatullahi Wabarakatuh,\n\n" +
-                       "Kepada seluruh warga *" + namaKomplek + "* yang berencana melaksanakan mudik/pulang kampung:\n\n" +
-                       "Demi keamanan dan ketertiban lingkungan bersama, mohon bagi warga yang akan meninggalkan rumah untuk:\n" +
-                       "1. Memeriksa kembali kompor, aliran listrik, dan mengunci pintu/jendela dengan rapat.\n" +
-                       "2. Melaporkan rencana mudik Anda agar keamanan / petugas ronda dapat meningkatkan patroli di sekitar rumah Anda.\n\n" +
-                       "Silakan buka Aplikasi Portal Warga (" + namaApp + ") di HP Anda, lalu pilih menu Lapor Mudik untuk mengisi formulir pendataan rumah kosong.\n\n" +
-                       "Mari kita saling jaga keamanan lingkungan kita. Selamat mudik, semoga selamat sampai tujuan dan kembali dalam keadaan sehat walafiat. Aamiin.\n\n" +
-                       "_Pesan otomatis dari Sistem Informasi " + namaApp + "_";
-            
-            // Cek Status Saklar & JID Grup
-            let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
-            let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-            let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
-
-            // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
-            if (isGatewayAktif && noGrupTujuan) {
-                Swal.fire({
-                    title: 'Mengirim Broadcast...',
-                    text: 'Pesan himbauan mudik sedang dikirim otomatis ke Grup WhatsApp...',
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
-
-                google.script.run
-                    .withSuccessHandler(function(res) {
-                        if (res && res.success) {
-                            Swal.fire('Berhasil!', 'Broadcast himbauan mudik telah terkirim otomatis ke Grup WhatsApp.', 'success');
-                        } else {
-                            Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
-                        }
-                    })
-                    .withFailureHandler(function(err) {
-                        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
-                    })
-                    .sendWhatsAppMessage(noGrupTujuan, text, null);
-                return;
-            }
-
-            // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
-            let waUrl = "https://wa.me/?text=" + encodeURIComponent(text);
-            let tempLink = document.createElement('a');
-            tempLink.href = waUrl;
-            tempLink.target = '_blank';
-            document.body.appendChild(tempLink);
-            tempLink.click();
-            document.body.removeChild(tempLink);
-
-          } catch (e) {
-            Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
-          }
-        }
+      let namaKomplek = getSetting('nama_komplek', 'Warga Komplek');
+      let namaApp = getSetting('nama_aplikasi', 'SI-GAS');
+      
+      let text = "*HIMBAUAN KEAMANAN & PELAPORAN RUMAH KOSONG (MUDIK)*\n\n" +
+                 "Assalamualaikum Warahmatullahi Wabarakatuh,\n\n" +
+                 "Kepada seluruh warga *" + namaKomplek + "* yang berencana melaksanakan mudik/pulang kampung:\n\n" +
+                 "Demi keamanan dan ketertiban lingkungan bersama, mohon bagi warga yang akan meninggalkan rumah untuk:\n" +
+                 "1. Memeriksa kembali kompor, aliran listrik, dan mengunci pintu/jendela dengan rapat.\n" +
+                 "2. Melaporkan rencana mudik Anda agar keamanan/petugas ronda dapat meningkatkan patroli di sekitar rumah Anda.\n\n" +
+                 "Silakan buka Aplikasi Portal Warga (" + namaApp + ") di HP Anda, lalu pilih menu Lapor Mudik untuk mengisi formulir pendataan rumah kosong.\n\n" +
+                 "Mari kita saling jaga keamanan lingkungan kita. Selamat mudik, semoga selamat sampai tujuan dan kembali dalam keadaan sehat walafiat. Aamiin.\n\n" +
+                 "_Pesan otomatis dari Sistem Informasi " + namaApp + "_";
+    
+      let waUrl = "https://wa.me/?text=" + encodeURIComponent(text);
+      let tempLink = document.createElement('a');
+      tempLink.href = waUrl;
+      tempLink.target = '_blank';
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+    }
         
         
         let activeQrisIndex = 1;
@@ -12726,78 +12411,16 @@ function shareWaPengajian(id) {
         
         function openModalPosyanduJadwal() { document.getElementById('formPsyJadwal').reset(); document.getElementById('psj_tgl').valueAsDate = new Date(); new bootstrap.Modal(document.getElementById('modalPsyJadwal')).show(); }
         
-        // =====================================================
-        // SHARE WA - POSYANDU & KESEHATAN (SUPER AMAN)
-        // =====================================================
         function shareWaPosyandu(id) {
-          try {
-            // Ambil data langsung dari elemen global jika ada, atau buat objek default dari parameter
-            let p = {};
-            try {
-              let listData = window.dataPosyanduGlobal || dataPosyanduGlobal || [];
-              if (Array.isArray(listData)) {
-                p = listData.find(x => x.id === id) || {};
-              }
-            } catch (err) {
-              p = {};
-            }
-
-            const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
-            
-            let text = `*INFORMASI POSYANDU & KESEHATAN*\n\n` +
-                       `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                       `Diinformasikan kepada seluruh warga / ibu balita, akan diselenggarakan kegiatan pelayanan kesehatan:\n\n` +
-                       `*Jenis Layanan:* ${p.jenisLayanan || p.layanan || 'Pemeriksaan Kesehatan / Penimbangan Balita'}\n` +
-                       `*Tanggal:* ${p.tanggal || 'Hari Ini'}\n` +
-                       `*Waktu:* ${p.waktu || '08:00 - Selesai'} WIB\n` +
-                       `*Lokasi:* ${p.lokasi || 'Posyandu / Balai Warga'}\n\n` +
-                       `*Keterangan:* ${p.keterangan || '-'}\n\n` +
-                       `👉 *Silakan buka ${namaApp} di HP Anda untuk informasi selengkapnya.*\n\n` +
-                       `Dimohon kehadiran dan partisipasinya demi kesehatan bersama. 🙏\n\n` +
-                       `_Pesan otomatis dari ${namaApp}_`;
-            
-            // Cek Status Saklar & JID Grup
-            let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
-            let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-            let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
-
-            // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
-            if (isGatewayAktif && noGrupTujuan) {
-                Swal.fire({
-                    title: 'Mengirim Pesan...',
-                    text: 'Pesan posyandu sedang dikirim otomatis ke Grup WhatsApp...',
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
-
-                google.script.run
-                    .withSuccessHandler(function(res) {
-                        if (res && res.success) {
-                            Swal.fire('Berhasil!', 'Pesan posyandu telah terkirim otomatis ke Grup WhatsApp.', 'success');
-                        } else {
-                            Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
-                        }
-                    })
-                    .withFailureHandler(function(err) {
-                        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
-                    })
-                    .sendWhatsAppMessage(noGrupTujuan, text, p.gambar || p.gambar_url || '');
-                return;
-            }
-
-            // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
-            let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            let tempLink = document.createElement('a');
-            tempLink.href = waUrl;
-            tempLink.target = '_blank';
-            document.body.appendChild(tempLink);
-            tempLink.click();
-            document.body.removeChild(tempLink);
-
-          } catch (e) {
-            Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
-          }
-        }
+        const j = dataPosyanduGlobal.jadwal.find(x => x.id === id);
+        if (!j) return Swal.fire('Error', 'Jadwal tidak ditemukan', 'error');
+        
+        // Tarik nama aplikasi dinamis
+        let namaApp = appSettings['nama_aplikasi'] || 'SI-GAS';
+        
+        let text = `*JADWAL POSYANDU & KESEHATAN*\n\nAssalamualaikum, diinformasikan kepada warga bahwa akan diselenggarakan kegiatan:\n\n*Layanan:* ${j.jenis}\n*Tanggal:* ${j.tanggal}\n*Waktu:* ${j.waktu} WIB\n*Lokasi:* ${j.lokasi}\n*Keterangan:* ${j.keterangan}\n\nMohon kehadiran Bapak/Ibu/Balita/Lansia sesuai jadwal. Terima kasih 🙏\n\n_Pesan otomatis dari Aplikasi ${namaApp}_`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
         
         function openModalPosyanduPemeriksaan() {
         document.getElementById('formPsyPemeriksaan').reset();
@@ -12907,76 +12530,16 @@ function shareWaPengajian(id) {
         });
         }
         
-        // =====================================================
-        // SHARE WA - AGENDA PKK (AMAN & HYBRID)
-        // =====================================================
         function shareWaPkk(id) {
-          try {
-            let p = {};
-            try {
-              let listData = window.dataPkkGlobal || dataPkkGlobal || window.agendaPkkGlobal || [];
-              if (Array.isArray(listData)) {
-                p = listData.find(x => x.id === id) || {};
-              }
-            } catch (err) {
-              p = {};
-            }
-
-            const namaApp = (typeof appSettings !== 'undefined' && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'Aplikasi Warga';
-            
-            let text = `*INFORMASI AGENDA PKK*\n\n` +
-                       `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                       `Diinformasikan kepada seluruh warga / pengurus PKK, akan diselenggarakan kegiatan:\n\n` +
-                       `*Nama Kegiatan:* ${p.namaKegiatan || p.agenda || 'Penyuluhan Warga'}\n` +
-                       `*Tanggal & Waktu:* ${p.tanggal || 'Hari Ini'} ${p.waktu || ''}\n` +
-                       `*Lokasi:* ${p.lokasi || 'Balai Warga'}\n` +
-                       `*Anggaran:* ${p.anggaran || '-'}\n\n` +
-                       `👉 *Silakan buka ${namaApp} di HP Anda untuk informasi selengkapnya.*\n\n` +
-                       `Demikian disampaikan, terima kasih atas perhatian dan partisipasinya. 🙏\n\n` +
-                       `_Pesan otomatis dari ${namaApp}_`;
-            
-            // Cek Status Saklar & JID Grup
-            let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
-            let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-            let noGrupTujuan = (typeof appSettings !== 'undefined' && (appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'])) || '6287834250249-1630667600@g.us';
-
-            // JIKA SAKLAR AKTIF & NOMOR GRUP ADA -> KIRIM OTOMATIS VIA GATEWAY
-            if (isGatewayAktif && noGrupTujuan) {
-                Swal.fire({
-                    title: 'Mengirim Pesan...',
-                    text: 'Pesan agenda PKK sedang dikirim otomatis ke Grup WhatsApp...',
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
-
-                google.script.run
-                    .withSuccessHandler(function(res) {
-                        if (res && res.success) {
-                            Swal.fire('Berhasil!', 'Pesan agenda PKK telah terkirim otomatis ke Grup WhatsApp.', 'success');
-                        } else {
-                            Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
-                        }
-                    })
-                    .withFailureHandler(function(err) {
-                        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
-                    })
-                    .sendWhatsAppMessage(noGrupTujuan, text, p.gambar || p.gambar_url || '');
-                return;
-            }
-
-            // JIKA SAKLAR MATI -> JALANKAN MODE MANUAL (BUKA WA)
-            let waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            let tempLink = document.createElement('a');
-            tempLink.href = waUrl;
-            tempLink.target = '_blank';
-            document.body.appendChild(tempLink);
-            tempLink.click();
-            document.body.removeChild(tempLink);
-
-          } catch (e) {
-            Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
-          }
-        }
+        const k = dataPkkGlobal.kegiatan.find(x => x.id === id);
+        if (!k) return Swal.fire('Error', 'Agenda tidak ditemukan', 'error');
+        
+        // Tarik nama aplikasi dinamis
+        let namaApp = appSettings['nama_aplikasi'] || 'SI-GAS';
+        
+        let text = `*AGENDA KEGIATAN IBU-IBU PKK*\n\nAssalamualaikum Ibu-ibu,\nDiinformasikan agenda kegiatan PKK:\n\n*Agenda:* ${k.nama}\n*Tanggal:* ${k.tanggal}\n*Waktu:* ${k.waktu} WIB\n*Lokasi:* ${k.lokasi}\n\nKehadiran Ibu-ibu sangat dinantikan. Terima kasih 🙏\n\n_Pesan otomatis dari Aplikasi ${namaApp}_`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
         
         function renderTablePkkDasawisma() {
         let tb = document.getElementById('tbody-pkk-dasawisma');
@@ -13854,98 +13417,6 @@ function shareWaPengajian(id) {
     reader.readAsDataURL(file);
       }
     }
-
-function loadPendingOrgKas() {
-    google.script.run.withSuccessHandler(res => {
-        // Render daftar transaksi pending PKK & Karang Taruna di tabel konfirmasi pengurus
-        // Ketika pengurus klik tombol "Setujui", panggil: approveOrgTransaction(orgType, rowIdx)
-    }).getKasOrgData();
-}
-
-// Fungsi untuk menampilkan modal QRIS Organisasi (PKK / Karang Taruna)
-       function showQrisOrg(orgType) {
-            let title = orgType === 'PKK' ? 'QRIS 4 - Kas PKK' : 'QRIS 3 - Kas Karang Taruna';
-            let qrisImageSettingKey = orgType === 'PKK' ? 'qris_pkk_img' : 'qris_karta_img';
-            let qrisImgUrl = (typeof appSettings !== 'undefined' && appSettings[qrisImageSettingKey]) ? appSettings[qrisImageSettingKey] : (appSettings['qris_umum_img'] || '');
-
-            Swal.fire({
-                title: `<div class="fw-bold text-success fs-5 mb-1"><i class="fas fa-qrcode me-2"></i>${title}</div>`,
-                html: `
-                    <div class="text-center p-2">
-                        ${qrisImgUrl ? `
-                            <div class="bg-light p-3 rounded-4 shadow-sm mb-3 d-inline-block border">
-                                <img src="${qrisImgUrl}" class="img-fluid rounded-3" style="max-height: 200px; object-fit: contain;" alt="QRIS">
-                            </div>
-                        ` : `
-                            <div class="alert alert-warning border-0 bg-warning-subtle text-warning-emphasis rounded-4 p-3 small mb-3">
-                                <i class="fas fa-exclamation-triangle me-1"></i> Gambar QRIS belum diatur di menu Pengaturan. Silakan scan atau transfer manual.
-                            </div>
-                        `}
-                        <p class="text-muted small mb-4 px-2">Silakan scan QRIS di atas melalui aplikasi m-banking atau e-wallet Anda, lalu lengkapi detail setoran di bawah ini.</p>
-                        
-                        <div class="form-floating mb-3">
-                            <input type="number" class="form-control rounded-pill px-3 shadow-none border-success-subtle" id="qrisNominal" placeholder="Nominal" style="font-size: 0.95rem;">
-                            <label for="qrisNominal" class="text-muted ps-3">Nominal Transfer (Rp)</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control rounded-pill px-3 shadow-none border-success-subtle" id="qrisKeterangan" placeholder="Keterangan" style="font-size: 0.95rem;">
-                            <label for="qrisKeterangan" class="text-muted ps-3">Keterangan / Nama Pembayar</label>
-                        </div>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Kirim Konfirmasi',
-                cancelButtonText: 'Batal',
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: 'btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm me-2',
-                    cancelButton: 'btn btn-light rounded-pill px-4 py-2 fw-semibold text-secondary border',
-                    popup: 'rounded-4 p-4 shadow'
-                },
-                preConfirm: () => {
-                    let nominal = document.getElementById('qrisNominal').value;
-                    let keterangan = document.getElementById('qrisKeterangan').value;
-                    if (!nominal || nominal <= 0) {
-                        Swal.showValidationMessage('Masukkan nominal transfer dengan benar!');
-                        return false;
-                    }
-                    return { nominal, keterangan, noWa: '' };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    showLoading();
-                    google.script.run.withSuccessHandler(res => {
-                        hideLoading();
-                        if (res && res.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil Dikirim!',
-                                text: res.message,
-                                confirmButtonColor: '#198754',
-                                customClass: { popup: 'rounded-4 shadow' }
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: res.message || 'Terjadi kesalahan sistem.',
-                                confirmButtonColor: '#198754',
-                                customClass: { popup: 'rounded-4 shadow' }
-                            });
-                        }
-                    }).withFailureHandler(err => {
-                        hideLoading();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error Koneksi',
-                            text: 'Gagal terhubung ke server: ' + err,
-                            confirmButtonColor: '#198754',
-                            customClass: { popup: 'rounded-4 shadow' }
-                        });
-                    }).submitQrisOrgPayment(orgType, result.value);
-                }
-            });
-        }
   </script>
   </body>
 </html>
