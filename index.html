@@ -6596,7 +6596,23 @@ async function apiGet(action, params = {}) {
           p.value = '';
     
           Swal.fire({icon:'success', title:'Login Berhasil', timer:1000, showConfirmButton:false});
+          
+          // ==========================================
+          // SOLUSI BLANK PUTIH: Paksa Reset Tampilan
+          // ==========================================
+          let loginPage = document.getElementById('login-page');
+          if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
+          
+          let publicPage = document.getElementById('public-page');
+          if (publicPage) publicPage.style.display = 'none';
+          
+          let appLayout = document.getElementById('app-layout');
+          if (appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;';
+          // ==========================================
+
+          // Lanjutkan memuat data dashboard
           showApp();
+          
         } else { 
           if (res.isBlocked && res.remainingSecs > 0) {
             startLoginCountdown(res.remainingSecs);
