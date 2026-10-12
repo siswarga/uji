@@ -60,28 +60,21 @@
       color: var(--primary-color);
     }
     
-  #login-page {
-    display: none; /* Status awal disembunyikan */
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background-color: rgba(0, 0, 0, 0.5) !important; /* Latar belakang semi-transparan agar kontras */
-    z-index: 99999 !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-.login-card {
-    background: #ffffff !important;
-    border-radius: 20px !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
-    padding: 40px !important;
-    width: 100% !important;
-    max-width: 400px !important;
-    z-index: 100000 !important;
-}
+    #login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .login-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+    }
     
     .btn-primary {
       background-color: var(--primary-color);
@@ -5833,7 +5826,7 @@ async function apiGet(action, params = {}) {
         let idleTimer;
         const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // Waktu maksimal diam: 15 menit (dalam milidetik)
         let isTimerResetting = false;
-        //setInterval(() => {
+        setInterval(() => {
         // 1. Jika sedang berada di Portal Publik (Dashboard Warga)
         let publicPage = document.getElementById('public-page');
         if (publicPage && publicPage.style.display !== 'none') {
@@ -6426,17 +6419,20 @@ async function apiGet(action, params = {}) {
           }
         }
         
-function triggerAdminLogin() { 
-console.log("=== LOGO DIKLIK 2X ===");
+        function triggerAdminLogin() { 
+    console.log("=== LOGO DIKLIK 2X ===");
     
     const loginPage = document.getElementById('login-page');
 
     if (loginPage) {
+        // KUNCI: Kita biarkan public-page tetap tampil (tidak diubah display: none).
+        // Kita cukup panggil login-page agar menutupi layar dari atas (overlay).
         loginPage.style.cssText = 'display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background-color: #f8f9fa !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important;';
         
+        // Memastikan kartu form terlihat rapi di tengah
         const loginCard = loginPage.querySelector('.login-card');
         if (loginCard) {
-            loginCard.style.cssText = 'background: white !important; padding: 40px !important; border-radius: 20px !important; width: 90% !important; max-width: 400px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; z-index: 9999999 !important; display: !important; position: relative !important;';
+            loginCard.style.cssText = 'background: white !important; padding: 40px !important; border-radius: 20px !important; width: 90% !important; max-width: 400px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; z-index: 9999999 !important; display: block !important; position: relative !important;';
         }
     } else {
         console.error("Elemen login-page tidak ditemukan!");
@@ -6571,12 +6567,12 @@ console.log("=== LOGO DIKLIK 2X ===");
     }
     
     // Jalankan polling periodik
-   // setInterval(fetchNotificationCounts, 15000);
+    setInterval(fetchNotificationCounts, 15000);
     
     /**
      * 3. Pembaruan Fungsi Login: SELALU PAKSA BUKA DASHBOARD SAAT LOGIN BARU
      */
-   function handleLogin(e) { 
+    function handleLogin(e) { 
       e.preventDefault(); 
       const u = document.getElementById('username');
       const p = document.getElementById('password');
@@ -6600,42 +6596,8 @@ console.log("=== LOGO DIKLIK 2X ===");
           p.value = '';
     
           Swal.fire({icon:'success', title:'Login Berhasil', timer:1000, showConfirmButton:false});
-          
-          let loginPage = document.getElementById('login-page');
-          if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
-          
-          let publicPage = document.getElementById('public-page');
-          if (publicPage) publicPage.style.display = 'none';
-
-          // Lanjutkan memuat data dashboard
           showApp();
-          
-          // ==========================================
-          // PENGAMAN EKSTRA: Tembus Layar Loading Putih yang Nyangkut
-          // ==========================================
-          let retryCount = 0;
-          let forceShowInterval = setInterval(() => {
-              retryCount++;
-              
-              // 1. Paksa Dashboard Tampil terus-menerus selama 5 detik pertama
-              let appLayout = document.getElementById('app-layout');
-              if (appLayout) {
-                  appLayout.style.cssText = 'display: !important; width: 100%; min-height: 100vh; visibility: visible !important; opacity: 1 !important;';
-              }
-              
-              // 2. Bunuh semua ID layar loading yang berpotensi menjadi layar putih
-              let loadingIds = ['loading', 'loading-screen', 'loading-overlay', 'loader', 'preloader', 'spinner-container'];
-              loadingIds.forEach(id => {
-                  let el = document.getElementById(id);
-                  if (el) el.style.setProperty('display', 'none', 'important');
-              });
-              
-              // Berhenti memaksa setelah 10 kali putaran (5 detik)
-              if (retryCount >= 10) clearInterval(forceShowInterval);
-          }, 500);
-          // ==========================================
-          
-        } else {
+        } else { 
           if (res.isBlocked && res.remainingSecs > 0) {
             startLoginCountdown(res.remainingSecs);
           } else {
