@@ -6429,19 +6429,14 @@ async function apiGet(action, params = {}) {
       function triggerAdminLogin() { 
     console.log("=== LOGO DIKLIK 2X ===");
     
-    const publicPage = document.getElementById('public-page');
     const loginPage = document.getElementById('login-page');
 
-    // Sembunyikan halaman publik
-    if (publicPage) {
-        publicPage.style.display = 'none';
-    }
-
-    // Tampilkan dan paksa gaya halaman login lewat JS (Bypass Cache)
     if (loginPage) {
-        loginPage.style.cssText = 'display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background-color: #e9ecef !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important;';
+        // KUNCI: Kita biarkan public-page tetap tampil (tidak diubah display: none).
+        // Kita cukup panggil login-page agar menutupi layar dari atas (overlay).
+        loginPage.style.cssText = 'display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background-color: #f8f9fa !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important;';
         
-        // Paksa juga gaya untuk kartu form di dalamnya
+        // Memastikan kartu form terlihat rapi di tengah
         const loginCard = loginPage.querySelector('.login-card');
         if (loginCard) {
             loginCard.style.cssText = 'background: white !important; padding: 40px !important; border-radius: 20px !important; width: 90% !important; max-width: 400px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; z-index: 9999999 !important; display: block !important; position: relative !important;';
