@@ -6420,9 +6420,21 @@ async function apiGet(action, params = {}) {
         }
         
         function triggerAdminLogin() { 
-          document.getElementById('public-page').style.display = 'none'; 
-          document.getElementById('login-page').style.display = 'flex'; 
-        }
+    const publicPage = document.getElementById('public-page');
+    const loginPage = document.getElementById('login-page');
+
+    if (publicPage) {
+        publicPage.style.display = 'none';
+    } else {
+        console.warn("Elemen dengan ID 'public-page' tidak ditemukan di HTML.");
+    }
+
+    if (loginPage) {
+        loginPage.style.display = 'flex';
+    } else {
+        console.warn("Elemen dengan ID 'login-page' tidak ditemukan di HTML. Pastikan ID pada form login Anda benar.");
+    }
+}
         
         function showPublicDashboard() { 
         		clearTimeout(idleTimer);
