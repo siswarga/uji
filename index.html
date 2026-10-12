@@ -6601,23 +6601,41 @@ console.log("=== LOGO DIKLIK 2X ===");
     
           Swal.fire({icon:'success', title:'Login Berhasil', timer:1000, showConfirmButton:false});
           
-          // ==========================================
-          // SOLUSI BLANK PUTIH: Paksa Reset Tampilan
-          // ==========================================
           let loginPage = document.getElementById('login-page');
           if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
           
           let publicPage = document.getElementById('public-page');
           if (publicPage) publicPage.style.display = 'none';
-          
-          let appLayout = document.getElementById('app-layout');
-          if (appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;';
-          // ==========================================
 
           // Lanjutkan memuat data dashboard
           showApp();
           
-        } else { 
+          // ==========================================
+          // PENGAMAN EKSTRA: Tembus Layar Loading Putih yang Nyangkut
+          // ==========================================
+          let retryCount = 0;
+          let forceShowInterval = setInterval(() => {
+              retryCount++;
+              
+              // 1. Paksa Dashboard Tampil terus-menerus selama 5 detik pertama
+              let appLayout = document.getElementById('app-layout');
+              if (appLayout) {
+                  appLayout.style.cssText = 'display: block !important; width: 100%; min-height: 100vh; visibility: visible !important; opacity: 1 !important;';
+              }
+              
+              // 2. Bunuh semua ID layar loading yang berpotensi menjadi layar putih
+              let loadingIds = ['loading', 'loading-screen', 'loading-overlay', 'loader', 'preloader', 'spinner-container'];
+              loadingIds.forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.style.setProperty('display', 'none', 'important');
+              });
+              
+              // Berhenti memaksa setelah 10 kali putaran (5 detik)
+              if (retryCount >= 10) clearInterval(forceShowInterval);
+          }, 500);
+          // ==========================================
+          
+        } else {
           if (res.isBlocked && res.remainingSecs > 0) {
             startLoginCountdown(res.remainingSecs);
           } else {
