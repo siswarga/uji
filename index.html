@@ -580,6 +580,23 @@
           </div>
         </div>
       </div>
+	  
+	  <!-- BARIS 4: Grafik Demografi -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+          <div class="card card-custom p-4 h-100">
+            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-venus-mars text-success me-2"></i>Proporsi Jenis Kelamin</h6>
+            <div style="height: 230px;"><canvas id="pubChartJk"></canvas></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card card-custom p-4 h-100">
+            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-chart-bar text-success me-2"></i>Rentang Usia Warga</h6>
+            <div style="height: 230px;"><canvas id="pubChartUsia"></canvas></div>
+          </div>
+        </div>
+      </div>
+	  
 <canvas id="pubChartJk" style="display: none;"></canvas>
      <!-- BARIS 4: Grafik Usia & Gender & Kas Organisasi -->
       <div class="row g-4 mb-4">
@@ -8277,11 +8294,7 @@ async function apiGet(action, params = {}) {
         	});
         	}
         
-        
-        
-        
-        
-        function loadDataPengaduan(){ showLoading(); google.script.run.withSuccessHandler(res=>{hideLoading();if(res.success){dataPengaduanGlobal=res.data; currentPagePengaduan=1; renderTablePengaduan();}}).withFailureHandler(()=>hideLoading()).getPengaduan(localStorage.getItem('sigas_token')); }
+          function loadDataPengaduan(){ showLoading(); google.script.run.withSuccessHandler(res=>{hideLoading();if(res.success){dataPengaduanGlobal=res.data; currentPagePengaduan=1; renderTablePengaduan();}}).withFailureHandler(()=>hideLoading()).getPengaduan(localStorage.getItem('sigas_token')); }
         	
         	function renderTablePengaduan() {  
           const s = document.getElementById('search-pengaduan').value.toLowerCase();  
