@@ -6436,7 +6436,7 @@ console.log("=== LOGO DIKLIK 2X ===");
         
         const loginCard = loginPage.querySelector('.login-card');
         if (loginCard) {
-            loginCard.style.cssText = 'background: white !important; padding: 40px !important; border-radius: 20px !important; width: 90% !important; max-width: 400px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; z-index: 9999999 !important; display: block !important; position: relative !important;';
+            loginCard.style.cssText = 'background: white !important; padding: 40px !important; border-radius: 20px !important; width: 90% !important; max-width: 400px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; z-index: 9999999 !important; display: !important; position: relative !important;';
         }
     } else {
         console.error("Elemen login-page tidak ditemukan!");
@@ -6620,7 +6620,7 @@ console.log("=== LOGO DIKLIK 2X ===");
               // 1. Paksa Dashboard Tampil terus-menerus selama 5 detik pertama
               let appLayout = document.getElementById('app-layout');
               if (appLayout) {
-                  appLayout.style.cssText = 'display: block !important; width: 100%; min-height: 100vh; visibility: visible !important; opacity: 1 !important;';
+                  appLayout.style.cssText = 'display: !important; width: 100%; min-height: 100vh; visibility: visible !important; opacity: 1 !important;';
               }
               
               // 2. Bunuh semua ID layar loading yang berpotensi menjadi layar putih
