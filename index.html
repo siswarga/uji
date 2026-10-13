@@ -14288,50 +14288,55 @@ function loadPendingOrgKas() {
 		
 function kirimAbsenRonda() {
   let elKode = document.getElementById('rondaKodeWarga');
-  if (!elKode) {
-    Swal.fire('Error', 'Input kode warga tidak ditemukan di halaman!', 'error');
-    return;
-  }
+  let kode = elKode ? elKode.value.trim() : '';
 
-  let kode = elKode.value.trim();
   if (!kode) {
     Swal.fire({
       icon: 'warning',
       title: 'Kode Kosong',
-      text: 'Silakan masukkan Kode Unik Warga Anda (Contoh: HFD001)',
+      text: 'Silakan masukkan Kode Unik Warga Anda (Contoh: HFD001)!',
       confirmButtonColor: '#198754'
     });
     return;
   }
 
   showLoading();
+  
+  // Panggil fungsi baru di server
   google.script.run
     .withSuccessHandler(res => {
       hideLoading();
+      console.log("Respon Server:", res); // Periksa respon di Console (F12)
+      
       if (res && res.success) {
         Swal.fire({
           icon: 'success',
           title: 'Presensi Berhasil!',
-          text: res.message,
+          text: res.message, // Menampilkan rincian nama & jam dari server
           confirmButtonColor: '#198754'
         });
-        elKode.value = '';
+        if (elKode) elKode.value = '';
         if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
         if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
       } else {
         Swal.fire({
           icon: 'error',
           title: 'Presensi Ditolak',
-          text: res.message || 'Data tidak valid.',
+          text: (res && res.message) ? res.message : 'Akses ditolak oleh server.',
           confirmButtonColor: '#dc3545'
         });
       }
     })
     .withFailureHandler(err => {
       hideLoading();
-      Swal.fire('Error Koneksi', 'Gagal memproses absensi: ' + err, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Koneksi',
+        text: 'Gagal memproses absensi: ' + err,
+        confirmButtonColor: '#dc3545'
+      });
     })
-    .submitAbsenRonda({ kodeWarga: kode });
+    .verifikasiAbsenRondaKetat({ kodeWarga: kode });
 }
 
 let dataAbsenRondaGlobal = [];
