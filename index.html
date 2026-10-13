@@ -13019,7 +13019,7 @@ function loadKtKasData() {
           });
         }
 
-        function loadPkkData() {
+       function loadPkkData() {
           showLoading();
           google.script.run.withSuccessHandler(res => {
               hideLoading();
@@ -13029,8 +13029,10 @@ function loadKtKasData() {
                   document.getElementById('pkk-kas-masuk').innerText = formatRupiah(dataPkkGlobal.kas.masuk);
                   document.getElementById('pkk-kas-keluar').innerText = formatRupiah(dataPkkGlobal.kas.keluar);
                   
-                  // Panggil fungsi render notifikasi pending
-                  renderKonfirmasiOrg(dataPkkGlobal.kas.pending, 'PKK', 'area-konfirmasi-pkk');
+                  // Pastikan fungsi render notifikasi memanggil 'PKK' dan id 'area-konfirmasi-pkk'
+                  if (typeof renderKonfirmasiOrg === 'function') {
+                      renderKonfirmasiOrg(dataPkkGlobal.kas.pending, 'PKK', 'area-konfirmasi-pkk');
+                  }
                   
                   renderTablePkkPengurus();
                   renderTablePkkKas();
@@ -13044,12 +13046,15 @@ function loadKtKasData() {
           let tb = document.getElementById('tbody-pkk-kas');
           if (!tb) return;
           tb.innerHTML = '';
-          if(dataPkkGlobal.kas.list.length === 0) { 
+          
+          if(!dataPkkGlobal.kas.list || dataPkkGlobal.kas.list.length === 0) { 
               tb.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Belum ada transaksi kas PKK</td></tr>'; 
               return; 
           }
+          
           dataPkkGlobal.kas.list.forEach(k => {
-              let statBadge = k.status.toLowerCase().includes('pending') ? '<span class="badge bg-warning text-dark ms-2 mt-1">Pending</span>' : '';
+              let isPending = String(k.status).toLowerCase().includes('pending') || String(k.status).toLowerCase().includes('menunggu');
+              let statBadge = isPending ? '<span class="badge bg-warning text-dark ms-2 mt-1">Pending</span>' : '<span class="badge bg-success ms-2 mt-1">Selesai</span>';
               let textColor = k.jenis === 'Kas Masuk' ? 'text-primary' : 'text-danger';
               let icon = k.jenis === 'Kas Masuk' ? 'fa-arrow-down text-primary' : 'fa-arrow-up text-danger';
 
