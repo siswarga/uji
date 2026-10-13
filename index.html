@@ -6678,40 +6678,43 @@ async function apiGet(action, params = {}) {
       else if (mId === 'menu-koperasi') loadKoperasiData();
     }
     
-    /**
-     * 5. Pembaruan Fungsi Inisialisasi App: RESTORE MENU TERAKHIR SAAT REFRESH
-     */
-    function showApp() { 
-      document.getElementById('public-page').style.display = 'none';
-      document.getElementById('login-page').style.display = 'none'; 
-      document.getElementById('app-layout').style.display = 'block'; 
-      document.getElementById('topbar-name').innerText = currentUser.nama; 
-      document.getElementById('topbar-role').innerText = currentUser.role; 
-      renderMenu(); 
-      hideLoading(); 
-      
-      if(currentUser.role === 'Superadmin') {
-        document.getElementById('btn-ai-prompt').style.display = 'block';
-      } else {
-        document.getElementById('btn-ai-prompt').style.display = 'none';
-      }
-      
-      resetIdleTimer();
-      fetchNotificationCounts(); // Ambil angka notifikasi perdana
+   function showApp() { 
+    let pubPage = document.getElementById('public-page');
+    let logPage = document.getElementById('login-page');
+    let appLayout = document.getElementById('app-layout');
     
-      // KUNCI 3: Buka kembali halaman terakhir yang sedang dibuka saat di-refresh
-      setTimeout(() => { 
+    // Paksa reset tampilan untuk mencegah blank putih
+    if(pubPage) pubPage.style.cssText = 'display: none !important;';
+    if(logPage) logPage.style.cssText = 'display: none !important;'; 
+    if(appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;'; 
+    
+    document.getElementById('topbar-name').innerText = currentUser.nama; 
+    document.getElementById('topbar-role').innerText = currentUser.role; 
+    renderMenu(); 
+    hideLoading(); 
+    
+    if(currentUser.role === 'Superadmin') {
+        document.getElementById('btn-ai-prompt').style.display = 'block';
+    } else {
+        document.getElementById('btn-ai-prompt').style.display = 'none';
+    }
+    
+    resetIdleTimer();
+    fetchNotificationCounts(); 
+    
+    // Buka kembali halaman terakhir yang sedang dibuka saat di-refresh
+    setTimeout(() => { 
         const savedMenu = localStorage.getItem('sigas_active_menu') || 'menu-dashboard';
         const targetLink = document.querySelector(`#sidebar-menu a[onclick*="${savedMenu}"]`);
-    
+
         if (targetLink) {
-          targetLink.click();
+            targetLink.click();
         } else {
-          const firstMenu = document.querySelector('#sidebar-menu li a'); 
-          if(firstMenu) firstMenu.click(); 
+            const firstMenu = document.querySelector('#sidebar-menu li a'); 
+            if(firstMenu) firstMenu.click(); 
         }
-      }, 50); 
-    }
+    }, 50); 
+}
     
     /**
      * 6. Pembaruan Fungsi Load Dashboard: MENYERTAKAN ANGKA NOTIFIKASI
@@ -6964,7 +6967,53 @@ async function apiGet(action, params = {}) {
         });
         } 
         
-        function renderCharts(w){ if(chartJkInstance)chartJkInstance.destroy(); if(chartUsiaInstance)chartUsiaInstance.destroy(); chartJkInstance=new Chart(document.getElementById('chartJk'),{type:'doughnut',data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[w.lakiLaki,w.perempuan],backgroundColor:['#198754','#ffc107']}]},options:{responsive:true,maintainAspectRatio:false}}); chartUsiaInstance=new Chart(document.getElementById('chartUsia'),{type:'bar',data:{labels:['Balita','Anak','Remaja','Dewasa','Lansia'],datasets:[{label:'Jumlah',data:[w.usia.balita,w.usia.anak,w.usia.remaja,w.usia.dewasa,w.usia.lansia],backgroundColor:'#198754'}]},options:{responsive:true,maintainAspectRatio:false}}); }
+        function renderCharts(w) { 
+    if(chartJkInstance) chartJkInstance.destroy(); 
+    if(chartUsiaInstance) chartUsiaInstance.destroy(); 
+    
+    // Grafik Donat Jenis Kelamin
+    chartJkInstance = new Chart(document.getElementById('chartJk'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Laki-laki','Perempuan'],
+            datasets: [{
+                data: [w.lakiLaki, w.perempuan],
+                backgroundColor: ['#198754','#ffc107']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    }); 
+    
+    // Grafik Batang Rentang Usia (Telah Diperbarui ke Format L & P)
+    chartUsiaInstance = new Chart(document.getElementById('chartUsia'), {
+        type: 'bar',
+        data: {
+            labels: ['Balita','Anak','Remaja','Dewasa','Lansia'],
+            datasets: [
+                {
+                    label: 'Laki-laki',
+                    data: [w.usia.balita.l, w.usia.anak.l, w.usia.remaja.l, w.usia.dewasa.l, w.usia.lansia.l],
+                    backgroundColor: '#198754',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Perempuan',
+                    data: [w.usia.balita.p, w.usia.anak.p, w.usia.remaja.p, w.usia.dewasa.p, w.usia.lansia.p],
+                    backgroundColor: '#ffc107',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: false, grid: { display: false } },
+                y: { stacked: false, beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    }); 
+}
         
         function loadDataWarga(){ 
         showLoading(); 
