@@ -1948,30 +1948,89 @@
 
           <!-- PAGE RONDA -->
           <div id="page-ronda" class="page-view" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-              <h3 class="text-success fw-bold m-0">Jadwal Ronda</h3>
-              <div>
-                <button class="btn btn-outline-success mt-2 mt-sm-0 me-2" onclick="showExportRondaOptions()"><i class="fas fa-image"></i> Export JPG</button>
-                <button class="btn btn-primary mt-2 mt-sm-0" onclick="openModalGenerateRonda()"><i class="fas fa-cogs"></i> Generate Otomatis</button>
-              </div>
-            </div>
-            <div class="card shadow-sm border-0">
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                      <tr>
-                        <th>Tanggal & Waktu</th>
-                        <th>Hari</th>
-                        <th>Nama Petugas</th>
-                        <th>Status Ronda</th>
-                        <th>Notifikasi</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbody-ronda"></tbody>
-                  </table>
+            
+            <!-- Nav Tabs Ronda -->
+            <ul class="nav nav-pills mb-3 gap-2" id="pills-ronda-tab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold px-4 rounded-pill" id="tab-jadwal-ronda-btn" data-bs-toggle="pill" data-bs-target="#tab-jadwal-ronda" type="button" role="tab">
+                  <i class="fas fa-calendar-alt me-2"></i>Jadwal Ronda
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold px-4 rounded-pill" id="tab-hasil-absen-ronda-btn" data-bs-toggle="pill" data-bs-target="#tab-hasil-absen-ronda" type="button" role="tab" onclick="loadRondaAbsenData()">
+                  <i class="fas fa-clipboard-check me-2"></i>Rekap & Riwayat Absensi
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content" id="pills-ronda-tabContent">
+              
+              <!-- TAB 1: JADWAL RONDA -->
+              <div class="tab-pane fade show active" id="tab-jadwal-ronda" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                  <h4 class="text-success fw-bold m-0"><i class="fas fa-shield-alt me-2"></i>Manajemen Jadwal Ronda</h4>
+                  <div>
+                    <button class="btn btn-outline-success mt-2 mt-sm-0 me-2" onclick="showExportRondaOptions()"><i class="fas fa-image"></i> Export JPG</button>
+                    <button class="btn btn-primary mt-2 mt-sm-0" onclick="openModalGenerateRonda()"><i class="fas fa-cogs"></i> Generate Otomatis</button>
+                  </div>
+                </div>
+                <div class="card shadow-sm border-0">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Tanggal & Waktu</th>
+                            <th>Hari</th>
+                            <th>Nama Petugas</th>
+                            <th>Status Ronda</th>
+                            <th>Notifikasi</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tbody-ronda"></tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              <!-- TAB 2: REKAP & RIWAYAT ABSENSI -->
+              <div class="tab-pane fade" id="tab-hasil-absen-ronda" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                  <div>
+                    <h4 class="text-success fw-bold m-0"><i class="fas fa-user-check me-2"></i>Rekap Kehadiran Petugas Ronda</h4>
+                    <small class="text-muted"><i class="fas fa-lock text-warning me-1"></i>Data kehadiran tercatat otomatis dan terkunci permanen.</small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <input type="text" id="cari-absen-ronda" class="form-control rounded-pill form-control-sm px-3" placeholder="Cari nama atau tanggal..." onkeyup="filterTabelAbsenRonda()">
+                    <button class="btn btn-outline-success btn-sm rounded-pill px-3" onclick="loadRondaAbsenData()"><i class="fas fa-sync-alt"></i></button>
+                  </div>
+                </div>
+                <div class="card shadow-sm border-0">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Tanggal Ronda</th>
+                            <th>Nama Petugas</th>
+                            <th>Waktu Absensi Masuk</th>
+                            <th>Status</th>
+                            <th>Metode Validasi</th>
+                            <th class="text-center">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tbody-hasil-absen-ronda">
+                          <tr>
+                            <td colspan="6" class="text-center text-muted py-3">Klik tab untuk memuat data riwayat absensi.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -14267,6 +14326,107 @@ function kirimAbsenRonda() {
       Swal.fire('Error Server', 'Terjadi kesalahan: ' + err, 'error');
     })
     .submitAbsenRonda({ kodeWarga: kode });
+}
+
+let dataAbsenRondaGlobal = [];
+let isSuperAdminRonda = false;
+
+// 1. Panggil data absensi dari server
+function loadRondaAbsenData() {
+  let tb = document.getElementById('tbody-hasil-absen-ronda');
+  if (tb) tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Memuat riwayat absensi...</td></tr>';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res && res.success) {
+        dataAbsenRondaGlobal = res.data || [];
+        isSuperAdminRonda = res.isSuperAdmin;
+        renderTabelHasilAbsen(dataAbsenRondaGlobal);
+      } else {
+        if (tb) tb.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">${res.message || 'Gagal memuat absensi.'}</td></tr>`;
+      }
+    })
+    .withFailureHandler(err => {
+      if (tb) tb.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Error: ${err}</td></tr>`;
+    })
+    .getRondaAbsenData(localStorage.getItem('sigas_token'));
+}
+
+// 2. Gambar baris tabel absensi
+function renderTabelHasilAbsen(data) {
+  let tb = document.getElementById('tbody-hasil-absen-ronda');
+  if (!tb) return;
+  tb.innerHTML = '';
+
+  if (data.length === 0) {
+    tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada riwayat absensi ronda malam yang tercatat.</td></tr>';
+    return;
+  }
+
+  data.forEach(item => {
+    // Tombol hapus HANYA dirender jika pengguna adalah Superadmin
+    let btnAksi = isSuperAdminRonda
+      ? `<button class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" title="Hapus (Khusus Superadmin)" onclick="konfirmasiHapusAbsen('${item.id}', '${item.nama}')"><i class="fas fa-trash-alt"></i></button>`
+      : `<span class="badge bg-light text-secondary border"><i class="fas fa-shield-alt text-success me-1"></i>Terkunci</span>`;
+
+    tb.innerHTML += `
+      <tr>
+        <td class="fw-bold text-dark"><i class="far fa-calendar-check text-primary me-2"></i>${item.tanggal}</td>
+        <td><b>${item.nama}</b></td>
+        <td class="small text-muted"><i class="far fa-clock me-1 text-warning"></i>${item.waktuAbsen}</td>
+        <td><span class="badge bg-success px-2 py-1"><i class="fas fa-check me-1"></i>${item.status}</span></td>
+        <td class="small text-secondary"><i class="fas fa-key text-warning me-1"></i>${item.keterangan}</td>
+        <td class="text-center">${btnAksi}</td>
+      </tr>
+    `;
+  });
+}
+
+// 3. Filter pencarian cepat
+function filterTabelAbsenRonda() {
+  let q = document.getElementById('cari-absen-ronda').value.toLowerCase();
+  let hasil = dataAbsenRondaGlobal.filter(item => 
+    item.nama.toLowerCase().includes(q) || 
+    item.tanggal.toLowerCase().includes(q) ||
+    item.waktuAbsen.toLowerCase().includes(q)
+  );
+  renderTabelHasilAbsen(hasil);
+}
+
+// 4. Eksekusi Hapus Khusus Superadmin
+function konfirmasiHapusAbsen(id, nama) {
+  if (!isSuperAdminRonda) {
+    Swal.fire('Akses Dibatasi', 'Hanya Super Admin yang diizinkan menghapus data absensi ronda!', 'warning');
+    return;
+  }
+
+  Swal.fire({
+    title: 'Hapus Absensi?',
+    text: `Hapus catatan kehadiran ronda milik "${nama}"? Tindakan ini tidak dapat dibatalkan.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    confirmButtonText: 'Ya, Hapus Permanen'
+  }).then(r => {
+    if (r.isConfirmed) {
+      showLoading();
+      google.script.run
+        .withSuccessHandler(res => {
+          hideLoading();
+          if (res && res.success) {
+            Swal.fire('Berhasil', res.message, 'success');
+            loadRondaAbsenData();
+          } else {
+            Swal.fire('Gagal', res.message, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          hideLoading();
+          Swal.fire('Error', err, 'error');
+        })
+        .hapusAbsenRonda(localStorage.getItem('sigas_token'), id);
+    }
+  });
 }
   </script>
   </body>
