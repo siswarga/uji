@@ -14346,32 +14346,46 @@ function kirimAbsenRonda() {
 let dataAbsenRondaGlobal = [];
 let isSuperAdminRonda = false;
 
-// 1. Panggil data absensi dari server
+// 1. Fungsi Panggil Data
 function loadRondaAbsenData() {
   let tb = document.getElementById('tbody-hasil-absen-ronda');
   if (tb) tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Memuat riwayat absensi...</td></tr>';
 
+  // Periksa apakah token ada sebelum mengirim (opsional, sesuaikan dengan sistem login Anda)
+  let userToken = localStorage.getItem('sigas_token') || '';
+
   google.script.run
     .withSuccessHandler(res => {
+      // CEK APAKAH RESPON BERHASIL DAN BERISI DATA
       if (res && res.success) {
-        dataAbsenRondaGlobal = res.data || [];
-        isSuperAdminRonda = res.isSuperAdmin;
+        // Amankan tipe data agar dipastikan selalu berwujud Array, bukan Objek atau undefined
+        dataAbsenRondaGlobal = (res.data && Array.isArray(res.data)) ? res.data : [];
+        isSuperAdminRonda = res.isSuperAdmin || false;
+        
         renderTabelHasilAbsen(dataAbsenRondaGlobal);
       } else {
-        if (tb) tb.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">${res.message || 'Gagal memuat absensi.'}</td></tr>`;
+        if (tb) tb.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">${res ? res.message : 'Gagal memuat absensi.'}</td></tr>`;
       }
     })
     .withFailureHandler(err => {
-      if (tb) tb.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Error: ${err}</td></tr>`;
+      if (tb) tb.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Error Server: ${err}</td></tr>`;
+      console.error("Gagal getRondaAbsenData:", err);
     })
-    .getRondaAbsenData(localStorage.getItem('sigas_token'));
+    .getRondaAbsenData(userToken); 
 }
 
-// 2. Gambar baris tabel absensi
+// 2. Fungsi Penggambar Tabel (Sama seperti sebelumnya tapi diberi pengaman tambahan)
 function renderTabelHasilAbsen(data) {
   let tb = document.getElementById('tbody-hasil-absen-ronda');
   if (!tb) return;
   tb.innerHTML = '';
+
+  // PENGAMANAN: Pastikan 'data' benar-benar array
+  if (!Array.isArray(data)) {
+    console.error("Data yang diterima bukan Array:", data);
+    tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Terjadi kesalahan format data dari server.</td></tr>';
+    return;
+  }
 
   if (data.length === 0) {
     tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada riwayat absensi ronda malam yang tercatat.</td></tr>';
@@ -14379,18 +14393,17 @@ function renderTabelHasilAbsen(data) {
   }
 
   data.forEach(item => {
-    // Tombol hapus HANYA dirender jika pengguna adalah Superadmin
     let btnAksi = isSuperAdminRonda
-      ? `<button class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" title="Hapus (Khusus Superadmin)" onclick="konfirmasiHapusAbsen('${item.id}', '${item.nama}')"><i class="fas fa-trash-alt"></i></button>`
+      ? `<button class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" title="Hapus" onclick="konfirmasiHapusAbsen('${item.id}', '${item.nama}')"><i class="fas fa-trash-alt"></i></button>`
       : `<span class="badge bg-light text-secondary border"><i class="fas fa-shield-alt text-success me-1"></i>Terkunci</span>`;
 
     tb.innerHTML += `
       <tr>
-        <td class="fw-bold text-dark"><i class="far fa-calendar-check text-primary me-2"></i>${item.tanggal}</td>
-        <td><b>${item.nama}</b></td>
-        <td class="small text-muted"><i class="far fa-clock me-1 text-warning"></i>${item.waktuAbsen}</td>
-        <td><span class="badge bg-success px-2 py-1"><i class="fas fa-check me-1"></i>${item.status}</span></td>
-        <td class="small text-secondary"><i class="fas fa-key text-warning me-1"></i>${item.keterangan}</td>
+        <td class="fw-bold text-dark"><i class="far fa-calendar-check text-primary me-2"></i>${item.tanggal || '-'}</td>
+        <td><b>${item.nama || '-'}</b></td>
+        <td class="small text-muted"><i class="far fa-clock me-1 text-warning"></i>${item.waktuAbsen || '-'}</td>
+        <td><span class="badge bg-success px-2 py-1"><i class="fas fa-check me-1"></i>${item.status || 'Hadir'}</span></td>
+        <td class="small text-secondary"><i class="fas fa-key text-warning me-1"></i>${item.keterangan || '-'}</td>
         <td class="text-center">${btnAksi}</td>
       </tr>
     `;
