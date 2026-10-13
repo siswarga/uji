@@ -600,8 +600,8 @@
           <i class="fas fa-wallet text-success me-2"></i>Kas PKK & Karang Taruna
         </h6>
         <div>
-          <button class="btn btn-sm btn-outline-primary me-1 fw-bold rounded-pill px-3" onclick="showQrisOrg('Karang Taruna')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS 3 (Karta)</button>
-          <button class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3" onclick="showQrisOrg('PKK')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS 4 (PKK)</button>
+          <button class="btn btn-sm btn-outline-primary me-1 fw-bold rounded-pill px-3 shadow-sm" onclick="openQrisModal('kas_karta')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS TARKA</button>
+          <button class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3 shadow-sm" onclick="openQrisModal('kas_pkk')" style="font-size: 11px;"><i class="fas fa-qrcode me-1"></i>QRIS PKK</button>
         </div>
       </div>
 
@@ -11101,107 +11101,123 @@ function shareWaPengajian(id) {
         
         
         let activeQrisIndex = 1;
-        function openQrisModal(tipe) {
-          try {
-        let overlay = document.getElementById('loading-overlay');
-        if (overlay) overlay.style.display = 'none';
-        
-    	if (tipe === 'kas_warga') {
-        activeQrisIndex = 1; // QRIS 1 untuk Kas Warga
-    	} else {
-        activeQrisIndex = 2; // QRIS 2 untuk Kas Masjid (atau sesuaikan jika menggunakan QRIS 3/4)
-    	}
-    	
-        if (typeof appSettings === 'undefined' || !appSettings) {
-          window.appSettings = {};
-        }
-        
-        let formQris = document.getElementById('formQrisBayar');
-        if (formQris) formQris.reset();
-        
-        let tipeTujuanEl = document.getElementById('qris_tipe_tujuan');
-        if (tipeTujuanEl) tipeTujuanEl.value = tipe;
-        
-        // Reset variabel global dengan aman
-        qrisDataWargaTerverifikasi = null;
-        
-        let divKodeUnik = document.getElementById('div_qris_kode_unik');
-        let divInfoWarga = document.getElementById('div_qris_info_warga');
-        let divNamaUmum = document.getElementById('div_qris_nama_umum');
-        let namaManual = document.getElementById('qris_nama_manual');
-        
-        if (divKodeUnik) divKodeUnik.classList.add('d-none');
-        if (divInfoWarga) divInfoWarga.classList.add('d-none');
-        if (divNamaUmum) divNamaUmum.classList.remove('d-none');
-        if (namaManual) namaManual.classList.add('d-none');
-        
-        let imgUrl = '', titleName = '';
-        const selectKat = document.getElementById('qris_kategori');
-        if (selectKat) {
-          selectKat.innerHTML = ''; 
-        
-          if (tipe === 'kas_warga') {
+function openQrisModal(tipe) {
+  try {
+    let overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.style.display = 'none';
+    
+    // Tentukan Index QRIS berdasarkan tipe kas
+    if (tipe === 'kas_warga') {
+        activeQrisIndex = 1; 
+    } else if (tipe === 'kas_masjid') {
+        activeQrisIndex = 2; 
+    } else if (tipe === 'kas_karta') {
+        activeQrisIndex = 3; 
+    } else if (tipe === 'kas_pkk') {
+        activeQrisIndex = 4; 
+    }
+    
+    if (typeof appSettings === 'undefined' || !appSettings) {
+        window.appSettings = {};
+    }
+    
+    let formQris = document.getElementById('formQrisBayar');
+    if (formQris) formQris.reset();
+    
+    let tipeTujuanEl = document.getElementById('qris_tipe_tujuan');
+    if (tipeTujuanEl) tipeTujuanEl.value = tipe;
+    
+    qrisDataWargaTerverifikasi = null;
+    
+    let divKodeUnik = document.getElementById('div_qris_kode_unik');
+    let divInfoWarga = document.getElementById('div_qris_info_warga');
+    let divNamaUmum = document.getElementById('div_qris_nama_umum');
+    let namaManual = document.getElementById('qris_nama_manual');
+    
+    if (divKodeUnik) divKodeUnik.classList.add('d-none');
+    if (divInfoWarga) divInfoWarga.classList.add('d-none');
+    if (divNamaUmum) divNamaUmum.classList.remove('d-none');
+    if (namaManual) namaManual.classList.add('d-none');
+    
+    let imgUrl = '', titleName = '';
+    const selectKat = document.getElementById('qris_kategori');
+    if (selectKat) {
+        selectKat.innerHTML = ''; 
+
+        if (tipe === 'kas_warga') {
             imgUrl = appSettings['qris_1_url'] || '';
             titleName = appSettings['qris_1_nama'] || 'Kas Warga / RT';
             let titleEl = document.getElementById('qrisModalTitle');
             if (titleEl) titleEl.innerText = 'Bayar QRIS - Kas Warga';
             
             const kategoriKasWarga = ['Iuran Warga', 'Jimpitan', 'Donasi', 'Denda Ronda'];
-            kategoriKasWarga.forEach(kat => {
-              selectKat.innerHTML += `<option value="${kat}">${kat}</option>`;
-            });
-          } else {
+            kategoriKasWarga.forEach(kat => { selectKat.innerHTML += `<option value="${kat}">${kat}</option>`; });
+        
+        } else if (tipe === 'kas_masjid') {
             imgUrl = appSettings['qris_2_url'] || '';
             titleName = appSettings['qris_2_nama'] || 'Kas Masjid Assalam';
             let titleEl = document.getElementById('qrisModalTitle');
             if (titleEl) titleEl.innerText = 'Bayar QRIS - Kas Masjid';
             
             const kategoriKasMasjid = ['Infaq', 'Sedekah', 'Zakat', 'Hibah', 'Wakaf'];
-            kategoriKasMasjid.forEach(kat => {
-              selectKat.innerHTML += `<option value="${kat}">${kat}</option>`;
-            });
-          }
+            kategoriKasMasjid.forEach(kat => { selectKat.innerHTML += `<option value="${kat}">${kat}</option>`; });
+            
+        } else if (tipe === 'kas_karta') {
+            imgUrl = appSettings['qris_3_url'] || '';
+            titleName = appSettings['qris_3_nama'] || 'Kas Karang Taruna';
+            let titleEl = document.getElementById('qrisModalTitle');
+            if (titleEl) titleEl.innerText = 'Bayar QRIS - Karang Taruna';
+            
+            const kategoriKarta = ['Iuran Anggota', 'Sumbangan / Donasi', 'Usaha Kreatif', 'Lainnya'];
+            kategoriKarta.forEach(kat => { selectKat.innerHTML += `<option value="${kat}">${kat}</option>`; });
+            
+        } else if (tipe === 'kas_pkk') {
+            imgUrl = appSettings['qris_4_url'] || '';
+            titleName = appSettings['qris_4_nama'] || 'Kas Ibu-Ibu PKK';
+            let titleEl = document.getElementById('qrisModalTitle');
+            if (titleEl) titleEl.innerText = 'Bayar QRIS - PKK';
+            
+            const kategoriPkk = ['Iuran Wajib / Arisan', 'Sumbangan / Donasi', 'Usaha Bersama', 'Lainnya'];
+            kategoriPkk.forEach(kat => { selectKat.innerHTML += `<option value="${kat}">${kat}</option>`; });
         }
-        
-        let imgPreview = document.getElementById('qris_img_preview');
-        if (imgPreview) {
-          if (imgUrl && imgUrl.trim() !== '') {
+    }
+    
+    let imgPreview = document.getElementById('qris_img_preview');
+    if (imgPreview) {
+        if (imgUrl && imgUrl.trim() !== '') {
             imgPreview.src = imgUrl;
             imgPreview.style.display = 'inline-block';
-          } else {
+        } else {
             imgPreview.src = 'https://via.placeholder.com/250x250?text=QRIS+Belum+Diatur+Admin';
             imgPreview.style.display = 'inline-block';
-          }
         }
-        
-        let merchantEl = document.getElementById('qris_nama_merchant');
-        if (merchantEl) merchantEl.innerText = titleName;
-        
-        const sn = document.getElementById('qris_select_nama');
-        if (sn) {
-          sn.innerHTML = '<option value="">-- Memuat Warga --</option>';
-          google.script.run.withSuccessHandler(res => {
+    }
+    
+    let merchantEl = document.getElementById('qris_nama_merchant');
+    if (merchantEl) merchantEl.innerText = titleName;
+    
+    const sn = document.getElementById('qris_select_nama');
+    if (sn) {
+        sn.innerHTML = '<option value="">-- Memuat Warga --</option>';
+        google.script.run.withSuccessHandler(res => {
             if (res && res.success) {
-              sn.innerHTML = '<option value="">-- Pilih Nama Warga / Umum --</option><option value="UMUM" class="text-danger fw-bold">+ Umum / Hamba Allah</option>';
-              res.data.forEach(w => sn.innerHTML += `<option value="${w.nama}">${w.nama}</option>`);
+                sn.innerHTML = '<option value="">-- Pilih Nama Warga / Umum --</option><option value="UMUM" class="text-danger fw-bold">+ Umum / Hamba Allah</option>';
+                res.data.forEach(w => sn.innerHTML += `<option value="${w.nama}">${w.nama}</option>`);
             }
-          }).getListNamaWarga('PUBLIC');
-        }
-        
-        if (typeof toggleQrisFormKategori === 'function') {
-          toggleQrisFormKategori();
-        }
-        
-        let modalEl = document.getElementById('modalQrisBayar');
-        if (modalEl) {
-          let modalObj = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          modalObj.show();
-        }
-          } catch (err) {
-        console.error("Error pada openQrisModal:", err);
-        Swal.fire('Terjadi Kesalahan', err.message, 'error');
-          }
-        }
+        }).getListNamaWarga('PUBLIC');
+    }
+    
+    if (typeof toggleQrisFormKategori === 'function') toggleQrisFormKategori();
+    
+    let modalEl = document.getElementById('modalQrisBayar');
+    if (modalEl) {
+        let modalObj = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modalObj.show();
+    }
+  } catch (err) {
+    Swal.fire('Terjadi Kesalahan', err.message, 'error');
+  }
+}
         
         function toggleQrisFormKategori() {
           let katEl = document.getElementById('qris_kategori');
