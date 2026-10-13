@@ -14302,29 +14302,30 @@ function kirimAbsenRonda() {
 
   showLoading();
 
-  // Memanggil fungsi submitAbsenRonda() di Code.gs secara dinamis
-  // sesuai format doPost(e) yang Anda miliki.
   google.script.run
     .withSuccessHandler(res => {
       hideLoading();
       
-      // Jika berhasil, res akan berisi {success: true, message: "..."}
+      // Jika respons dari server sukses
       if (res && res.success === true) {
-        Swal.fire('Berhasil', res.message, 'success');
-      } else {
-        // Akan memunculkan pop-up merah dengan pesan penolakan jam 22:14
-        Swal.fire('Ditolak', res ? res.message : 'Gagal', 'error'); 
-      }
+        Swal.fire({
+          icon: 'success',
+          title: 'Presensi Berhasil!',
+          text: res.message,
+          confirmButtonColor: '#198754'
+        });
         
+        // Reset input dan perbarui data tabel
         if (elKode) elKode.value = '';
         if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
         if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
+        
       } else {
-        // Jika ditolak karena di luar jam atau bukan jadwalnya
+        // Jika ditolak (karena jam, salah kode, atau bukan jadwalnya)
         Swal.fire({
           icon: 'error',
           title: 'Presensi Ditolak',
-          text: (res && res.message) ? res.message : 'Kode unik tidak terdaftar atau bukan jadwal tugas Anda!',
+          text: res ? res.message : 'Kode unik tidak terdaftar atau bukan jadwal tugas Anda!',
           confirmButtonColor: '#dc3545'
         });
       }
@@ -14338,7 +14339,6 @@ function kirimAbsenRonda() {
         confirmButtonColor: '#dc3545'
       });
     })
-    // Mengirim objek langsung sebagai parameter fungsi submitAbsenRonda(p)
     .submitAbsenRonda({ kodeWarga: kode, modeUjiCoba: false });
 }
 
