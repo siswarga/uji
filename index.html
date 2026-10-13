@@ -14309,13 +14309,12 @@ function kirimAbsenRonda() {
       hideLoading();
       
       // Jika berhasil, res akan berisi {success: true, message: "..."}
-      if (res && res.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Presensi Berhasil!',
-          text: res.message, // Menampilkan jam dan nama dari server
-          confirmButtonColor: '#198754'
-        });
+      if (res && res.success === true) {
+        Swal.fire('Berhasil', res.message, 'success');
+      } else {
+        // Akan memunculkan pop-up merah dengan pesan penolakan jam 22:14
+        Swal.fire('Ditolak', res ? res.message : 'Gagal', 'error'); 
+      }
         
         if (elKode) elKode.value = '';
         if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
