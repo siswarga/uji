@@ -6970,20 +6970,61 @@ async function apiGet(action, params = {}) {
     if(chartJkInstance) chartJkInstance.destroy(); 
     if(chartUsiaInstance) chartUsiaInstance.destroy(); 
     
-    // Grafik Donat Jenis Kelamin
+    // 1. PLUGIN KUSTOM: Untuk menggambar teks di tengah donat
+    const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw: function(chart) {
+            if (chart.config.type !== 'doughnut') return;
+            let width = chart.width, height = chart.height, ctx = chart.ctx;
+            ctx.restore();
+            
+            // Pengaturan Font Angka Total
+            let fontSize = (height / 100).toFixed(2);
+            ctx.font = "bold " + fontSize + "em sans-serif";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#198754"; // Warna teks hijau success
+            
+            let totalWarga = String(w.lakiLaki + w.perempuan);
+            let textX = Math.round((width - ctx.measureText(totalWarga).width) / 2);
+            let textY = height / 2 - 10; // Geser sedikit ke atas
+            
+            ctx.fillText(totalWarga, textX, textY);
+            
+            // Pengaturan Font Teks "Total Jiwa"
+            ctx.font = "bold " + (fontSize / 3).toFixed(2) + "em sans-serif";
+            ctx.fillStyle = "#6c757d"; // Warna teks abu-abu muted
+            let textLabel = "TOTAL JIWA";
+            let textLabelX = Math.round((width - ctx.measureText(textLabel).width) / 2);
+            ctx.fillText(textLabel, textLabelX, textY + 25); // Posisi di bawah angka
+            
+            ctx.save();
+        }
+    };
+
+    // 2. RENDER GRAFIK DONAT JENIS KELAMIN
     chartJkInstance = new Chart(document.getElementById('chartJk'), {
         type: 'doughnut',
         data: {
             labels: ['Laki-laki','Perempuan'],
             datasets: [{
                 data: [w.lakiLaki, w.perempuan],
-                backgroundColor: ['#198754','#ffc107']
+                backgroundColor: ['#198754','#ffc107'],
+                borderWidth: 2, // Memberikan garis tepi putih agar lebih rapi
+                borderColor: '#ffffff'
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            cutout: '65%', // Ukuran besarnya lubang donat
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12 } }
+            }
+        },
+        plugins: [centerTextPlugin] // Memanggil plugin teks tengah
     }); 
     
-    // Grafik Batang Rentang Usia (Laki-laki & Perempuan Bersebelahan)
+    // 3. RENDER GRAFIK BATANG USIA
     chartUsiaInstance = new Chart(document.getElementById('chartUsia'), {
         type: 'bar',
         data: {
@@ -6991,25 +7032,13 @@ async function apiGet(action, params = {}) {
             datasets: [
                 {
                     label: 'Laki-laki',
-                    data: [
-                        w.usia.balita.l || 0, 
-                        w.usia.anak.l || 0, 
-                        w.usia.remaja.l || 0, 
-                        w.usia.dewasa.l || 0, 
-                        w.usia.lansia.l || 0
-                    ],
+                    data: [w.usia.balita.l || 0, w.usia.anak.l || 0, w.usia.remaja.l || 0, w.usia.dewasa.l || 0, w.usia.lansia.l || 0],
                     backgroundColor: '#198754',
                     borderRadius: 4
                 },
                 {
                     label: 'Perempuan',
-                    data: [
-                        w.usia.balita.p || 0, 
-                        w.usia.anak.p || 0, 
-                        w.usia.remaja.p || 0, 
-                        w.usia.dewasa.p || 0, 
-                        w.usia.lansia.p || 0
-                    ],
+                    data: [w.usia.balita.p || 0, w.usia.anak.p || 0, w.usia.remaja.p || 0, w.usia.dewasa.p || 0, w.usia.lansia.p || 0],
                     backgroundColor: '#ffc107',
                     borderRadius: 4
                 }
