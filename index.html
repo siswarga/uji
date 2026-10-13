@@ -14291,12 +14291,7 @@ function kirimAbsenRonda() {
   let kode = elKode ? elKode.value.trim() : '';
 
   if (!kode) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Kode Kosong',
-      text: 'Silakan masukkan Kode Unik Warga Anda (Contoh: HFD001)!',
-      confirmButtonColor: '#198754'
-    });
+    Swal.fire({ icon: 'warning', title: 'Kode Kosong', text: 'Silakan masukkan Kode Unik Warga!' });
     return;
   }
 
@@ -14306,40 +14301,38 @@ function kirimAbsenRonda() {
     .withSuccessHandler(res => {
       hideLoading();
       
-      // Jika respons dari server sukses
-      if (res && res.success === true) {
+      // LOG DIAGNOSTIK
+      console.log("Respon Server Final:", res);
+      
+      // MENYESUAIKAN DENGAN STRUKTUR ORISINAL ANDA (status === 'success')
+      if (res && res.status === "success") {
         Swal.fire({
           icon: 'success',
           title: 'Presensi Berhasil!',
-          text: res.message,
+          text: res.pesan, 
           confirmButtonColor: '#198754'
         });
         
-        // Reset input dan perbarui data tabel
         if (elKode) elKode.value = '';
         if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
         if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
         
       } else {
-        // Jika ditolak (karena jam, salah kode, atau bukan jadwalnya)
+        // JIKA STATUS ERROR / DITOLAK
         Swal.fire({
           icon: 'error',
           title: 'Presensi Ditolak',
-          text: res ? res.message : 'Kode unik tidak terdaftar atau bukan jadwal tugas Anda!',
+          text: res ? res.pesan : 'Ditolak oleh sistem.',
           confirmButtonColor: '#dc3545'
         });
       }
     })
     .withFailureHandler(err => {
       hideLoading();
-      Swal.fire({
-        icon: 'error',
-        title: 'Error Koneksi',
-        text: 'Gagal terhubung ke server: ' + err,
-        confirmButtonColor: '#dc3545'
-      });
+      Swal.fire({ icon: 'error', title: 'Error Server', text: err, confirmButtonColor: '#dc3545' });
     })
-    .submitAbsenRonda({ kodeWarga: kode, modeUjiCoba: false });
+    // PANGGIL NAMA FUNGSI ORISINAL:
+    .simpanAbsenRonda({ kodeWarga: kode });
 }
 
 let dataAbsenRondaGlobal = [];
@@ -14456,51 +14449,7 @@ function konfirmasiHapusAbsen(id, nama) {
   });
 }
 
-function prosesAbsenBaru() {
-  let elKode = document.getElementById('rondaKodeWarga');
-  let kode = elKode ? elKode.value.trim() : '';
 
-  if (!kode) {
-    Swal.fire('Kode Kosong', 'Masukkan Kode Unik Warga!', 'warning');
-    return;
-  }
-
-  showLoading();
-  
-  // Memanggil fungsi server yang BARU: verifikasiAbsenRondaKetat
-  google.script.run
-    .withSuccessHandler(res => {
-      hideLoading();
-      
-      // MUNCULKAN POP-UP DIAGNOSTIK KASAR UNTUK BUKTI:
-      alert("Respons dari server: " + JSON.stringify(res)); 
-      
-      if (res && res.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Presensi Berhasil!',
-          text: res.message, // Rincian teks akan muncul di sini
-          confirmButtonColor: '#198754'
-        });
-        elKode.value = '';
-        if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
-        if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Presensi Ditolak',
-          text: res.message || 'Ditolak oleh server.',
-          confirmButtonColor: '#dc3545'
-        });
-      }
-    })
-    .withFailureHandler(err => {
-      hideLoading();
-      // JIKA FUNGSI GS TIDAK DITEMUKAN, ERROR INI AKAN MUNCUL
-      alert("CRASH SERVER: " + err); 
-    })
-    .verifikasiAbsenRondaKetat({ kodeWarga: kode });
-}
   </script>
   </body>
 </html>
