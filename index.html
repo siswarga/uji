@@ -13314,41 +13314,58 @@ function loadKtKasData() {
         });
     	
     function loadAppSettingsAndInit() {
-      let backupTimer = setTimeout(() => { hideLoading(); checkSession(); }, 5000);
-    
-      google.script.run.withSuccessHandler(res => {
-        clearTimeout(backupTimer); 
-        if(res && res.success) {
-          appSettings = res.data;
-          
-          updateFooterAplikasi(); 
-          
-          if (appSettings['warna_aplikasi']) applyAppThemeColor(appSettings['warna_aplikasi']);
-          
-          let pubAppName = document.getElementById('pub-app-name');
-          if (pubAppName) pubAppName.innerText = appSettings['nama_aplikasi'] || 'SI-GAS';
-    	  let sidebarAppName = document.getElementById('sidebar-app-name');
-    		if (sidebarAppName) sidebarAppName.innerText = appSettings['nama_aplikasi'] || 'SI-GAS';
-          
-          document.getElementById('pub-app-domisili').innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${appSettings['nama_komplek'] || 'Komplek Warga'} (${appSettings['domisili'] || 'Kecamatan'})`;
-          document.getElementById('pub-app-moto').innerText = `"${appSettings['moto'] || 'Harmonis, Religius dan Gotong Royong'}"`;
-          
-          let menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
-          if (menuDaftarWarga) menuDaftarWarga.style.display = appSettings['fitur_pendaftaran_mandiri'] === 'Nonaktif' ? 'none' : 'block';
-          
-          let menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
-          if (menuLaporMudik) menuLaporMudik.style.display = appSettings['fitur_lapor_mudik'] === 'Aktif' ? 'block' : 'none';
-          
-          let runningTextEl = document.getElementById('pub-running-text-content');
-          if (runningTextEl) runningTextEl.innerText = appSettings['running_text'] || 'Selamat Datang di Portal SI-GAS Warga.';
-          
-          if(appSettings['logo']) document.getElementById('pub-logo-container').innerHTML = `<img src="${appSettings['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
-        }
-        checkSession();
-      }).withFailureHandler(err => {
-        clearTimeout(backupTimer); console.error("Gagal terhubung:", err); checkSession();
-      }).getAppSettings();
+  let backupTimer = setTimeout(() => { hideLoading(); checkSession(); }, 5000);
+
+  google.script.run.withSuccessHandler(res => {
+    clearTimeout(backupTimer); 
+    if(res && res.success) {
+      appSettings = res.data;
+      
+      updateFooterAplikasi(); 
+      
+      if (appSettings['warna_aplikasi']) applyAppThemeColor(appSettings['warna_aplikasi']);
+      
+      let appName = appSettings['nama_aplikasi'] || appSettings['nama_app'] || 'SI-GAS';
+      let namaKomplek = appSettings['nama_komplek'] || 'Komplek Warga';
+
+      let pubAppName = document.getElementById('pub-app-name');
+      if (pubAppName) pubAppName.innerText = appName;
+      let sidebarAppName = document.getElementById('sidebar-app-name');
+      if (sidebarAppName) sidebarAppName.innerText = appName;
+      
+      let elDomisili = document.getElementById('pub-app-domisili');
+      if (elDomisili) elDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${namaKomplek} (${appSettings['domisili'] || 'Kecamatan'})`;
+      
+      let elMoto = document.getElementById('pub-app-moto');
+      if (elMoto) elMoto.innerText = `"${appSettings['moto'] || 'Harmonis, Religius dan Gotong Royong'}"`;
+      
+      let menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
+      if (menuDaftarWarga) menuDaftarWarga.style.display = appSettings['fitur_pendaftaran_mandiri'] === 'Nonaktif' ? 'none' : 'block';
+      
+      let menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
+      if (menuLaporMudik) menuLaporMudik.style.display = appSettings['fitur_lapor_mudik'] === 'Aktif' ? 'block' : 'none';
+      
+      // --- PENYESUAIAN RUNNING TEXT DINAMIS ---
+      let runningTextEl = document.getElementById('pub-running-text-content');
+      if (runningTextEl) {
+        let rawText = appSettings['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama!';
+        runningTextEl.innerText = rawText
+          .replace(/\$namaapp\$/gi, appName)
+          .replace(/\$namakomplek\$/gi, namaKomplek);
+      }
+      
+      if(appSettings['logo']) {
+        let logoContainer = document.getElementById('pub-logo-container');
+        if (logoContainer) logoContainer.innerHTML = `<img src="${appSettings['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
+      }
     }
+    checkSession();
+  }).withFailureHandler(err => {
+    clearTimeout(backupTimer); 
+    console.error("Gagal terhubung:", err); 
+    checkSession();
+  }).getAppSettings();
+}
     
     function saveIdentitasAplikasi(e) {
       e.preventDefault();  
