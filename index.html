@@ -14287,13 +14287,18 @@ function loadPendingOrgKas() {
         }
 		
 function kirimAbsenRonda() {
-  let kode = document.getElementById('rondaKodeWarga').value.trim();
+  let elKode = document.getElementById('rondaKodeWarga');
+  if (!elKode) {
+    Swal.fire('Error', 'Input kode warga tidak ditemukan di halaman!', 'error');
+    return;
+  }
 
+  let kode = elKode.value.trim();
   if (!kode) {
     Swal.fire({
       icon: 'warning',
-      title: 'Kode Belum Diisi',
-      text: 'Silakan masukkan Kode Unik Warga Anda!',
+      title: 'Kode Kosong',
+      text: 'Silakan masukkan Kode Unik Warga Anda (Contoh: HFD001)',
       confirmButtonColor: '#198754'
     });
     return;
@@ -14306,24 +14311,25 @@ function kirimAbsenRonda() {
       if (res && res.success) {
         Swal.fire({
           icon: 'success',
-          title: 'Absensi Berhasil!',
+          title: 'Presensi Berhasil!',
           text: res.message,
           confirmButtonColor: '#198754'
         });
-        document.getElementById('rondaKodeWarga').value = '';
+        elKode.value = '';
         if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
+        if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
       } else {
         Swal.fire({
           icon: 'error',
-          title: 'Absensi Gagal',
-          text: res.message || 'Data tidak sesuai.',
+          title: 'Presensi Ditolak',
+          text: res.message || 'Data tidak valid.',
           confirmButtonColor: '#dc3545'
         });
       }
     })
     .withFailureHandler(err => {
       hideLoading();
-      Swal.fire('Error Server', 'Terjadi kesalahan: ' + err, 'error');
+      Swal.fire('Error Koneksi', 'Gagal memproses absensi: ' + err, 'error');
     })
     .submitAbsenRonda({ kodeWarga: kode });
 }
