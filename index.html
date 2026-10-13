@@ -750,9 +750,9 @@
                     <i class="fas fa-info-circle text-primary me-1"></i>Sistem akan memverifikasi jadwal tugas secara otomatis.
                   </div>
                 </div>
-                <button class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="kirimAbsenRonda()">
-                  <i class="fas fa-check-circle me-1"></i> Kirim Absensi Ronda
-                </button>
+                <button class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="prosesAbsenBaru()">
+				<i class="fas fa-check-circle me-1"></i> Kirim Absensi Ronda
+				</button>
               </div>
             </div>
 
@@ -14438,6 +14438,52 @@ function konfirmasiHapusAbsen(id, nama) {
         .hapusAbsenRonda(localStorage.getItem('sigas_token'), id);
     }
   });
+}
+
+function prosesAbsenBaru() {
+  let elKode = document.getElementById('rondaKodeWarga');
+  let kode = elKode ? elKode.value.trim() : '';
+
+  if (!kode) {
+    Swal.fire('Kode Kosong', 'Masukkan Kode Unik Warga!', 'warning');
+    return;
+  }
+
+  showLoading();
+  
+  // Memanggil fungsi server yang BARU: verifikasiAbsenRondaKetat
+  google.script.run
+    .withSuccessHandler(res => {
+      hideLoading();
+      
+      // MUNCULKAN POP-UP DIAGNOSTIK KASAR UNTUK BUKTI:
+      alert("Respons dari server: " + JSON.stringify(res)); 
+      
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Presensi Berhasil!',
+          text: res.message, // Rincian teks akan muncul di sini
+          confirmButtonColor: '#198754'
+        });
+        elKode.value = '';
+        if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
+        if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Presensi Ditolak',
+          text: res.message || 'Ditolak oleh server.',
+          confirmButtonColor: '#dc3545'
+        });
+      }
+    })
+    .withFailureHandler(err => {
+      hideLoading();
+      // JIKA FUNGSI GS TIDAK DITEMUKAN, ERROR INI AKAN MUNCUL
+      alert("CRASH SERVER: " + err); 
+    })
+    .verifikasiAbsenRondaKetat({ kodeWarga: kode });
 }
   </script>
   </body>
