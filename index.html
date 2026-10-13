@@ -5855,17 +5855,29 @@ async function apiGet(action, params = {}) {
                 }
             }).getPublicDashboardData();
         
-            // TAMBAHKAN INI: Sinkronisasi Running Text di latar belakang secara otomatis
-            google.script.run.withSuccessHandler(res => {
-                if (res && res.success && res.data) {
-                    let runningTextEl = document.getElementById('pub-running-text-content');
-                    let serverText = res.data['running_text'] || 'Selamat Datang di Portal SI-GAS Warga.';
-                    // Perbarui teks hanya jika isinya berubah di database
-                    if (runningTextEl && runningTextEl.innerText !== serverText) {
-                        runningTextEl.innerText = serverText;
-                    }
-                }
-            }).getAppSettings();
+           // Sinkronisasi Running Text di latar belakang secara otomatis (Dukungan Tag Dinamis $namaapp$)
+			google.script.run.withSuccessHandler(res => {
+			if (res && res.success && res.data) {
+            let runningTextEl = document.getElementById('pub-running-text-content');
+            
+            // 1. Ambil nama aplikasi & nama komplek dari settings
+            let namaApp = res.data['nama_aplikasi'] || res.data['nama_app'] || res.data['nama_web'] || 'SI-GAS';
+            let namaKomplek = res.data['nama_komplek'] || 'Komplek Warga';
+            
+            // 2. Ambil teks template dari database
+            let serverText = res.data['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$.';
+
+            // 3. Ganti placeholder $namaapp$ & $namakomplek$ secara otomatis (kebal huruf besar/kecil)
+            serverText = serverText
+                .replace(/\$namaapp\$/gi, namaApp)
+                .replace(/\$namakomplek\$/gi, namaKomplek);
+
+            // 4. Perbarui teks di layar jika ada perbedaan
+            if (runningTextEl && runningTextEl.innerText !== serverText) {
+                runningTextEl.innerText = serverText;
+            }
+        }
+    }).getAppSettings();
         }
         
         // 2. Panel Pengurus (Admin / Superadmin)... (kode lainnya tetap berjalan)
