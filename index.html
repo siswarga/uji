@@ -1843,6 +1843,7 @@
               <!-- Tab Kas -->
               <div class="tab-pane fade" id="pkk-tab-kas" role="tabpanel">
                 <div class="row g-3 mb-4">
+				<div id="area-konfirmasi-pkk"></div>
                   <div class="col-md-4">
                     <div class="card bg-success text-white border-0 shadow-sm">
                       <div class="card-body">
@@ -1868,6 +1869,7 @@
                     </div>
                   </div>
                 </div>
+				<div id="area-konfirmasi-kt"></div>
                 <div class="card shadow-sm border-0">
                   <div class="card-body">
                     <div class="text-end mb-3">
@@ -3492,6 +3494,7 @@
               <!-- 2. TAB KAS -->
               <div class="tab-pane fade" id="kt-tab-kas" role="tabpanel">
                 <div class="row g-3 mb-4">
+				<div id="area-konfirmasi-kt"></div>
                   <div class="col-md-4">
                     <div class="card bg-success text-white border-0 shadow-sm">
                       <div class="card-body">
@@ -3517,6 +3520,7 @@
                     </div>
                   </div>
                 </div>
+				<div id="area-konfirmasi-kt"></div>
                 <div class="card shadow-sm border-0">
                   <div class="card-body">
                     <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
@@ -11609,32 +11613,7 @@ function openQrisModal(tipe) {
             </tr>`;
         });
         }
-        
-        function loadKtKasData() {
-        showLoading();
-        google.script.run.withSuccessHandler(res => {
-            hideLoading();
-            if(res.success) {
-                document.getElementById('kt-kas-saldo').innerText = formatRupiah(res.data.saldo);
-                document.getElementById('kt-kas-masuk').innerText = formatRupiah(res.data.masuk);
-                document.getElementById('kt-kas-keluar').innerText = formatRupiah(res.data.keluar);
-                dataKtKasGlobal = res.data.list;
-                renderTableKtKas();
-            }
-        }).getKtKas(localStorage.getItem('sigas_token'));
-        }
-        
-        function renderTableKtKas() {
-        let s = document.getElementById('search-kt-kas').value.toLowerCase();
-        let f = dataKtKasGlobal.filter(k => k.keterangan.toLowerCase().includes(s) || k.sumber.toLowerCase().includes(s));
-        let tb = document.getElementById('tbody-kt-kas');
-        tb.innerHTML = '';
-        if(f.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Belum ada transaksi kas</td></tr>'; return; }
-        f.forEach(k => {
-            tb.innerHTML += `<tr><td>${k.tanggal}</td><td><i class="fas ${k.jenis==='Kas Masuk'?'fa-arrow-down text-primary':'fa-arrow-up text-danger'}"></i> ${k.kategori}</td><td><b>${k.sumber}</b></td><td>${k.keterangan}</td><td class="fw-bold ${k.jenis==='Kas Masuk'?'text-primary':'text-danger'}">${formatRupiah(k.nominal)}</td></tr>`;
-        });
-        }
-        
+                
         function loadKtKegiatanData() {
         showLoading();
         google.script.run.withSuccessHandler(res => {
@@ -12972,22 +12951,7 @@ function openQrisModal(tipe) {
             }
         });
         }
-        
-        // --- SCRIPT PKK ---
-        function loadPkkData() {
-        showLoading();
-        google.script.run.withSuccessHandler(res => {
-            hideLoading();
-            if(res && res.success) {
-                dataPkkGlobal = res.data;
-                renderTablePkkPengurus();
-                renderTablePkkKas();
-                renderTablePkkKegiatan();
-                renderTablePkkDasawisma();
-            }
-        }).getPkkData(localStorage.getItem('sigas_token'));
-        }
-        
+             
         function renderTablePkkPengurus() {
         let tb = document.getElementById('tbody-pkk-pengurus');
         if(!tb) return;
@@ -12995,18 +12959,6 @@ function openQrisModal(tipe) {
         if(dataPkkGlobal.pengurus.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Belum ada pengurus PKK</td></tr>'; return; }
         dataPkkGlobal.pengurus.forEach(p => {
             tb.innerHTML += `<tr><td><b>${p.urutan}</b></td><td><strong class="text-success">${p.jabatan}</strong></td><td><b>${p.nama}</b></td><td>${formatWA(p.noWa)}</td><td><span class="badge bg-secondary">${p.pokja}</span></td><td><span class="badge bg-success">${p.status}</span></td><td><button class="btn btn-sm btn-outline-danger" onclick="deletePkkItem('pengurus', '${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
-        });
-        }
-        
-        function renderTablePkkKas() {
-        document.getElementById('pkk-kas-saldo').innerText = formatRupiah(dataPkkGlobal.kas.saldo);
-        document.getElementById('pkk-kas-masuk').innerText = formatRupiah(dataPkkGlobal.kas.masuk);
-        document.getElementById('pkk-kas-keluar').innerText = formatRupiah(dataPkkGlobal.kas.keluar);
-        let tb = document.getElementById('tbody-pkk-kas');
-        tb.innerHTML = '';
-        if(dataPkkGlobal.kas.list.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Belum ada transaksi kas PKK</td></tr>'; return; }
-        dataPkkGlobal.kas.list.forEach(k => {
-            tb.innerHTML += `<tr><td>${k.tanggal}</td><td><i class="fas ${k.jenis==='Kas Masuk'?'fa-arrow-down text-primary':'fa-arrow-up text-danger'}"></i> ${k.kategori}</td><td><b>${k.sumber}</b></td><td>${k.keterangan}</td><td class="fw-bold ${k.jenis==='Kas Masuk'?'text-primary':'text-danger'}">${formatRupiah(k.nominal)}</td></tr>`;
         });
         }
         
@@ -13022,6 +12974,144 @@ function openQrisModal(tipe) {
         });
         }
         
+function loadKtKasData() {
+          showLoading();
+          google.script.run.withSuccessHandler(res => {
+              hideLoading();
+              if(res.success) {
+                  document.getElementById('kt-kas-saldo').innerText = formatRupiah(res.data.saldo);
+                  document.getElementById('kt-kas-masuk').innerText = formatRupiah(res.data.masuk);
+                  document.getElementById('kt-kas-keluar').innerText = formatRupiah(res.data.keluar);
+                  
+                  dataKtKasGlobal = res.data.list;
+                  
+                  // Panggil fungsi render notifikasi pending
+                  renderKonfirmasiOrg(res.data.pending, 'Karang Taruna', 'area-konfirmasi-kt');
+                  
+                  renderTableKtKas();
+              }
+          }).getKtKas(localStorage.getItem('sigas_token'));
+        }
+        
+        function renderTableKtKas() {
+          let s = document.getElementById('search-kt-kas').value.toLowerCase();
+          let f = dataKtKasGlobal.filter(k => k.keterangan.toLowerCase().includes(s) || k.sumber.toLowerCase().includes(s));
+          let tb = document.getElementById('tbody-kt-kas');
+          tb.innerHTML = '';
+          if(f.length === 0) { 
+              tb.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Belum ada transaksi kas</td></tr>'; 
+              return; 
+          }
+          f.forEach(k => {
+              let statBadge = k.status.toLowerCase().includes('pending') ? '<span class="badge bg-warning text-dark ms-2 mt-1">Pending</span>' : '';
+              let textColor = k.jenis === 'Kas Masuk' ? 'text-primary' : 'text-danger';
+              let icon = k.jenis === 'Kas Masuk' ? 'fa-arrow-down text-primary' : 'fa-arrow-up text-danger';
+              
+              tb.innerHTML += `<tr>
+                <td>${k.tanggal}</td>
+                <td><i class="fas ${icon}"></i> ${k.kategori}</td>
+                <td><b>${k.sumber}</b></td>
+                <td>${k.keterangan}</td>
+                <td class="fw-bold ${textColor}">${formatRupiah(k.nominal)} <br> ${statBadge}</td>
+              </tr>`;
+          });
+        }
+
+        function loadPkkData() {
+          showLoading();
+          google.script.run.withSuccessHandler(res => {
+              hideLoading();
+              if(res && res.success) {
+                  dataPkkGlobal = res.data;
+                  document.getElementById('pkk-kas-saldo').innerText = formatRupiah(dataPkkGlobal.kas.saldo);
+                  document.getElementById('pkk-kas-masuk').innerText = formatRupiah(dataPkkGlobal.kas.masuk);
+                  document.getElementById('pkk-kas-keluar').innerText = formatRupiah(dataPkkGlobal.kas.keluar);
+                  
+                  // Panggil fungsi render notifikasi pending
+                  renderKonfirmasiOrg(dataPkkGlobal.kas.pending, 'PKK', 'area-konfirmasi-pkk');
+                  
+                  renderTablePkkPengurus();
+                  renderTablePkkKas();
+                  renderTablePkkKegiatan();
+                  renderTablePkkDasawisma();
+              }
+          }).getPkkData(localStorage.getItem('sigas_token'));
+        }
+
+        function renderTablePkkKas() {
+          let tb = document.getElementById('tbody-pkk-kas');
+          if (!tb) return;
+          tb.innerHTML = '';
+          if(dataPkkGlobal.kas.list.length === 0) { 
+              tb.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Belum ada transaksi kas PKK</td></tr>'; 
+              return; 
+          }
+          dataPkkGlobal.kas.list.forEach(k => {
+              let statBadge = k.status.toLowerCase().includes('pending') ? '<span class="badge bg-warning text-dark ms-2 mt-1">Pending</span>' : '';
+              let textColor = k.jenis === 'Kas Masuk' ? 'text-primary' : 'text-danger';
+              let icon = k.jenis === 'Kas Masuk' ? 'fa-arrow-down text-primary' : 'fa-arrow-up text-danger';
+
+              tb.innerHTML += `<tr>
+                <td>${k.tanggal}</td>
+                <td><i class="fas ${icon}"></i> ${k.kategori}</td>
+                <td><b>${k.sumber}</b></td>
+                <td>${k.keterangan}</td>
+                <td class="fw-bold ${textColor}">${formatRupiah(k.nominal)} <br> ${statBadge}</td>
+              </tr>`;
+          });
+        }
+
+        // FUNGSI MENGGAMBAR KOTAK NOTIFIKASI
+        function renderKonfirmasiOrg(pend, orgType, elementId) {
+          const ar = document.getElementById(elementId);
+          if (!ar) return;
+          ar.innerHTML = '';
+          
+          if (pend && pend.length > 0) {
+            let h = `<div class="alert alert-warning shadow-sm mb-4 border-warning">
+                       <h6 class="alert-heading fw-bold text-dark mb-2"><i class="fas fa-bell text-warning me-2"></i>Konfirmasi Uang Masuk QRIS ${orgType}</h6>`;
+            
+            pend.forEach(p => {
+              h += `<div class="d-flex justify-content-between align-items-center bg-white p-3 rounded border mb-2 flex-wrap">
+                <div>
+                  <strong>${p.tanggal}</strong> - <span class="text-success fw-bold">${formatRupiah(p.nominal)}</span><br>
+                  <small class="text-muted">Dari: <b>${p.sumber}</b> | Ket: ${p.keterangan}</small>
+                </div>
+                <div class="mt-2 mt-sm-0">
+                  <button class="btn btn-sm btn-success me-1 px-3 fw-bold" onclick="aksiKonfirmasiOrgKas('${p.id}', '${orgType}', true)"><i class="fas fa-check me-1"></i> Terima</button> 
+                  <button class="btn btn-sm btn-danger px-3 fw-bold" onclick="aksiKonfirmasiOrgKas('${p.id}', '${orgType}', false)"><i class="fas fa-times me-1"></i> Tolak</button>
+                </div>
+              </div>`;
+            });
+            ar.innerHTML = h + '</div>';
+          }
+        }
+
+        // FUNGSI AKSI TERIMA / TOLAK
+        function aksiKonfirmasiOrgKas(id, orgType, isDiterima) {
+          Swal.fire({
+            title: isDiterima ? 'Terima Uang Masuk?' : 'Tolak Transaksi?',
+            text: isDiterima ? `Saldo kas ${orgType} akan bertambah.` : 'Transaksi akan dibatalkan dan dihapus.',
+            icon: 'question', 
+            showCancelButton: true, 
+            confirmButtonColor: isDiterima ? '#198754' : '#dc3545'
+          }).then(r => {
+            if(r.isConfirmed) {
+              showLoading();
+              google.script.run.withSuccessHandler(res => {
+                hideLoading();
+                if(res.success) {
+                  Swal.fire('Berhasil', res.message, 'success');
+                  if (orgType === 'PKK') loadPkkData();
+                  else loadKtKasData();
+                } else {
+                  Swal.fire('Gagal', res.message, 'error');
+                }
+              }).prosesKonfirmasiOrgKas(localStorage.getItem('sigas_token'), id, orgType, isDiterima);
+            }
+          });
+        }
+		
         // =====================================================
         // SHARE WA - AGENDA PKK (AMAN & HYBRID)
         // =====================================================
