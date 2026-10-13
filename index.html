@@ -714,50 +714,29 @@
         </div>
       </div>
 
-      <!-- BARIS 6: Jadwal Ronda & Kegiatan -->
+     <!-- BARIS 6: Jadwal Ronda & Kegiatan -->
       <div class="row g-4 mb-4">
+        <!-- Kolom Kiri: Jadwal Ronda Malam & Absensi -->
         <div class="col-lg-6">
-          <div class="card card-custom p-4 h-100">
-            <h5 class="fw-bold text-dark mb-3"><i class="fas fa-shield-alt text-success me-2"></i>Jadwal Ronda Malam</h5>
-            <div class="table-responsive">
+          <div class="card card-custom p-4 h-100 d-flex flex-column">
+            <h5 class="fw-bold text-dark mb-3">
+              <i class="fas fa-shield-alt text-success me-2"></i>Jadwal Ronda Malam
+            </h5>
+            
+            <div class="table-responsive mb-4">
               <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                   <tr>
                     <th>Tanggal & Hari</th>
                     <th>Petugas Jaga</th>
-                    <th>Status</th>
+                    <th class="text-end">Status</th>
                   </tr>
                 </thead>
                 <tbody id="pub-tb-ronda"></tbody>
               </table>
             </div>
-          <!-- Kolom Jadwal & Absensi Ronda -->
-        <div class="col-lg-6 mb-4">
-          <div class="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 bg-white">
-            
-            <!-- Header & Tabel Jadwal Ronda -->
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h5 class="fw-bold text-dark mb-0">
-                <i class="fas fa-shield-alt text-success me-2"></i>Jadwal Ronda Malam
-              </h5>
-            </div>
 
-            <div class="table-responsive mb-4">
-              <table class="table table-borderless align-middle mb-0">
-                <thead class="text-secondary small border-bottom">
-                  <tr>
-                    <th class="ps-0">Tanggal & Hari</th>
-                    <th>Petugas Jaga</th>
-                    <th class="text-end pe-0">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-ronda-public">
-                  <!-- Data jadwal di-render oleh JavaScript -->
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Box Absensi: Cukup Input Kode Unik Warga -->
+            <!-- Box Absensi: Input Kode Unik Warga -->
             <div class="card border-0 rounded-4 shadow-sm bg-light overflow-hidden mt-auto">
               <div class="card-header bg-dark text-white py-2 px-3 fw-bold small d-flex align-items-center justify-content-between">
                 <span><i class="fas fa-user-check text-warning me-2"></i>Absensi Kehadiran Ronda</span>
@@ -779,10 +758,13 @@
 
           </div>
         </div>
-        <!-- Pastikan tag penutup div di atas menutup col-lg-6 dengan sempurna -->
+
+        <!-- Kolom Kanan: Pemberitahuan Kegiatan -->
         <div class="col-lg-6">
           <div class="card card-custom p-4 h-100">
-            <h5 class="fw-bold text-dark mb-3"><i class="fas fa-calendar-alt text-success me-2"></i>Pemberitahuan Kegiatan</h5>
+            <h5 class="fw-bold text-dark mb-3">
+              <i class="fas fa-calendar-alt text-success me-2"></i>Pemberitahuan Kegiatan
+            </h5>
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
