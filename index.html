@@ -14301,28 +14301,31 @@ function kirimAbsenRonda() {
   }
 
   showLoading();
-  
-  // Panggil fungsi baru di server
+
+  // Memanggil fungsi submitAbsenRonda() di Code.gs secara dinamis
+  // sesuai format doPost(e) yang Anda miliki.
   google.script.run
     .withSuccessHandler(res => {
       hideLoading();
-      console.log("Respon Server:", res); // Periksa respon di Console (F12)
       
+      // Jika berhasil, res akan berisi {success: true, message: "..."}
       if (res && res.success) {
         Swal.fire({
           icon: 'success',
           title: 'Presensi Berhasil!',
-          text: res.message, // Menampilkan rincian nama & jam dari server
+          text: res.message, // Menampilkan jam dan nama dari server
           confirmButtonColor: '#198754'
         });
+        
         if (elKode) elKode.value = '';
         if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
         if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
       } else {
+        // Jika ditolak karena di luar jam atau bukan jadwalnya
         Swal.fire({
           icon: 'error',
           title: 'Presensi Ditolak',
-          text: (res && res.message) ? res.message : 'Akses ditolak oleh server.',
+          text: (res && res.message) ? res.message : 'Kode unik tidak terdaftar atau bukan jadwal tugas Anda!',
           confirmButtonColor: '#dc3545'
         });
       }
@@ -14332,11 +14335,12 @@ function kirimAbsenRonda() {
       Swal.fire({
         icon: 'error',
         title: 'Error Koneksi',
-        text: 'Gagal memproses absensi: ' + err,
+        text: 'Gagal terhubung ke server: ' + err,
         confirmButtonColor: '#dc3545'
       });
     })
-    .verifikasiAbsenRondaKetat({ kodeWarga: kode });
+    // Mengirim objek langsung sebagai parameter fungsi submitAbsenRonda(p)
+    .submitAbsenRonda({ kodeWarga: kode, modeUjiCoba: false });
 }
 
 let dataAbsenRondaGlobal = [];
