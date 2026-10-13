@@ -5753,6 +5753,44 @@
 
 <script>
   
+// Fungsi pembantu untuk memanggil Google Apps Script dengan auto-retry
+function panggilServerAman(namaFungsi, parameter = [], maxPercobaan = 3, jedaMs = 1500) {
+  return new Promise((resolve, reject) => {
+    let percobaan = 0;
+
+    function jalankan() {
+      percobaan++;
+      let runner = google.script.run
+        .withSuccessHandler(res => {
+          // Jika sukses dan datanya valid
+          if (res && res.success !== false) {
+            resolve(res);
+          } else if (percobaan < maxPercobaan) {
+            setTimeout(jalankan, jedaMs);
+          } else {
+            resolve(res); // Kembalikan apa adanya jika batas percobaan habis
+          }
+        })
+        .withFailureHandler(err => {
+          if (percobaan < maxPercobaan) {
+            setTimeout(jalankan, jedaMs);
+          } else {
+            reject(err);
+          }
+        });
+
+      // Eksekusi fungsi dengan atau tanpa parameter
+      if (Array.isArray(parameter) && parameter.length > 0) {
+        runner[namaFungsi](...parameter);
+      } else {
+        runner[namaFungsi]();
+      }
+    }
+
+    jalankan();
+  });
+}  
+  
 // Pengganti google.script.run untuk GET (Ambil Data)
 async function apiGet(action, params = {}) {
   try {
