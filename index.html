@@ -5865,7 +5865,7 @@ async function apiGet(action, params = {}) {
             let namaKomplek = res.data['nama_komplek'] || 'Komplek Warga';
             
             // 2. Ambil teks template dari database
-            let serverText = res.data['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$.';
+            let serverText = res.data['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama';
 
             // 3. Ganti placeholder $namaapp$ & $namakomplek$ secara otomatis (kebal huruf besar/kecil)
             serverText = serverText
