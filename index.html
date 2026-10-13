@@ -6683,24 +6683,25 @@ async function apiGet(action, params = {}) {
     let logPage = document.getElementById('login-page');
     let appLayout = document.getElementById('app-layout');
     
-    // Paksa reset tampilan untuk mencegah blank putih
+    // Paksa reset tampilan dengan !important untuk mencegah blank putih
     if(pubPage) pubPage.style.cssText = 'display: none !important;';
     if(logPage) logPage.style.cssText = 'display: none !important;'; 
     if(appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;'; 
     
-    document.getElementById('topbar-name').innerText = currentUser.nama; 
-    document.getElementById('topbar-role').innerText = currentUser.role; 
+    let nameEl = document.getElementById('topbar-name');
+    if(nameEl) nameEl.innerText = currentUser.nama; 
+    
+    let roleEl = document.getElementById('topbar-role');
+    if(roleEl) roleEl.innerText = currentUser.role; 
+    
     renderMenu(); 
     hideLoading(); 
     
-    if(currentUser.role === 'Superadmin') {
-        document.getElementById('btn-ai-prompt').style.display = 'block';
-    } else {
-        document.getElementById('btn-ai-prompt').style.display = 'none';
-    }
+    let btnAi = document.getElementById('btn-ai-prompt');
+    if(btnAi) btnAi.style.display = (currentUser.role === 'Superadmin') ? 'block' : 'none';
     
     resetIdleTimer();
-    fetchNotificationCounts(); 
+    if(typeof fetchNotificationCounts === 'function') fetchNotificationCounts(); 
     
     // Buka kembali halaman terakhir yang sedang dibuka saat di-refresh
     setTimeout(() => { 
@@ -6713,7 +6714,7 @@ async function apiGet(action, params = {}) {
             const firstMenu = document.querySelector('#sidebar-menu li a'); 
             if(firstMenu) firstMenu.click(); 
         }
-    }, 50); 
+    }, 100); 
 }
     
     /**
@@ -6967,7 +6968,7 @@ async function apiGet(action, params = {}) {
         });
         } 
         
-        function renderCharts(w) { 
+       function renderCharts(w) { 
     if(chartJkInstance) chartJkInstance.destroy(); 
     if(chartUsiaInstance) chartUsiaInstance.destroy(); 
     
@@ -6984,7 +6985,7 @@ async function apiGet(action, params = {}) {
         options: { responsive: true, maintainAspectRatio: false }
     }); 
     
-    // Grafik Batang Rentang Usia (Telah Diperbarui ke Format L & P)
+    // Grafik Batang Rentang Usia (Laki-laki & Perempuan Bersebelahan)
     chartUsiaInstance = new Chart(document.getElementById('chartUsia'), {
         type: 'bar',
         data: {
@@ -6992,13 +6993,25 @@ async function apiGet(action, params = {}) {
             datasets: [
                 {
                     label: 'Laki-laki',
-                    data: [w.usia.balita.l, w.usia.anak.l, w.usia.remaja.l, w.usia.dewasa.l, w.usia.lansia.l],
+                    data: [
+                        w.usia.balita.l || 0, 
+                        w.usia.anak.l || 0, 
+                        w.usia.remaja.l || 0, 
+                        w.usia.dewasa.l || 0, 
+                        w.usia.lansia.l || 0
+                    ],
                     backgroundColor: '#198754',
                     borderRadius: 4
                 },
                 {
                     label: 'Perempuan',
-                    data: [w.usia.balita.p, w.usia.anak.p, w.usia.remaja.p, w.usia.dewasa.p, w.usia.lansia.p],
+                    data: [
+                        w.usia.balita.p || 0, 
+                        w.usia.anak.p || 0, 
+                        w.usia.remaja.p || 0, 
+                        w.usia.dewasa.p || 0, 
+                        w.usia.lansia.p || 0
+                    ],
                     backgroundColor: '#ffc107',
                     borderRadius: 4
                 }
@@ -7007,6 +7020,7 @@ async function apiGet(action, params = {}) {
         options: { 
             responsive: true, 
             maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
             scales: {
                 x: { stacked: false, grid: { display: false } },
                 y: { stacked: false, beginAtZero: true, ticks: { stepSize: 1 } }
