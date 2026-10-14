@@ -13463,7 +13463,7 @@ function loadKtKasData() {
         function submitPkkDasawisma(e) {
         e.preventDefault();
         let p = { nama: document.getElementById('dsw_nama').value, ketua: document.getElementById('dsw_ketua').value, jumlahKk: document.getElementById('dsw_kk').value, alamat: document.getElementById('dsw_alamat').value, keterangan: document.getElementById('dsw_ket').value };
-        google.script.run.withSuccessHandler(res => { if(res.success) { bootstrap.Modal.getInstance(document.getElementById('modalPkkDasawisma')).hide(); Swal.fire('Berhasil', res.message, 'success'); loadPkkData(); } }).savePkkDasawisma(localStorage.getItem('sigas_token'), p);
+        google.script.run.withSuccessHandler(res => { if(res.success) { bootstrap.Modal.getInstance(document.getElementById('modalPkkDasawisma')).hide(); Swal.fire('Berhasil', res.message, 'success'); loadPkkData(); } }).PkkDasawisma(localStorage.getItem('sigas_token'), p);
         }
         
         function deletePkkItem(type, id) {
@@ -13749,26 +13749,39 @@ function loadKtKasData() {
         .saveAppSettings(dataPengaturan);
     }
     
-    function simpanPengaturanSuperadmin() {
-      let dataPengaturan = {
-        nama_aplikasi: document.getElementById('set_nama_aplikasi').value,
-        nama_komplek: document.getElementById('set_nama_komplek').value,
-        api_wa_url: document.getElementById('api_wa_url').value.trim(),
-        wa_group_jid: document.getElementById('set_wa_group_jid').value.trim(),
-        // ... (parameter pengaturan lainnya sesuai form Anda)
-      };
+   function simpanPengaturanSuperadmin() {
+  const elFolder = document.getElementById('inputNamaFolderDrive');
+
+  let dataPengaturan = {
+    nama_aplikasi: document.getElementById('set_nama_aplikasi').value,
+    nama_komplek: document.getElementById('set_nama_komplek').value,
+    api_wa_url: document.getElementById('api_wa_url') ? document.getElementById('api_wa_url').value.trim() : '',
+    wa_group_jid: document.getElementById('set_wa_group_jid') ? document.getElementById('set_wa_group_jid').value.trim() : '',
     
-      google.script.run
-        .withSuccessHandler(res => {
-          if (res.success) {
-            Swal.fire('Berhasil!', 'Pengaturan berhasil disimpan.', 'success');
-            loadDataSuperadmin();
-          } else {
-            Swal.fire('Gagal', res.message, 'error');
-          }
-        })
-        .saveAppSettings(dataPengaturan);
-    }
+    // >>> TAMBAHKAN BARIS INI <<<
+    folder_dokumentasi: elFolder ? elFolder.value.trim() : 'DOKUMENTASI_WARGA'
+
+    // ... (parameter pengaturan lainnya sesuai form Anda)
+  };
+
+  if (typeof showLoading === 'function') showLoading();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (res && res.success) {
+        Swal.fire('Berhasil!', 'Pengaturan berhasil disimpan.', 'success');
+        loadDataSuperadmin(); // Memuat ulang data pengaturan terkini
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      Swal.fire('Error', 'Koneksi gagal: ' + err, 'error');
+    })
+    .saveAppSettings(dataPengaturan);
+}
     
     function triggerPanicButtonAction() {
       Swal.fire({
