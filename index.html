@@ -14757,10 +14757,7 @@ function updateNamaFolderDrive() {
 
 window.simpanNamaFolderDriveAction = function() {
   const inputEl = document.getElementById('inputNamaFolderDrive');
-  if (!inputEl) {
-    alert("Elemen inputNamaFolderDrive tidak ditemukan di halaman!");
-    return;
-  }
+  if (!inputEl) return;
 
   const namaBaru = inputEl.value.trim();
   if (!namaBaru) {
@@ -14769,7 +14766,9 @@ window.simpanNamaFolderDriveAction = function() {
   }
 
   if (typeof showLoading === 'function') showLoading();
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
 
+  // Memakai fungsi bawaan Anda yang sudah ada di backend
   google.script.run
     .withSuccessHandler(res => {
       if (typeof hideLoading === 'function') hideLoading();
@@ -14777,24 +14776,24 @@ window.simpanNamaFolderDriveAction = function() {
         Swal.fire({
           icon: 'success',
           title: 'Berhasil Disimpan!',
-          text: res.message,
-          timer: 2000,
+          text: 'Nama folder dokumentasi: ' + namaBaru,
+          timer: 1500,
           showConfirmButton: false
         });
 
-        // Update nilai cache lokal
+        // Sinkronkan ke variabel lokal
         if (typeof appSettings !== 'undefined') {
           appSettings['folder_dokumentasi'] = namaBaru;
         }
       } else {
-        Swal.fire('Gagal Menyimpan', res ? res.message : 'Respon kosong dari server', 'error');
+        Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan.', 'error');
       }
     })
     .withFailureHandler(err => {
       if (typeof hideLoading === 'function') hideLoading();
-      Swal.fire('Error Server', 'Koneksi ke Apps Script gagal: ' + err, 'error');
+      Swal.fire('Error', 'Kesalahan server: ' + err, 'error');
     })
-    .simpanNamaFolderDriveKeSheet(namaBaru);
+    .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
 };
   </script>
   </body>
