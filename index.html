@@ -14470,210 +14470,11 @@ function konfirmasiHapusAbsen(id, nama) {
     }
   });
 }
+// =========================================================
+// MODUL DOKUMENTASI FOTO (UPLOAD BANYAK & GALERI WARGA)
+// =========================================================
 
-function unggahFoto() {
-  const fileInput = document.getElementById('inputDokumentasi');
-  const file = fileInput.files[0];
-
-  if (!file) {
-    Swal.fire('Peringatan', 'Silakan pilih foto terlebih dahulu!', 'warning');
-    return;
-  }
-
-  showLoading();
-
-  // Membaca dan kompres foto via Canvas agar ringan saat dikirim ke server
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.src = e.target.result;
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      // Batasi ukuran maksimal lebar/tinggi 1024px agar hemat kuota & cepat
-      const maxDim = 1024;
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height && width > maxDim) {
-        height *= maxDim / width;
-        width = maxDim;
-      } else if (height > maxDim) {
-        width *= maxDim / height;
-        height = maxDim;
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Konversi ke base64 JPEG kualitas 75%
-      const base64Data = canvas.toDataURL('image/jpeg', 0.75);
-
-      // Kirim ke Apps Script
-      google.script.run
-        .withSuccessHandler(res => {
-          hideLoading();
-          if (res && res.success) {
-            Swal.fire('Berhasil', res.message, 'success');
-            console.log('URL Foto:', res.url);
-            // Simpan res.url ini ke spreadsheet sesuai kebutuhan form
-          } else {
-            Swal.fire('Gagal', res.message, 'error');
-          }
-        })
-        .withFailureHandler(err => {
-          hideLoading();
-          Swal.fire('Error', 'Koneksi gagal: ' + err, 'error');
-        })
-        .simpanFotoDokumentasi({
-          gambarBase64: base64Data,
-          judul: 'Ronda'
-        });
-    };
-  };
-  reader.readAsDataURL(file);
-}
-
-function bukaGaleriFoto() {
-  const modalEl = document.getElementById('modalGaleriFoto');
-  const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-  modal.show();
-
-  const container = document.getElementById('container-galeri-foto');
-  container.innerHTML = `
-    <div class="col-12 text-center text-muted py-5">
-      <div class="spinner-border text-success mb-2" role="status"></div>
-      <p class="small mb-0">Memuat foto dokumentasi...</p>
-    </div>
-  `;
-
-  google.script.run
-    .withSuccessHandler(res => {
-      if (res && res.success && res.data && res.data.length > 0) {
-        container.innerHTML = res.data.map(f => `
-          <div class="col-6 col-md-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
-              <a href="${f.url}" target="_blank" title="Klik untuk memperbesar">
-                <img src="${f.url}" class="card-img-top" style="height: 140px; object-fit: cover;" alt="Dokumentasi">
-              </a>
-              <div class="card-body p-2 d-flex justify-content-between align-items-center bg-white">
-                <small class="text-muted" style="font-size: 11px;">
-                  <i class="far fa-clock me-1"></i>${f.tanggal}
-                </small>
-                <button class="btn btn-outline-danger btn-sm border-0 py-0 px-2" onclick="prosesHapusFoto('${f.id}')" title="Hapus Foto">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        `).join('');
-      } else {
-        container.innerHTML = `
-          <div class="col-12 text-center text-muted py-5">
-            <i class="fas fa-images fa-3x mb-3 text-secondary opacity-50"></i>
-            <p class="mb-0">Belum ada foto dokumentasi yang diunggah.</p>
-          </div>
-        `;
-      }
-    })
-    .withFailureHandler(err => {
-      container.innerHTML = `
-        <div class="col-12 text-center text-danger py-4">
-          <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
-          <p class="small mb-0">Gagal mengambil foto: ${err}</p>
-        </div>
-      `;
-    })
-    .getGaleriDokumentasi();
-}
-
-// Jadikan fungsi global agar bisa dipanggil langsung oleh onclick
-// 1. Deteksi Pemilihan Foto & Minta Kode Unik Warga
-window.prosesPilihFoto = function(input) {
-  if (!input.files || input.files.length === 0) return;
-  const totalFoto = input.files.length;
-
-  Swal.fire({
-    title: 'Unggah Dokumentasi',
-    html: `
-      <p class="small text-muted mb-3">Terpilih <b>${totalFoto} foto</b>.<br>Silakan masukkan Kode Unik Warga Anda untuk verifikasi identitas pengunggah.</p>
-      <input type="password" id="swal-kode-warga-upload" class="swal2-input" placeholder="Masukkan Kode Unik Warga Anda..." style="margin: 0.5em auto;">
-    `,
-    showCancelButton: true,
-    confirmButtonText: '<i class="fas fa-cloud-upload-alt me-1"></i> Mulai Unggah',
-    confirmButtonColor: '#198754',
-    cancelButtonText: 'Batal',
-    didOpen: () => {
-      const el = document.getElementById('swal-kode-warga-upload');
-      if (el) el.focus();
-    },
-    preConfirm: () => {
-      const kode = document.getElementById('swal-kode-warga-upload').value.trim();
-      if (!kode) {
-        Swal.showValidationMessage('Kode unik warga wajib diisi!');
-        return false;
-      }
-      return kode;
-    }
-  }).then(res => {
-    if (res.isConfirmed) {
-      eksekusiUploadBanyakFoto(Array.from(input.files), res.value);
-    } else {
-      input.value = ''; // Reset pilihan jika dibatalkan
-    }
-  });
-};
-
-// 2. Eksekusi Kompresi & Pengunggahan Bertahap (Hemat Memori & Kuota)
-async function eksekusiUploadBanyakFoto(fileList, kodeWarga) {
-  const total = fileList.length;
-  let sukses = 0;
-  let namaUploader = '';
-
-  for (let i = 0; i < total; i++) {
-    Swal.fire({
-      title: 'Mengunggah Foto...',
-      html: `Sedang memproses foto ke-<b>${i + 1}</b> dari <b>${total}</b>.<br><small class="text-muted">Mengompresi dan mengirim ke server...</small>`,
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
-
-    try {
-      const base64Data = await kompresFoto(fileList[i]);
-      const res = await kirimFotoKeServer(base64Data, kodeWarga);
-      
-      if (res && res.success) {
-        sukses++;
-        namaUploader = res.uploader || '';
-      } else {
-        // Jika kode warga salah, hentikan proses langsung
-        Swal.fire('Gagal', res ? res.message : 'Kode unik warga tidak valid.', 'error');
-        document.getElementById('inputDokumentasi').value = '';
-        return;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  document.getElementById('inputDokumentasi').value = '';
-
-  Swal.fire({
-    title: 'Selesai!',
-    text: `Berhasil mengunggah ${sukses} foto atas nama ${namaUploader}.`,
-    icon: 'success'
-  });
-
-  // Jika modal galeri sedang terbuka, otomatis perbarui tampilan fotonya
-  const modalGaleri = document.getElementById('modalGaleriFoto');
-  if (modalGaleri && modalGaleri.classList.contains('show')) {
-    bukaGaleriFoto();
-  }
-}
-
-// Helper: Kompres Foto via HTML5 Canvas
+// 1. Helper Kompresi Gambar via Canvas (Maksimal 1024px, JPEG 75%)
 function kompresFoto(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -14698,49 +14499,83 @@ function kompresFoto(file) {
   });
 }
 
-// Helper: Promise wrapper untuk google.script.run
-function kirimFotoKeServer(base64Data, kodeWarga) {
-  return new Promise((resolve, reject) => {
-    google.script.run
-      .withSuccessHandler(resolve)
-      .withFailureHandler(reject)
-      .simpanFotoDokumentasi({
-        gambarBase64: base64Data,
-        kodeWarga: kodeWarga
-      });
-  });
-}
+// 2. Fungsi Memilih Foto & Verifikasi Kode Unik Warga
+window.prosesPilihFoto = function(input) {
+  if (!input.files || input.files.length === 0) return;
+  const totalFoto = input.files.length;
 
-window.eksekusiHapusFoto = function(token, fileId, username, password) {
-  if (typeof showLoading === 'function') showLoading();
+  Swal.fire({
+    title: 'Verifikasi Pengunggah',
+    html: `
+      <p class="small text-muted mb-3">Terpilih <b>${totalFoto} foto</b>.<br>Masukkan Kode Unik Warga Anda (terdaftar di Kolom R):</p>
+      <input type="password" id="swal-kode-warga" class="swal2-input" placeholder="Kode Unik Warga..." style="margin: 0.5em auto;">
+    `,
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-cloud-upload-alt me-1"></i> Verifikasi & Unggah',
+    confirmButtonColor: '#198754',
+    cancelButtonText: 'Batal',
+    didOpen: () => {
+      const el = document.getElementById('swal-kode-warga');
+      if (el) el.focus();
+    },
+    preConfirm: () => {
+      const kode = document.getElementById('swal-kode-warga').value.trim();
+      if (!kode) {
+        Swal.showValidationMessage('Kode unik warga wajib diisi!');
+        return false;
+      }
+      return kode;
+    }
+  }).then(async res => {
+    if (res.isConfirmed) {
+      const kodeWarga = res.value;
+      const fileList = Array.from(input.files);
+      let sukses = 0;
+      let namaWarga = '';
 
-  google.script.run
-    .withSuccessHandler(res => {
-      if (typeof hideLoading === 'function') hideLoading();
-      if (res && res.success) {
-        if (typeof Swal !== 'undefined') {
-          Swal.fire('Berhasil', res.message, 'success');
-        } else {
-          alert(res.message);
-        }
-        bukaGaleriFoto(); // Refresh daftar foto
-      } else {
-        let msg = (res && res.message) ? res.message : 'Gagal menghapus file.';
-        if (typeof Swal !== 'undefined') {
-          Swal.fire('Akses Ditolak', msg, 'error');
-        } else {
-          alert(msg);
+      for (let i = 0; i < fileList.length; i++) {
+        Swal.fire({
+          title: 'Mengunggah Foto...',
+          html: `Sedang memproses foto ke-<b>${i + 1}</b> dari <b>${fileList.length}</b>...<br><small class="text-muted">Mengompresi dan mengirim ke Google Drive...</small>`,
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        try {
+          const base64Data = await kompresFoto(fileList[i]);
+          const hasil = await new Promise((resolve, reject) => {
+            google.script.run
+              .withSuccessHandler(resolve)
+              .withFailureHandler(reject)
+              .simpanFotoDokumentasi({ gambarBase64: base64Data, kodeWarga: kodeWarga });
+          });
+
+          if (hasil && hasil.success) {
+            sukses++;
+            namaWarga = hasil.uploader;
+          } else {
+            // Jika kode unik salah, hentikan seluruh antrean upload langsung
+            input.value = '';
+            Swal.fire('Verifikasi Gagal', hasil.message, 'error');
+            return;
+          }
+        } catch (e) {
+          input.value = '';
+          Swal.fire('Kesalahan Jaringan', 'Gagal memproses file: ' + e, 'error');
+          return;
         }
       }
-    })
-    .withFailureHandler(err => {
-      if (typeof hideLoading === 'function') hideLoading();
-      alert('Terjadi kesalahan koneksi server: ' + err);
-    })
-    .hapusFotoDokumentasi(token, fileId, username, password);
+
+      input.value = '';
+      Swal.fire('Selesai', `Berhasil mengunggah ${sukses} foto atas nama <b>${namaWarga}</b>!`, 'success');
+      bukaGaleriFoto();
+    } else {
+      input.value = '';
+    }
+  });
 };
 
-// Render Galeri dengan atribut pencegah blokir gambar Drive
+// 3. Menampilkan Galeri Dokumentasi Foto
 window.bukaGaleriFoto = function() {
   const modalEl = document.getElementById('modalGaleriFoto');
   const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
@@ -14760,8 +14595,7 @@ window.bukaGaleriFoto = function() {
         container.innerHTML = res.data.map(f => `
           <div class="col-6 col-md-4">
             <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
-              <a href="${f.directUrl || f.url}" target="_blank" title="Klik untuk melihat ukuran asli">
-                <!-- referrerpolicy="no-referrer" sangat penting agar gambar Drive tidak diblokir browser -->
+              <a href="${f.directUrl || f.url}" target="_blank" title="Klik untuk melihat resolusi penuh">
                 <img src="${f.url}" referrerpolicy="no-referrer" class="card-img-top" style="height: 140px; object-fit: cover; background-color: #f0f0f0;" alt="Dokumentasi">
               </a>
               <div class="card-body p-2 bg-white">
@@ -14800,80 +14634,85 @@ window.bukaGaleriFoto = function() {
     .getGaleriDokumentasi();
 };
 
-// Proses Upload Bertahap dengan Penolakan Langsung jika Kode Salah
-window.prosesPilihFoto = function(input) {
-  if (!input.files || input.files.length === 0) return;
-  const totalFoto = input.files.length;
+// 4. Dialog Konfirmasi / Otorisasi Hapus Foto
+window.prosesHapusFoto = function(fileId) {
+  if (!fileId) {
+    Swal.fire('Error', 'ID Berkas tidak valid!', 'error');
+    return;
+  }
 
-  Swal.fire({
-    title: 'Verifikasi Pengunggah',
-    html: `
-      <p class="small text-muted mb-3">Terpilih <b>${totalFoto} foto</b>.<br>Masukkan Kode Unik Warga Anda (terdaftar di Kolom R):</p>
-      <input type="password" id="swal-kode-warga" class="swal2-input" placeholder="Kode Unik Warga..." style="margin: 0.5em auto;">
-    `,
-    showCancelButton: true,
-    confirmButtonText: 'Verifikasi & Unggah',
-    confirmButtonColor: '#198754',
-    cancelButtonText: 'Batal',
-    didOpen: () => {
-      const el = document.getElementById('swal-kode-warga');
-      if (el) el.focus();
-    },
-    preConfirm: () => {
-      const kode = document.getElementById('swal-kode-warga').value.trim();
-      if (!kode) {
-        Swal.showValidationMessage('Kode unik warga wajib diisi!');
-        return false;
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+
+  // Jika Pengurus sedang login di sesi aktif
+  if (token) {
+    Swal.fire({
+      title: 'Hapus Foto?',
+      text: 'Foto dokumentasi ini akan dihapus dari Google Drive.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(result => {
+      if (result.isConfirmed) {
+        eksekusiHapusFoto(token, fileId, null, null);
       }
-      return kode;
-    }
-  }).then(async res => {
-    if (res.isConfirmed) {
-      const kodeWarga = res.value;
-      const fileList = Array.from(input.files);
-      let sukses = 0;
-      let namaWarga = '';
-
-      for (let i = 0; i < fileList.length; i++) {
-        Swal.fire({
-          title: 'Mengunggah Foto...',
-          html: `Memproses foto ke-<b>${i + 1}</b> dari <b>${fileList.length}</b>...`,
-          allowOutsideClick: false,
-          didOpen: () => Swal.showLoading()
-        });
-
-        try {
-          const base64Data = await kompresFoto(fileList[i]);
-          const hasil = await new Promise((resolve, reject) => {
-            google.script.run
-              .withSuccessHandler(resolve)
-              .withFailureHandler(reject)
-              .simpanFotoDokumentasi({ gambarBase64: base64Data, kodeWarga: kodeWarga });
-          });
-
-          if (hasil && hasil.success) {
-            sukses++;
-            namaWarga = hasil.uploader;
-          } else {
-            // JIKA KODE SALAH, LANGSUNG HENTIKAN UPLOAD DAN TAMPILKAN PESAN ERROR
-            input.value = '';
-            Swal.fire('Verifikasi Gagal', hasil.message, 'error');
-            return;
-          }
-        } catch (e) {
-          input.value = '';
-          Swal.fire('Error', 'Gagal: ' + e, 'error');
-          return;
+    });
+  } 
+  // Jika diakses dari portal umum/warga (minta autentikasi akun pengurus)
+  else {
+    Swal.fire({
+      title: 'Otorisasi Pengurus',
+      html: `
+        <p class="small text-muted mb-3">Masukkan akun pengurus terdaftar untuk menghapus foto ini.</p>
+        <input type="text" id="auth-del-user" class="swal2-input" placeholder="Username Pengurus" style="margin: 0.5em auto;">
+        <input type="password" id="auth-del-pass" class="swal2-input" placeholder="Password" style="margin: 0.5em auto;">
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Verifikasi & Hapus',
+      confirmButtonColor: '#d33',
+      cancelButtonText: 'Batal',
+      didOpen: () => {
+        const u = document.getElementById('auth-del-user');
+        if (u) u.focus();
+      },
+      preConfirm: () => {
+        const u = document.getElementById('auth-del-user').value.trim();
+        const p = document.getElementById('auth-del-pass').value.trim();
+        if (!u || !p) {
+          Swal.showValidationMessage('Username dan Password wajib diisi!');
+          return false;
         }
+        return { username: u, password: p };
       }
+    }).then(result => {
+      if (result.isConfirmed) {
+        eksekusiHapusFoto(null, fileId, result.value.username, result.value.password);
+      }
+    });
+  }
+};
 
-      input.value = '';
-      Swal.fire('Selesai', `Berhasil mengunggah ${sukses} foto atas nama <b>${namaWarga}</b>!`, 'success');
-      bukaGaleriFoto();
-    } else {
-      input.value = '';
-    }
-  });
+// 5. Eksekusi Hapus ke Backend Apps Script
+window.eksekusiHapusFoto = function(token, fileId, username, password) {
+  if (typeof showLoading === 'function') showLoading();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (res && res.success) {
+        Swal.fire('Berhasil', res.message, 'success');
+        bukaGaleriFoto(); // Muat ulang tampilan galeri
+      } else {
+        Swal.fire('Akses Ditolak', res ? res.message : 'Gagal menghapus file.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      Swal.fire('Error Server', 'Terjadi kesalahan koneksi server: ' + err, 'error');
+    })
+    .hapusFotoDokumentasi(token, fileId, username, password);
 };
   </script>
   </body>
