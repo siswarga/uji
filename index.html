@@ -402,30 +402,39 @@
   <div id="public-page" style="display: none;">
     <div class="container py-3">
 
-      <!-- BARIS 1: Header / Brand -->
-      <div class="row align-items-center mb-4 pb-3 border-bottom">
-        <div class="col-md-12 d-flex align-items-center justify-content-between">
-          <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" title="Klik 2x untuk masuk panel pengurus" style="cursor: pointer;">
-            <div id="pub-logo-container" class="bg-success text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center overflow-hidden" style="width: 50px; height: 50px;">
-              <i class="fas fa-leaf fa-lg" id="pub-logo-icon"></i>
-            </div>
-            <div>
-              <h4 class="fw-bold mb-0 text-success" id="pub-app-name">SI-GAS</h4>
-              <small class="text-muted" id="pub-app-domisili"><i class="fas fa-map-marker-alt text-danger me-1"></i> Grand Assalam</small>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <!-- Tombol Panic Button SOS -->
-            <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="triggerPanicButtonAction()" title="Tombol Darurat SOS">
-              <i class="fas fa-exclamation-triangle me-1"></i> SOS
-            </button>
-
-            <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-md-inline-block">
-              <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
-            </span>
-          </div>
-        </div>
+     <!-- BARIS 1: Header / Brand -->
+<div class="row align-items-center mb-4 pb-3 border-bottom">
+  <div class="col-md-12 d-flex align-items-center justify-content-between">
+    <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" title="Klik 2x untuk masuk panel pengurus" style="cursor: pointer;">
+      <div id="pub-logo-container" class="bg-success text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center overflow-hidden" style="width: 50px; height: 50px;">
+        <i class="fas fa-leaf fa-lg" id="pub-logo-icon"></i>
       </div>
+      <div>
+        <h4 class="fw-bold mb-0 text-success" id="pub-app-name">SI-GAS</h4>
+        <small class="text-muted" id="pub-app-domisili"><i class="fas fa-map-marker-alt text-danger me-1"></i> Grand Assalam</small>
+      </div>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+      <!-- Input Kamera/Galeri Tersembunyi -->
+      <input type="file" id="inputDokumentasi" style="display: none;" accept="image/*" capture="environment" onchange="unggahFoto()">
+
+      <!-- Tombol Unggah Dokumentasi -->
+      <button class="btn btn-outline-success btn-sm fw-bold shadow-sm" onclick="document.getElementById('inputDokumentasi').click()" title="Ambil/Unggah Foto Dokumentasi">
+        <i class="fas fa-camera me-1"></i> Foto
+      </button>
+
+      <!-- Tombol Panic Button SOS -->
+      <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="triggerPanicButtonAction()" title="Tombol Darurat SOS">
+        <i class="fas fa-exclamation-triangle me-1"></i> SOS
+      </button>
+
+      <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-md-inline-block">
+        <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
+      </span>
+    </div>
+  </div>
+</div>
 
       <!-- BARIS 2: RUNNING TEXT / PENGUMUMAN BERJALAN -->
       <div class="row mb-4" id="row-running-text">
@@ -14422,7 +14431,70 @@ function konfirmasiHapusAbsen(id, nama) {
   });
 }
 
+function unggahFoto() {
+  const fileInput = document.getElementById('inputDokumentasi');
+  const file = fileInput.files[0];
 
+  if (!file) {
+    Swal.fire('Peringatan', 'Silakan pilih foto terlebih dahulu!', 'warning');
+    return;
+  }
+
+  showLoading();
+
+  // Membaca dan kompres foto via Canvas agar ringan saat dikirim ke server
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.src = e.target.result;
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Batasi ukuran maksimal lebar/tinggi 1024px agar hemat kuota & cepat
+      const maxDim = 1024;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height && width > maxDim) {
+        height *= maxDim / width;
+        width = maxDim;
+      } else if (height > maxDim) {
+        width *= maxDim / height;
+        height = maxDim;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Konversi ke base64 JPEG kualitas 75%
+      const base64Data = canvas.toDataURL('image/jpeg', 0.75);
+
+      // Kirim ke Apps Script
+      google.script.run
+        .withSuccessHandler(res => {
+          hideLoading();
+          if (res && res.success) {
+            Swal.fire('Berhasil', res.message, 'success');
+            console.log('URL Foto:', res.url);
+            // Simpan res.url ini ke spreadsheet sesuai kebutuhan form
+          } else {
+            Swal.fire('Gagal', res.message, 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          hideLoading();
+          Swal.fire('Error', 'Koneksi gagal: ' + err, 'error');
+        })
+        .simpanFotoDokumentasi({
+          gambarBase64: base64Data,
+          judul: 'Ronda'
+        });
+    };
+  };
+  reader.readAsDataURL(file);
+}
   </script>
   </body>
 </html>
