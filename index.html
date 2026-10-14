@@ -9179,7 +9179,11 @@ async function apiGet(action, params = {}) {
     hideLoading();
     if(res && res.success){
       appSettings = res.data || {};  
-      
+      let elFolder = document.getElementById('inputNamaFolderDrive');
+		if (elFolder) {
+		elFolder.value = appSettings['folder_dokumentasi'] || 'DOKUMENTASI_WARGA';
+		}
+
       // 1. Identitas Aplikasi
       let elApp = document.getElementById('set_nama_aplikasi'); if(elApp) elApp.value = appSettings['nama_aplikasi'] || '';  
       let elKomplek = document.getElementById('set_nama_komplek'); if(elKomplek) elKomplek.value = appSettings['nama_komplek'] || '';  
@@ -14703,13 +14707,13 @@ window.eksekusiHapusFoto = function(token, fileId, username, password) {
     .hapusFotoDokumentasi(token, fileId, username, password);
 };
 
-// Fungsi Memperbarui Nama Folder dari Panel Superadmin
 function updateNamaFolderDrive() {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
-  const namaBaru = document.getElementById('inputNamaFolderDrive').value.trim();
+  const inputEl = document.getElementById('inputNamaFolderDrive');
+  const namaBaru = inputEl ? inputEl.value.trim() : '';
 
   if (!namaBaru) {
-    Swal.fire('Peringatan', 'Nama folder tidak boleh kosong!', 'warning');
+    Swal.fire('Peringatan', 'Silakan masukkan nama folder terlebih dahulu!', 'warning');
     return;
   }
 
@@ -14718,14 +14722,18 @@ function updateNamaFolderDrive() {
     .withSuccessHandler(res => {
       hideLoading();
       if (res && res.success) {
-        Swal.fire('Tersimpan', res.message, 'success');
+        Swal.fire('Berhasil', res.message, 'success');
+        // Update cache lokal appSettings
+        if (typeof appSettings !== 'undefined') {
+          appSettings['folder_dokumentasi'] = namaBaru;
+        }
       } else {
         Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan', 'error');
       }
     })
     .withFailureHandler(err => {
       hideLoading();
-      Swal.fire('Error', 'Kesalahan server: ' + err, 'error');
+      Swal.fire('Error', 'Koneksi server gagal: ' + err, 'error');
     })
     .simpanSettingFolderDokumentasi(token, namaBaru);
 }
