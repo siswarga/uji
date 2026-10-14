@@ -14755,10 +14755,6 @@ function updateNamaFolderDrive() {
     .simpanSettingFolderDokumentasi(token, namaBaru);
 }
 
-google.script.run
-  .withSuccessHandler(...)
-  .simpanKhususFolderDokumentasi(namaBaru);
-
 window.simpanNamaFolderDriveAction = function() {
   const inputEl = document.getElementById('inputNamaFolderDrive');
   if (!inputEl) {
