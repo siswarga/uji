@@ -402,7 +402,7 @@
   <div id="public-page" style="display: none;">
     <div class="container py-3">
 
-     <!-- BARIS 1: Header / Brand -->
+    <!-- BARIS 1: Header / Brand -->
 <div class="row align-items-center mb-4 pb-3 border-bottom">
   <div class="col-md-12 d-flex align-items-center justify-content-between">
     <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" title="Klik 2x untuk masuk panel pengurus" style="cursor: pointer;">
@@ -419,10 +419,25 @@
       <!-- Input Kamera/Galeri Tersembunyi -->
       <input type="file" id="inputDokumentasi" style="display: none;" accept="image/*" capture="environment" onchange="unggahFoto()">
 
-      <!-- Tombol Unggah Dokumentasi -->
-      <button class="btn btn-outline-success btn-sm fw-bold shadow-sm" onclick="document.getElementById('inputDokumentasi').click()" title="Ambil/Unggah Foto Dokumentasi">
-        <i class="fas fa-camera me-1"></i> Foto
-      </button>
+      <!-- DROPDOWN PILIHAN DOKUMENTASI -->
+      <div class="dropdown">
+        <button class="btn btn-outline-success btn-sm fw-bold shadow-sm dropdown-toggle" type="button" id="dropdownDokumentasi" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-camera me-1"></i> Dokumentasi
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-1" aria-labelledby="dropdownDokumentasi">
+          <li>
+            <a class="dropdown-item py-2 fw-semibold" href="javascript:void(0)" onclick="document.getElementById('inputDokumentasi').click()">
+              <i class="fas fa-upload text-success me-2"></i> Unggah Foto Baru
+            </a>
+          </li>
+          <li><hr class="dropdown-divider my-1"></li>
+          <li>
+            <a class="dropdown-item py-2 fw-semibold" href="javascript:void(0)" onclick="bukaGaleriFoto()">
+              <i class="fas fa-images text-primary me-2"></i> Lihat Galeri Foto
+            </a>
+          </li>
+        </ul>
+      </div>
 
       <!-- Tombol Panic Button SOS -->
       <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="triggerPanicButtonAction()" title="Tombol Darurat SOS">
