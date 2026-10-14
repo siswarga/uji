@@ -5738,7 +5738,7 @@
     </div>
   </div>
 <!-- MODAL GALERI FOTO DOKUMENTASI -->
-<div class="modal fade" id="modalGaleriFoto" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalGaleriFoto" data-bs-focus="false" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content border-0 rounded-4 shadow">
       <div class="modal-header bg-success text-white">
@@ -14594,63 +14594,53 @@ window.prosesHapusFoto = function(fileId) {
 
   // 1. Jika sudah dalam posisi login sebagai pengurus
   if (token) {
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        title: 'Hapus Foto?',
-        text: 'Foto dokumentasi ini akan dihapus dari Google Drive.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-      }).then(result => {
-        if (result.isConfirmed) {
-          eksekusiHapusFoto(token, fileId, null, null);
-        }
-      });
-    } else {
-      if (confirm("Hapus foto dokumentasi ini dari Google Drive?")) {
+    Swal.fire({
+      title: 'Hapus Foto?',
+      text: 'Foto dokumentasi ini akan dihapus dari Google Drive.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(result => {
+      if (result.isConfirmed) {
         eksekusiHapusFoto(token, fileId, null, null);
       }
-    }
+    });
   } 
-  // 2. Jika diakses dari publik (minta verifikasi kredensial pengurus)
+  // 2. Jika diakses dari publik (minta verifikasi pengurus)
   else {
-    if (typeof Swal !== 'undefined') {
-      Swal.fire({
-        title: 'Otorisasi Pengurus',
-        html: `
-          <p class="small text-muted mb-3">Masukkan akun pengurus terdaftar untuk menghapus foto ini.</p>
-          <input type="text" id="auth-del-user" class="swal2-input" placeholder="Username Pengurus" style="margin: 0.5em auto;">
-          <input type="password" id="auth-del-pass" class="swal2-input" placeholder="Password" style="margin: 0.5em auto;">
-        `,
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: 'Verifikasi & Hapus',
-        confirmButtonColor: '#d33',
-        cancelButtonText: 'Batal',
-        preConfirm: () => {
-          const u = document.getElementById('auth-del-user').value.trim();
-          const p = document.getElementById('auth-del-pass').value.trim();
-          if (!u || !p) {
-            Swal.showValidationMessage('Username dan Password wajib diisi!');
-            return false;
-          }
-          return { username: u, password: p };
+    Swal.fire({
+      title: 'Otorisasi Pengurus',
+      html: `
+        <p class="small text-muted mb-3">Masukkan akun pengurus terdaftar untuk menghapus foto ini.</p>
+        <input type="text" id="auth-del-user" class="swal2-input" placeholder="Username Pengurus" style="margin: 0.5em auto;">
+        <input type="password" id="auth-del-pass" class="swal2-input" placeholder="Password" style="margin: 0.5em auto;">
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Verifikasi & Hapus',
+      confirmButtonColor: '#d33',
+      cancelButtonText: 'Batal',
+      // Langsung arahkan kursor ke input username saat pop-up terbuka
+      didOpen: () => {
+        const inputUser = document.getElementById('auth-del-user');
+        if (inputUser) inputUser.focus();
+      },
+      preConfirm: () => {
+        const u = document.getElementById('auth-del-user').value.trim();
+        const p = document.getElementById('auth-del-pass').value.trim();
+        if (!u || !p) {
+          Swal.showValidationMessage('Username dan Password wajib diisi!');
+          return false;
         }
-      }).then(result => {
-        if (result.isConfirmed) {
-          eksekusiHapusFoto(null, fileId, result.value.username, result.value.password);
-        }
-      });
-    } else {
-      let u = prompt("Masukkan Username Pengurus:");
-      let p = prompt("Masukkan Password Pengurus:");
-      if (u && p) {
-        eksekusiHapusFoto(null, fileId, u, p);
+        return { username: u, password: p };
       }
-    }
+    }).then(result => {
+      if (result.isConfirmed) {
+        eksekusiHapusFoto(null, fileId, result.value.username, result.value.password);
+      }
+    });
   }
 };
 
