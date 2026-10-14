@@ -14525,9 +14525,10 @@ function unggahFoto() {
   };
   reader.readAsDataURL(file);
 }
+
 function bukaGaleriFoto() {
   const modalEl = document.getElementById('modalGaleriFoto');
-  const modal = new bootstrap.Modal(modalEl);
+  const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
   modal.show();
 
   const container = document.getElementById('container-galeri-foto');
@@ -14543,14 +14544,17 @@ function bukaGaleriFoto() {
       if (res && res.success && res.data && res.data.length > 0) {
         container.innerHTML = res.data.map(f => `
           <div class="col-6 col-md-4">
-            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
               <a href="${f.url}" target="_blank" title="Klik untuk memperbesar">
                 <img src="${f.url}" class="card-img-top" style="height: 140px; object-fit: cover;" alt="Dokumentasi">
               </a>
-              <div class="card-body p-2 text-center bg-white">
-                <small class="text-muted d-block" style="font-size: 11px;">
+              <div class="card-body p-2 d-flex justify-content-between align-items-center bg-white">
+                <small class="text-muted" style="font-size: 11px;">
                   <i class="far fa-clock me-1"></i>${f.tanggal}
                 </small>
+                <button class="btn btn-outline-danger btn-sm border-0 py-0 px-2" onclick="prosesHapusFoto('${f.id}')" title="Hapus Foto">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
               </div>
             </div>
           </div>
