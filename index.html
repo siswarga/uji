@@ -14758,6 +14758,48 @@ function updateNamaFolderDrive() {
 google.script.run
   .withSuccessHandler(...)
   .simpanKhususFolderDokumentasi(namaBaru);
+
+window.simpanNamaFolderDriveAction = function() {
+  const inputEl = document.getElementById('inputNamaFolderDrive');
+  if (!inputEl) {
+    alert("Elemen inputNamaFolderDrive tidak ditemukan di halaman!");
+    return;
+  }
+
+  const namaBaru = inputEl.value.trim();
+  if (!namaBaru) {
+    Swal.fire('Peringatan', 'Nama folder tidak boleh kosong!', 'warning');
+    return;
+  }
+
+  if (typeof showLoading === 'function') showLoading();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Disimpan!',
+          text: res.message,
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+        // Update nilai cache lokal
+        if (typeof appSettings !== 'undefined') {
+          appSettings['folder_dokumentasi'] = namaBaru;
+        }
+      } else {
+        Swal.fire('Gagal Menyimpan', res ? res.message : 'Respon kosong dari server', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      Swal.fire('Error Server', 'Koneksi ke Apps Script gagal: ' + err, 'error');
+    })
+    .simpanNamaFolderDriveKeSheet(namaBaru);
+};
   </script>
   </body>
 </html>
