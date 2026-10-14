@@ -14212,7 +14212,12 @@ function kirimAbsenRonda() {
   let kode = elKode ? elKode.value.trim() : '';
 
   if (!kode) {
-    Swal.fire({ icon: 'warning', title: 'Kode Kosong', text: 'Silakan masukkan Kode Unik Warga!' });
+    Swal.fire({
+      icon: 'warning',
+      title: 'Kode Kosong',
+      text: 'Silakan masukkan Kode Unik Warga Anda (Contoh: HFD001)!',
+      confirmButtonColor: '#198754'
+    });
     return;
   }
 
@@ -14222,15 +14227,24 @@ function kirimAbsenRonda() {
     .withSuccessHandler(res => {
       hideLoading();
       
-      // LOG DIAGNOSTIK
-      console.log("Respon Server Final:", res);
-      
-      // MENYESUAIKAN DENGAN STRUKTUR ORISINAL ANDA (status === 'success')
-      if (res && res.status === "success") {
+      // LOGIKA PINTAR: Menangkap alasan penolakan dari berbagai format server
+      let teksKeterangan = "Akses ditolak oleh sistem."; // Teks default jika server blank
+      if (res && res.pesan) {
+          teksKeterangan = res.pesan;
+      } else if (res && res.message) {
+          teksKeterangan = res.message;
+      } else if (res && res.data && res.data.pesan) {
+          teksKeterangan = res.data.pesan;
+      }
+
+      // Cek apakah status berhasil
+      let isBerhasil = (res && res.status === "success") || (res && res.data && res.data.status === "success");
+
+      if (isBerhasil) {
         Swal.fire({
           icon: 'success',
           title: 'Presensi Berhasil!',
-          text: res.pesan, 
+          text: teksKeterangan, 
           confirmButtonColor: '#198754'
         });
         
@@ -14239,20 +14253,24 @@ function kirimAbsenRonda() {
         if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
         
       } else {
-        // JIKA STATUS ERROR / DITOLAK
+        // TAMPILKAN POP-UP ERROR BESERTA KETERANGAN PENOLAKANNYA
         Swal.fire({
           icon: 'error',
           title: 'Presensi Ditolak',
-          text: res ? res.pesan : 'Ditolak oleh sistem.',
+          text: teksKeterangan, // Baris ini yang memunculkan alasan spesifik di layar
           confirmButtonColor: '#dc3545'
         });
       }
     })
     .withFailureHandler(err => {
       hideLoading();
-      Swal.fire({ icon: 'error', title: 'Error Server', text: err, confirmButtonColor: '#dc3545' });
+      Swal.fire({
+        icon: 'error',
+        title: 'Error Koneksi',
+        text: 'Gagal terhubung ke server: ' + err,
+        confirmButtonColor: '#dc3545'
+      });
     })
-    // PANGGIL NAMA FUNGSI ORISINAL:
     .simpanAbsenRonda({ kodeWarga: kode });
 }
 
