@@ -27,6 +27,10 @@
   <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"SI-GAS Warga & Sistem Informasi","short_name":"SI-GAS","start_url":".","display":"standalone","background_color":"#f4f7f6","theme_color":"#198754","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3067/3067423.png","sizes":"512x512","type":"image/png"}]}'>
 
   <style>
+	.swal2-container {
+	z-index: 100000 !important;
+	}
+
     :root {
       --primary-color: #198754;
       --primary-hover: #157347;
@@ -14578,6 +14582,106 @@ function bukaGaleriFoto() {
     })
     .getGaleriDokumentasi();
 }
+
+// Jadikan fungsi global agar bisa dipanggil langsung oleh onclick
+window.prosesHapusFoto = function(fileId) {
+  if (!fileId) {
+    alert("ID Berkas tidak ditemukan!");
+    return;
+  }
+
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+
+  // 1. Jika sudah dalam posisi login sebagai pengurus
+  if (token) {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Hapus Foto?',
+        text: 'Foto dokumentasi ini akan dihapus dari Google Drive.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then(result => {
+        if (result.isConfirmed) {
+          eksekusiHapusFoto(token, fileId, null, null);
+        }
+      });
+    } else {
+      if (confirm("Hapus foto dokumentasi ini dari Google Drive?")) {
+        eksekusiHapusFoto(token, fileId, null, null);
+      }
+    }
+  } 
+  // 2. Jika diakses dari publik (minta verifikasi kredensial pengurus)
+  else {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Otorisasi Pengurus',
+        html: `
+          <p class="small text-muted mb-3">Masukkan akun pengurus terdaftar untuk menghapus foto ini.</p>
+          <input type="text" id="auth-del-user" class="swal2-input" placeholder="Username Pengurus" style="margin: 0.5em auto;">
+          <input type="password" id="auth-del-pass" class="swal2-input" placeholder="Password" style="margin: 0.5em auto;">
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Verifikasi & Hapus',
+        confirmButtonColor: '#d33',
+        cancelButtonText: 'Batal',
+        preConfirm: () => {
+          const u = document.getElementById('auth-del-user').value.trim();
+          const p = document.getElementById('auth-del-pass').value.trim();
+          if (!u || !p) {
+            Swal.showValidationMessage('Username dan Password wajib diisi!');
+            return false;
+          }
+          return { username: u, password: p };
+        }
+      }).then(result => {
+        if (result.isConfirmed) {
+          eksekusiHapusFoto(null, fileId, result.value.username, result.value.password);
+        }
+      });
+    } else {
+      let u = prompt("Masukkan Username Pengurus:");
+      let p = prompt("Masukkan Password Pengurus:");
+      if (u && p) {
+        eksekusiHapusFoto(null, fileId, u, p);
+      }
+    }
+  }
+};
+
+window.eksekusiHapusFoto = function(token, fileId, username, password) {
+  if (typeof showLoading === 'function') showLoading();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (res && res.success) {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire('Berhasil', res.message, 'success');
+        } else {
+          alert(res.message);
+        }
+        bukaGaleriFoto(); // Refresh daftar foto
+      } else {
+        let msg = (res && res.message) ? res.message : 'Gagal menghapus file.';
+        if (typeof Swal !== 'undefined') {
+          Swal.fire('Akses Ditolak', msg, 'error');
+        } else {
+          alert(msg);
+        }
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      alert('Terjadi kesalahan koneksi server: ' + err);
+    })
+    .hapusFotoDokumentasi(token, fileId, username, password);
+};
   </script>
   </body>
 </html>
