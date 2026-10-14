@@ -14556,7 +14556,7 @@ window.prosesPilihFoto = function(input) {
   Swal.fire({
     title: 'Verifikasi Pengunggah',
     html: `
-      <p class="small text-muted mb-3">Terpilih <b>${fileList.length} foto</b>.<br>Silakan masukkan Kode Unik Warga Anda (terdaftar di Kolom R):</p>
+      <p class="small text-muted mb-3">Terpilih <b>${fileList.length} foto</b>.<br>Silakan masukkan Kode Unik Warga :</p>
       <input type="password" id="swal-kode-warga" class="swal2-input" placeholder="Kode Unik Warga..." style="margin: 0.5em auto;">
     `,
     showCancelButton: true,
@@ -14623,7 +14623,6 @@ window.prosesPilihFoto = function(input) {
   });
 };
 
-// Render Galeri Dokumentasi Foto
 window.bukaGaleriFoto = function() {
   const modalEl = document.getElementById('modalGaleriFoto');
   const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
@@ -14643,10 +14642,17 @@ window.bukaGaleriFoto = function() {
         container.innerHTML = res.data.map(f => `
           <div class="col-6 col-md-4" id="foto-card-${f.id}">
             <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
-              <a href="${f.driveUrl || f.url}" target="_blank" title="Klik untuk membuka ukuran penuh">
-                <img src="${f.url}" referrerpolicy="no-referrer" class="card-img-top" style="height: 140px; object-fit: cover; background-color: #f0f0f0;" alt="Dokumentasi"
+              
+              <!-- Klik untuk Zoom langsung di dalam aplikasi (bukan ke link GDrive) -->
+              <div onclick="previewFoto('${f.url}', '${f.uploader}', '${f.tanggal}')" 
+                   style="cursor: zoom-in;" 
+                   title="Klik untuk memperbesar">
+                <img src="${f.url}" referrerpolicy="no-referrer" class="card-img-top" 
+                     style="height: 140px; object-fit: cover; background-color: #f0f0f0;" 
+                     alt="Dokumentasi"
                      onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=${f.id}&sz=w800';">
-              </a>
+              </div>
+
               <div class="card-body p-2 bg-white">
                 <div class="fw-bold text-dark text-truncate small mb-1" title="Pengunggah: ${f.uploader}">
                   <i class="fas fa-user-circle text-success me-1"></i>${f.uploader}
@@ -14794,6 +14800,27 @@ window.simpanNamaFolderDriveAction = function() {
       Swal.fire('Error', 'Kesalahan server: ' + err, 'error');
     })
     .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
+};
+
+// Fungsi Zoom / Preview Foto Langsung di Dalam Aplikasi
+window.previewFoto = function(url, uploader, tanggal) {
+  Swal.fire({
+    title: `<div class="d-flex align-items-center justify-content-center gap-2" style="font-size: 16px;">
+              <i class="fas fa-user-circle text-success"></i>
+              <span>${uploader || 'Warga'}</span>
+            </div>`,
+    html: `<small class="text-muted"><i class="far fa-clock me-1"></i>${tanggal || ''}</small>`,
+    imageUrl: url,
+    imageAlt: 'Foto Dokumentasi',
+    showConfirmButton: false,
+    showCloseButton: true,
+    width: 'auto',
+    padding: '0.8em',
+    background: '#ffffff',
+    customClass: {
+      image: 'img-fluid rounded-3 shadow-sm'
+    }
+  });
 };
   </script>
   </body>
