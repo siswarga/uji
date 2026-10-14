@@ -3427,7 +3427,27 @@
                         <label class="form-label text-muted small">Alamat Lengkap</label>
                         <input type="text" class="form-control" id="set_alamat" required>
                       </div>
+						<!-- PENGATURAN FOLDER DOKUMENTASI GOOGLE DRIVE -->
+<div class="card shadow-sm border-0 rounded-4 mb-3">
+  <div class="card-body p-4">
+    <h6 class="fw-bold text-success mb-2">
+      <i class="fab fa-google-drive me-2"></i>Penyimpanan Dokumentasi Warga
+    </h6>
+    <p class="text-muted small mb-3">
+      Tentukan nama folder Google Drive yang digunakan untuk menampung seluruh berkas foto dokumentasi warga.
+    </p>
 
+    <div class="input-group">
+      <span class="input-group-text bg-light border-end-0">
+        <i class="fas fa-folder text-warning"></i>
+      </span>
+      <input type="text" id="inputNamaFolderDrive" class="form-control" placeholder="Contoh: DOKUMENTASI_WARGA_2026">
+      <button class="btn btn-success px-4 fw-semibold" onclick="updateNamaFolderDrive()">
+        <i class="fas fa-save me-1"></i> Simpan
+      </button>
+    </div>
+  </div>
+</div>
                       <div class="col-md-12 mt-2">
                         <hr>
                       </div>
@@ -5764,7 +5784,7 @@
   <!-- ===================================================== -->
 
 <script>
-  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwYyt6yj-8i5y8a8L8WokVttOMrpHWn1kr1FfErzmt68MHP3pwDQF46_02oYXUHi0UltA/exec";
 
   console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
 
@@ -14574,7 +14594,7 @@ window.prosesPilihFoto = function(input) {
   });
 };
 
-// 2. Tampilkan Galeri Foto
+// Render Galeri Dokumentasi Foto
 window.bukaGaleriFoto = function() {
   const modalEl = document.getElementById('modalGaleriFoto');
   const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
@@ -14592,9 +14612,9 @@ window.bukaGaleriFoto = function() {
     .withSuccessHandler(res => {
       if (res && res.success && res.data && res.data.length > 0) {
         container.innerHTML = res.data.map(f => `
-          <div class="col-6 col-md-4">
+          <div class="col-6 col-md-4" id="foto-card-${f.id}">
             <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
-              <a href="${f.driveUrl || f.url}" target="_blank" title="Klik untuk membuka file asli di Google Drive">
+              <a href="${f.driveUrl || f.url}" target="_blank" title="Klik untuk membuka ukuran penuh">
                 <img src="${f.url}" referrerpolicy="no-referrer" class="card-img-top" style="height: 140px; object-fit: cover; background-color: #f0f0f0;" alt="Dokumentasi"
                      onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=${f.id}&sz=w800';">
               </a>
@@ -14634,57 +14654,7 @@ window.bukaGaleriFoto = function() {
     .getGaleriDokumentasi();
 };
 
-// 3. Konfirmasi & Hapus Foto
-window.prosesHapusFoto = function(fileId) {
-  if (!fileId) return;
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
-
-  if (token) {
-    Swal.fire({
-      title: 'Hapus Foto?',
-      text: 'Foto dokumentasi ini akan dipindahkan ke tempat sampah Google Drive.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Ya, Hapus!',
-      cancelButtonText: 'Batal'
-    }).then(result => {
-      if (result.isConfirmed) eksekusiHapusFoto(token, fileId, null, null);
-    });
-  } else {
-    Swal.fire({
-      title: 'Otorisasi Pengurus',
-      html: `
-        <p class="small text-muted mb-3">Masukkan akun pengurus terdaftar untuk menghapus foto ini.</p>
-        <input type="text" id="auth-del-user" class="swal2-input" placeholder="Username Pengurus" style="margin: 0.5em auto;">
-        <input type="password" id="auth-del-pass" class="swal2-input" placeholder="Password" style="margin: 0.5em auto;">
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Verifikasi & Hapus',
-      confirmButtonColor: '#d33',
-      cancelButtonText: 'Batal',
-      didOpen: () => {
-        const u = document.getElementById('auth-del-user');
-        if (u) u.focus();
-      },
-      preConfirm: () => {
-        const u = document.getElementById('auth-del-user').value.trim();
-        const p = document.getElementById('auth-del-pass').value.trim();
-        if (!u || !p) {
-          Swal.showValidationMessage('Username dan Password wajib diisi!');
-          return false;
-        }
-        return { username: u, password: p };
-      }
-    }).then(result => {
-      if (result.isConfirmed) {
-        eksekusiHapusFoto(null, fileId, result.value.username, result.value.password);
-      }
-    });
-  }
-};
-
+// Eksekusi Hapus dengan Respon Instan di Layar
 window.eksekusiHapusFoto = function(token, fileId, username, password) {
   if (typeof showLoading === 'function') showLoading();
 
@@ -14692,89 +14662,28 @@ window.eksekusiHapusFoto = function(token, fileId, username, password) {
     .withSuccessHandler(res => {
       if (typeof hideLoading === 'function') hideLoading();
       if (res && res.success) {
-        Swal.fire('Berhasil', res.message, 'success');
-        bukaGaleriFoto();
-      } else {
-        Swal.fire('Gagal', res ? res.message : 'Akses ditolak', 'error');
-      }
-    })
-    .withFailureHandler(err => {
-      if (typeof hideLoading === 'function') hideLoading();
-      Swal.fire('Error', 'Kesalahan server: ' + err, 'error');
-    })
-    .hapusFotoDokumentasi(token, fileId, username, password);
-};
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil',
+          text: res.message,
+          timer: 1500,
+          showConfirmButton: false
+        });
 
-// 4. Dialog Konfirmasi / Otorisasi Hapus Foto
-window.prosesHapusFoto = function(fileId) {
-  if (!fileId) {
-    Swal.fire('Error', 'ID Berkas tidak valid!', 'error');
-    return;
-  }
+        // Langsung hapus kartu foto dari layar seketika
+        const elFoto = document.getElementById('foto-card-' + fileId);
+        if (elFoto) elFoto.remove();
 
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
-
-  // Jika Pengurus sedang login di sesi aktif
-  if (token) {
-    Swal.fire({
-      title: 'Hapus Foto?',
-      text: 'Foto dokumentasi ini akan dihapus dari Google Drive.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Ya, Hapus!',
-      cancelButtonText: 'Batal'
-    }).then(result => {
-      if (result.isConfirmed) {
-        eksekusiHapusFoto(token, fileId, null, null);
-      }
-    });
-  } 
-  // Jika diakses dari portal umum/warga (minta autentikasi akun pengurus)
-  else {
-    Swal.fire({
-      title: 'Otorisasi Pengurus',
-      html: `
-        <p class="small text-muted mb-3">Masukkan akun pengurus terdaftar untuk menghapus foto ini.</p>
-        <input type="text" id="auth-del-user" class="swal2-input" placeholder="Username Pengurus" style="margin: 0.5em auto;">
-        <input type="password" id="auth-del-pass" class="swal2-input" placeholder="Password" style="margin: 0.5em auto;">
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Verifikasi & Hapus',
-      confirmButtonColor: '#d33',
-      cancelButtonText: 'Batal',
-      didOpen: () => {
-        const u = document.getElementById('auth-del-user');
-        if (u) u.focus();
-      },
-      preConfirm: () => {
-        const u = document.getElementById('auth-del-user').value.trim();
-        const p = document.getElementById('auth-del-pass').value.trim();
-        if (!u || !p) {
-          Swal.showValidationMessage('Username dan Password wajib diisi!');
-          return false;
+        // Cek jika sudah tidak ada sisa foto
+        const container = document.getElementById('container-galeri-foto');
+        if (container && container.children.length === 0) {
+          container.innerHTML = `
+            <div class="col-12 text-center text-muted py-5">
+              <i class="fas fa-images fa-3x mb-3 text-secondary opacity-50"></i>
+              <p class="mb-0">Belum ada foto dokumentasi yang diunggah.</p>
+            </div>
+          `;
         }
-        return { username: u, password: p };
-      }
-    }).then(result => {
-      if (result.isConfirmed) {
-        eksekusiHapusFoto(null, fileId, result.value.username, result.value.password);
-      }
-    });
-  }
-};
-
-// 5. Eksekusi Hapus ke Backend Apps Script
-window.eksekusiHapusFoto = function(token, fileId, username, password) {
-  if (typeof showLoading === 'function') showLoading();
-
-  google.script.run
-    .withSuccessHandler(res => {
-      if (typeof hideLoading === 'function') hideLoading();
-      if (res && res.success) {
-        Swal.fire('Berhasil', res.message, 'success');
-        bukaGaleriFoto(); // Muat ulang tampilan galeri
       } else {
         Swal.fire('Akses Ditolak', res ? res.message : 'Gagal menghapus file.', 'error');
       }
@@ -14785,6 +14694,33 @@ window.eksekusiHapusFoto = function(token, fileId, username, password) {
     })
     .hapusFotoDokumentasi(token, fileId, username, password);
 };
+
+// Fungsi Memperbarui Nama Folder dari Panel Superadmin
+function updateNamaFolderDrive() {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+  const namaBaru = document.getElementById('inputNamaFolderDrive').value.trim();
+
+  if (!namaBaru) {
+    Swal.fire('Peringatan', 'Nama folder tidak boleh kosong!', 'warning');
+    return;
+  }
+
+  showLoading();
+  google.script.run
+    .withSuccessHandler(res => {
+      hideLoading();
+      if (res && res.success) {
+        Swal.fire('Tersimpan', res.message, 'success');
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      hideLoading();
+      Swal.fire('Error', 'Kesalahan server: ' + err, 'error');
+    })
+    .simpanSettingFolderDokumentasi(token, namaBaru);
+}
   </script>
   </body>
 </html>
