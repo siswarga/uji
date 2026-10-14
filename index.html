@@ -11526,11 +11526,11 @@ function openQrisModal(tipe) {
                       ${opsiHtml}
                     </div>
                     <div class="mb-3">
-                      <label class="form-label small fw-bold">Masukkan Nama atau NIK Anda (Untuk Verifikasi Warga)*</label>
+                      <label class="form-label small fw-bold">Masukkan Nama Sesuai KTP (Untuk Verifikasi Warga)*</label>
                       <input type="text" class="form-control form-control-sm bg-light" id="voter_identitas_${v.id}" placeholder="Ketik Nama atau NIK..." required>
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary fw-bold px-4" id="btn_vote_${v.id}">
-                      <i class="fas fa-paper-plane me-1"></i> Kirim Suara Saya
+                      <i class="fas fa-paper-plane me-1"></i> Kirim Suara / Pilihan Saya
                     </button>
                   </form>
                 </div>
@@ -14249,7 +14249,7 @@ function kirimAbsenRonda() {
     Swal.fire({
       icon: 'warning',
       title: 'Kode Kosong',
-      text: 'Silakan masukkan Kode Unik Warga Anda (Contoh: HFD001)!',
+      text: 'Silakan masukkan Kode Unik Anda (Contoh: WRG001)!',
       confirmButtonColor: '#198754'
     });
     return;
