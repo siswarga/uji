@@ -715,70 +715,70 @@
       </div>
 
      <!-- BARIS 6: Jadwal Ronda & Kegiatan -->
-      <div class="row g-4 mb-4">
-        <!-- Kolom Kiri: Jadwal Ronda Malam & Absensi -->
-        <div class="col-lg-6">
-          <div class="card card-custom p-4 h-100 d-flex flex-column">
-            <h5 class="fw-bold text-dark mb-3">
-              <i class="fas fa-shield-alt text-success me-2"></i>Jadwal Ronda Malam
-            </h5>
-            
-            <div class="table-responsive mb-4">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Tanggal & Hari</th>
-                    <th>Petugas Jaga</th>
-                    <th class="text-end">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="pub-tb-ronda"></tbody>
-              </table>
-            </div>
+<div class="row g-4 mb-4" id="baris-ronda-kegiatan">
+  
+  <!-- 1. Tambahkan id="kolom-jadwal-ronda" di sini -->
+  <div class="col-lg-6" id="kolom-jadwal-ronda">
+    <div class="card card-custom p-4 h-100 d-flex flex-column">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="fas fa-shield-alt text-success me-2"></i>Jadwal Ronda Malam
+      </h5>
+      <div class="table-responsive mb-4">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Tanggal & Hari</th>
+              <th>Petugas Jaga</th>
+              <th class="text-end">Status</th>
+            </tr>
+          </thead>
+          <tbody id="pub-tb-ronda"></tbody>
+        </table>
+      </div>
 
-            <!-- Box Absensi: Input Kode Unik Warga -->
-            <div class="card border-0 rounded-4 shadow-sm bg-light overflow-hidden mt-auto">
-              <div class="card-header bg-dark text-white py-2 px-3 fw-bold small d-flex align-items-center justify-content-between">
-                <span><i class="fas fa-user-check text-warning me-2"></i>Absensi Kehadiran Ronda</span>
-                <span class="badge bg-warning text-dark" style="font-size: 10px;">23.30 - 01.00 WIB</span>
-              </div>
-              <div class="card-body p-3">
-                <div class="mb-3">
-                  <label class="form-label text-muted small fw-semibold mb-1">Kode Unik Warga</label>
-                  <input type="password" class="form-control rounded-pill px-3 shadow-none border" id="rondaKodeWarga" placeholder="Masukkan Kode Unik / ID Warga Anda...">
-                  <div class="text-muted small mt-1" style="font-size: 11px;">
-                    <i class="fas fa-info-circle text-primary me-1"></i>Sistem akan memverifikasi jadwal tugas secara otomatis.
-                  </div>
-                </div>
-                <button class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="kirimAbsenRonda()">
-					<i class="fas fa-check-circle me-1"></i> Kirim Absensi Ronda
-				</button>
-              </div>
-            </div>
-
-          </div>
+      <!-- Box Absensi -->
+      <div class="card border-0 rounded-4 shadow-sm bg-light overflow-hidden mt-auto">
+        <div class="card-header bg-dark text-white py-2 px-3 fw-bold small d-flex align-items-center justify-content-between">
+          <span><i class="fas fa-user-check text-warning me-2"></i>Absensi Kehadiran Ronda</span>
+          <span class="badge bg-warning text-dark" style="font-size: 10px;">23.30 - 01.00 WIB</span>
         </div>
-
-        <!-- Kolom Kanan: Pemberitahuan Kegiatan -->
-        <div class="col-lg-6">
-          <div class="card card-custom p-4 h-100">
-            <h5 class="fw-bold text-dark mb-3">
-              <i class="fas fa-calendar-alt text-success me-2"></i>Pemberitahuan Kegiatan
-            </h5>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Tanggal</th>
-                    <th>Agenda & Lokasi</th>
-                  </tr>
-                </thead>
-                <tbody id="pub-tb-kegiatan"></tbody>
-              </table>
+        <div class="card-body p-3">
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-semibold mb-1">Kode Unik Warga</label>
+            <input type="password" class="form-control rounded-pill px-3 shadow-none border" id="rondaKodeWarga" placeholder="Masukkan Kode Unik / ID Warga Anda...">
+            <div class="text-muted small mt-1" style="font-size: 11px;">
+              <i class="fas fa-info-circle text-primary me-1"></i>Sistem akan memverifikasi jadwal tugas secara otomatis.
             </div>
           </div>
+          <button class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="kirimAbsenRonda()">
+            <i class="fas fa-check-circle me-1"></i> Kirim Absensi Ronda
+          </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 2. Tambahkan id="kolom-pemberitahuan-kegiatan" di sini -->
+  <div class="col-lg-6" id="kolom-pemberitahuan-kegiatan">
+    <div class="card card-custom p-4 h-100">
+      <h5 class="fw-bold text-dark mb-3">
+        <i class="fas fa-calendar-alt text-success me-2"></i>Pemberitahuan Kegiatan
+      </h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Tanggal</th>
+              <th>Agenda & Lokasi</th>
+            </tr>
+          </thead>
+          <tbody id="pub-tb-kegiatan"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
 
       <!-- BARIS 7: KOTAK E-VOTING PUBLIK -->
       <div class="row g-4 mb-4 mt-4" id="section-public-voting" style="display: none;">
@@ -6886,158 +6886,192 @@ async function apiGet(action, params = {}) {
         }
         
         function loadPublicData() {
-          showLoading();
-          google.script.run.withSuccessHandler(res => {
-            hideLoading();
-            if (res && res.success) {
-              let d = res.data;
-              
-              document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
-              document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
-              document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
-              document.getElementById('pub-totK').innerText = d.warga.kontrak;
-              document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
-              document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
-            
-              if(pubChartJkInstance) pubChartJkInstance.destroy(); 
-              
-              // 1. Grafik Donat Jenis Kelamin (Bulat) di Kolom Kiri
-              // Grafik Batang Bersebelahan (Grouped Bar) Usia & Gender di Kolom Kiri
-              pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'), {
-                  type: 'bar',
-                  data: {
-                      labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
-                      datasets: [
-                          {
-                              label: 'Laki-laki',
-                              data: [
-                                  d.warga.usia.balita.l, 
-                                  d.warga.usia.anak.l, 
-                                  d.warga.usia.remaja.l, 
-                                  d.warga.usia.dewasa.l, 
-                                  d.warga.usia.lansia.l
-                              ],
-                              backgroundColor: '#198754', // Hijau
-                              borderRadius: 4
-                          },
-                          {
-                              label: 'Perempuan',
-                              data: [
-                                  d.warga.usia.balita.p, 
-                                  d.warga.usia.anak.p, 
-                                  d.warga.usia.remaja.p, 
-                                  d.warga.usia.dewasa.p, 
-                                  d.warga.usia.lansia.p
-                              ],
-                              backgroundColor: '#ffc107', // Kuning
-                              borderRadius: 4
-                          }
-                      ]
+  showLoading();
+  google.script.run.withSuccessHandler(res => {
+    hideLoading();
+    if (res && res.success) {
+      let d = res.data;
+      
+      document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
+      document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
+      document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
+      document.getElementById('pub-totK').innerText = d.warga.kontrak;
+      document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
+      document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
+    
+      if(pubChartJkInstance) pubChartJkInstance.destroy(); 
+      
+      pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'), {
+          type: 'bar',
+          data: {
+              labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
+              datasets: [
+                  {
+                      label: 'Laki-laki',
+                      data: [
+                          d.warga.usia.balita.l, 
+                          d.warga.usia.anak.l, 
+                          d.warga.usia.remaja.l, 
+                          d.warga.usia.dewasa.l, 
+                          d.warga.usia.lansia.l
+                      ],
+                      backgroundColor: '#198754',
+                      borderRadius: 4
                   },
-                  options: {
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                          legend: {
-                              position: 'bottom',
-                              labels: { boxWidth: 12, font: { size: 11 } }
-                          }
-                      },
-                      scales: {
-                          x: { 
-                              stacked: false, // Diubah ke false agar batang L dan P bersebelahan
-                              grid: { display: false } 
-                          },
-                          y: { 
-                              stacked: false, // Diubah ke false
-                              beginAtZero: true, 
-                              ticks: { stepSize: 1 } 
-                          }
-                      }
+                  {
+                      label: 'Perempuan',
+                      data: [
+                          d.warga.usia.balita.p, 
+                          d.warga.usia.anak.p, 
+                          d.warga.usia.remaja.p, 
+                          d.warga.usia.dewasa.p, 
+                          d.warga.usia.lansia.p
+                      ],
+                      backgroundColor: '#ffc107',
+                      borderRadius: 4
                   }
-              });
-            
-              // 2. Binding Data Kas PKK & Karang Taruna ke Kolom Kanan
-              if (d.kasOrganisasi) {
-                  if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
-                  if(document.getElementById('valPkkIn')) document.getElementById('valPkkIn').innerText = formatRupiah(d.kasOrganisasi.pkkIn);
-                  if(document.getElementById('valPkkOut')) document.getElementById('valPkkOut').innerText = formatRupiah(d.kasOrganisasi.pkkOut);
+              ]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  legend: {
+                      position: 'bottom',
+                      labels: { boxWidth: 12, font: { size: 11 } }
+                  }
+              },
+              scales: {
+                  x: { 
+                      stacked: false,
+                      grid: { display: false } 
+                  },
+                  y: { 
+                      stacked: false,
+                      beginAtZero: true, 
+                      ticks: { stepSize: 1 } 
+                  }
+              }
+          }
+      });
+    
+      if (d.kasOrganisasi) {
+          if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
+          if(document.getElementById('valPkkIn')) document.getElementById('valPkkIn').innerText = formatRupiah(d.kasOrganisasi.pkkIn);
+          if(document.getElementById('valPkkOut')) document.getElementById('valPkkOut').innerText = formatRupiah(d.kasOrganisasi.pkkOut);
 
-                  if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
-                  if(document.getElementById('valKtIn')) document.getElementById('valKtIn').innerText = formatRupiah(d.kasOrganisasi.karangTarunaIn);
-                  if(document.getElementById('valKtOut')) document.getElementById('valKtOut').innerText = formatRupiah(d.kasOrganisasi.karangTarunaOut);
-              }
+          if(document.getElementById('valKasKarangTaruna')) document.getElementById('valKasKarangTaruna').innerText = formatRupiah(d.kasOrganisasi.karangTaruna);
+          if(document.getElementById('valKtIn')) document.getElementById('valKtIn').innerText = formatRupiah(d.kasOrganisasi.karangTarunaIn);
+          if(document.getElementById('valKtOut')) document.getElementById('valKtOut').innerText = formatRupiah(d.kasOrganisasi.karangTarunaOut);
+      }
 
-              // BINDING SPLIT KAS WARGA PUBLIK
-              document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
-              document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
-              document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
-              document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
-              document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
-              document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
-              document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
-              
-              document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
-              document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
-              document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
-              
-              if (document.getElementById('pub-zakat-muzakki')) {
-                  document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
-              }
-              if (document.getElementById('pub-qurban-peserta')) {
-                  let q = d.kasMasjid.qurban || { peserta: 0, sapi: 0, kambing: 0 };
-                  document.getElementById('pub-qurban-peserta').innerText = q.peserta + ' Orang';
-                  document.getElementById('pub-qurban-hewan').innerText = q.sapi + ' Sapi, ' + q.kambing + ' Kambing';
-              }
-              
-              const tr = document.getElementById('pub-tb-ronda'); 
-              tr.innerHTML = '';
-              if (d.ronda.length === 0) {
-                tr.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada jadwal aktif</td></tr>';
-              } else {
-                const gd = new Map();
-                d.ronda.forEach(r => {
-                  if(!gd.has(r.tgl)) { gd.set(r.tgl, { tgl: r.tgl, hari: r.hari, petugas: [] }); }
-                  gd.get(r.tgl).petugas.push(r.nama);
-                });
-                gd.forEach(g => {
-                  let lp = g.petugas.map(p => `<div class="mb-1"><i class="fas fa-user-shield text-success me-1"></i> ${p}</div>`).join('');
-                  tr.innerHTML += `<tr><td style="width: 35%;"><b>${g.tgl}</b><br><small class="text-muted">${g.hari}</small></td><td>${lp}</td><td><span class="badge bg-warning text-dark">Aktif</span></td></tr>`;
-                });
-              }
-            
-              const tk = document.getElementById('pub-tb-kegiatan'); 
-              tk.innerHTML = '';
-              if (d.kegiatan.length === 0) {
-                  tk.innerHTML = '<tr><td colspan="2" class="text-center text-muted py-3">Belum ada kegiatan mendatang</td></tr>';
-              } else {
-                  d.kegiatan.forEach(k => {
-                      let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
-                      tk.innerHTML += `<tr>
-                          <td style="width: 35%;">
-                              <b>${k.tgl}</b><br>
-                              <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
-                          </td>
-                          <td>
-                              <b>${k.nama}</b><br>
-                              <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
-                              ${btnDonasi}
-                          </td>
-                      </tr>`;
-                  });
-              }
-              
-              loadPublicVoting();
-              
-            } else {
-              Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
-            }
-          }).withFailureHandler(err => { 
-            hideLoading(); 
-            Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
-          }).getPublicDashboardData();
+      document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
+      document.getElementById('pub-kw-in-umum').innerText = formatRupiah(d.kasWarga.inUmum);
+      document.getElementById('pub-kw-out-umum').innerText = formatRupiah(d.kasWarga.outUmum);
+      document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
+      document.getElementById('pub-kw-in-jimpitan').innerText = formatRupiah(d.kasWarga.inJimpitan);
+      document.getElementById('pub-kw-out-jimpitan').innerText = formatRupiah(d.kasWarga.outJimpitan);
+      document.getElementById('pub-kw-nunggak').innerText = d.kasWarga.nunggak;
+      
+      document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
+      document.getElementById('pub-km-in').innerText = formatRupiah(d.kasMasjid.in);
+      document.getElementById('pub-km-out').innerText = formatRupiah(d.kasMasjid.out);
+      
+      if (document.getElementById('pub-zakat-muzakki')) {
+          document.getElementById('pub-zakat-muzakki').innerText = (d.kasMasjid.zakat ? d.kasMasjid.zakat.muzakki : 0) + ' Orang';
+      }
+      if (document.getElementById('pub-qurban-peserta')) {
+          let q = d.kasMasjid.qurban || { peserta: 0, sapi: 0, kambing: 0 };
+          document.getElementById('pub-qurban-peserta').innerText = q.peserta + ' Orang';
+          document.getElementById('pub-qurban-hewan').innerText = q.sapi + ' Sapi, ' + q.kambing + ' Kambing';
+      }
+      
+      // =========================================================
+      // PENGATURAN TAMPILAN / SEMBUNYIKAN KOLOM SECARA OTOMATIS
+      // =========================================================
+      const listRonda = (d.ronda && Array.isArray(d.ronda)) ? d.ronda : [];
+      const listKegiatan = (d.kegiatan && Array.isArray(d.kegiatan)) ? d.kegiatan : [];
+
+      const colRonda = document.getElementById('kolom-jadwal-ronda');
+      const colKegiatan = document.getElementById('kolom-pemberitahuan-kegiatan');
+      const rowUtama = document.getElementById('baris-ronda-kegiatan');
+
+      const adaRonda = listRonda.length > 0;
+      const adaKegiatan = listKegiatan.length > 0;
+
+      if (!adaRonda && !adaKegiatan) {
+        if (rowUtama) rowUtama.style.display = 'none';
+      } else {
+        if (rowUtama) rowUtama.style.display = 'flex';
+
+        if (colRonda) {
+          if (adaRonda) {
+            colRonda.style.display = 'block';
+            colRonda.className = adaKegiatan ? 'col-lg-6' : 'col-12';
+          } else {
+            colRonda.style.display = 'none';
+          }
         }
-        
+
+        if (colKegiatan) {
+          if (adaKegiatan) {
+            colKegiatan.style.display = 'block';
+            colKegiatan.className = adaRonda ? 'col-lg-6' : 'col-12';
+          } else {
+            colKegiatan.style.display = 'none';
+          }
+        }
+      }
+
+      // Render Tabel Ronda
+      const tr = document.getElementById('pub-tb-ronda'); 
+      if (tr) {
+        tr.innerHTML = '';
+        if (adaRonda) {
+          const gd = new Map();
+          listRonda.forEach(r => {
+            if(!gd.has(r.tgl)) { gd.set(r.tgl, { tgl: r.tgl, hari: r.hari, petugas: [] }); }
+            gd.get(r.tgl).petugas.push(r.nama);
+          });
+          gd.forEach(g => {
+            let lp = g.petugas.map(p => `<div class="mb-1"><i class="fas fa-user-shield text-success me-1"></i> ${p}</div>`).join('');
+            tr.innerHTML += `<tr><td style="width: 35%;"><b>${g.tgl}</b><br><small class="text-muted">${g.hari}</small></td><td>${lp}</td><td><span class="badge bg-warning text-dark">Aktif</span></td></tr>`;
+          });
+        }
+      }
+    
+      // Render Tabel Kegiatan
+      const tk = document.getElementById('pub-tb-kegiatan'); 
+      if (tk) {
+        tk.innerHTML = '';
+        if (adaKegiatan) {
+          listKegiatan.forEach(k => {
+            let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
+            tk.innerHTML += `<tr>
+                <td style="width: 35%;">
+                    <b>${k.tgl}</b><br>
+                    <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
+                </td>
+                <td>
+                    <b>${k.nama}</b><br>
+                    <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
+                    ${btnDonasi}
+                </td>
+            </tr>`;
+          });
+        }
+      }
+      
+      loadPublicVoting();
+      
+    } else {
+      Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
+    }
+  }).withFailureHandler(err => { 
+    hideLoading(); 
+    Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
+  }).getPublicDashboardData();
+}
         
            function renderMenu() {
         const mc = document.getElementById('sidebar-menu'); 
