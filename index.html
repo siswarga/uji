@@ -406,10 +406,12 @@
   <div id="public-page" style="display: none;">
     <div class="container py-3">
 
-    <!-- BARIS 1: Header / Brand -->
+   <!-- BARIS 1: Header / Brand -->
 <div class="row align-items-center mb-4 pb-3 border-bottom">
   <div class="col-md-12 d-flex align-items-center justify-content-between">
-    <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" title="Klik 2x untuk masuk panel pengurus" style="cursor: pointer;">
+    
+    <!-- Brand / Logo -->
+    <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" style="cursor: pointer;">
       <div id="pub-logo-container" class="bg-success text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center overflow-hidden" style="width: 50px; height: 50px;">
         <i class="fas fa-leaf fa-lg" id="pub-logo-icon"></i>
       </div>
@@ -419,11 +421,14 @@
       </div>
     </div>
     
+    <!-- Bagian Tombol Kanan -->
     <div class="d-flex align-items-center gap-2">
-      <!-- Input Kamera/Galeri Tersembunyi -->
-      <input type="file" id="inputDokumentasi" style="display: none;" accept="image/*" capture="environment" onchange="unggahFoto()">
 
-      <!-- DROPDOWN PILIHAN DOKUMENTASI -->
+      <!-- >>> LETAKKAN PERSIS DI SINI <<< -->
+      <!-- Input Kamera / Galeri (Mendukung Banyak Foto Sekaligus) -->
+      <input type="file" id="inputDokumentasi" style="display: none;" accept="image/*" multiple onchange="prosesPilihFoto(this)">
+
+      <!-- Dropdown Menu Dokumentasi -->
       <div class="dropdown">
         <button class="btn btn-outline-success btn-sm fw-bold shadow-sm dropdown-toggle" type="button" id="dropdownDokumentasi" data-bs-toggle="dropdown" aria-expanded="false">
           <i class="fas fa-camera me-1"></i> Dokumentasi
@@ -451,6 +456,7 @@
       <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-md-inline-block">
         <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
       </span>
+
     </div>
   </div>
 </div>
@@ -14584,64 +14590,186 @@ function bukaGaleriFoto() {
 }
 
 // Jadikan fungsi global agar bisa dipanggil langsung oleh onclick
-window.prosesHapusFoto = function(fileId) {
-  if (!fileId) {
-    alert("ID Berkas tidak ditemukan!");
-    return;
+// 1. Deteksi Pemilihan Foto & Minta Kode Unik Warga
+window.prosesPilihFoto = function(input) {
+  if (!input.files || input.files.length === 0) return;
+  const totalFoto = input.files.length;
+
+  Swal.fire({
+    title: 'Unggah Dokumentasi',
+    html: `
+      <p class="small text-muted mb-3">Terpilih <b>${totalFoto} foto</b>.<br>Silakan masukkan Kode Unik Warga Anda untuk verifikasi identitas pengunggah.</p>
+      <input type="password" id="swal-kode-warga-upload" class="swal2-input" placeholder="Masukkan Kode Unik Warga Anda..." style="margin: 0.5em auto;">
+    `,
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-cloud-upload-alt me-1"></i> Mulai Unggah',
+    confirmButtonColor: '#198754',
+    cancelButtonText: 'Batal',
+    didOpen: () => {
+      const el = document.getElementById('swal-kode-warga-upload');
+      if (el) el.focus();
+    },
+    preConfirm: () => {
+      const kode = document.getElementById('swal-kode-warga-upload').value.trim();
+      if (!kode) {
+        Swal.showValidationMessage('Kode unik warga wajib diisi!');
+        return false;
+      }
+      return kode;
+    }
+  }).then(res => {
+    if (res.isConfirmed) {
+      eksekusiUploadBanyakFoto(Array.from(input.files), res.value);
+    } else {
+      input.value = ''; // Reset pilihan jika dibatalkan
+    }
+  });
+};
+
+// 2. Eksekusi Kompresi & Pengunggahan Bertahap (Hemat Memori & Kuota)
+async function eksekusiUploadBanyakFoto(fileList, kodeWarga) {
+  const total = fileList.length;
+  let sukses = 0;
+  let namaUploader = '';
+
+  for (let i = 0; i < total; i++) {
+    Swal.fire({
+      title: 'Mengunggah Foto...',
+      html: `Sedang memproses foto ke-<b>${i + 1}</b> dari <b>${total}</b>.<br><small class="text-muted">Mengompresi dan mengirim ke server...</small>`,
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    try {
+      const base64Data = await kompresFoto(fileList[i]);
+      const res = await kirimFotoKeServer(base64Data, kodeWarga);
+      
+      if (res && res.success) {
+        sukses++;
+        namaUploader = res.uploader || '';
+      } else {
+        // Jika kode warga salah, hentikan proses langsung
+        Swal.fire('Gagal', res ? res.message : 'Kode unik warga tidak valid.', 'error');
+        document.getElementById('inputDokumentasi').value = '';
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+  document.getElementById('inputDokumentasi').value = '';
 
-  // 1. Jika sudah dalam posisi login sebagai pengurus
-  if (token) {
-    Swal.fire({
-      title: 'Hapus Foto?',
-      text: 'Foto dokumentasi ini akan dihapus dari Google Drive.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Ya, Hapus!',
-      cancelButtonText: 'Batal'
-    }).then(result => {
-      if (result.isConfirmed) {
-        eksekusiHapusFoto(token, fileId, null, null);
-      }
-    });
-  } 
-  // 2. Jika diakses dari publik (minta verifikasi pengurus)
-  else {
-    Swal.fire({
-      title: 'Otorisasi Pengurus',
-      html: `
-        <p class="small text-muted mb-3">Masukkan akun pengurus terdaftar untuk menghapus foto ini.</p>
-        <input type="text" id="auth-del-user" class="swal2-input" placeholder="Username Pengurus" style="margin: 0.5em auto;">
-        <input type="password" id="auth-del-pass" class="swal2-input" placeholder="Password" style="margin: 0.5em auto;">
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Verifikasi & Hapus',
-      confirmButtonColor: '#d33',
-      cancelButtonText: 'Batal',
-      // Langsung arahkan kursor ke input username saat pop-up terbuka
-      didOpen: () => {
-        const inputUser = document.getElementById('auth-del-user');
-        if (inputUser) inputUser.focus();
-      },
-      preConfirm: () => {
-        const u = document.getElementById('auth-del-user').value.trim();
-        const p = document.getElementById('auth-del-pass').value.trim();
-        if (!u || !p) {
-          Swal.showValidationMessage('Username dan Password wajib diisi!');
-          return false;
-        }
-        return { username: u, password: p };
-      }
-    }).then(result => {
-      if (result.isConfirmed) {
-        eksekusiHapusFoto(null, fileId, result.value.username, result.value.password);
-      }
-    });
+  Swal.fire({
+    title: 'Selesai!',
+    text: `Berhasil mengunggah ${sukses} foto atas nama ${namaUploader}.`,
+    icon: 'success'
+  });
+
+  // Jika modal galeri sedang terbuka, otomatis perbarui tampilan fotonya
+  const modalGaleri = document.getElementById('modalGaleriFoto');
+  if (modalGaleri && modalGaleri.classList.contains('show')) {
+    bukaGaleriFoto();
   }
+}
+
+// Helper: Kompres Foto via HTML5 Canvas
+function kompresFoto(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxDim = 1024;
+        let w = img.width, h = img.height;
+        if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim; }
+        else if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+        canvas.width = w; canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Helper: Promise wrapper untuk google.script.run
+function kirimFotoKeServer(base64Data, kodeWarga) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      .simpanFotoDokumentasi({
+        gambarBase64: base64Data,
+        kodeWarga: kodeWarga
+      });
+  });
+}
+
+// 3. Menampilkan Galeri Lengkap dengan Nama Warga Pengunggah
+window.bukaGaleriFoto = function() {
+  const modalEl = document.getElementById('modalGaleriFoto');
+  const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+  modal.show();
+
+  const container = document.getElementById('container-galeri-foto');
+  container.innerHTML = `
+    <div class="col-12 text-center text-muted py-5">
+      <div class="spinner-border text-success mb-2" role="status"></div>
+      <p class="small mb-0">Memuat foto dokumentasi...</p>
+    </div>
+  `;
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res && res.success && res.data && res.data.length > 0) {
+        container.innerHTML = res.data.map(f => `
+          <div class="col-6 col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
+              <a href="${f.url}" target="_blank" title="Klik untuk memperbesar">
+                <img src="${f.url}" class="card-img-top" style="height: 140px; object-fit: cover;" alt="Dokumentasi">
+              </a>
+              <div class="card-body p-2 bg-white">
+                <!-- Nama Warga Pengunggah -->
+                <div class="fw-bold text-dark text-truncate small mb-1" title="Pengunggah: ${f.uploader}">
+                  <i class="fas fa-user-circle text-success me-1"></i>${f.uploader}
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted" style="font-size: 10px;">
+                    <i class="far fa-clock me-1"></i>${f.tanggal}
+                  </small>
+                  <button class="btn btn-outline-danger btn-sm border-0 py-0 px-1" onclick="prosesHapusFoto('${f.id}')" title="Hapus Foto">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        container.innerHTML = `
+          <div class="col-12 text-center text-muted py-5">
+            <i class="fas fa-images fa-3x mb-3 text-secondary opacity-50"></i>
+            <p class="mb-0">Belum ada foto dokumentasi yang diunggah.</p>
+          </div>
+        `;
+      }
+    })
+    .withFailureHandler(err => {
+      container.innerHTML = `
+        <div class="col-12 text-center text-danger py-4">
+          <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+          <p class="small mb-0">Gagal mengambil foto: ${err}</p>
+        </div>
+      `;
+    })
+    .getGaleriDokumentasi();
 };
 
 window.eksekusiHapusFoto = function(token, fileId, username, password) {
