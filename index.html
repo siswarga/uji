@@ -9172,60 +9172,62 @@ async function apiGet(action, params = {}) {
   }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), p); 
 }
         
-        // --- FUNGSI LOAD & SAVE SUPERADMIN ---
-        function loadDataSuperadmin() {
+       // --- FUNGSI LOAD & SAVE SUPERADMIN ---
+function loadDataSuperadmin() {
   showLoading();  
-  google.script.run.withSuccessHandler(res => {
-    hideLoading();
-    if(res && res.success){
-      appSettings = res.data || {};  
-      let elFolder = document.getElementById('inputNamaFolderDrive');
-		if (elFolder) {
-		elFolder.value = appSettings['folder_dokumentasi'] || 'DOKUMENTASI_WARGA';
-		}
+  google.script.run
+    .withSuccessHandler(res => {
+      hideLoading();
+      if (res && res.success) {
+        appSettings = res.data || {};  
 
-      // 1. Identitas Aplikasi
-      let elApp = document.getElementById('set_nama_aplikasi'); if(elApp) elApp.value = appSettings['nama_aplikasi'] || '';  
-      let elKomplek = document.getElementById('set_nama_komplek'); if(elKomplek) elKomplek.value = appSettings['nama_komplek'] || '';  
-      let elDomisili = document.getElementById('set_domisili'); if(elDomisili) elDomisili.value = appSettings['domisili'] || '';  
-      let elLogo = document.getElementById('set_logo'); if(elLogo) elLogo.value = appSettings['logo'] || '';  
-      let elMoto = document.getElementById('set_moto'); if(elMoto) elMoto.value = appSettings['moto'] || '';  
-      let elAlamat = document.getElementById('set_alamat'); if(elAlamat) elAlamat.value = appSettings['alamat'] || '';  
-      
-      let logoUrl = appSettings['logo'] || '';
-      let logoImg = document.getElementById('set_logo_img');
-      if (logoUrl && logoImg) {
-        logoImg.src = logoUrl;
-        logoImg.style.display = 'inline-block';
+        // 1. Identitas Aplikasi
+        let elApp = document.getElementById('set_nama_aplikasi'); if (elApp) elApp.value = appSettings['nama_aplikasi'] || '';  
+        let elKomplek = document.getElementById('set_nama_komplek'); if (elKomplek) elKomplek.value = appSettings['nama_komplek'] || '';  
+        let elDomisili = document.getElementById('set_domisili'); if (elDomisili) elDomisili.value = appSettings['domisili'] || '';  
+        let elLogo = document.getElementById('set_logo'); if (elLogo) elLogo.value = appSettings['logo'] || '';  
+        let elMoto = document.getElementById('set_moto'); if (elMoto) elMoto.value = appSettings['moto'] || '';  
+        let elAlamat = document.getElementById('set_alamat'); if (elAlamat) elAlamat.value = appSettings['alamat'] || '';  
+        
+        let logoUrl = appSettings['logo'] || '';
+        let logoImg = document.getElementById('set_logo_img');
+        if (logoUrl && logoImg) {
+          logoImg.src = logoUrl;
+          logoImg.style.display = 'inline-block';
+        }
+        
+        // 2. Warna Tema Aplikasi
+        let warnaVal = appSettings['warna_aplikasi'] || '#198754';
+        let warnaEl = document.getElementById('set_warna_aplikasi');
+        let warnaTxtEl = document.getElementById('set_warna_aplikasi_text');
+        if (warnaEl) warnaEl.value = warnaVal;
+        if (warnaTxtEl) warnaTxtEl.value = warnaVal.toUpperCase();
+        
+        // 3. Status Pendaftaran & Fitur Mandiri
+        let pdWarga = document.getElementById('set_pendaftaran_mandiri');
+        if (pdWarga) pdWarga.value = appSettings['fitur_pendaftaran_mandiri'] || 'Aktif';        
+        let pdPengurus = document.getElementById('set_pendaftaran_pengurus');
+        if (pdPengurus) pdPengurus.value = appSettings['fitur_pendaftaran_pengurus'] || 'Aktif';
+        let pdMudik = document.getElementById('set_lapor_mudik');
+        if (pdMudik) pdMudik.value = appSettings['fitur_lapor_mudik'] || 'Nonaktif';
+
+        // 4. Folder Penyimpanan Dokumentasi Google Drive
+        let elFolder = document.getElementById('inputNamaFolderDrive');
+        if (elFolder) {
+          elFolder.value = appSettings['folder_dokumentasi'] || 
+                           appSettings['FOLDER_DOKUMENTASI'] || 
+                           'DOKUMENTASI_WARGA';
+        }
+
+      } else {
+        Swal.fire('Gagal Memuat', 'Pesan Error: ' + (res ? res.message : 'Respon kosong'), 'error');
       }
-      
-      // 2. Warna Tema Aplikasi
-      let warnaVal = appSettings['warna_aplikasi'] || '#198754';
-      let warnaEl = document.getElementById('set_warna_aplikasi');
-      let warnaTxtEl = document.getElementById('set_warna_aplikasi_text');
-      if (warnaEl) warnaEl.value = warnaVal;
-      if (warnaTxtEl) warnaTxtEl.value = warnaVal.toUpperCase();
-      
-      // 3. Status Pendaftaran & Fitur Mandiri
-      let pdWarga = document.getElementById('set_pendaftaran_mandiri');
-      if(pdWarga) pdWarga.value = appSettings['fitur_pendaftaran_mandiri'] || 'Aktif';        
-      let pdPengurus = document.getElementById('set_pendaftaran_pengurus');
-      if(pdPengurus) pdPengurus.value = appSettings['fitur_pendaftaran_pengurus'] || 'Aktif';
-      let pdMudik = document.getElementById('set_lapor_mudik');
-      if(pdMudik) pdMudik.value = appSettings['fitur_lapor_mudik'] || 'Nonaktif';
-
-      // >>> 4. Folder Penyimpanan Dokumentasi Google Drive (TAMBAHKAN INI) <<<
-      let elFolder = document.getElementById('inputNamaFolderDrive');
-      if(elFolder) {
-        elFolder.value = appSettings['folder_dokumentasi'] || 
-                         appSettings['FOLDER_DOKUMENTASI'] || 
-                         'DOKUMENTASI_WARGA';
-      }
-
-    } else {
-      Swal.fire('Gagal Memuat', 'Pesan Error: ' + (res.message || ''), 'error');
-    }
-  }).getAppSettings();
+    })
+    .withFailureHandler(err => {
+      hideLoading();
+      Swal.fire('Error Server', 'Gagal memuat pengaturan: ' + err, 'error');
+    })
+    .getAppSettings();
 }
         
         function previewLogo(input) {
