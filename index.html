@@ -3047,11 +3047,11 @@
                   <div class="card-body p-4">
                     <!-- Form Keuangan, Iuran & Bunga Koperasi -->
                     <form onsubmit="saveSettingBagian(event, { 
-            'iuran_warga': document.getElementById('set_iuran_warga').value, 
-            'denda_ronda': document.getElementById('set_denda_ronda').value,
-            'koperasi_bunga_tipe': document.getElementById('set_kop_bunga_tipe').value,
-            'koperasi_bunga_persen': document.getElementById('set_kop_bunga_persen').value
-          }, this)">
+                      'iuran_warga': document.getElementById('set_iuran_warga').value, 
+                      'denda_ronda': document.getElementById('set_denda_ronda').value,
+                      'koperasi_bunga_tipe': document.getElementById('set_kop_bunga_tipe').value,
+                      'koperasi_bunga_persen': document.getElementById('set_kop_bunga_persen').value
+                    }, this)">
                       <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-wallet text-success me-2"></i>Pengaturan Keuangan & Iuran</h5>
                       <div class="row g-4 mb-4">
                         <div class="col-md-6">
@@ -3100,7 +3100,7 @@
                   </div>
                 </div>
 
-                <!-- Form Upload QRIS  -->
+                <!-- Form Upload QRIS -->
                 <div class="card shadow-sm border-0">
                   <div class="card-body p-4">
                     <h5 class="fw-bold text-dark mb-2"><i class="fas fa-qrcode text-success me-2"></i>Kelola QRIS Pembayaran</h5>
@@ -3213,16 +3213,15 @@
                 <div class="card shadow-sm border-0 mb-4">
                   <div class="card-body p-4">
                     <form onsubmit="saveSettingBagian(event, { 
-					'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value, 
-					'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value, 
-					'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value, 
-					'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value,
-					'kop_reminder_date': document.getElementById('set_kop_reminder_date').value,
-					'kop_reminder_time': document.getElementById('set_kop_reminder_time').value
-					}, this)">
+                      'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value, 
+                      'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value, 
+                      'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value, 
+                      'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value,
+                      'kop_reminder_date': document.getElementById('set_kop_reminder_date').value,
+                      'kop_reminder_time': document.getElementById('set_kop_reminder_time').value
+                    }, this)">
                       <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-clock text-warning me-2"></i>Jadwal Otomatis Notifikasi WhatsApp</h5>
                       <div class="row g-3 mb-4">
-
                         <div class="col-12">
                           <hr class="my-2">
                         </div>
@@ -3239,6 +3238,7 @@
                             <option value="SETIAP_HARI">Setiap Hari</option>
                           </select>
                         </div>
+
                         <div class="col-12">
                           <hr class="my-2">
                         </div>
@@ -3252,7 +3252,7 @@
                           <input type="time" class="form-control shadow-sm bg-white" id="set_arrears_reminder_time">
                         </div>
 
-                        <!-- TAMBAHAN BARU: PENGINGAT OTOMATIS KOPERASI -->
+                        <!-- PENGINGAT OTOMATIS KOPERASI -->
                         <div class="col-12">
                           <hr class="my-2">
                         </div>
@@ -3282,7 +3282,6 @@
                         <i class="fab fa-whatsapp text-success me-2"></i>Konfigurasi WhatsApp Gateway (Railway & Fonnte)
                       </h5>
                       <div class="row g-3 mb-4">
-
                         <!-- URL Gateway Railway -->
                         <div class="col-md-12">
                           <label class="form-label small text-muted">URL WhatsApp Gateway (Railway)</label>
@@ -3334,116 +3333,117 @@
                     </form>
                   </div>
                 </div>
-
-                <!-- 3. TAB PENGUMUMAN -->
-                <div class="tab-pane fade" id="pane-pengumuman" role="tabpanel">
-                  <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
-                      <form onsubmit="saveSettingBagian(event, { 'running_text': document.getElementById('set_running_text').value }, this)">
-                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-bullhorn text-success me-2"></i>Pengaturan Pengumuman (Running Text)</h5>
-                        <div class="mb-4">
-                          <label class="form-label fw-bold text-success small">Teks Berjalan di Atas Portal Warga</label>
-                          <textarea class="form-control shadow-sm" id="set_running_text" rows="3"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i> Simpan Pengumuman</button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 4. TAB PERMOHONAN -->
-                <div class="tab-pane fade" id="pane-permohonan" role="tabpanel">
-                  <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
-                      <form onsubmit="saveSettingBagian(event, { 'jenis_permohonan': document.getElementById('set_jenis_permohonan').value }, this)">
-                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-file-signature text-primary me-2"></i>Layanan Permohonan Surat</h5>
-                        <div class="mb-4">
-                          <label class="form-label fw-bold text-primary small">Daftar Jenis Permohonan Surat</label>
-                          <textarea class="form-control shadow-sm" id="set_jenis_permohonan" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i> Simpan Layanan Permohonan</button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 5. TAB CCTV -->
-                <div class="tab-pane fade" id="pane-cctv" role="tabpanel">
-                  <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
-                      <form onsubmit="saveSettingBagian(event, { 'cctv_1_nama': document.getElementById('set_cctv_1_nama').value, 'cctv_1_url': document.getElementById('set_cctv_1_url').value, 'cctv_2_nama': document.getElementById('set_cctv_2_nama').value, 'cctv_2_url': document.getElementById('set_cctv_2_url').value }, this)">
-                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-video text-info me-2"></i>Streaming CCTV Lingkungan</h5>
-                        <div class="row g-4 mb-4">
-                          <div class="col-md-6">
-                            <div class="p-3 bg-light border rounded">
-                              <label class="form-label fw-bold small text-dark">Nama Titik CCTV 1</label>
-                              <input type="text" class="form-control mb-3 shadow-sm bg-white" id="set_cctv_1_nama">
-                              <label class="form-label fw-bold small text-dark">URL / Embed Link CCTV 1</label>
-                              <textarea class="form-control shadow-sm bg-white" id="set_cctv_1_url" rows="2"></textarea>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="p-3 bg-light border rounded">
-                              <label class="form-label small fw-bold text-dark">Nama Titik CCTV 2</label>
-                              <input type="text" class="form-control mb-3 shadow-sm bg-white" id="set_cctv_2_nama">
-                              <label class="form-label small fw-bold text-dark">URL / Embed Link CCTV 2</label>
-                              <textarea class="form-control shadow-sm bg-white" id="set_cctv_2_url" rows="2"></textarea>
-                            </div>
-                          </div>
-                        </div>
-                        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i> Simpan Pengaturan CCTV</button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 6. TAB TENTANG APLIKASI -->
-                <div class="tab-pane fade" id="pane-tentang" role="tabpanel">
-                  <div class="card shadow-sm border-0">
-                    <div class="card-body p-5 text-center">
-                      <div class="mb-4">
-                        <div class="bg-success bg-opacity-10 d-inline-flex p-4 rounded-circle text-success mb-3">
-                          <i class="fas fa-home fa-3x"></i>
-                        </div>
-                        <h3 class="fw-bold text-dark" id="display-nama-app">SIDARA (Sistem Informasi Warga & Keamanan)</h3>
-                        <p class="text-muted" id="display-versi-app">Versi 3.1.0 (Production Build)</p>
-                      </div>
-                      <hr class="w-25 mx-auto my-4">
-                      <div class="row justify-content-center">
-                        <div class="col-md-10">
-                          <p class="text-muted lh-lg text-start mb-3">
-                            <strong class="app-name-text">SIDARA</strong> adalah aplikasi manajemen lingkungan dan administrasi warga yang dirancang untuk membantu RT/RW, pengurus komplek, perumahan, atau lingkungan masyarakat dalam mengelola berbagai kebutuhan administrasi secara digital.
-                          </p>
-                          <p class="text-muted lh-lg text-start mb-3">
-                            Aplikasi menyediakan <strong>Dashboard Warga</strong> untuk menampilkan informasi penting seperti jumlah warga, data laki-laki dan perempuan, kepala keluarga, warga non-domisili, warga kontrak, grafik usia, jadwal ronda, kegiatan lingkungan, pengaduan warga, informasi kas, tunggakan iuran, serta informasi kas masjid.
-                          </p>
-                          <p class="text-muted lh-lg text-start mb-3">
-                            Sementara itu, <strong>Dashboard Pengurus</strong> menyediakan fasilitas pengelolaan data secara lengkap, mulai dari data warga dan KK, kegiatan, jadwal ronda, keluhan, permohonan warga, inventaris/aset, iuran, kas masuk dan keluar, hingga laporan administrasi dan keuangan.
-                          </p>
-                          <p class="text-muted lh-lg text-start mb-4">
-                            Dengan tampilan yang <em>responsive</em>, aplikasi ini dapat digunakan melalui HP, tablet, laptop, maupun komputer dan terhubung dengan Cloud sebagai pusat penyimpanan data.
-                          </p>
-                          <div class="mt-4 pt-3">
-                            <div class="card bg-light border mx-auto col-md-6 text-start p-3 shadow-sm">
-                              <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-code text-success me-2"></i>
-                                <span class="fw-bold text-secondary small">Informasi Sistem & Pengembang</span>
-                              </div>
-                              <ul class="list-unstyled small text-muted mb-0 ps-3">
-                                <li class="mb-1">Backend : <strong>siswarga.merpati-itclinic.workers.dev</strong></li>
-                                <li class="mb-1">Database : <strong>Supabase Cloud</strong></li>
-                                <li>Developer : <strong>Hafidza Niaga Indonesia</strong></li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
               </div>
+
+              <!-- 3. TAB PENGUMUMAN -->
+              <div class="tab-pane fade" id="pane-pengumuman" role="tabpanel">
+                <div class="card shadow-sm border-0">
+                  <div class="card-body p-4">
+                    <form onsubmit="saveSettingBagian(event, { 'running_text': document.getElementById('set_running_text').value }, this)">
+                      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-bullhorn text-success me-2"></i>Pengaturan Pengumuman (Running Text)</h5>
+                      <div class="mb-4">
+                        <label class="form-label fw-bold text-success small">Teks Berjalan di Atas Portal Warga</label>
+                        <textarea class="form-control shadow-sm" id="set_running_text" rows="3"></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i> Simpan Pengumuman</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. TAB PERMOHONAN -->
+              <div class="tab-pane fade" id="pane-permohonan" role="tabpanel">
+                <div class="card shadow-sm border-0">
+                  <div class="card-body p-4">
+                    <form onsubmit="saveSettingBagian(event, { 'jenis_permohonan': document.getElementById('set_jenis_permohonan').value }, this)">
+                      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-file-signature text-primary me-2"></i>Layanan Permohonan Surat</h5>
+                      <div class="mb-4">
+                        <label class="form-label fw-bold text-primary small">Daftar Jenis Permohonan Surat</label>
+                        <textarea class="form-control shadow-sm" id="set_jenis_permohonan" rows="3" required></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i> Simpan Layanan Permohonan</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. TAB CCTV -->
+              <div class="tab-pane fade" id="pane-cctv" role="tabpanel">
+                <div class="card shadow-sm border-0">
+                  <div class="card-body p-4">
+                    <form onsubmit="saveSettingBagian(event, { 'cctv_1_nama': document.getElementById('set_cctv_1_nama').value, 'cctv_1_url': document.getElementById('set_cctv_1_url').value, 'cctv_2_nama': document.getElementById('set_cctv_2_nama').value, 'cctv_2_url': document.getElementById('set_cctv_2_url').value }, this)">
+                      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-video text-info me-2"></i>Streaming CCTV Lingkungan</h5>
+                      <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                          <div class="p-3 bg-light border rounded">
+                            <label class="form-label fw-bold small text-dark">Nama Titik CCTV 1</label>
+                            <input type="text" class="form-control mb-3 shadow-sm bg-white" id="set_cctv_1_nama">
+                            <label class="form-label fw-bold small text-dark">URL / Embed Link CCTV 1</label>
+                            <textarea class="form-control shadow-sm bg-white" id="set_cctv_1_url" rows="2"></textarea>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="p-3 bg-light border rounded">
+                            <label class="form-label small fw-bold text-dark">Nama Titik CCTV 2</label>
+                            <input type="text" class="form-control mb-3 shadow-sm bg-white" id="set_cctv_2_nama">
+                            <label class="form-label small fw-bold text-dark">URL / Embed Link CCTV 2</label>
+                            <textarea class="form-control shadow-sm bg-white" id="set_cctv_2_url" rows="2"></textarea>
+                          </div>
+                        </div>
+                      </div>
+                      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm"><i class="fas fa-save me-2"></i> Simpan Pengaturan CCTV</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6. TAB TENTANG APLIKASI -->
+              <div class="tab-pane fade" id="pane-tentang" role="tabpanel">
+                <div class="card shadow-sm border-0">
+                  <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                      <div class="bg-success bg-opacity-10 d-inline-flex p-4 rounded-circle text-success mb-3">
+                        <i class="fas fa-home fa-3x"></i>
+                      </div>
+                      <h3 class="fw-bold text-dark" id="display-nama-app">SIDARA (Sistem Informasi Warga & Keamanan)</h3>
+                      <p class="text-muted" id="display-versi-app">Versi 3.1.0 (Production Build)</p>
+                    </div>
+                    <hr class="w-25 mx-auto my-4">
+                    <div class="row justify-content-center">
+                      <div class="col-md-10">
+                        <p class="text-muted lh-lg text-start mb-3">
+                          <strong class="app-name-text">SIDARA</strong> adalah aplikasi manajemen lingkungan dan administrasi warga yang dirancang untuk membantu RT/RW, pengurus komplek, perumahan, atau lingkungan masyarakat dalam mengelola berbagai kebutuhan administrasi secara digital.
+                        </p>
+                        <p class="text-muted lh-lg text-start mb-3">
+                          Aplikasi menyediakan <strong>Dashboard Warga</strong> untuk menampilkan informasi penting seperti jumlah warga, data laki-laki dan perempuan, kepala keluarga, warga non-domisili, warga kontrak, grafik usia, jadwal ronda, kegiatan lingkungan, pengaduan warga, informasi kas, tunggakan iuran, serta informasi kas masjid.
+                        </p>
+                        <p class="text-muted lh-lg text-start mb-3">
+                          Sementara itu, <strong>Dashboard Pengurus</strong> menyediakan fasilitas pengelolaan data secara lengkap, mulai dari data warga dan KK, kegiatan, jadwal ronda, keluhan, permohonan warga, inventaris/aset, iuran, kas masuk dan keluar, hingga laporan administrasi dan keuangan.
+                        </p>
+                        <p class="text-muted lh-lg text-start mb-4">
+                          Dengan tampilan yang <em>responsive</em>, aplikasi ini dapat digunakan melalui HP, tablet, laptop, maupun komputer dan terhubung dengan Cloud sebagai pusat penyimpanan data.
+                        </p>
+                        <div class="mt-4 pt-3">
+                          <div class="card bg-light border mx-auto col-md-6 text-start p-3 shadow-sm">
+                            <div class="d-flex align-items-center mb-2">
+                              <i class="fas fa-code text-success me-2"></i>
+                              <span class="fw-bold text-secondary small">Informasi Sistem & Pengembang</span>
+                            </div>
+                            <ul class="list-unstyled small text-muted mb-0 ps-3">
+                              <li class="mb-1">Backend : <strong>siswarga.merpati-itclinic.workers.dev</strong></li>
+                              <li class="mb-1">Database : <strong>Supabase Cloud</strong></li>
+                              <li>Developer : <strong>Hafidza Niaga Indonesia</strong></li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
+          </div>
             <!-- ========================================== -->
             <!-- PAGE SUPERADMIN (TERPISAH DI LUAR PENGATURAN) -->
             <!-- ========================================== -->
