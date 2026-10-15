@@ -9181,6 +9181,9 @@ async function apiGet(action, params = {}) {
       let elWaUrl = document.getElementById('api_wa_url'); if(elWaUrl) elWaUrl.value = appSettings['api_wa_url'] || '';
       let elWaGroup = document.getElementById('set_wa_group_jid'); if(elWaGroup) elWaGroup.value = appSettings['wa_group_jid'] || '';
       
+	  let elWaPengurus = document.getElementById('set_wa_group_pengurus_jid'); 
+      if(elWaPengurus) elWaPengurus.value = appSettings['wa_group_pengurus_jid'] || '';
+	  
       // >>> TAMBAHKAN BARIS INI UNTUK GRUP PENGURUS <<<
       let elWaGroupPengurus = document.getElementById('set_wa_group_pengurus_jid'); if(elWaGroupPengurus) elWaGroupPengurus.value = appSettings['wa_group_pengurus_jid'] || '';
       
@@ -9231,10 +9234,10 @@ async function apiGet(action, params = {}) {
 function saveApiConfig(event) {
   event.preventDefault();
 
-  // Memastikan mengambil 'sigas_token' yang digunakan aplikasi
-  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
   const btnSave = document.getElementById('btn-save-api');
-  
+
+  // Pastikan input grup pengurus ikut diambil nilainya
   const payload = {
     api_wa_url: document.getElementById('api_wa_url') ? document.getElementById('api_wa_url').value.trim() : '',
     wa_group_jid: document.getElementById('set_wa_group_jid') ? document.getElementById('set_wa_group_jid').value.trim() : '',
@@ -9245,7 +9248,7 @@ function saveApiConfig(event) {
 
   if (btnSave) {
     btnSave.disabled = true;
-    btnSave.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
   }
 
   google.script.run
