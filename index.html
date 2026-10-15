@@ -15220,7 +15220,7 @@ function bukaModalDeveloper() {
 
 function tampilkanBannerPeringatanSewa(res) {
   if (document.getElementById('banner-warning-sewa')) return;
-  const pesanWA = encodeURIComponent(`Halo Admin Developer, saya ingin memperpanjang masa sewa aplikasi *${res.namaApp}* (${res.paket}) yang akan berakhir pada ${res.expired}.`);
+  const pesanWA = encodeURIComponent(`Halo Admin Developer, saya ingin memperpanjang masa sewa aplikasi *${res.namaApp}* (Sistem Sewa Berjangka) yang akan berakhir pada ${res.expired}.`);
   const banner = document.createElement('div');
   banner.id = 'banner-warning-sewa';
   banner.style.cssText = 'background:#fff3cd; color:#856404; padding:10px 16px; text-align:center; font-size:13px; border-bottom:1px solid #ffeeba; position:sticky; top:0; z-index:9998;';
@@ -15248,7 +15248,7 @@ function tampilkanLayarKunciExpired(res) {
         </div>
         <h4 class="fw-bold text-dark mb-2">Masa Aktif Layanan Berakhir</h4>
         <p class="text-muted small mb-4">
-          Mohon maaf, masa sewa untuk <b>${res.namaApp}</b> (${res.paket}) telah berakhir pada tanggal <b>${res.expired}</b>.
+          Mohon maaf, masa sewa untuk <b>${res.namaApp}</b> (Sistem Sewa Berjangka) telah berakhir pada tanggal <b>${res.expired}</b>.
           Silakan hubungi Administrator / Developer untuk mengaktifkan kembali layanan aplikasi.
         </p>
         <a href="https://wa.me/${res.waDeveloper}?text=${pesanWA}" target="_blank" class="btn btn-success w-100 py-2 fw-bold shadow-sm mb-3">
