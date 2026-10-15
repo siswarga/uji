@@ -15210,22 +15210,30 @@ function bukaModalDeveloper() {
         Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         google.script.run.withSuccessHandler(function(resp) {
           if (resp && resp.success) {
+            // Hapus paksa elemen layar kunci jika ada
             const lockEl = document.getElementById('lock-screen-expired');
             if (lockEl) lockEl.remove();
+            
+            // Hapus juga banner warning jika ada
+            const bannerEl = document.getElementById('banner-warning-sewa');
+            if (bannerEl) bannerEl.remove();
+
+            // Muat ulang status lisensi terbaru dari server
             initCekLisensiAplikasi();
-            Swal.fire('Berhasil!', resp.message, 'success');
+
+            Swal.fire({
+              title: 'Berhasil!',
+              text: resp.message,
+              icon: 'success',
+              confirmButtonColor: '#198754'
+            });
           } else {
             Swal.fire('Gagal', resp.message || 'PIN Salah atau Terjadi Kesalahan', 'error').then(() => {
-              // Jika PIN salah, panggil ulang pengecekan agar layar kunci muncul kembali
               initCekLisensiAplikasi();
             });
           }
         }).verifikasiDanSimpanLisensi(result.value.pin, result.value.data);
-      } else {
-        // JIKA DIKLIK BATAL ATAU DITUTUP: Jalankan ulang cek lisensi untuk memunculkan kembali layar kunci jika masih expired
-        initCekLisensiAplikasi();
       }
-    });
   }).getLisensiFromServer();
 }
 
