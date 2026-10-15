@@ -15259,9 +15259,11 @@ function tampilkanLayarKunciExpired(res) {
         <a href="https://wa.me/${res.waDeveloper}?text=${pesanWA}" target="_blank" class="btn btn-success w-100 py-2 fw-bold shadow-sm mb-3">
           <i class="fab fa-whatsapp me-2"></i> Hubungi Developer via WhatsApp
         </a>
-        <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none" onclick="bukaModalDeveloper()">
-          <i class="fas fa-key me-1"></i> Masukkan Kode Aktivasi Developer
-        </button>
+        <div class="mt-2">
+          <a href="javascript:void(0);" onclick="bukaModalDeveloper()" class="text-secondary text-decoration-none small fw-bold" style="cursor: pointer; display: inline-block; padding: 5px 10px;">
+            <i class="fas fa-key me-1 text-warning"></i> Masukkan Kode Aktivasi Developer
+          </a>
+        </div>
       </div>
     </div>
   `;
