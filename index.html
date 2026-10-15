@@ -15083,8 +15083,12 @@
           }
         });
       });
-	  
-// AMBIL DATA LISENSI DARI SERVER (AMAN)
+	
+	
+// =========================================================================
+// SCRIPT LISENSI FRONTEND (TERHUBUNG AMAN KE SERVER)
+// =========================================================================
+
 function initCekLisensiAplikasi() {
   google.script.run.withSuccessHandler(function(res) {
     if (!res || !res.success) return;
@@ -15119,7 +15123,7 @@ function initCekLisensiAplikasi() {
       expired: tglExpiredStr,
       sisaHari: sisaHari,
       namaApp: namaApp,
-      waDeveloper: "6281234567890" // Nomor WA Anda
+      waDeveloper: "6281314141770" // Sesuaikan dengan nomor WA Anda (awalan 62)
     };
 
     // Update tampilan kartu di Tab Tentang Aplikasi
@@ -15198,7 +15202,7 @@ function tampilkanLayarKunciExpired(res) {
   document.body.appendChild(overlay);
 }
 
-// Modal Popup Developer memanggil fungsi server
+// Modal Popup Developer memanggil backend aman
 function bukaModalDeveloper() {
   google.script.run.withSuccessHandler(function(res) {
     const cur = (res && res.success) ? res.data : { tipe: 'SEWA', expired: '2026-12-31', paket: 'Paket Pro' };
