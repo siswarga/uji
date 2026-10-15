@@ -15298,6 +15298,11 @@ function toggleTipeLisensi(tipe) {
     selectPaket.value = 'Paket Pro (WA Gateway)';
   }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Panggil pengecekan lisensi dari server saat halaman siap
+  setTimeout(initCekLisensiAplikasi, 500);
+});
     </script>
     </body>
 </html>
