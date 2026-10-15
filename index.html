@@ -15215,9 +15215,15 @@ function bukaModalDeveloper() {
             initCekLisensiAplikasi();
             Swal.fire('Berhasil!', resp.message, 'success');
           } else {
-            Swal.fire('Gagal', resp.message || 'PIN Salah atau Terjadi Kesalahan', 'error');
+            Swal.fire('Gagal', resp.message || 'PIN Salah atau Terjadi Kesalahan', 'error').then(() => {
+              // Jika PIN salah, panggil ulang pengecekan agar layar kunci muncul kembali
+              initCekLisensiAplikasi();
+            });
           }
         }).verifikasiDanSimpanLisensi(result.value.pin, result.value.data);
+      } else {
+        // JIKA DIKLIK BATAL ATAU DITUTUP: Jalankan ulang cek lisensi untuk memunculkan kembali layar kunci jika masih expired
+        initCekLisensiAplikasi();
       }
     });
   }).getLisensiFromServer();
