@@ -15057,11 +15057,10 @@ window.loadRiwayatBroadcast = function() {
     })
     .getRiwayatBroadcast();
 };
-// Pindahkan otomatis semua modal formulir ke root body saat halaman selesai dimuat
-document.addEventListener("DOMContentLoaded", function() {
-  const listModalId = ['modalPeminjaman', 'modalPengaduan', 'modalPermohonan'];
-  listModalId.forEach(id => {
-    const el = document.getElementById(id);
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Pindahkan otomatis SEMUA elemen modal yang ada ke dalam <body>
+  document.querySelectorAll('.modal').forEach(function(el) {
     if (el && el.parentElement !== document.body) {
       document.body.appendChild(el);
     }
