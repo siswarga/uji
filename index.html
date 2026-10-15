@@ -2095,98 +2095,146 @@
           </div>
 
           <!-- PAGE KEGIATAN DAN MUDIK -->
-          <div id="page-kegiatan" class="page-view" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-              <h3 class="text-success fw-bold m-0"><i class="fas fa-calendar-alt me-2"></i>Kegiatan & Warga</h3>
-              <div>
-                <button class="btn btn-outline-danger mt-2 mt-sm-0" onclick="exportKegiatanPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
-              </div>
+<div id="page-kegiatan" class="page-view" style="display: none;">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h3 class="text-success fw-bold m-0"><i class="fas fa-calendar-alt me-2"></i>Kegiatan & Warga</h3>
+    <div class="d-flex gap-2">
+      <!-- TOMBOL POPUP BROADCAST PENGUMUMAN -->
+      <button class="btn btn-success fw-semibold shadow-sm" onclick="modalBroadcastPengumuman()">
+        <i class="fab fa-whatsapp me-1"></i> Broadcast Pengumuman
+      </button>
+      <button class="btn btn-outline-danger shadow-sm" onclick="exportKegiatanPDF()">
+        <i class="fas fa-file-pdf me-1"></i> Export PDF
+      </button>
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs mb-3" id="kegiatanTab" role="tablist">
+    <li class="nav-item">
+      <button class="nav-link active fw-bold text-success" data-bs-toggle="tab" data-bs-target="#tab-jadwal-kegiatan" type="button" role="tab">Jadwal Kegiatan</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link fw-bold text-primary" data-bs-toggle="tab" data-bs-target="#tab-pemudik" type="button" role="tab" onclick="loadDataPemudik()">Daftar Pemudik</button>
+    </li>
+    <!-- TAB BARU: RIWAYAT BROADCAST WA -->
+    <li class="nav-item">
+      <button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#tab-riwayat-broadcast" type="button" role="tab" onclick="loadRiwayatBroadcast()">
+        <i class="fas fa-history me-1 text-success"></i> Riwayat Broadcast WA
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- TAB JADWAL KEGIATAN -->
+    <div class="tab-pane fade show active" id="tab-jadwal-kegiatan" role="tabpanel">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-4 mb-2">
+              <input type="text" id="search-kegiatan" class="form-control" placeholder="Cari kegiatan..." onkeyup="renderTableKegiatan()">
             </div>
-
-            <ul class="nav nav-tabs mb-3" id="kegiatanTab" role="tablist">
-              <li class="nav-item">
-                <button class="nav-link active fw-bold text-success" data-bs-toggle="tab" data-bs-target="#tab-jadwal-kegiatan" type="button" role="tab">Jadwal Kegiatan</button>
-              </li>
-              <li class="nav-item">
-                <button class="nav-link fw-bold text-primary" data-bs-toggle="tab" data-bs-target="#tab-pemudik" type="button" role="tab" onclick="loadDataPemudik()">Daftar Pemudik</button>
-              </li>
-            </ul>
-
-            <div class="tab-content">
-              <!-- TAB JADWAL KEGIATAN -->
-              <div class="tab-pane fade show active" id="tab-jadwal-kegiatan" role="tabpanel">
-                <div class="card shadow-sm border-0">
-                  <div class="card-body">
-                    <div class="row mb-3">
-                      <div class="col-md-4 mb-2">
-                        <input type="text" id="search-kegiatan" class="form-control" placeholder="Cari kegiatan..." onkeyup="renderTableKegiatan()">
-                      </div>
-                      <div class="col-md-3 mb-2">
-                        <select id="filter-kegiatan" class="form-select" onchange="renderTableKegiatan()">
-                          <option value="All">Semua Status</option>
-                          <option value="Akan Datang">Akan Datang</option>
-                          <option value="Selesai">Selesai</option>
-                        </select>
-                      </div>
-                      <div class="col-md-5 mb-2 text-end">
-                        <button class="btn btn-success" onclick="openModalKegiatan()" id="btn-tambah-kegiatan"><i class="fas fa-plus"></i> Tambah Kegiatan</button>
-                      </div>
-                    </div>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Tanggal & Waktu</th>
-                            <th>Nama Kegiatan</th>
-                            <th>Lokasi</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tbody-kegiatan"></tbody>
-                      </table>
-                    </div>
-                    <div class="d-flex justify-content-between mt-2">
-                      <span id="kegiatan-info" class="text-muted"></span>
-                      <div id="kegiatan-pagination" class="btn-group"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- TAB DAFTAR PEMUDIK -->
-              <div class="tab-pane fade" id="tab-pemudik" role="tabpanel">
-                <div class="card shadow-sm border-0 border-top border-primary border-4">
-                  <div class="card-body">
-                    <div class="row mb-3 align-items-center">
-                      <div class="col-md-4 mb-2">
-                        <input type="text" id="search-pemudik" class="form-control" placeholder="Cari nama, tujuan, plat..." onkeyup="renderTablePemudik()">
-                      </div>
-                      <div class="col-md-8 mb-2 text-end">
-                        <button class="btn btn-success me-1" onclick="shareWaBroadcastPemudik()"><i class="fab fa-whatsapp me-1"></i> Broadcast WA</button>
-                        <button class="btn btn-primary" onclick="openModalPemudik()"><i class="fas fa-car-side me-1"></i> Lapor Pemudik</button>
-                      </div>
-                    </div>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Keluarga & Kontak</th>
-                            <th>Tujuan Mudik</th>
-                            <th>Berangkat - Kembali</th>
-                            <th>Kendaraan</th>
-                            <th>Status Keamanan</th>
-                            <th>Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tbody-pemudik"></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div class="col-md-3 mb-2">
+              <select id="filter-kegiatan" class="form-select" onchange="renderTableKegiatan()">
+                <option value="All">Semua Status</option>
+                <option value="Akan Datang">Akan Datang</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+            </div>
+            <div class="col-md-5 mb-2 text-end">
+              <button class="btn btn-success" onclick="openModalKegiatan()" id="btn-tambah-kegiatan"><i class="fas fa-plus"></i> Tambah Kegiatan</button>
             </div>
           </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Tanggal & Waktu</th>
+                  <th>Nama Kegiatan</th>
+                  <th>Lokasi</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-kegiatan"></tbody>
+            </table>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <span id="kegiatan-info" class="text-muted"></span>
+            <div id="kegiatan-pagination" class="btn-group"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB DAFTAR PEMUDIK -->
+    <div class="tab-pane fade" id="tab-pemudik" role="tabpanel">
+      <div class="card shadow-sm border-0 border-top border-primary border-4">
+        <div class="card-body">
+          <div class="row mb-3 align-items-center">
+            <div class="col-md-4 mb-2">
+              <input type="text" id="search-pemudik" class="form-control" placeholder="Cari nama, tujuan, plat..." onkeyup="renderTablePemudik()">
+            </div>
+            <div class="col-md-8 mb-2 text-end">
+              <button class="btn btn-success me-1" onclick="shareWaBroadcastPemudik()"><i class="fab fa-whatsapp me-1"></i> Broadcast WA</button>
+              <button class="btn btn-primary" onclick="openModalPemudik()"><i class="fas fa-car-side me-1"></i> Lapor Pemudik</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Keluarga & Kontak</th>
+                  <th>Tujuan Mudik</th>
+                  <th>Berangkat - Kembali</th>
+                  <th>Kendaraan</th>
+                  <th>Status Keamanan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-pemudik"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB BARU: KONTEN RIWAYAT BROADCAST WA -->
+    <div class="tab-pane fade" id="tab-riwayat-broadcast" role="tabpanel">
+      <div class="card shadow-sm border-0 border-top border-success border-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0 text-success"><i class="fas fa-paper-plane me-2"></i>Histori Pesan Broadcast Grup Warga</h6>
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadRiwayatBroadcast()">
+              <i class="fas fa-sync-alt me-1"></i> Muat Ulang
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;" class="text-center">No</th>
+                  <th style="width: 120px;">Tanggal</th>
+                  <th style="width: 90px;">Jam</th>
+                  <th style="width: 180px;">Pengirim</th>
+                  <th>Isi Pesan</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-riwayat-broadcast">
+                <tr>
+                  <td colspan="5" class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-success me-2"></div>
+                    Memuat data histori broadcast...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
           <!-- PAGE PENGADUAN -->
           <div id="page-pengaduan" class="page-view" style="display: none;">
@@ -14821,6 +14869,133 @@ window.previewFoto = function(url, uploader, tanggal) {
       image: 'img-fluid rounded-3 shadow-sm'
     }
   });
+};
+
+// 1. Popup Input Pesan Pengumuman
+window.modalBroadcastPengumuman = function() {
+  let namaPengirim = 'Pengurus';
+  if (typeof currentUser !== 'undefined' && currentUser && currentUser.nama) {
+    namaPengirim = currentUser.nama;
+  }
+
+  Swal.fire({
+    title: '<i class="fab fa-whatsapp text-success me-2"></i>Broadcast Pengumuman',
+    html: `
+      <p class="small text-muted mb-2 text-start">
+        Pesan ini akan dikirim ke Grup WhatsApp Warga atas nama: <b>${namaPengirim}</b>.
+      </p>
+      <textarea id="swal-isi-pesan-broadcast" class="form-control" rows="5" 
+        placeholder="Tuliskan isi pengumuman untuk grup warga di sini..." 
+        style="resize: none; font-size: 14px; border-radius: 8px;"></textarea>
+    `,
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Kirim ke Grup WA',
+    confirmButtonColor: '#198754',
+    cancelButtonText: 'Batal',
+    didOpen: () => {
+      const textarea = document.getElementById('swal-isi-pesan-broadcast');
+      if (textarea) textarea.focus();
+    },
+    preConfirm: () => {
+      const pesan = document.getElementById('swal-isi-pesan-broadcast').value.trim();
+      if (!pesan) {
+        Swal.showValidationMessage('Isi pesan pengumuman tidak boleh kosong!');
+        return false;
+      }
+      return pesan;
+    }
+  }).then(res => {
+    if (res.isConfirmed) {
+      eksekusiKirimBroadcastPengumuman(res.value, namaPengirim);
+    }
+  });
+};
+
+// 2. Eksekusi Pengiriman Pesan ke Apps Script
+function eksekusiKirimBroadcastPengumuman(pesan, pengirim) {
+  if (typeof showLoading === 'function') showLoading();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: res.message,
+          timer: 1800,
+          showConfirmButton: false
+        });
+
+        // Buka otomatis tab riwayat dan muat ulang tabel
+        const tabBtn = document.querySelector('button[data-bs-target="#tab-riwayat-broadcast"]');
+        if (tabBtn) {
+          const bsTab = bootstrap.Tab.getInstance(tabBtn) || new bootstrap.Tab(tabBtn);
+          bsTab.show();
+        }
+        loadRiwayatBroadcast();
+      } else {
+        Swal.fire('Gagal Mengirim', res ? res.message : 'Terjadi kendala', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      Swal.fire('Error Server', 'Koneksi gagal: ' + err, 'error');
+    })
+    .kirimBroadcastPengumuman({ pesan: pesan, pengirim: pengirim });
+}
+
+// 3. Render Tabel Riwayat Broadcast
+window.loadRiwayatBroadcast = function() {
+  const tbody = document.getElementById('tbody-riwayat-broadcast');
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="5" class="text-center py-4 text-muted">
+        <div class="spinner-border spinner-border-sm text-success me-2"></div>
+        Memuat riwayat pengumuman...
+      </td>
+    </tr>
+  `;
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res && res.success && res.data && res.data.length > 0) {
+        tbody.innerHTML = res.data.map((item, index) => `
+          <tr>
+            <td class="text-center text-muted small">${index + 1}</td>
+            <td><i class="far fa-calendar-alt text-muted me-1"></i>${item.tanggal}</td>
+            <td><i class="far fa-clock text-muted me-1"></i>${item.jam}</td>
+            <td>
+              <span class="badge bg-light text-dark border">
+                <i class="fas fa-user-shield text-success me-1"></i>${item.pengirim}
+              </span>
+            </td>
+            <td class="text-wrap" style="max-width: 420px; white-space: pre-wrap; font-size: 13px;">${item.pesan}</td>
+          </tr>
+        `).join('');
+      } else {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center py-5 text-muted">
+              <i class="fab fa-whatsapp fa-3x text-secondary opacity-50 mb-2"></i>
+              <p class="mb-0">Belum ada histori pesan yang pernah dikirim.</p>
+            </td>
+          </tr>
+        `;
+      }
+    })
+    .withFailureHandler(err => {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4 text-danger">
+            <i class="fas fa-exclamation-circle me-1"></i> Gagal memuat data: ${err}
+          </td>
+        </tr>
+      `;
+    })
+    .getRiwayatBroadcast();
 };
   </script>
   </body>
