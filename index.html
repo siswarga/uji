@@ -5650,58 +5650,58 @@
   </div>
 
   <!-- MODAL PEMINJAMAN -->
-  <div class="modal fade" id="modalPeminjaman" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <form id="formPeminjaman" class="modal-content" onsubmit="savePeminjamanData(event)">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Form Peminjaman Aset</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-12">
-              <label class="form-label">Jenis Peminjam*</label>
-              <select class="form-select" id="pinjam_jenis" onchange="handlePinjamJenis()" required>
-                <option value="Warga">Warga Komplek</option>
-                <option value="Non Warga">Luar Komplek</option>
-              </select>
-            </div>
-            <div class="col-md-6" id="div_pinjam_warga">
-              <label class="form-label">Pilih Warga*</label>
-              <select class="form-select" id="pinjam_select_warga" onchange="handlePinjamWarga()">
-                <option value="">-- Memuat --</option>
-              </select>
-            </div>
-            <div class="col-md-6 d-none" id="div_pinjam_namaLuar">
-              <label class="form-label">Nama Lengkap*</label>
-              <input type="text" class="form-control" id="pinjam_namaLuar">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">No WhatsApp*</label>
-              <input type="number" class="form-control bg-light" id="pinjam_wa" required readonly>
-            </div>
-            <div class="col-md-12">
-              <label class="form-label">Pilih Barang di Gudang*</label>
-              <select class="form-select" id="pinjam_barang" required>
-                <option value="">-- Memuat Barang --</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Tgl Pinjam*</label>
-              <input type="date" class="form-control" id="pinjam_tglMulai" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Tgl Kembali*</label>
-              <input type="date" class="form-control" id="pinjam_tglKembali" required>
-            </div>
+<div class="modal fade" id="modalPeminjaman" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form id="formPeminjaman" class="modal-content" onsubmit="savePeminjamanData(event)">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="fas fa-boxes me-2"></i>Form Peminjaman Aset</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label class="form-label">Jenis Peminjam*</label>
+            <select class="form-select" id="pinjam_jenis" onchange="handlePinjamJenis()" required>
+              <option value="Warga">Warga Komplek</option>
+              <option value="Non Warga">Luar Komplek</option>
+            </select>
+          </div>
+          <div class="col-md-6" id="div_pinjam_warga">
+            <label class="form-label">Pilih Warga*</label>
+            <select class="form-select" id="pinjam_select_warga" onchange="handlePinjamWarga()">
+              <option value="">-- Memuat --</option>
+            </select>
+          </div>
+          <div class="col-md-6 d-none" id="div_pinjam_namaLuar">
+            <label class="form-label">Nama Lengkap*</label>
+            <input type="text" class="form-control" id="pinjam_namaLuar">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">No WhatsApp*</label>
+            <input type="number" class="form-control bg-light" id="pinjam_wa" required readonly>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Pilih Barang di Gudang*</label>
+            <select class="form-select" id="pinjam_barang" required>
+              <option value="">-- Memuat Barang --</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Tgl Pinjam*</label>
+            <input type="date" class="form-control" id="pinjam_tglMulai" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Tgl Kembali*</label>
+            <input type="date" class="form-control" id="pinjam_tglKembali" required>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary w-100 fw-bold">Ajukan Peminjaman</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary w-100 fw-bold">Ajukan Peminjaman</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- MODAL PENGURUS -->
   <div class="modal fade" id="modalPengurus" tabindex="-1" aria-hidden="true">
@@ -9043,42 +9043,51 @@ async function apiGet(action, params = {}) {
         }
         
         	function openModalPeminjaman() {
-        document.getElementById('formPeminjaman').reset();
-        
-        let selectJenis = document.getElementById('pinjam_jenis');
-        if (selectJenis) selectJenis.value = 'Warga';
-        
-        // 1. Muat pilihan warga secara otomatis
-        const sw = document.getElementById('pinjam_select_warga');
-        if(sw) {
-            sw.innerHTML = '<option value="">-- Memuat Warga --</option>';
-            google.script.run.withSuccessHandler(res => {
-                if(res && res.success) {
-                    listWargaPrmTemp = res.data;
-                    sw.innerHTML = '<option value="">-- Pilih Warga --</option>';
-                    res.data.forEach(w => sw.innerHTML += `<option value="${w.nama}">${w.nama}</option>`);
-                }
-            }).getListNamaWarga('PUBLIC');
-        }
-        
-        // 2. Muat data inventaris secara mandiri agar tidak kosong
-        showLoading();
-        google.script.run.withSuccessHandler(res => {
-            hideLoading();
-            if(res && res.success) {
-                dataInvGlobal = res.data; // Simpan ke variabel global
-                renderDropdownBarangPinjam(); // Render dropdown barang
-            } else {
-                renderDropdownBarangPinjam();
-            }
-        }).getInventory('PUBLIC_ACCESS'); // Mengambil data inventaris untuk peminjaman
-        
-        if (typeof handlePinjamJenis === 'function') {
-            handlePinjamJenis();
-        }
-        
-        new bootstrap.Modal(document.getElementById('modalPeminjaman')).show();
-        }
+  const modalEl = document.getElementById('modalPeminjaman');
+  if (!modalEl) return;
+
+  // 1. Pindahkan elemen modal ke body secara otomatis agar tidak tertutup layar hitam
+  if (modalEl.parentElement !== document.body) {
+    document.body.appendChild(modalEl);
+  }
+
+  const form = document.getElementById('formPeminjaman');
+  if (form) form.reset();
+  
+  let selectJenis = document.getElementById('pinjam_jenis');
+  if (selectJenis) selectJenis.value = 'Warga';
+  
+  // 2. Muat pilihan warga secara otomatis
+  const sw = document.getElementById('pinjam_select_warga');
+  if (sw) {
+    sw.innerHTML = '<option value="">-- Memuat Warga --</option>';
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.success) {
+        listWargaPrmTemp = res.data;
+        sw.innerHTML = '<option value="">-- Pilih Warga --</option>';
+        res.data.forEach(w => sw.innerHTML += `<option value="${w.nama}">${w.nama}</option>`);
+      }
+    }).getListNamaWarga('PUBLIC');
+  }
+  
+  // 3. Muat data inventaris secara background (tanpa menumpuk showLoading di atas modal)
+  google.script.run.withSuccessHandler(res => {
+    if (res && res.success) {
+      dataInvGlobal = res.data;
+    }
+    if (typeof renderDropdownBarangPinjam === 'function') {
+      renderDropdownBarangPinjam();
+    }
+  }).getInventory('PUBLIC_ACCESS');
+  
+  if (typeof handlePinjamJenis === 'function') {
+    handlePinjamJenis();
+  }
+  
+  // 4. Buka modal dengan getOrCreateInstance agar layer hitam tidak menumpuk
+  const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modalInstance.show();
+}
         	
         function handlePinjamJenis() { const j=document.getElementById('pinjam_jenis').value; const dw=document.getElementById('div_pinjam_warga'), sw=document.getElementById('pinjam_select_warga'); const dl=document.getElementById('div_pinjam_namaLuar'), il=document.getElementById('pinjam_namaLuar'); const iw=document.getElementById('pinjam_wa'); iw.value=''; if(j==='Warga'){dw.classList.remove('d-none'); sw.required=true; dl.classList.add('d-none'); il.required=false; iw.readOnly=true; sw.innerHTML='<option value="">Loading...</option>'; google.script.run.withSuccessHandler(res=>{if(res.success){listWargaPrmTemp=res.data; sw.innerHTML='<option value="">-- Pilih Warga --</option>'; res.data.forEach(w=>sw.innerHTML+=`<option value="${w.nama}">${w.nama}</option>`);}}).getListNamaWarga('PUBLIC');}else{dw.classList.add('d-none'); sw.required=false; dl.classList.remove('d-none'); il.required=true; iw.readOnly=false; iw.placeholder="Ketik No WA...";} renderDropdownBarangPinjam(); }
         function handlePinjamWarga() { let v=document.getElementById('pinjam_select_warga').value; if(v!==''){let m=listWargaPrmTemp.find(w=>w.nama===v); if(m)document.getElementById('pinjam_wa').value=m.wa;}else document.getElementById('pinjam_wa').value=''; }
@@ -15045,6 +15054,16 @@ window.loadRiwayatBroadcast = function() {
     })
     .getRiwayatBroadcast();
 };
+// Pindahkan otomatis semua modal formulir ke root body saat halaman selesai dimuat
+document.addEventListener("DOMContentLoaded", function() {
+  const listModalId = ['modalPeminjaman', 'modalPengaduan', 'modalPermohonan'];
+  listModalId.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.parentElement !== document.body) {
+      document.body.appendChild(el);
+    }
+  });
+});
   </script>
   </body>
 </html>
