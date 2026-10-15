@@ -2130,7 +2130,7 @@
     </li>
     <li class="nav-item">
       <button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#tab-riwayat-broadcast" type="button" role="tab" onclick="loadRiwayatBroadcast()">
-        <i class="fas fa-history me-1 text-success"></i> Riwayat Broadcast WA
+        <i class="fas fa-history me-1 text-success"></i> Broadcast WA
       </button>
     </li>
   </ul>
@@ -7221,11 +7221,11 @@ async function apiGet(action, params = {}) {
       loadPublicVoting();
       
     } else {
-      Swal.fire('Error Dashboard', 'Gagal memuat data dari Spreadsheet: ' + (res ? res.message : 'Unknown Error'), 'error');
+      Swal.fire('Gagal Memuat', 'Data tidak dapat dimuat: ' + (res ? res.message : 'Unknown Error'), 'error');
     }
   }).withFailureHandler(err => { 
     hideLoading(); 
-    Swal.fire('Error Koneksi', 'Gagal terhubung ke server Google: ' + String(err), 'error');
+    Swal.fire('Error Koneksi', 'Gagal terhubung ke server: ' + String(err), 'error');
   }).getPublicDashboardData();
 }
         
@@ -8194,9 +8194,9 @@ async function apiGet(action, params = {}) {
             html += `
                     </tbody>
                 </table>
-                <div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
-                    Dicetak dari Aplikasi SI-GAS pada ${new Date().toLocaleString('id-ID')}
-                </div>`;
+                <<div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
+				Dicetak dari Aplikasi ${appSettings['nama_aplikasi'] || 'SIS WARGA'} pada ${new Date().toLocaleString('id-ID')}
+				</div>`;
         
             container.innerHTML = html;
             document.body.appendChild(container);
@@ -8265,8 +8265,8 @@ async function apiGet(action, params = {}) {
                     </tbody>
                 </table>
                 <div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
-                    Dicetak dari Aplikasi SI-GAS pada ${new Date().toLocaleString('id-ID')}
-                </div>`;
+				Dicetak dari Aplikasi ${appSettings['nama_aplikasi'] || 'SIS WARGA'} pada ${new Date().toLocaleString('id-ID')}
+				</div>`;
         
             container.innerHTML = html;
             document.body.appendChild(container);
@@ -12879,9 +12879,9 @@ function openQrisModal(tipe) {
             html += `
                     </tbody>
                 </table>
-                <div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
-                    Dicetak dari Aplikasi SI-GAS pada ${new Date().toLocaleString('id-ID')}
-                </div>`;
+                <<div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
+				Dicetak dari Aplikasi ${appSettings['nama_aplikasi'] || 'SIS WARGA'} pada ${new Date().toLocaleString('id-ID')}
+				</div>`;
         
             container.innerHTML = html;
             document.body.appendChild(container);
