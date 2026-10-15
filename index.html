@@ -15214,7 +15214,6 @@ function tampilkanLayarKunciExpired(res) {
   document.body.appendChild(overlay);
 }
 
-// Modal Popup Developer memanggil backend aman
 function bukaModalDeveloper() {
   google.script.run.withSuccessHandler(function(res) {
     const cur = (res && res.success) ? res.data : { tipe: 'SEWA', expired: '2026-12-31', paket: 'Paket Pro' };
@@ -15229,7 +15228,7 @@ function bukaModalDeveloper() {
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Tipe Lisensi</label>
-            <select id="dev_tipe" class="form-select" onchange="document.getElementById('div_dev_exp').style.display = this.value === 'UNLIMITED' ? 'none' : 'block'">
+            <select id="dev_tipe" class="form-select" onchange="toggleTipeLisensi(this.value)">
               <option value="SEWA" ${cur.tipe === 'SEWA' ? 'selected' : ''}>Sistem Sewa (Berjangka)</option>
               <option value="UNLIMITED" ${cur.tipe === 'UNLIMITED' ? 'selected' : ''}>Beli Lepas (UNLIMITED / Selamanya)</option>
             </select>
@@ -15242,9 +15241,9 @@ function bukaModalDeveloper() {
             <label class="form-label small fw-bold">Nama Paket</label>
             <select id="dev_paket" class="form-select">
               <option value="Paket Dasar" ${cur.paket === 'Paket Dasar' ? 'selected' : ''}>Paket Dasar</option>
-              <option value="Paket Pro (WA Gateway)" ${cur.paket === 'Paket Pro (WA Gateway)' ? 'selected' : ''}>Paket Pro (WA Gateway)</option>
-              <option value="Paket Exclusive (Full Fitur)" ${cur.paket === 'Paket Exclusive (Full Fitur)' ? 'selected' : ''}>Paket Exclusive (Full Fitur)</option>
-              <option value="Full Lisensi (Unlimited)" ${cur.paket === 'Full Lisensi (Unlimited)' ? 'selected' : ''}>Full Lisensi (Unlimited)</option>
+              <option value="Paket Pro (WA Gateway)" ${cur.paket.includes('Pro') ? 'selected' : ''}>Paket Pro (WA Gateway)</option>
+              <option value="Paket Exclusive (Full Fitur)" ${cur.paket.includes('Exclusive') ? 'selected' : ''}>Paket Exclusive (Full Fitur)</option>
+              <option value="Full Lisensi (Unlimited)" ${cur.tipe === 'UNLIMITED' ? 'selected' : ''}>Full Lisensi (Unlimited)</option>
             </select>
           </div>
         </div>
@@ -15287,9 +15286,18 @@ function bukaModalDeveloper() {
   }).getLisensiFromServer();
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  setTimeout(initCekLisensiAplikasi, 1000);
-});
+// Fungsi bantu untuk menyesuaikan pilihan paket saat tipe lisensi diubah di modal
+function toggleTipeLisensi(tipe) {
+  const divExp = document.getElementById('div_dev_exp');
+  const selectPaket = document.getElementById('dev_paket');
+  if (tipe === 'UNLIMITED') {
+    divExp.style.display = 'none';
+    selectPaket.value = 'Full Lisensi (Unlimited)';
+  } else {
+    divExp.style.display = 'block';
+    selectPaket.value = 'Paket Pro (WA Gateway)';
+  }
+}
     </script>
     </body>
 </html>
