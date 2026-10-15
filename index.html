@@ -15151,10 +15151,13 @@ function initCekLisensiAplikasi() {
         elExp.innerText = `Berlaku s/d: ${info.expired} (${info.sisaHari >= 0 ? 'Sisa ' + info.sisaHari + ' hari' : 'Sudah Berakhir'})`;
         elBadge.className = info.aktif ? 'badge bg-success px-3 py-2 fs-6 shadow-sm' : 'badge bg-danger px-3 py-2 fs-6 shadow-sm';
         elBadge.innerHTML = info.aktif ? 'SEWA AKTIF' : 'EXPIRED';
+
+        // TAMBAHKAN INI: Jika tidak aktif (expired), tampilkan layar kunci secara otomatis
+        if (!info.aktif) {
+          tampilkanLayarKunciExpired(info);
+        }
       }
     }
-  }).getLisensiFromServer();
-}
 
 function bukaModalDeveloper() {
   google.script.run.withSuccessHandler(function(res) {
