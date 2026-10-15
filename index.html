@@ -3397,7 +3397,7 @@
                 </div>
               </div>
 
-             <!-- 6. TAB TENTANG APLIKASI -->
+              <!-- 6. TAB TENTANG APLIKASI -->
               <div class="tab-pane fade" id="pane-tentang" role="tabpanel">
                 <div class="card shadow-sm border-0">
                   <div class="card-body p-5 text-center">
@@ -3423,57 +3423,45 @@
                         <p class="text-muted lh-lg text-start mb-4">
                           Dengan tampilan yang <em>responsive</em>, aplikasi ini dapat digunakan melalui HP, tablet, laptop, maupun komputer dan terhubung dengan Cloud sebagai pusat penyimpanan data.
                         </p>
-
-                        <!-- KOTAK INFORMASI SISTEM & LISENSI (DIGABUNG & DIPERCANTIK) -->
                         <div class="mt-4 pt-3">
-                          <div class="card border-0 shadow-sm mx-auto col-md-10 overflow-hidden text-start" style="border-radius: 12px; border-left: 5px solid #198754 !important;">
-                            <div class="card-body p-4 bg-white">
-                              
-                              <!-- Bagian Atas: Status Lisensi -->
-                              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-3 border-bottom">
-                                <div>
-                                  <div class="small text-uppercase fw-bold text-muted mb-1" style="font-size: 11px; letter-spacing: 0.5px;">Status Lisensi Aplikasi</div>
-                                  <div class="fw-bold text-dark fs-5 mb-1" id="label-paket-lisensi">Memuat...</div>
-                                  <div class="small text-secondary" id="label-expired-lisensi"><i class="far fa-calendar-alt me-1"></i> -</div>
-                                </div>
-                                <div>
-                                  <span id="badge-status-lisensi" class="badge px-3 py-2 fs-6 shadow-sm">Cek...</span>
-                                </div>
-                              </div>
-
-                              <!-- Bagian Tengah: Informasi Sistem & Pengembang -->
-                              <div class="pt-3 pb-2">
-                                <div class="small fw-bold text-secondary mb-2"><i class="fas fa-server text-primary me-1"></i> Infrastruktur Sistem & Cloud</div>
-                                <div class="row g-2 text-start small ps-1">
-                                  <div class="col-sm-12 text-secondary mb-1">
-                                    <i class="fas fa-network-wired text-primary me-2" style="width: 16px;"></i>Backend : <strong class="text-dark">siswarga.merpati-itclinic.workers.dev</strong>
-                                  </div>
-                                  <div class="col-sm-12 text-secondary mb-1">
-                                    <i class="fas fa-database text-success me-2" style="width: 16px;"></i>Database : <strong class="text-dark">Supabase Cloud</strong>
-                                  </div>
-                                  <div class="col-sm-12 text-secondary">
-                                    <i class="fas fa-building text-warning me-2" style="width: 16px;"></i>Developer : <strong class="text-dark">Hafidza Niaga Indonesia</strong>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <!-- Bagian Bawah: Tombol Panel Developer -->
-                              <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2">
-                                <span class="text-muted" style="font-size: 11px;"><i class="fas fa-shield-alt text-success me-1"></i> Dilindungi Sistem Keamanan Server</span>
-                                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm" style="font-size: 12px;" onclick="bukaModalDeveloper()">
-                                  <i class="fas fa-key me-1 text-warning"></i> Panel Developer
-                                </button>
-                              </div>
-
+                          <div class="card bg-light border mx-auto col-md-6 text-start p-3 shadow-sm">
+                            <div class="d-flex align-items-center mb-2">
+                              <i class="fas fa-code text-success me-2"></i>
+                              <span class="fw-bold text-secondary small">Informasi Sistem & Pengembang</span>
                             </div>
+                            <ul class="list-unstyled small text-muted mb-0 ps-3">
+                              <li class="mb-1">Backend : <strong>siswarga.merpati-itclinic.workers.dev</strong></li>
+                              <li class="mb-1">Database : <strong>Supabase Cloud</strong></li>
+                              <li>Developer : <strong>Hafidza Niaga Indonesia</strong></li>
+                            </ul>
                           </div>
-                        </div> <!-- Tutup .mt-4 -->
+						  <!-- KOTAK STATUS LISENSI APLIKASI -->
+<div class="card border-0 shadow-sm mx-auto col-md-6 mt-3 p-3" id="card-info-lisensi" style="background: #f8fafc;">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="text-start">
+      <div class="small text-muted fw-bold">Status Lisensi Aplikasi</div>
+      <div class="fw-bold text-dark fs-6 mt-1" id="label-paket-lisensi">Memuat...</div>
+      <div class="small text-secondary" id="label-expired-lisensi">-</div>
+    </div>
+    <div>
+      <span id="badge-status-lisensi" class="badge bg-secondary px-3 py-2">Cek...</span>
+    </div>
+  </div>
+  <div class="text-end mt-2 pt-2 border-top">
+    <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0" style="font-size: 11px;" onclick="bukaModalDeveloper()">
+      <i class="fas fa-key me-1"></i>Panel Lisensi Developer
+    </button>
+  </div>
+</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                      </div> <!-- Tutup .col-md-10 -->
-                    </div> <!-- Tutup .row -->
-                  </div> <!-- Tutup .card-body -->
-                </div> <!-- Tutup .card -->
-              </div> <!-- Tutup #pane-tentang -->
+            </div>
+          </div>
             <!-- ========================================== -->
             <!-- PAGE SUPERADMIN (TERPISAH DI LUAR PENGATURAN) -->
             <!-- ========================================== -->
