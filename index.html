@@ -3435,6 +3435,24 @@
                               <li>Developer : <strong>Hafidza Niaga Indonesia</strong></li>
                             </ul>
                           </div>
+						  <!-- KOTAK STATUS LISENSI APLIKASI -->
+<div class="card border-0 shadow-sm mx-auto col-md-6 mt-3 p-3" id="card-info-lisensi" style="background: #f8fafc;">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="text-start">
+      <div class="small text-muted fw-bold">Status Lisensi Aplikasi</div>
+      <div class="fw-bold text-dark fs-6 mt-1" id="label-paket-lisensi">Memuat...</div>
+      <div class="small text-secondary" id="label-expired-lisensi">-</div>
+    </div>
+    <div>
+      <span id="badge-status-lisensi" class="badge bg-secondary px-3 py-2">Cek...</span>
+    </div>
+  </div>
+  <div class="text-end mt-2 pt-2 border-top">
+    <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0" style="font-size: 11px;" onclick="bukaModalDeveloper()">
+      <i class="fas fa-key me-1"></i>Panel Lisensi Developer
+    </button>
+  </div>
+</div>
                         </div>
                       </div>
                     </div>
@@ -15065,6 +15083,159 @@
           }
         });
       });
+	  
+// =========================================================================
+// SISTEM PENGECEKAN LISENSI & LAYAR KUNCI OTOMATIS (FRONTEND)
+// =========================================================================
+
+function initCekLisensiAplikasi() {
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (!res || !res.success) return;
+
+      // 1. Update tampilan di Tab Tentang Aplikasi (jika elemennya ada)
+      const elPaket = document.getElementById('label-paket-lisensi');
+      const elExp = document.getElementById('label-expired-lisensi');
+      const elBadge = document.getElementById('badge-status-lisensi');
+
+      if (elPaket && elExp && elBadge) {
+        elPaket.innerText = res.paket;
+        if (res.tipe === 'UNLIMITED') {
+          elExp.innerText = 'Masa Aktif: Selamanya (Beli Lepas)';
+          elBadge.className = 'badge bg-primary px-3 py-2 shadow-sm';
+          elBadge.innerHTML = '<i class="fas fa-crown me-1 text-warning"></i> UNLIMITED';
+        } else {
+          elExp.innerText = `Berlaku s/d: ${res.expired} (${res.sisaHari > 0 ? 'Sisa ' + res.sisaHari + ' hari' : 'Habis'})`;
+          elBadge.className = res.aktif ? 'badge bg-success px-3 py-2' : 'badge bg-danger px-3 py-2';
+          elBadge.innerHTML = res.aktif ? 'SEWA AKTIF' : 'EXPIRED';
+        }
+      }
+
+      // 2. Jika SEWA hampir habis (Sisa <= 7 hari tapi masih aktif), tampilkan pengingat
+      if (res.tipe === 'SEWA' && res.aktif && res.sisaHari <= 7) {
+        tampilkanBannerPeringatanSewa(res);
+      }
+
+      // 3. Jika SEWA SUDAH HABIS (aktif === false), KUNCI APLIKASI!
+      if (res.tipe === 'SEWA' && !res.aktif) {
+        tampilkanLayarKunciExpired(res);
+      }
+    })
+    .cekStatusLisensi();
+}
+
+function tampilkanBannerPeringatanSewa(res) {
+  if (document.getElementById('banner-warning-sewa')) return;
+  const pesanWA = encodeURIComponent(`Halo Admin Developer, saya ingin memperpanjang masa sewa aplikasi *${res.namaApp}* (${res.paket}) yang akan berakhir pada ${res.expired}.`);
+  const banner = document.createElement('div');
+  banner.id = 'banner-warning-sewa';
+  banner.style.cssText = 'background:#fff3cd; color:#856404; padding:10px 16px; text-align:center; font-size:13px; border-bottom:1px solid #ffeeba; position:sticky; top:0; z-index:9998;';
+  banner.innerHTML = `
+    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+    <b>Pengingat Layanan:</b> Masa aktif sewa aplikasi akan berakhir dalam <b>${res.sisaHari} hari</b> (${res.expired}).
+    <a href="https://wa.me/${res.waDeveloper}?text=${pesanWA}" target="_blank" class="btn btn-xs btn-warning fw-bold ms-2 py-0 px-2" style="font-size:12px;">
+      <i class="fab fa-whatsapp"></i> Perpanjang Sekarang
+    </a>
+  `;
+  document.body.prepend(banner);
+}
+
+function tampilkanLayarKunciExpired(res) {
+  const pesanWA = encodeURIComponent(`Halo Admin Developer, masa aktif sewa aplikasi *${res.namaApp}* telah habis (${res.expired}). Mohon info untuk perpanjangan layanan.`);
+  const overlay = document.createElement('div');
+  overlay.id = 'lock-screen-expired';
+  overlay.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,0.96); z-index:999999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(8px);';
+  overlay.innerHTML = `
+    <div class="card border-0 shadow-lg text-center p-4" style="max-width: 460px; width:100%; border-radius: 16px;">
+      <div class="card-body">
+        <div class="bg-danger bg-opacity-10 text-danger d-inline-flex p-4 rounded-circle mb-3">
+          <i class="fas fa-lock fa-3x"></i>
+        </div>
+        <h4 class="fw-bold text-dark mb-2">Masa Aktif Layanan Berakhir</h4>
+        <p class="text-muted small mb-4">
+          Mohon maaf, masa sewa untuk <b>${res.namaApp}</b> (${res.paket}) telah berakhir pada tanggal <b>${res.expired}</b>.
+          Silakan hubungi Administrator / Developer untuk mengaktifkan kembali layanan aplikasi.
+        </p>
+        <a href="https://wa.me/${res.waDeveloper}?text=${pesanWA}" target="_blank" class="btn btn-success w-100 py-2 fw-bold shadow-sm mb-3">
+          <i class="fab fa-whatsapp me-2"></i> Hubungi Developer via WhatsApp
+        </a>
+        <button type="button" class="btn btn-link btn-sm text-muted text-decoration-none" onclick="bukaModalDeveloper()">
+          <i class="fas fa-key me-1"></i> Masukkan Kode Aktivasi Developer
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.innerHTML = ''; // Kosongkan halaman utama agar tidak bisa di-bypass via Inspect Element
+  document.body.appendChild(overlay);
+}
+
+// Modal Popup untuk Anda (Developer) mengubah status Sewa / Unlimited langsung dari aplikasi
+function bukaModalDeveloper() {
+  Swal.fire({
+    title: '🔑 Panel Lisensi Developer',
+    html: `
+      <div class="text-start">
+        <div class="mb-3">
+          <label class="form-label small fw-bold">PIN Rahasia Developer</label>
+          <input type="password" id="dev_pin" class="form-control" placeholder="Masukkan PIN Developer">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Tipe Lisensi</label>
+          <select id="dev_tipe" class="form-select" onchange="document.getElementById('div_dev_exp').style.display = this.value === 'UNLIMITED' ? 'none' : 'block'">
+            <option value="SEWA">Sistem Sewa (Berjangka)</option>
+            <option value="UNLIMITED">Beli Lepas (UNLIMITED / Selamanya)</option>
+          </select>
+        </div>
+        <div class="mb-3" id="div_dev_exp">
+          <label class="form-label small fw-bold">Berlaku Sampai Tanggal</label>
+          <input type="date" id="dev_expired" class="form-control" value="2026-11-15">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-bold">Nama Paket</label>
+          <select id="dev_paket" class="form-select">
+            <option value="Paket Dasar">Paket Dasar</option>
+            <option value="Paket Pro (WA Gateway)">Paket Pro (WA Gateway)</option>
+            <option value="Paket Exclusive (Full Fitur)">Paket Exclusive (Full Fitur)</option>
+            <option value="Full Lisensi (Unlimited)">Full Lisensi (Unlimited)</option>
+          </select>
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Simpan Lisensi',
+    confirmButtonColor: '#198754',
+    cancelButtonText: 'Batal',
+    preConfirm: () => {
+      const pin = document.getElementById('dev_pin').value;
+      const tipe = document.getElementById('dev_tipe').value;
+      const exp = document.getElementById('dev_expired').value;
+      const paket = document.getElementById('dev_paket').value;
+      if (!pin) {
+        Swal.showValidationMessage('PIN Developer wajib diisi!');
+        return false;
+      }
+      return { pin, tipe, exp, paket };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            Swal.fire('Berhasil!', res.message, 'success').then(() => location.reload());
+          } else {
+            Swal.fire('Gagal', res.message, 'error');
+          }
+        })
+        .aktivasiLisensiDeveloper(result.value.pin, result.value.tipe, result.value.exp, result.value.paket);
+    }
+  });
+}
+
+// Jalankan pengecekan lisensi otomatis saat halaman selesai dimuat
+document.addEventListener("DOMContentLoaded", function() {
+  initCekLisensiAplikasi();
+});
     </script>
     </body>
 </html>
