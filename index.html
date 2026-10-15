@@ -27,6 +27,20 @@
   <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"SI-GAS Warga & Sistem Informasi","short_name":"SI-GAS","start_url":".","display":"standalone","background_color":"#f4f7f6","theme_color":"#198754","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3067/3067423.png","sizes":"512x512","type":"image/png"}]}'>
 
   <style>
+	.modal {
+	z-index: 1060 !important;
+	}
+
+	.modal-backdrop {
+	z-index: 1050 !important;
+	}
+
+	/* Mencegah modal terpotong overflow */
+	.modal-dialog {
+	z-index: 1065 !important;
+	margin-top: 50px !important;
+	}
+
 	.swal2-container {
 	z-index: 100000 !important;
 	}
