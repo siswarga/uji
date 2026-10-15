@@ -3260,50 +3260,66 @@
                   </div>
                 </div>
 
-                <!-- Konfigurasi WA Gateway  -->
-                <div class="card shadow-sm border-0">
-                  <div class="card-body p-4">
-                    <form onsubmit="saveApiConfig(event)">
-                      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fab fa-whatsapp text-success me-2"></i>Konfigurasi WhatsApp Gateway (Railway & Fonnte)</h5>
-                      <div class="row g-3 mb-4">
-                        <div class="col-md-12">
-                          <label class="form-label small text-muted">URL WhatsApp Gateway (Railway)</label>
-                          <input type="text" class="form-control bg-light" id="api_wa_url" placeholder="https://wa-gw-production.up.railway.app">
-                        </div>
-                        <div class="col-md-12">
-                          <label class="form-label small text-muted">WhatsApp Group JID (Untuk Broadcast)</label>
-                          <input type="text" class="form-control bg-light" id="set_wa_group_jid" placeholder="120363xxxxxx@g.us">
-                        </div>
-                        <div class="col-md-6">
-                          <label class="form-label small text-muted">Endpoint URL Fonnte (Opsional)</label>
-                          <input type="text" class="form-control bg-light" id="api_wa_url_fonnte">
-                        </div>
-                        <div class="col-md-6">
-                          <label class="form-label small text-muted">API Token Fonnte / Pihak Ketiga</label>
-                          <input type="password" class="form-control bg-light" id="api_wa_token">
-                        </div>
+               <!-- Konfigurasi WA Gateway -->
+<div class="card shadow-sm border-0">
+  <div class="card-body p-4">
+    <form onsubmit="saveApiConfig(event)">
+      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+        <i class="fab fa-whatsapp text-success me-2"></i>Konfigurasi WhatsApp Gateway (Railway & Fonnte)
+      </h5>
+      <div class="row g-3 mb-4">
+        
+        <!-- URL Gateway Railway -->
+        <div class="col-md-12">
+          <label class="form-label small text-muted">URL WhatsApp Gateway (Railway)</label>
+          <input type="text" class="form-control bg-light" id="api_wa_url" placeholder="https://wa-gw-production.up.railway.app">
+        </div>
 
-                        <!-- Kotak Status & Scan QR Railway -->
-                        <div class="col-md-12">
-                          <div class="p-3 bg-white rounded border shadow-sm text-center mt-2">
-                            <div class="d-flex align-items-center justify-content-center mb-2">
-                              <i class="fab fa-whatsapp text-success fs-4 me-2"></i>
-                              <span class="fw-bold text-dark">Status & Perangkat WhatsApp Gateway</span>
-                            </div>
-                            <p class="text-muted small mb-3">Hubungkan nomor WhatsApp pengirim untuk notifikasi otomatis. Klik tombol di bawah untuk scan QR Code.</p>
-                            <a href="https://wa-gw-production.up.railway.app/qr" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm">
-                              <i class="fas fa-qrcode me-2"></i> Buka Halaman Scan QR WhatsApp
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm" id="btn-save-api">
-                        <i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
+        <!-- JID Grup Warga (Broadcast Pengumuman) -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold">WhatsApp Group JID Warga (Broadcast)</label>
+          <input type="text" class="form-control bg-light" id="set_wa_group_jid" placeholder="120363xxxxxx@g.us">
+          <div class="form-text text-muted" style="font-size: 11px;">Untuk siaran pengumuman warga umum.</div>
+        </div>
+
+        <!-- JID Grup Pengurus (Notifikasi Internal) -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold text-success">WhatsApp Group JID Pengurus (Notifikasi)</label>
+          <input type="text" class="form-control bg-light" id="set_wa_group_pengurus_jid" placeholder="120363xxxxxx@g.us">
+          <div class="form-text text-muted" style="font-size: 11px;">Notifikasi pinjam aset, keluhan, & permohonan.</div>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Endpoint URL Fonnte (Opsional)</label>
+          <input type="text" class="form-control bg-light" id="api_wa_url_fonnte">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label small text-muted">API Token Fonnte / Pihak Ketiga</label>
+          <input type="password" class="form-control bg-light" id="api_wa_token">
+        </div>
+
+        <!-- Kotak Status & Scan QR Railway -->
+        <div class="col-md-12">
+          <div class="p-3 bg-white rounded border shadow-sm text-center mt-2">
+            <div class="d-flex align-items-center justify-content-center mb-2">
+              <i class="fab fa-whatsapp text-success fs-4 me-2"></i>
+              <span class="fw-bold text-dark">Status & Perangkat WhatsApp Gateway</span>
+            </div>
+            <p class="text-muted small mb-3">Hubungkan nomor WhatsApp pengirim untuk notifikasi otomatis. Klik tombol di bawah untuk scan QR Code.</p>
+            <a href="https://wa-gw-production.up.railway.app/qr" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm">
+              <i class="fas fa-qrcode me-2"></i> Buka Halaman Scan QR WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm" id="btn-save-api">
+        <i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway
+      </button>
+    </form>
+  </div>
+</div>
 
               <!-- 3. TAB PENGUMUMAN -->
               <div class="tab-pane fade" id="pane-pengumuman" role="tabpanel">
@@ -9101,8 +9117,8 @@ async function apiGet(action, params = {}) {
         }
     
         function loadDataPengaturan() {  
-      showLoading();  
-      google.script.run.withSuccessHandler(res => {
+  showLoading();  
+  google.script.run.withSuccessHandler(res => {
     hideLoading();
     if(res && res.success){
       appSettings = res.data || {};  
@@ -9118,7 +9134,7 @@ async function apiGet(action, params = {}) {
     
       let bungaPersen = document.getElementById('set_kop_bunga_persen');
       if (bungaPersen) bungaPersen.value = appSettings['koperasi_bunga_persen'] || 0;
-    	  
+        
       // --- 2. NOTIFIKASI & WA GATEWAY ---
       let rondaTime = document.getElementById('set_ronda_reminder_time');
       if(rondaTime) rondaTime.value = formatJamInput(appSettings['ronda_reminder_time']) || '19:00';
@@ -9131,16 +9147,20 @@ async function apiGet(action, params = {}) {
     
       let arrearsTime = document.getElementById('set_arrears_reminder_time');
       if(arrearsTime) arrearsTime.value = formatJamInput(appSettings['arrears_reminder_time']) || '08:00';
-    		
-    	  let kopDate = document.getElementById('set_kop_reminder_date');
+        
+      let kopDate = document.getElementById('set_kop_reminder_date');
       if(kopDate) kopDate.value = appSettings['kop_reminder_date'] || '10';
     
       let kopTime = document.getElementById('set_kop_reminder_time');
       if(kopTime) kopTime.value = formatJamInput(appSettings['kop_reminder_time']) || '08:00';
-    	  
-      // Konfigurasi WA Gateway (Pindahan dari Superadmin)
+        
+      // Konfigurasi WA Gateway
       let elWaUrl = document.getElementById('api_wa_url'); if(elWaUrl) elWaUrl.value = appSettings['api_wa_url'] || '';
       let elWaGroup = document.getElementById('set_wa_group_jid'); if(elWaGroup) elWaGroup.value = appSettings['wa_group_jid'] || '';
+      
+      // >>> TAMBAHKAN BARIS INI UNTUK GRUP PENGURUS <<<
+      let elWaGroupPengurus = document.getElementById('set_wa_group_pengurus_jid'); if(elWaGroupPengurus) elWaGroupPengurus.value = appSettings['wa_group_pengurus_jid'] || '';
+      
       let elWaTok = document.getElementById('api_wa_token'); if(elWaTok) elWaTok.value = appSettings['api_wa_token'] || '';
       let elWaFonnte = document.getElementById('api_wa_url_fonnte'); if(elWaFonnte) elWaFonnte.value = appSettings['api_wa_url_fonnte'] || '';
     
@@ -9158,7 +9178,7 @@ async function apiGet(action, params = {}) {
       let c2n = document.getElementById('set_cctv_2_nama'); if(c2n) c2n.value = appSettings['cctv_2_nama'] || '';
       let c2u = document.getElementById('set_cctv_2_url');  if(c2u) c2u.value = appSettings['cctv_2_url'] || '';
     
-      // --- QRIS 1 s.d. 4 (Pindahan dari Superadmin) ---
+      // --- QRIS 1 s.d. 4 ---
       let saklarWa = document.getElementById('set_wa_mode_otomatis');
       if(saklarWa) {
         saklarWa.checked = (appSettings['wa_mode_otomatis'] === 'Aktif');
@@ -9182,51 +9202,58 @@ async function apiGet(action, params = {}) {
     } else {
       Swal.fire('Gagal Memuat', 'Pesan Error: ' + (res.message || ''), 'error');
     }
-      }).getAppSettings();  
-    }
-        
-        function saveSettingUmum(e) { 
-  e.preventDefault(); 
+  }).getAppSettings();  
+}
+
+function saveApiConfig(event) {
+  event.preventDefault();
+
+  // Memastikan mengambil 'sigas_token' yang digunakan aplikasi
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+  const btnSave = document.getElementById('btn-save-api');
   
-  // Fungsi kecil pembantu: pastikan angka tidak menghilang jika diisi 0
-  const getVal = (id) => {
-    let el = document.getElementById(id);
-    if (!el) return "";
-    let val = el.value.trim();
-    // Jika value sama dengan "0", kembalikan "0" (jangan biarkan dianggap kosong)
-    if (val === "0") return "0"; 
-    // Jika value benar-benar kosong, kembalikan string kosong
-    if (val === "") return "";
-    return val;
+  const payload = {
+    api_wa_url: document.getElementById('api_wa_url') ? document.getElementById('api_wa_url').value.trim() : '',
+    wa_group_jid: document.getElementById('set_wa_group_jid') ? document.getElementById('set_wa_group_jid').value.trim() : '',
+    wa_group_pengurus_jid: document.getElementById('set_wa_group_pengurus_jid') ? document.getElementById('set_wa_group_pengurus_jid').value.trim() : '',
+    api_wa_url_fonnte: document.getElementById('api_wa_url_fonnte') ? document.getElementById('api_wa_url_fonnte').value.trim() : '',
+    api_wa_token: document.getElementById('api_wa_token') ? document.getElementById('api_wa_token').value.trim() : ''
   };
 
-  const p = {
-    'iuran_warga': getVal('set_iuran_warga'), 
-    'denda_ronda': getVal('set_denda_ronda'), 
-    'jenis_permohonan': getVal('set_jenis_permohonan'),
-    'cctv_1_nama': getVal('set_cctv_1_nama'),
-    'cctv_1_url': getVal('set_cctv_1_url'),
-    'cctv_2_nama': getVal('set_cctv_2_nama'),
-    'cctv_2_url': getVal('set_cctv_2_url'),
-    'running_text': getVal('set_running_text'),
-    'ronda_reminder_time': getVal('set_ronda_reminder_time'),
-    'ronda_reminder_mode': getVal('set_ronda_reminder_mode'),
-    'arrears_reminder_date': getVal('set_arrears_reminder_date'),
-    'arrears_reminder_time': getVal('set_arrears_reminder_time') 
-  };
-  
-  const btnSave = document.getElementById('btn-save-setting');
-  if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
-  
-  google.script.run.withSuccessHandler(res => {
-    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan'; }
-    if (res.success) {
-      Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
-      Object.assign(appSettings, p); 
-    } else {
-      Swal.fire('Gagal', res.message, 'error');
-    }
-  }).updateAppSettingsBulk(localStorage.getItem('sigas_token'), p); 
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway';
+      }
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Konfigurasi WhatsApp Gateway berhasil disimpan.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        if (typeof appSettings !== 'undefined') {
+          Object.assign(appSettings, payload);
+        }
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway';
+      }
+      Swal.fire('Error Server', 'Koneksi gagal: ' + err, 'error');
+    })
+    .updateAppSettingsBulk(token, payload);
 }
         
        // --- FUNGSI LOAD & SAVE SUPERADMIN ---
