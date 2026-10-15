@@ -15109,7 +15109,6 @@ function initCekLisensiAplikasi() {
 
     const tipe = String(cfg.tipe || 'SEWA').toUpperCase().trim();
     const tglExpiredStr = String(cfg.expired || '2026-12-31').trim();
-    const paket = String(cfg.paket || 'Paket Pro').trim();
 
     let aktif = true;
     let sisaHari = 99999;
@@ -15131,41 +15130,91 @@ function initCekLisensiAplikasi() {
     const info = {
       aktif: aktif,
       tipe: (tipe === 'UNLIMITED' || tipe === 'LIFETIME') ? 'UNLIMITED' : 'SEWA',
-      paket: (tipe === 'UNLIMITED' || tipe === 'LIFETIME') ? 'Full Lisensi (Unlimited)' : paket,
       expired: tglExpiredStr,
       sisaHari: sisaHari,
       namaApp: namaApp,
-      waDeveloper: "6281314141770" // Sesuaikan dengan nomor WA Anda (awalan 62)
+      waDeveloper: "6281314141770"
     };
 
-    // Update tampilan kartu di Tab Tentang Aplikasi
     const elPaket = document.getElementById('label-paket-lisensi');
     const elExp = document.getElementById('label-expired-lisensi');
     const elBadge = document.getElementById('badge-status-lisensi');
 
     if (elPaket && elExp && elBadge) {
-      elPaket.innerText = info.paket;
       if (info.tipe === 'UNLIMITED') {
+        elPaket.innerText = 'Full Lisensi (Unlimited)';
         elExp.innerText = 'Masa Aktif: Selamanya (Beli Lepas)';
-        elBadge.className = 'badge bg-primary px-3 py-2 shadow-sm';
+        elBadge.className = 'badge bg-primary px-3 py-2 fs-6 shadow-sm';
         elBadge.innerHTML = '<i class="fas fa-crown me-1 text-warning"></i> UNLIMITED';
       } else {
+        elPaket.innerText = 'Sistem Sewa Berjangka';
         elExp.innerText = `Berlaku s/d: ${info.expired} (${info.sisaHari >= 0 ? 'Sisa ' + info.sisaHari + ' hari' : 'Sudah Berakhir'})`;
-        elBadge.className = info.aktif ? 'badge bg-success px-3 py-2' : 'badge bg-danger px-3 py-2';
+        elBadge.className = info.aktif ? 'badge bg-success px-3 py-2 fs-6 shadow-sm' : 'badge bg-danger px-3 py-2 fs-6 shadow-sm';
         elBadge.innerHTML = info.aktif ? 'SEWA AKTIF' : 'EXPIRED';
       }
     }
+  }).getLisensiFromServer();
+}
 
-    const oldBanner = document.getElementById('banner-warning-sewa');
-    if (oldBanner) oldBanner.remove();
+function bukaModalDeveloper() {
+  google.script.run.withSuccessHandler(function(res) {
+    const cur = (res && res.success) ? res.data : { tipe: 'SEWA', expired: '2026-12-31' };
 
-    if (info.tipe === 'SEWA' && info.aktif && info.sisaHari <= 7) {
-      tampilkanBannerPeringatanSewa(info);
-    }
+    Swal.fire({
+      title: '🔑 Panel Lisensi Developer',
+      html: `
+        <div class="text-start">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">PIN Rahasia Developer</label>
+            <input type="password" id="dev_pin" class="form-control" placeholder="Masukkan PIN Developer">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Tipe Lisensi</label>
+            <select id="dev_tipe" class="form-select" onchange="document.getElementById('div_dev_exp').style.display = this.value === 'UNLIMITED' ? 'none' : 'block'">
+              <option value="SEWA" ${cur.tipe === 'SEWA' ? 'selected' : ''}>Sistem Sewa (Berjangka)</option>
+              <option value="UNLIMITED" ${cur.tipe === 'UNLIMITED' ? 'selected' : ''}>Beli Lepas (UNLIMITED / Selamanya)</option>
+            </select>
+          </div>
+          <div class="mb-3" id="div_dev_exp" style="display: ${cur.tipe === 'UNLIMITED' ? 'none' : 'block'};">
+            <label class="form-label small fw-bold">Berlaku Sampai Tanggal</label>
+            <input type="date" id="dev_expired" class="form-control" value="${cur.expired}">
+          </div>
+        </div>
+      `,
+      didOpen: () => {
+        const swalContainer = document.querySelector('.swal2-container');
+        if (swalContainer) swalContainer.style.zIndex = '1000000';
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Simpan Lisensi',
+      confirmButtonColor: '#198754',
+      cancelButtonText: 'Batal',
+      preConfirm: () => {
+        const pin = document.getElementById('dev_pin').value;
+        const tipe = document.getElementById('dev_tipe').value;
+        const exp = document.getElementById('dev_expired').value;
 
-    if (info.tipe === 'SEWA' && !info.aktif) {
-      tampilkanLayarKunciExpired(info);
-    }
+        if (!pin) {
+          Swal.showValidationMessage('PIN Developer wajib diisi!');
+          return false;
+        }
+        return { pin, data: { tipe, expired: exp } };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        google.script.run.withSuccessHandler(function(resp) {
+          if (resp && resp.success) {
+            const lockEl = document.getElementById('lock-screen-expired');
+            if (lockEl) lockEl.remove();
+            initCekLisensiAplikasi();
+            Swal.fire('Berhasil!', resp.message, 'success');
+          } else {
+            Swal.fire('Gagal', resp.message || 'PIN Salah atau Terjadi Kesalahan', 'error');
+          }
+        }).verifikasiDanSimpanLisensi(result.value.pin, result.value.data);
+      }
+    });
   }).getLisensiFromServer();
 }
 
@@ -15212,91 +15261,6 @@ function tampilkanLayarKunciExpired(res) {
     </div>
   `;
   document.body.appendChild(overlay);
-}
-
-function bukaModalDeveloper() {
-  google.script.run.withSuccessHandler(function(res) {
-    const cur = (res && res.success) ? res.data : { tipe: 'SEWA', expired: '2026-12-31', paket: 'Paket Pro' };
-
-    Swal.fire({
-      title: '🔑 Panel Lisensi Developer',
-      html: `
-        <div class="text-start">
-          <div class="mb-3">
-            <label class="form-label small fw-bold">PIN Rahasia Developer</label>
-            <input type="password" id="dev_pin" class="form-control" placeholder="Masukkan PIN Developer">
-          </div>
-          <div class="mb-3">
-            <label class="form-label small fw-bold">Tipe Lisensi</label>
-            <select id="dev_tipe" class="form-select" onchange="toggleTipeLisensi(this.value)">
-              <option value="SEWA" ${cur.tipe === 'SEWA' ? 'selected' : ''}>Sistem Sewa (Berjangka)</option>
-              <option value="UNLIMITED" ${cur.tipe === 'UNLIMITED' ? 'selected' : ''}>Beli Lepas (UNLIMITED / Selamanya)</option>
-            </select>
-          </div>
-          <div class="mb-3" id="div_dev_exp" style="display: ${cur.tipe === 'UNLIMITED' ? 'none' : 'block'};">
-            <label class="form-label small fw-bold">Berlaku Sampai Tanggal</label>
-            <input type="date" id="dev_expired" class="form-control" value="${cur.expired}">
-          </div>
-          <div class="mb-2">
-            <label class="form-label small fw-bold">Nama Paket</label>
-            <select id="dev_paket" class="form-select">
-              <option value="Paket Dasar" ${cur.paket === 'Paket Dasar' ? 'selected' : ''}>Paket Dasar</option>
-              <option value="Paket Pro (WA Gateway)" ${cur.paket.includes('Pro') ? 'selected' : ''}>Paket Pro (WA Gateway)</option>
-              <option value="Paket Exclusive (Full Fitur)" ${cur.paket.includes('Exclusive') ? 'selected' : ''}>Paket Exclusive (Full Fitur)</option>
-              <option value="Full Lisensi (Unlimited)" ${cur.tipe === 'UNLIMITED' ? 'selected' : ''}>Full Lisensi (Unlimited)</option>
-            </select>
-          </div>
-        </div>
-      `,
-      didOpen: () => {
-        const swalContainer = document.querySelector('.swal2-container');
-        if (swalContainer) swalContainer.style.zIndex = '1000000';
-      },
-      showCancelButton: true,
-      confirmButtonText: 'Simpan Lisensi',
-      confirmButtonColor: '#198754',
-      cancelButtonText: 'Batal',
-      preConfirm: () => {
-        const pin = document.getElementById('dev_pin').value;
-        const tipe = document.getElementById('dev_tipe').value;
-        const exp = document.getElementById('dev_expired').value;
-        const paket = document.getElementById('dev_paket').value;
-
-        if (!pin) {
-          Swal.showValidationMessage('PIN Developer wajib diisi!');
-          return false;
-        }
-        return { pin, data: { tipe, expired: exp, paket } };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        google.script.run.withSuccessHandler(function(resp) {
-          if (resp && resp.success) {
-            const lockEl = document.getElementById('lock-screen-expired');
-            if (lockEl) lockEl.remove();
-            initCekLisensiAplikasi();
-            Swal.fire('Berhasil!', resp.message, 'success');
-          } else {
-            Swal.fire('Gagal', resp.message || 'PIN Salah atau Terjadi Kesalahan', 'error');
-          }
-        }).verifikasiDanSimpanLisensi(result.value.pin, result.value.data);
-      }
-    });
-  }).getLisensiFromServer();
-}
-
-// Fungsi bantu untuk menyesuaikan pilihan paket saat tipe lisensi diubah di modal
-function toggleTipeLisensi(tipe) {
-  const divExp = document.getElementById('div_dev_exp');
-  const selectPaket = document.getElementById('dev_paket');
-  if (tipe === 'UNLIMITED') {
-    divExp.style.display = 'none';
-    selectPaket.value = 'Full Lisensi (Unlimited)';
-  } else {
-    divExp.style.display = 'block';
-    selectPaket.value = 'Paket Pro (WA Gateway)';
-  }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
