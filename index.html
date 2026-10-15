@@ -15113,18 +15113,30 @@ function initCekLisensiAplikasi() {
     let aktif = true;
     let sisaHari = 99999;
 
-    if (tipe !== 'UNLIMITED' && tipe !== 'LIFETIME') {
+    if (tipe !== 'UNLIMITED' && tipe !== 'LIFETIME' && tglExpiredStr !== 'UNLIMITED') {
+      // Ambil tanggal hari ini (reset jam ke 00:00:00)
       const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      // Parse tanggal expired dari server (YYYY-MM-DD)
       const parts = tglExpiredStr.split('-');
-      let expDate = new Date(tglExpiredStr + 'T23:59:59');
+      let expDate = new Date();
       if (parts.length === 3) {
-        expDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 23, 59, 59);
+        expDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      } else {
+        expDate = new Date(tglExpiredStr);
       }
+      expDate.setHours(0, 0, 0, 0);
+
       if (!isNaN(expDate.getTime())) {
         const selisihMs = expDate.getTime() - now.getTime();
-        sisaHari = Math.ceil(selisihMs / (1000 * 60 * 60 * 24));
+        sisaHari = Math.round(selisihMs / (1000 * 60 * 60 * 24));
+        // Jika tanggal expired sama dengan atau setelah hari ini, maka aktif!
         aktif = sisaHari >= 0;
       }
+    } else {
+      aktif = true;
+      sisaHari = 99999;
     }
 
     const info = {
@@ -15152,7 +15164,7 @@ function initCekLisensiAplikasi() {
         elBadge.className = info.aktif ? 'badge bg-success px-3 py-2 fs-6 shadow-sm' : 'badge bg-danger px-3 py-2 fs-6 shadow-sm';
         elBadge.innerHTML = info.aktif ? 'SEWA AKTIF' : 'EXPIRED';
 
-        // TAMBAHKAN INI: Jika tidak aktif (expired), tampilkan layar kunci secara otomatis
+        // Jika tidak aktif, kunci layar
         if (!info.aktif) {
           tampilkanLayarKunciExpired(info);
         }
