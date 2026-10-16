@@ -15323,6 +15323,36 @@ function bukaHalamanUmkm() {
   // Atau jika ingin membukanya di tab baru:
   window.open("umkm.html", "_blank");
 }
+
+let currentLoginMode = 'pengurus';
+
+function setModeLogin(mode) {
+  currentLoginMode = mode;
+  const btnPengurus = document.getElementById('btn-tab-pengurus');
+  const btnUmkm = document.getElementById('btn-tab-umkm');
+  const title = document.getElementById('login-title');
+  const subtitle = document.getElementById('login-subtitle');
+  const btnSubmit = document.getElementById('btn-submit-login');
+  const linkDaftar = document.getElementById('link-daftar');
+
+  if (mode === 'pengurus') {
+    btnPengurus.className = 'btn btn-sm rounded-pill w-50 fw-bold btn-success text-white shadow-sm';
+    btnUmkm.className = 'btn btn-sm rounded-pill w-50 fw-bold text-muted border-0 bg-transparent';
+    title.innerText = 'LOGIN PENGURUS';
+    subtitle.innerText = 'Masukkan kredensial admin Anda';
+    btnSubmit.innerText = 'Masuk Panel';
+    linkDaftar.innerHTML = '<i class="fas fa-user-plus me-1"></i> Daftar Baru';
+    linkDaftar.setAttribute('onclick', 'openModalRegPengurus()');
+  } else {
+    btnUmkm.className = 'btn btn-sm rounded-pill w-50 fw-bold btn-success text-white shadow-sm';
+    btnPengurus.className = 'btn btn-sm rounded-pill w-50 fw-bold text-muted border-0 bg-transparent';
+    title.innerText = 'LOGIN LAPAK UMKM';
+    subtitle.innerText = 'Kelola produk & pesanan lapak Anda';
+    btnSubmit.innerText = 'Masuk Lapak';
+    linkDaftar.innerHTML = '<i class="fas fa-store me-1"></i> Daftar Lapak UMKM';
+    linkDaftar.setAttribute('onclick', 'openModalRegUMKM()');
+  }
+}
     </script>
     </body>
 </html>
