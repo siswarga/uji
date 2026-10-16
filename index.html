@@ -27,6 +27,11 @@
   <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"SI-GAS Warga & Sistem Informasi","short_name":"SI-GAS","start_url":".","display":"standalone","background_color":"#f4f7f6","theme_color":"#198754","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3067/3067423.png","sizes":"512x512","type":"image/png"}]}'>
 
   <style>
+  
+	div.swal2-container {
+    z-index: 99999999 !important; /* Memaksa pop-up muncul di depan seluruh elemen */
+	}
+  
     .modal {
     z-index: 1060 !important;
     }
@@ -468,7 +473,12 @@
             <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="triggerPanicButtonAction()" title="Tombol Darurat SOS">
               <i class="fas fa-exclamation-triangle me-1"></i> SOS
             </button>
-
+			<button type="button" 
+        class="btn btn-outline-success btn-sm fw-bold shadow-sm position-relative" 
+        onclick="bukaModalKatalogPublik()" 
+        title="Buka Pasar & UMKM Warga">
+  <i class="fas fa-shopping-basket"></i>
+</button>
             <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-md-inline-block">
               <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
             </span>
@@ -1142,6 +1152,8 @@
     </div>
   </div>
 
+
+
   <!-- TOMBOL AI GEMINI KHUSUS SUPERADMIN (TEXT PROMPT) -->
   <button id="btn-ai-prompt" class="btn btn-warning text-dark border-2 border-dark rounded-circle shadow-lg" style="position: fixed; bottom: 30px; right: 30px; width: 45px; height: 45px; display: none; z-index: 9999;" onclick="openGeminiPrompt()" title="AI Gemini Assistant">
     <i class="fas fa-magic fa-2x mt-1"></i>
@@ -1204,9 +1216,9 @@
   </a>
   <span class="text-muted small">|</span>
   <!-- Pendaftaran UMKM (Membuka modal langsung via Bootstrap 5 Data API) -->
-  <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modalRegUMKM" class="small text-success text-decoration-none fw-bold p-1">
-    <i class="fas fa-store me-1"></i> Daftar UMKM
-  </a>
+  <a href="javascript:void(0)" onclick="tampilModalUMKM()" class="small text-success text-decoration-none fw-bold p-1">
+  <i class="fas fa-store me-1"></i> Daftar UMKM
+</a>
 </div>
   </div>
 </div>
@@ -3053,6 +3065,11 @@
                   <i class="fas fa-video me-2"></i>5. CCTV
                 </button>
               </li>
+			  <li class="nav-item" role="presentation">
+				<button class="nav-link fw-bold text-success" id="tab-btn-umkm" data-bs-toggle="tab" data-bs-target="#pane-umkm" type="button" role="tab">
+				<i class="fas fa-store me-2"></i>6. Lapak UMKM
+				</button>
+				</li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-success" id="tab-btn-tentang" data-bs-toggle="tab" data-bs-target="#pane-tentang" type="button" role="tab">
                   <i class="fas fa-info-circle me-2"></i>Tentang Aplikasi
@@ -3418,8 +3435,56 @@
                   </div>
                 </div>
               </div>
+				
+				<!-- 6. TAB KELOLA LAPAK UMKM (TAMPIL LANGSUNG DI HALAMAN) -->
+<div class="tab-pane fade" id="pane-umkm" role="tabpanel">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      
+      <!-- Header Tab & Tombol Muat Ulang -->
+      <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom flex-wrap gap-2">
+        <div>
+          <h5 class="fw-bold text-dark m-0">
+            <i class="fas fa-store text-success me-2"></i>Persetujuan & Verifikasi Lapak UMKM Warga
+          </h5>
+          <p class="text-muted small mb-0">Tinjau dan setujui pengajuan lapak warga sebelum aktif di sistem.</p>
+        </div>
+        <button type="button" class="btn btn-outline-success btn-sm fw-bold rounded-pill px-3 shadow-sm" onclick="muatTabelVerifikasiUMKM()">
+          <i class="fas fa-sync-alt me-1"></i> Muat Ulang Data
+        </button>
+      </div>
 
-              <!-- 6. TAB TENTANG APLIKASI -->
+      <!-- Tabel Langsung -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle table-bordered mb-0">
+          <thead class="table-light text-center small text-nowrap">
+            <tr>
+              <th style="width: 50px;">No</th>
+              <th>Nama Lapak</th>
+              <th>Nama Pemilik</th>
+              <th>Kode Warga</th>
+              <th>No. WhatsApp</th>
+              <th>Tgl Daftar</th>
+              <th>Status</th>
+              <th style="width: 170px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyVerifikasiUMKM" class="small">
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">
+                <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+                Memuat data pengajuan UMKM...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+				
+              <!-- 7. TAB TENTANG APLIKASI -->
               <div class="tab-pane fade" id="pane-tentang" role="tabpanel">
                 <div class="card shadow-sm border-0">
                   <div class="card-body p-5 text-center">
@@ -3887,7 +3952,148 @@
         </div> <!-- End content -->
       </div> <!-- End wrapper -->
     </div> <!-- End app-layout -->
+<!-- ========================================== -->
+<!-- DASHBOARD KHUSUS LAPAK UMKM                -->
+<!-- ========================================== -->
+<div id="panel-umkm-dashboard" style="display: none; min-height: 100vh; background-color: #f4f6f9; padding-bottom: 50px;">
+  
+  <!-- Header Bar Lapak -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm px-3 sticky-top">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center text-white">
+        <i class="fas fa-store-alt fa-2x me-3"></i>
+        <div>
+          <h5 class="mb-0 fw-bold" id="umkm-header-nama-lapak">Nama Lapak</h5>
+          <small class="opacity-75" id="umkm-header-pemilik">Pemilik: -</small>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold" onclick="logoutUMKM()">
+          <i class="fas fa-sign-out-alt me-1"></i> Keluar Lapak
+        </button>
+      </div>
+    </div>
+  </nav>
 
+  <!-- Konten Utama Dashboard Lapak -->
+  <div class="container mt-4">
+    <div class="row g-3 mb-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-success border-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="text-muted small fw-bold">TOTAL PRODUK</span>
+              <h3 class="fw-bold mb-0 text-success" id="count-total-produk">0</h3>
+            </div>
+            <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+              <i class="fas fa-box-open fa-2x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-8 d-flex align-items-center justify-content-end">
+        <button class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm" onclick="bukaModalProdukBaru()">
+          <i class="fas fa-plus-circle me-2"></i> Tambah Produk Jualan
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabel Daftar Produk Jualan -->
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom flex-wrap gap-2">
+          <h5 class="fw-bold text-dark m-0"><i class="fas fa-boxes text-success me-2"></i>Katalog Produk Lapak Anda</h5>
+          <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="muatDataProdukUMKM()">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle table-bordered mb-0">
+            <thead class="table-light text-center small text-nowrap">
+              <tr>
+                <th style="width: 50px;">No</th>
+                <th style="width: 80px;">Foto</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th>Harga</th>
+                <th>Status Stok</th>
+                <th style="width: 140px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyProdukUMKM" class="small">
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">Memuat katalog...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORM TAMBAH / EDIT PRODUK -->
+<div class="modal fade" id="modalFormProduk" tabindex="-1" aria-hidden="true" style="z-index: 1065;">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="formProdukUMKM" class="modal-content border-0 shadow rounded-4" onsubmit="handleSimpanProduk(event)">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold" id="modalFormProdukTitle">
+          <i class="fas fa-tag me-2"></i>Tambah Produk
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="prd_id">
+        
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Nama Produk*</label>
+          <input type="text" class="form-control" id="prd_nama" placeholder="Contoh: Sambal Roa Khas Lingkungan" required>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="form-label small fw-bold">Kategori</label>
+            <select class="form-select" id="prd_kategori">
+              <option value="Makanan & Minuman">Makanan & Minuman</option>
+              <option value="Sembako">Sembako</option>
+              <option value="Pakaian / Fashion">Pakaian / Fashion</option>
+              <option value="Jasa">Jasa</option>
+              <option value="Kerajinan / Lainnya">Kerajinan / Lainnya</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label small fw-bold">Harga (Rp)*</label>
+            <input type="number" class="form-control" id="prd_harga" min="0" placeholder="25000" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Status Stok</label>
+          <select class="form-select" id="prd_stok">
+            <option value="Tersedia">Tersedia (Ready Stock)</option>
+            <option value="Habis">Habis (Stok Kosong)</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Link Foto Produk (URL)</label>
+          <input type="url" class="form-control" id="prd_foto" placeholder="https://... (Opsional)">
+          <div class="form-text small">Dapat menggunakan link Google Drive publik atau gambar online.</div>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label small fw-bold">Deskripsi Singkat</label>
+          <textarea class="form-control" id="prd_deskripsi" rows="2" placeholder="Keterangan rasa, ukuran porsi, varian..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+        <button type="submit" id="btnSubmitProduk" class="btn btn-success fw-bold px-4">Simpan Produk</button>
+      </div>
+    </form>
+  </div>
+</div>
     <!-- ===================================================== -->
     <!-- KUMPULAN MODAL - MODAL -->
     <!-- ===================================================== -->
@@ -5918,46 +6124,159 @@
       </div>
     </div>
 
-<!-- MODAL DAFTAR UMKM (STRUKTUR BOOTSTRAP 5) -->
-<div class="modal fade" id="modalRegUMKM" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <form id="formRegUMKM" class="modal-content" onsubmit="handleRegistrasiUMKM(event)">
+<!-- MODAL DAFTAR UMKM -->
+<div id="modalRegUMKM" style="display:none; position:fixed !important; top:0; left:0; width:100vw; height:100vh; background-color:rgba(0,0,0,0.7) !important; z-index:999999 !important; justify-content:center; align-items:center;">
+  <div style="background:#fff; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; border-radius:16px; padding:24px; box-shadow:0 15px 35px rgba(0,0,0,0.3); position:relative; z-index:1000000;">
+    
+    <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+      <h5 class="fw-bold text-success mb-0">
+        <i class="fas fa-store me-2"></i>Daftar Lapak UMKM Warga
+      </h5>
+      <button type="button" class="btn btn-sm btn-light rounded-circle" onclick="tutupModalUMKM()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form id="formRegUMKM" onsubmit="handleRegistrasiUMKM(event)">
+      <div class="mb-3">
+        <label class="form-label small fw-bold">Kode Unik Warga (ID Warga)*</label>
+        <input type="text" id="regUmkmKodeWarga" class="form-control" placeholder="Cth: WRG001" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold">Nama Toko / Lapak*</label>
+        <input type="text" id="regUmkmNamaLapak" class="form-control" placeholder="Cth: Warungku" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold">Nomor WhatsApp Toko*</label>
+        <input type="tel" id="regUmkmNoWa" class="form-control" placeholder="Cth: 08123456789" required>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <label class="form-label small fw-bold">Username Login*</label>
+          <input type="text" id="regUmkmUsername" class="form-control" placeholder="Username lapak" required>
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-bold">Password Login*</label>
+          <input type="password" id="regUmkmPassword" class="form-control" placeholder="Password lapak" required>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+        <button type="button" class="btn btn-light" onclick="tutupModalUMKM()">Batal</button>
+        <button type="submit" id="btnSubmitRegUmkm" class="btn btn-success fw-bold px-4">Kirim Pengajuan Lapak</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<!-- MODAL KELOLA & PERSETUJUAN LAPAK UMKM -->
+<div class="modal fade" id="modalKelolaUMKM" tabindex="-1" aria-hidden="true" style="z-index: 1055;">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title fw-bold">
-          <i class="fas fa-store me-2"></i>Daftar Lapak UMKM Warga
+          <i class="fas fa-store me-2"></i>Persetujuan & Verifikasi Lapak UMKM Warga
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <div class="row g-3">
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Kode Unik Warga (ID Warga)*</label>
-            <input type="text" class="form-control" id="regUmkmKodeWarga" placeholder="Cth: HFD001" required>
-            <div class="form-text small">Kode yang tercatat di sheet warga kolom R.</div>
+      
+      <div class="modal-body p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted small">Daftar warga yang mengajukan pembukaan lapak dagang lingkungan.</span>
+          <button class="btn btn-sm btn-outline-success rounded-pill fw-bold" onclick="muatTabelVerifikasiUMKM()">
+            <i class="fas fa-sync-alt me-1"></i> Muat Ulang
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle table-bordered mb-0">
+            <thead class="table-light text-center small text-nowrap">
+              <tr>
+                <th style="width: 50px;">No</th>
+                <th>Nama Lapak</th>
+                <th>Nama Pemilik</th>
+                <th>Kode Warga</th>
+                <th>No. WhatsApp</th>
+                <th>Tgl Daftar</th>
+                <th>Status</th>
+                <th style="width: 160px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyVerifikasiUMKM" class="small">
+              <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                  <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+                  Memuat pengajuan UMKM...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalKatalogUMKM" aria-hidden="true" style="z-index: 1060;">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      
+      <!-- Header Modal -->
+      <div class="modal-header bg-success text-white py-3 px-4">
+        <div>
+          <h5 class="modal-title fw-bold mb-0">
+            <i class="fas fa-shopping-basket me-2"></i>Pasar & UMKM Warga
+          </h5>
+          <small class="opacity-75">Dukung usaha tetangga dengan belanja produk lokal lingkungan kita</small>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Isi Etalase -->
+      <div class="modal-body p-4 bg-light">
+        <!-- Pencarian & Filter -->
+        <div class="row g-2 mb-4">
+          <div class="col-md-8">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+              <input type="text" id="filter-cari-produk" class="form-control border-start-0" placeholder="Cari nama makanan, sembako, jasa..." oninput="terapkanFilterKatalog()">
+            </div>
           </div>
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Nama Toko / Lapak*</label>
-            <input type="text" class="form-control" id="regUmkmNamaLapak" placeholder="Cth: Abdumart" required>
+          <div class="col-md-4">
+            <select id="filter-kategori-produk" class="form-select" onchange="terapkanFilterKatalog()">
+              <option value="">Semua Kategori</option>
+              <option value="Makanan & Minuman">Makanan & Minuman</option>
+              <option value="Sembako">Sembako</option>
+              <option value="Pakaian / Fashion">Pakaian / Fashion</option>
+              <option value="Jasa">Jasa</option>
+              <option value="Kerajinan / Lainnya">Kerajinan / Lainnya</option>
+            </select>
           </div>
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Nomor WhatsApp Toko*</label>
-            <input type="tel" class="form-control" id="regUmkmNoWa" placeholder="Cth: 08123456789" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Username Login*</label>
-            <input type="text" class="form-control" id="regUmkmUsername" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Password Login*</label>
-            <input type="password" class="form-control" id="regUmkmPassword" required>
+        </div>
+
+        <!-- Grid Produk -->
+        <div class="row g-3" id="gridKatalogPublik">
+          <div class="col-12 text-center py-5 text-muted">
+            <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+            Menyiapkan etalase pasar warga...
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="submit" id="btnSubmitRegUmkm" class="btn btn-success fw-bold">Kirim Pengajuan Lapak</button>
+
+      <!-- Footer Modal -->
+      <div class="modal-footer bg-white py-2">
+        <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">Tutup</button>
       </div>
-    </form>
+
+    </div>
   </div>
 </div>
 
@@ -5965,104 +6284,121 @@
     <!-- JAVASCRIPT APLIKASI -->
     <!-- ===================================================== -->
 
-    <script>
-      const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
-      
-      console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
-      
-      function createRunProxy(sCb, fCb) {
-        return new Proxy({}, {
-          get(target, fnName) {
-            if (fnName === 'withSuccessHandler') return (cb) => createRunProxy(cb, fCb);
-            if (fnName === 'withFailureHandler') return (fcb) => createRunProxy(sCb, fcb);
+   <!-- Pastikan pustaka SweetAlert2 dimuat terlebih dahulu -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzRdj3udgtZd81rkaOOsaAD6tvfTJ1wZ9oAOu9EK1gE8c0jx2SKkGZtWDXw3R06hfCKYw/exec";
+    
+    console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
+    
+    function createRunProxy(sCb, fCb) {
+      return new Proxy({}, {
+        get(target, fnName) {
+          if (fnName === 'withSuccessHandler') return (cb) => createRunProxy(cb, fCb);
+          if (fnName === 'withFailureHandler') return (fcb) => createRunProxy(sCb, fcb);
+          
+          return function(...args) {
+            console.log("📡 Mengirim data untuk:", fnName);
             
-            return function(...args) {
-              console.log("📡 Mengirim data untuk:", fnName);
-              
-              // 🔴 PERBAIKAN BARU: Ubah elemen Form HTML menjadi Objek JSON agar tidak kosong
-              let processedArgs = args.map(arg => {
-                if (arg instanceof HTMLFormElement) {
-                  let formObj = {};
-                  new FormData(arg).forEach((value, key) => { 
-                    // Mengatasi input dengan banyak nilai (seperti checkbox)
-                    if(!formObj[key]) {
-                      formObj[key] = value;
-                    } else {
-                      if(!Array.isArray(formObj[key])) formObj[key] = [formObj[key]];
-                      formObj[key].push(value);
-                    }
-                  });
-                  return formObj;
-                }
-                return arg;
-              });
-      
-              fetch(BACKEND_URL, {
-                method: 'POST',
-                redirect: 'follow', // Pastikan mengikuti redirect dari Google
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: fnName, args: processedArgs })
-              })
-              .then(res => res.text())
-              .then(text => {
-                let res;
-                try { res = JSON.parse(text); } 
-                catch (e) { res = { success: false, message: "Bukan JSON" }; }
-      
-                if (res && res.success !== false) {
-                  jalankanSuccess(fnName, sCb, res);
+            // Konversi HTMLFormElement ke Object JSON agar data input form tidak kosong
+            let processedArgs = args.map(arg => {
+              if (arg instanceof HTMLFormElement) {
+                let formObj = {};
+                new FormData(arg).forEach((value, key) => { 
+                  if (!formObj[key]) {
+                    formObj[key] = value;
+                  } else {
+                    if (!Array.isArray(formObj[key])) formObj[key] = [formObj[key]];
+                    formObj[key].push(value);
+                  }
+                });
+                return formObj;
+              }
+              return arg;
+            });
+    
+            fetch(BACKEND_URL, {
+              method: 'POST',
+              redirect: 'follow',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ action: fnName, args: processedArgs })
+            })
+            .then(res => res.text())
+            .then(text => {
+              let res;
+              try { 
+                res = JSON.parse(text); 
+              } catch (e) { 
+                res = { success: false, message: "Bukan JSON" }; 
+              }
+    
+              if (res && res.success !== false) {
+                jalankanSuccess(fnName, sCb, res);
+              } else {
+                // HANYA dashboard & settings yang dialihkan ke dummy jika gagal
+                if (fnName === 'getPublicDashboardData' || fnName === 'getAppSettings') {
+                  handleFallback(fnName, sCb, fCb, res ? res.message : "Gagal dari server");
                 } else {
-                  handleFallback(fnName, sCb, fCb, res.message || "Gagal dari server");
+                  // Untuk pendaftaran UMKM & form lainnya, teruskan respon asli server ke handler
+                  jalankanSuccess(fnName, sCb, res);
                 }
-              })
-              .catch(err => {
+              }
+            })
+            .catch(err => {
+              if (fnName === 'getPublicDashboardData' || fnName === 'getAppSettings') {
                 handleFallback(fnName, sCb, fCb, "Koneksi terputus");
-              });
-            };
-          }
-        });
-      }
-      
-      function jalankanSuccess(fnName, sCb, data) {
-        if (sCb) {
-          setTimeout(() => {
-            try { 
-              sCb(data); 
-              console.log("✅ Sukses memproses:", fnName);
-            } catch (err) { 
-              console.error("🔥 INTERNAL ERROR di fungsi [" + fnName + "]:", err); 
-            }
-          }, 0);
-        }
-      }
-      
-      function handleFallback(fnName, sCb, fCb, errMsg) {
-        console.warn("⚠️ Fallback Aktif untuk:", fnName, "| Alasan:", errMsg);
-        
-        let dummyData = { success: true, data: {} };
-      
-        if (fnName === 'getPublicDashboardData') {
-          dummyData = {
-            success: true,
-            data: {
-              warga: { totalWarga: 0, lakiLaki: 0, perempuan: 0, domisiliKtp: 0, nonDomisili: 0, kontrak: 0, kepalaKeluarga: 0, usia: { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 } },
-              kasWarga: { saldoUmum: 0, inUmum: 0, outUmum: 0, saldoJimpitan: 0, inJimpitan: 0, outJimpitan: 0, nunggak: 0, listTunggakan: [] },
-              kasMasjid: { saldo: 0, in: 0, out: 0 },
-              ronda: [], kegiatan: [], pengurus: []
-            }
+              } else {
+                jalankanSuccess(fnName, sCb, { success: false, message: "Koneksi terputus: " + (err.message || err) });
+              }
+            });
           };
-        } else if (fnName === 'getAppSettings') {
-          dummyData = { success: true, data: { appName: "SI-GAS", maintenance: false } };
         }
-      
-        jalankanSuccess(fnName, sCb, dummyData);
+      });
+    }
+    
+    function jalankanSuccess(fnName, sCb, data) {
+      if (sCb) {
+        setTimeout(() => {
+          try { 
+            sCb(data); 
+            console.log("✅ Sukses memproses:", fnName);
+          } catch (err) { 
+            console.error("🔥 INTERNAL ERROR di fungsi [" + fnName + "]:", err); 
+          }
+        }, 0);
       }
+    }
+    
+    function handleFallback(fnName, sCb, fCb, errMsg) {
+      console.warn("⚠️ Fallback Aktif untuk:", fnName, "| Alasan:", errMsg);
       
-      window.google = { script: { run: createRunProxy(null, null) } };
-    </script>
+      let dummyData = { success: true, data: {} };
+    
+      if (fnName === 'getPublicDashboardData') {
+        dummyData = {
+          success: true,
+          data: {
+            warga: { totalWarga: 0, lakiLaki: 0, perempuan: 0, domisiliKtp: 0, nonDomisili: 0, kontrak: 0, kepalaKeluarga: 0, usia: { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 } },
+            kasWarga: { saldoUmum: 0, inUmum: 0, outUmum: 0, saldoJimpitan: 0, inJimpitan: 0, outJimpitan: 0, nunggak: 0, listTunggakan: [] },
+            kasMasjid: { saldo: 0, in: 0, out: 0 },
+            ronda: [], kegiatan: [], pengurus: []
+          }
+        };
+      } else if (fnName === 'getAppSettings') {
+        dummyData = { success: true, data: { appName: "SI-GAS", maintenance: false } };
+      }
+    
+      jalankanSuccess(fnName, sCb, dummyData);
+    }
+    
+    // Inisialisasi Proxy global
+    window.google = { script: { run: createRunProxy(null, null) } };
+  </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+	
+	
     <script>
       // Fungsi pembantu untuk memanggil Google Apps Script dengan auto-retry
       function panggilServerAman(namaFungsi, parameter = [], maxPercobaan = 3, jedaMs = 1500) {
@@ -6942,63 +7278,120 @@
           // Jalankan polling periodik
           setInterval(fetchNotificationCounts, 15000);
           
-          /**
-           * 3. Pembaruan Fungsi Login: SELALU PAKSA BUKA DASHBOARD SAAT LOGIN BARU
-           */
-          function handleLogin(e) { 
-            e.preventDefault(); 
-            const u = document.getElementById('username');
-            const p = document.getElementById('password');
-            const btn = document.querySelector('#form-login button[type="submit"]');
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa...';
-            
-            google.script.run.withSuccessHandler(res => {
-              btn.innerHTML = 'Masuk Panel';
-              btn.disabled = false;
+          let sessionUMKM = null;
+
+function handleLogin(e) { 
+  e.preventDefault(); 
+  const u = document.getElementById('username');
+  const p = document.getElementById('password');
+  const btn = document.querySelector('#form-login button[type="submit"]');
+  
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa...';
+
+  // ============================================================
+  // JALUR 1: LOGIN LAPAK UMKM
+  // ============================================================
+  if (typeof currentLoginMode !== 'undefined' && currentLoginMode === 'umkm') {
+    google.script.run
+      .withSuccessHandler(res => {
+        btn.innerHTML = 'Masuk Lapak';
+        btn.disabled = false;
+
+        if (res && res.success) {
+          sessionUMKM = res.data;
+          sessionStorage.setItem('session_umkm', JSON.stringify(res.data));
+
+          u.value = '';
+          p.value = '';
+
+          Swal.fire({
+            icon: 'success', 
+            title: 'Login Berhasil', 
+            text: `Selamat datang di lapak ${res.data.nama_lapak}`,
+            timer: 1200, 
+            showConfirmButton: false
+          });
+
+          // Sembunyikan halaman login & publik
+          let loginPage = document.getElementById('login-page');
+          if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
           
-              if(res.success) {
-                localStorage.setItem('sigas_token', res.data.token);
-                currentUser = res.data.user;
-          
-                // KUNCI 1: Login baru selalu diarahkan ke dashboard
-                localStorage.setItem('sigas_active_menu', 'menu-dashboard');
-          
-                u.value = '';
-                p.value = '';
-          
-                Swal.fire({icon:'success', title:'Login Berhasil', timer:1000, showConfirmButton:false});
-                
-                // ==========================================
-                // SOLUSI BLANK PUTIH: Paksa Reset Tampilan
-                // ==========================================
-                let loginPage = document.getElementById('login-page');
-                if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
-                
-                let publicPage = document.getElementById('public-page');
-                if (publicPage) publicPage.style.display = 'none';
-                
-                let appLayout = document.getElementById('app-layout');
-                if (appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;';
-                // ==========================================
-      
-                // Lanjutkan memuat data dashboard
-                showApp();
-                
-              } else { 
-                if (res.isBlocked && res.remainingSecs > 0) {
-                  startLoginCountdown(res.remainingSecs);
-                } else {
-                  Swal.fire('Gagal', res.message || 'Username/Password salah', 'error'); 
-                }
-              }
-            }).withFailureHandler(err => { 
-              btn.innerHTML = 'Masuk Panel';
-              btn.disabled = false;
-              Swal.fire('Error Koneksi', String(err), 'error'); 
-            }).login(u.value, p.value); 
-          }
+          let publicPage = document.getElementById('public-page');
+          if (publicPage) publicPage.style.display = 'none';
+
+          // Buka modul lapak UMKM
+          bukaPanelDashboardUMKM();
+
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Gagal Masuk',
+            text: res ? res.message : 'Username atau password lapak salah.',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+      })
+      .withFailureHandler(err => {
+        btn.innerHTML = 'Masuk Lapak';
+        btn.disabled = false;
+        Swal.fire('Error Koneksi', String(err), 'error');
+      })
+      .loginLapakUMKM(u.value, p.value);
+    return;
+  }
+
+  // ============================================================
+  // JALUR 2: LOGIN PENGURUS (Kode Asli Milik Anda Tetap Utuh)
+  // ============================================================
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.innerHTML = 'Masuk Panel';
+      btn.disabled = false;
+
+      if (res.success) {
+        localStorage.setItem('sigas_token', res.data.token);
+        currentUser = res.data.user;
+
+        // KUNCI 1: Login baru selalu diarahkan ke dashboard
+        localStorage.setItem('sigas_active_menu', 'menu-dashboard');
+
+        u.value = '';
+        p.value = '';
+
+        Swal.fire({icon:'success', title:'Login Berhasil', timer:1000, showConfirmButton:false});
+        
+        // ==========================================
+        // SOLUSI BLANK PUTIH: Paksa Reset Tampilan
+        // ==========================================
+        let loginPage = document.getElementById('login-page');
+        if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
+        
+        let publicPage = document.getElementById('public-page');
+        if (publicPage) publicPage.style.display = 'none';
+        
+        let appLayout = document.getElementById('app-layout');
+        if (appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;';
+        // ==========================================
+
+        // Lanjutkan memuat data dashboard
+        showApp();
+        
+      } else { 
+        if (res.isBlocked && res.remainingSecs > 0) {
+          startLoginCountdown(res.remainingSecs);
+        } else {
+          Swal.fire('Gagal', res.message || 'Username/Password salah', 'error'); 
+        }
+      }
+    })
+    .withFailureHandler(err => { 
+      btn.innerHTML = 'Masuk Panel';
+      btn.disabled = false;
+      Swal.fire('Error Koneksi', String(err), 'error'); 
+    })
+    .login(u.value, p.value); 
+}
           
           /**
            * 4. Pembaruan Fungsi Perpindahan Menu: SIMPAN HALAMAN YANG SEDANG DIBUKA
@@ -10142,27 +10535,27 @@
                 }
               }
               
-              function openModalRegPengurus() {
-                // Cek aman jika pengaturan belum termuat
-                if (window.appSettings && appSettings['fitur_pendaftaran_pengurus'] === 'Nonaktif') {
-              return Swal.fire('Ditutup', 'Maaf, pendaftaran mandiri pengurus saat ini sedang dinonaktifkan oleh Superadmin.', 'warning');
-                }
-                
-                // Reset form jika ada
-                let formReg = document.getElementById('formRegPengurus');
-                if (formReg) {
-              formReg.reset();
-                }
-                
-                // Tampilkan modal registrasi pengurus dengan aman
-                let modalEl = document.getElementById('modalRegPengurus');
-                if (modalEl) {
-              let myModal = new bootstrap.Modal(modalEl);
-              myModal.show();
-                } else {
-              console.error("Elemen modalRegPengurus tidak ditemukan di HTML!");
-                }
-              }
+             function openModalRegPengurus() {
+  // Cek aman jika pengaturan belum termuat
+  if (window.appSettings && appSettings['fitur_pendaftaran_pengurus'] === 'Nonaktif') {
+    return Swal.fire('Ditutup', 'Maaf, pendaftaran mandiri pengurus saat ini sedang dinonaktifkan oleh Superadmin.', 'warning');
+  }
+  
+  // Reset form jika ada
+  let formReg = document.getElementById('formRegPengurus');
+  if (formReg) {
+    formReg.reset();
+  }
+  
+  // Tampilkan modal registrasi pengurus dengan aman
+  let modalEl = document.getElementById('modalRegPengurus');
+  if (modalEl) {
+    let myModal = new bootstrap.Modal(modalEl);
+    myModal.show();
+  } else {
+    console.error("Elemen modalRegPengurus tidak ditemukan di HTML!");
+  }
+}
               
               
               
@@ -15421,7 +15814,22 @@ function closeModalRegUMKM() {
   }
 }
 
-// Pengiriman formulir UMKM ke Google Apps Script
+function tampilModalUMKM() {
+  const modal = document.getElementById('modalRegUMKM');
+  if (modal) {
+    modal.style.setProperty('display', 'flex', 'important');
+  }
+}
+// Fungsi menutup paksa modal UMKM
+function tutupModalUMKM() {
+  const modal = document.getElementById('modalRegUMKM');
+  if (modal) {
+    modal.style.setProperty('display', 'none', 'important');
+    modal.removeAttribute('aria-hidden');
+  }
+}
+
+// Handler submit pendaftaran UMKM
 function handleRegistrasiUMKM(e) {
   e.preventDefault();
 
@@ -15435,41 +15843,818 @@ function handleRegistrasiUMKM(e) {
 
   const btnSubmit = document.getElementById('btnSubmitRegUmkm');
   btnSubmit.disabled = true;
-  btnSubmit.innerText = 'Memvalidasi...';
+  btnSubmit.innerText = 'Memproses...';
 
+  // 1. LANGSUNG TUTUP FORM MODAL SEKETIKA DI AWAL
+  tutupModalUMKM();
+
+  // 2. TAMPILKAN INDIKATOR LOADING POPUP
+  Swal.fire({
+    title: 'Memvalidasi Data...',
+    text: 'Mohon tunggu sebentar',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  // 3. KIRIM KE SERVER GOOGLE APPS SCRIPT
   google.script.run
     .withSuccessHandler(function(res) {
       btnSubmit.disabled = false;
       btnSubmit.innerText = 'Kirim Pengajuan Lapak';
 
-      if (res.success) {
+      if (res && res.success) {
+        // FORM BERHASIL: KOSONGKAN FORM & TAMPILKAN STATUS MENUNGGU PERSETUJUAN
+        document.getElementById('formRegUMKM').reset();
+
         Swal.fire({
           icon: 'success',
-          title: 'Berhasil!',
-          text: res.message,
-          confirmButtonColor: '#198754'
+          title: 'Pendaftaran Berhasil Dikirim!',
+          html: `
+            Pengajuan lapak <b>${payload.nama_lapak}</b> telah kami terima.<br><br>
+            <div style="background:#fff3cd; color:#856404; padding:12px; border-radius:8px; font-size:14px; border:1px solid #ffeeba; text-align:left;">
+              ⏳ <b>Status Akun: Menunggu Persetujuan</b><br>
+              Akun Anda sedang ditinjau oleh pengurus lingkungan. Setelah disetujui (ACC), Anda dapat login dan mulai mengelola produk jualan.
+            </div>
+          `,
+          confirmButtonColor: '#198754',
+          confirmButtonText: 'OK, Mengerti'
         });
-        document.getElementById('formRegUMKM').reset();
-        
-        // Tutup modal menggunakan instance Bootstrap 5
-        const modalEl = document.getElementById('modalRegUMKM');
-        const modalObj = bootstrap.Modal.getInstance(modalEl);
-        if (modalObj) modalObj.hide();
+
       } else {
+        // FORM GAGAL: KODE WARGA TIDAK COCOK DENGAN DATABASE
+        const pesanGagal = (res && res.message) ? res.message : 'Kode Unik Warga tidak terdaftar di database kependudukan!';
+
         Swal.fire({
           icon: 'warning',
-          title: 'Gagal Mengajukan',
-          text: res.message,
-          confirmButtonColor: '#ffc107'
+          title: 'Pendaftaran Gagal',
+          text: pesanGagal,
+          confirmButtonColor: '#dc3545',
+          confirmButtonText: 'Perbaiki Data'
+        }).then(() => {
+          // Buka form kembali agar warga dapat mengoreksi kodenya
+          tampilModalUMKM();
         });
       }
     })
     .withFailureHandler(function(err) {
       btnSubmit.disabled = false;
       btnSubmit.innerText = 'Kirim Pengajuan Lapak';
-      Swal.fire('Error Server', err.message, 'error');
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Gangguan Koneksi',
+        text: err.message || 'Gagal menghubungi server.',
+        confirmButtonColor: '#dc3545'
+      });
     })
     .daftarLapakUMKM(payload);
+}
+
+
+  // 1. Membuka modal verifikasi UMKM
+  function bukaModalVerifikasiUMKM() {
+    const modalEl = document.getElementById('modalKelolaUMKM');
+    if (!modalEl) {
+      alert("Elemen #modalKelolaUMKM belum terpasang di file HTML!");
+      return;
+    }
+    const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalObj.show();
+    muatTabelVerifikasiUMKM();
+  }
+
+  // 2. Mengambil data dari sheet AkunUMKM dan merender tabel
+ function muatTabelVerifikasiUMKM() {
+  const tbody = document.getElementById('tbodyVerifikasiUMKM');
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="8" class="text-center py-4 text-muted">
+        <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+        Mengambil data pengajuan UMKM...
+      </td>
+    </tr>
+  `;
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      console.log("🔍 Respon getDaftarPengajuanUMKM:", res);
+
+      // 1. Jika Backend Mengembalikan Status Gagal
+      if (!res || res.success === false) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-4 text-danger">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              ${res && res.message ? res.message : 'Gagal memuat data dari server.'}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // 2. Jika Data Memang Kosong
+      if (!res.data || !Array.isArray(res.data) || res.data.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-4 text-muted">Belum ada data pengajuan lapak UMKM.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      // 3. Render Baris Tabel
+      let html = '';
+      res.data.forEach((item, index) => {
+        let badgeStatus = '';
+        if (item.status === 'Aktif') {
+          badgeStatus = '<span class="badge bg-success">Aktif</span>';
+        } else if (item.status === 'Ditolak') {
+          badgeStatus = '<span class="badge bg-danger">Ditolak</span>';
+        } else {
+          badgeStatus = '<span class="badge bg-warning text-dark">Pending</span>';
+        }
+
+        const waLink = item.no_wa ? `https://wa.me/${item.no_wa}` : '#';
+
+        html += `
+          <tr>
+            <td class="text-center">${index + 1}</td>
+            <td class="fw-bold text-success">${item.nama_lapak}</td>
+            <td>${item.nama_pemilik} <br><small class="text-muted">(@${item.username})</small></td>
+            <td class="text-center"><span class="badge bg-light text-dark border">${item.kode_warga}</span></td>
+            <td>
+              <a href="${waLink}" target="_blank" class="text-decoration-none text-success fw-bold">
+                <i class="fab fa-whatsapp me-1"></i>${item.no_wa}
+              </a>
+            </td>
+            <td class="text-center text-muted">${item.tanggal_daftar}</td>
+            <td class="text-center">${badgeStatus}</td>
+            <td class="text-center">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-success" title="Setujui Lapak" onclick="prosesAksiLapak('${item.username}', 'Aktif')">
+                  <i class="fas fa-check me-1"></i> Setujui
+                </button>
+                <button class="btn btn-outline-danger" title="Tolak Pengajuan" onclick="prosesAksiLapak('${item.username}', 'Ditolak')">
+                  <i class="fas fa-times me-1"></i> Tolak
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    })
+    .withFailureHandler(function(err) {
+      console.error("Gagal getDaftarPengajuanUMKM:", err);
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center py-4 text-danger">Gagal memuat data: ${err.message || err}</td>
+        </tr>
+      `;
+    })
+    .getDaftarPengajuanUMKM();
+}
+
+  // 3. Menangani persetujuan atau penolakan status lapak
+  function prosesAksiLapak(username, statusTarget) {
+    const aksiTeks = statusTarget === 'Aktif' ? 'menyetujui (ACC)' : 'menolak';
+
+    Swal.fire({
+      title: 'Konfirmasi Lapak',
+      text: `Apakah Anda yakin ingin ${aksiTeks} lapak untuk akun "${username}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: statusTarget === 'Aktif' ? '#198754' : '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: `Ya, ${statusTarget}`,
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Menyimpan Perubahan...',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res && res.success) {
+              Swal.fire('Berhasil', res.message, 'success');
+              muatTabelVerifikasiUMKM();
+            } else {
+              Swal.fire('Gagal', res ? res.message : 'Gagal memperbarui status', 'error');
+            }
+          })
+          .withFailureHandler(function(err) {
+            Swal.fire('Error Server', err.message || 'Gagal menghubungi server', 'error');
+          })
+          .updateStatusLapakUMKM(username, statusTarget);
+      }
+    });
+  }
+
+// Memuat data tabel secara otomatis saat Tab 6 dibuka
+document.addEventListener('DOMContentLoaded', function() {
+  const tabUMKM = document.getElementById('tab-btn-umkm');
+  if (tabUMKM) {
+    tabUMKM.addEventListener('shown.bs.tab', function() {
+      muatTabelVerifikasiUMKM();
+    });
+  }
+});
+
+function bukaPanelDashboardUMKM() {
+  // Sementara waktu: notifikasi konfirmasi sesi aktif
+  console.log("Sesi Lapak Aktif:", sessionUMKM);
+  
+  // Nanti di Tahap 3 kita akan buatkan tampilan etalase & manajemen produknya
+  Swal.fire({
+    icon: 'info',
+    title: `Lapak: ${sessionUMKM.nama_lapak}`,
+    html: `
+      <b>Pemilik:</b> ${sessionUMKM.nama_pemilik} (${sessionUMKM.kode_warga})<br>
+      <b>WhatsApp:</b> ${sessionUMKM.no_wa}<br><br>
+      <i>Siap melanjutkan ke Tahap 3: Panel Pengelolaan Produk & Dagangan.</i>
+    `,
+    confirmButtonColor: '#198754',
+    confirmButtonText: 'Lanjutkan'
+  });
+}
+
+// Membuka Halaman Utama Lapak UMKM setelah Login Berhasil
+function bukaPanelDashboardUMKM() {
+  if (!sessionUMKM) {
+    const savedSession = sessionStorage.getItem('session_umkm');
+    if (savedSession) sessionUMKM = JSON.parse(savedSession);
+  }
+
+  if (!sessionUMKM) {
+    location.reload();
+    return;
+  }
+
+  // Tampilkan data toko di header
+  document.getElementById('umkm-header-nama-lapak').innerText = sessionUMKM.nama_lapak;
+  document.getElementById('umkm-header-pemilik').innerText = `Pemilik: ${sessionUMKM.nama_pemilik} (${sessionUMKM.kode_warga}) | WA: ${sessionUMKM.no_wa}`;
+
+  // Tampilkan container dashboard lapak
+  document.getElementById('panel-umkm-dashboard').style.display = 'block';
+
+  // Muat data produk
+  muatDataProdukUMKM();
+}
+
+// Mengambil list produk dari sheet DataProduk
+function muatDataProdukUMKM() {
+  const tbody = document.getElementById('tbodyProdukUMKM');
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="7" class="text-center py-4 text-muted">
+        <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+        Memuat daftar dagangan Anda...
+      </td>
+    </tr>
+  `;
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (!res || !res.success || !res.data || res.data.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted">Belum ada produk jualan. Klik tombol <b>Tambah Produk Jualan</b> di atas.</td>
+          </tr>
+        `;
+        document.getElementById('count-total-produk').innerText = '0';
+        return;
+      }
+
+      document.getElementById('count-total-produk').innerText = res.data.length;
+
+      let html = '';
+      res.data.forEach((p, idx) => {
+        const badgeStok = p.status_stok === 'Tersedia' 
+          ? '<span class="badge bg-success">Tersedia</span>' 
+          : '<span class="badge bg-secondary">Habis</span>';
+        
+        const imgThumb = p.foto 
+          ? `<img src="${p.foto}" class="rounded" style="width:50px; height:50px; object-fit:cover;" onerror="this.src='https://placehold.co/50x50?text=No+Img'">`
+          : `<div class="bg-light rounded d-flex align-items-center justify-content-center text-muted" style="width:50px; height:50px;"><i class="fas fa-image"></i></div>`;
+
+        // Format Rupiah
+        const hargaRp = 'Rp ' + Number(p.harga).toLocaleString('id-ID');
+
+        // Escape data untuk edit
+        const itemJson = JSON.stringify(p).replace(/"/g, '&quot;');
+
+        html += `
+          <tr>
+            <td class="text-center">${idx + 1}</td>
+            <td class="text-center">${imgThumb}</td>
+            <td class="fw-bold text-dark">${p.nama_produk}<br><small class="text-muted fw-normal">${p.deskripsi}</small></td>
+            <td><span class="badge bg-light text-dark border">${p.kategori}</span></td>
+            <td class="fw-bold text-success text-nowrap">${hargaRp}</td>
+            <td class="text-center">${badgeStok}</td>
+            <td class="text-center">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" title="Edit Produk" onclick="bukaModalEditProduk(${itemJson})">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" title="Hapus Produk" onclick="konfirmasiHapusProduk('${p.id_produk}', '${p.nama_produk}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    })
+    .withFailureHandler(function(err) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">Gagal memuat produk: ${err.message || err}</td></tr>`;
+    })
+    .getProdukUMKM(sessionUMKM.username);
+}
+
+// Buka Modal Tambah Produk
+function bukaModalProdukBaru() {
+  document.getElementById('formProdukUMKM').reset();
+  document.getElementById('prd_id').value = '';
+  document.getElementById('modalFormProdukTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Tambah Produk Baru';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalFormProduk')).show();
+}
+
+// Buka Modal Edit Produk
+function bukaModalEditProduk(data) {
+  document.getElementById('prd_id').value = data.id_produk;
+  document.getElementById('prd_nama').value = data.nama_produk;
+  document.getElementById('prd_kategori').value = data.kategori;
+  document.getElementById('prd_harga').value = data.harga;
+  document.getElementById('prd_stok').value = data.status_stok;
+  document.getElementById('prd_foto').value = data.foto;
+  document.getElementById('prd_deskripsi').value = data.deskripsi;
+
+  document.getElementById('modalFormProdukTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Produk';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalFormProduk')).show();
+}
+
+// Simpan Data Produk (Baru / Edit)
+function handleSimpanProduk(e) {
+  e.preventDefault();
+
+  const payload = {
+    id_produk: document.getElementById('prd_id').value,
+    username: sessionUMKM.username,
+    nama_produk: document.getElementById('prd_nama').value.trim(),
+    kategori: document.getElementById('prd_kategori').value,
+    harga: document.getElementById('prd_harga').value,
+    status_stok: document.getElementById('prd_stok').value,
+    foto: document.getElementById('prd_foto').value.trim(),
+    deskripsi: document.getElementById('prd_deskripsi').value.trim()
+  };
+
+  const btn = document.getElementById('btnSubmitProduk');
+  btn.disabled = true;
+  btn.innerText = 'Menyimpan...';
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      btn.disabled = false;
+      btn.innerText = 'Simpan Produk';
+
+      if (res && res.success) {
+        bootstrap.Modal.getInstance(document.getElementById('modalFormProduk')).hide();
+        Swal.fire({ icon: 'success', title: 'Berhasil!', text: res.message, timer: 1200, showConfirmButton: false });
+        muatDataProdukUMKM();
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan produk', 'error');
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false;
+      btn.innerText = 'Simpan Produk';
+      Swal.fire('Error', err.message || err, 'error');
+    })
+    .simpanProdukUMKM(payload);
+}
+
+// Hapus Produk
+function konfirmasiHapusProduk(idProduk, namaProduk) {
+  Swal.fire({
+    title: 'Hapus Produk?',
+    text: `Apakah Anda yakin ingin menghapus "${namaProduk}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    confirmButtonText: 'Ya, Hapus',
+    cancelButtonText: 'Batal'
+  }).then(result => {
+    if (result.isConfirmed) {
+      Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res && res.success) {
+            Swal.fire('Terhapus', res.message, 'success');
+            muatDataProdukUMKM();
+          } else {
+            Swal.fire('Gagal', res ? res.message : 'Gagal menghapus', 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          Swal.fire('Error', err.message || err, 'error');
+        })
+        .hapusProdukUMKM(idProduk, sessionUMKM.username);
+    }
+  });
+}
+
+// Logout Akun UMKM
+function logoutUMKM() {
+  sessionStorage.removeItem('session_umkm');
+  sessionUMKM = null;
+  location.reload();
+}
+
+let cacheKatalogUMKM = [];
+
+// Memuat data katalog dari server
+function muatKatalogPublik() {
+  const grid = document.getElementById('gridKatalogPublik');
+  if (!grid) return;
+
+  grid.innerHTML = `
+    <div class="col-12 text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+      Menyiapkan etalase UMKM warga...
+    </div>
+  `;
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (res && res.success && Array.isArray(res.data)) {
+        cacheKatalogUMKM = res.data;
+        renderKatalogKeGrid(cacheKatalogUMKM);
+      } else {
+        grid.innerHTML = `<div class="col-12 text-center py-5 text-danger">Gagal memuat produk: ${res ? res.message : 'Respon kosong'}</div>`;
+      }
+    })
+    .withFailureHandler(function(err) {
+      grid.innerHTML = `<div class="col-12 text-center py-5 text-danger">Gangguan koneksi: ${err.message || err}</div>`;
+    })
+    .getKatalogPublikUMKM();
+}
+
+// Render kartu-kartu produk ke layar
+function renderKatalogKeGrid(listProduk) {
+  const grid = document.getElementById('gridKatalogPublik');
+  if (!grid) return;
+
+  if (listProduk.length === 0) {
+    grid.innerHTML = `
+      <div class="col-12 text-center py-5 text-muted">
+        <i class="fas fa-box-open fa-3x mb-3 text-secondary"></i>
+        <h6>Belum ada produk yang tersedia saat ini.</h6>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  listProduk.forEach(item => {
+    const hargaFormatted = 'Rp ' + Number(item.harga).toLocaleString('id-ID');
+    const fotoSrc = item.foto ? item.foto : 'https://placehold.co/400x300?text=Produk+Warga';
+    const isHabis = item.status_stok === 'Habis';
+
+    // Format pesan order WhatsApp otomatis
+    const teksWA = encodeURIComponent(
+      `Halo ${item.toko.nama_lapak}, saya melihat produk "${item.nama_produk}" seharga ${hargaFormatted} di Pasar Warga. Apakah masih bisa dipesan?`
+    );
+    const linkWA = `https://wa.me/${item.toko.no_wa}?text=${teksWA}`;
+
+    html += `
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+          ${isHabis ? '<span class="badge bg-secondary position-absolute top-0 end-0 m-3 px-2 py-1 shadow-sm">Habis</span>' : ''}
+          
+          <img src="${fotoSrc}" class="card-img-top" style="height: 180px; object-fit: cover;" onerror="this.src='https://placehold.co/400x300?text=Produk+Warga'">
+          
+          <div class="card-body p-3 d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge bg-success bg-opacity-10 text-success small border border-success border-opacity-25">${item.kategori}</span>
+                <small class="text-muted"><i class="fas fa-store me-1"></i>${item.toko.nama_lapak}</small>
+              </div>
+              <h6 class="fw-bold text-dark mb-1 text-truncate" title="${item.nama_produk}">${item.nama_produk}</h6>
+              <p class="text-muted small mb-2" style="font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                ${item.deskripsi || 'Tidak ada keterangan khusus.'}
+              </p>
+            </div>
+
+            <div class="pt-2 border-top mt-2">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted small">Harga:</span>
+                <span class="fw-bold text-success fs-6">${hargaFormatted}</span>
+              </div>
+              
+              <button type="button" 
+        onclick="pesanProdukOtomatis('${item.id_produk}')" 
+        class="btn btn-sm ${isHabis ? 'btn-secondary' : 'btn-success'} w-100 fw-bold rounded-pill shadow-sm" 
+        ${isHabis ? 'disabled' : ''}>
+  <i class="fab fa-whatsapp me-1"></i> ${isHabis ? 'Stok Habis' : 'Pesan via WA'}
+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html;
+}
+
+// Fitur Filter dan Pencarian Cepat
+function terapkanFilterKatalog() {
+  const query = (document.getElementById('filter-cari-produk').value || '').toLowerCase();
+  const kategori = document.getElementById('filter-kategori-produk').value;
+
+  const hasilFilter = cacheKatalogUMKM.filter(item => {
+    const cocokNama = item.nama_produk.toLowerCase().includes(query) || (item.deskripsi || '').toLowerCase().includes(query) || item.toko.nama_lapak.toLowerCase().includes(query);
+    const cocokKategori = !kategori || item.kategori === kategori;
+    return cocokNama && cocokKategori;
+  });
+
+  renderKatalogKeGrid(hasilFilter);
+}
+
+// Panggil muatKatalogPublik saat halaman awal portal dimuat
+document.addEventListener('DOMContentLoaded', function() {
+  muatKatalogPublik();
+});
+
+// Membuka modal katalog tanpa mengunci fokus
+function bukaModalKatalogPublik() {
+  const modalEl = document.getElementById('modalKatalogUMKM');
+  const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl, { focus: false });
+  modalObj.show();
+  muatKatalogPublik();
+}
+
+// Variabel tab pemesan aktif (warga / nonwarga)
+window.tipePemesanAktif = 'warga';
+
+// Fungsi ganti tab pemesan
+window.gantiTipePemesan = function(tipe) {
+  window.tipePemesanAktif = tipe;
+  const btnW = document.getElementById('btn-tab-warga');
+  const btnN = document.getElementById('btn-tab-nonwarga');
+  const secW = document.getElementById('sec-form-warga');
+  const secN = document.getElementById('sec-form-nonwarga');
+
+  if (tipe === 'warga') {
+    btnW.className = 'btn btn-sm btn-success rounded-pill fw-bold shadow-sm';
+    btnN.className = 'btn btn-sm btn-light text-muted rounded-pill fw-bold';
+    secW.style.display = 'block';
+    secN.style.display = 'none';
+    const inpKode = document.getElementById('order_kode_warga');
+    if (inpKode) inpKode.focus();
+  } else {
+    btnN.className = 'btn btn-sm btn-success rounded-pill fw-bold shadow-sm';
+    btnW.className = 'btn btn-sm btn-light text-muted rounded-pill fw-bold';
+    secW.style.display = 'none';
+    secN.style.display = 'block';
+    const inpNama = document.getElementById('order_nama_nonwarga');
+    if (inpNama) inpNama.focus();
+  }
+};
+
+// Fungsi utama pemesanan produk
+function pesanProdukOtomatis(idProduk) {
+  const item = cacheKatalogUMKM.find(p => String(p.id_produk) === String(idProduk));
+  if (!item) {
+    Swal.fire('Error', 'Data produk tidak ditemukan.', 'error');
+    return;
+  }
+
+  // Sembunyikan modal katalog sementara agar fokus input leluasa
+  const modalKatalogEl = document.getElementById('modalKatalogUMKM');
+  const modalKatalogInst = bootstrap.Modal.getInstance(modalKatalogEl);
+  if (modalKatalogInst) modalKatalogInst.hide();
+
+  window.tipePemesanAktif = 'warga';
+
+  Swal.fire({
+    title: `<span class="fs-5 fw-bold text-success"><i class="fas fa-shopping-cart me-2"></i>Pesan ${item.nama_produk}</span>`,
+    html: `
+      <!-- Rincian Produk -->
+      <div class="text-start small mb-3 p-2 bg-light rounded border">
+        <div><b>Lapak:</b> ${item.toko.nama_lapak}</div>
+        <div><b>Harga Satuan:</b> Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
+      </div>
+
+      <!-- Tab Pemilih: Warga vs Non-Warga -->
+      <div class="btn-group w-100 mb-3 p-1 bg-light rounded-pill border" role="group">
+        <button type="button" class="btn btn-sm btn-success rounded-pill fw-bold shadow-sm" id="btn-tab-warga" onclick="window.gantiTipePemesan('warga')">
+          <i class="fas fa-home me-1"></i> Warga Lingkungan
+        </button>
+        <button type="button" class="btn btn-sm btn-light text-muted rounded-pill fw-bold" id="btn-tab-nonwarga" onclick="window.gantiTipePemesan('nonwarga')">
+          <i class="fas fa-user me-1"></i> Non-Warga / Umum
+        </button>
+      </div>
+
+      <!-- 1. FORM KHUSUS WARGA (HANYA KODE UNIK) -->
+      <div id="sec-form-warga" class="text-start">
+        <label class="form-label small fw-bold mb-1">Kode Unik Warga (ID Warga)*</label>
+        <input type="text" id="order_kode_warga" class="form-control form-control-sm mb-1 text-uppercase" placeholder="Cth: WRG001" autocomplete="off">
+        <small class="text-muted d-block mb-3" style="font-size: 11px;">
+          <i class="fas fa-check-circle text-success me-1"></i>Nama, alamat rumah, & kontak Anda akan terisi otomatis dari database warga.
+        </small>
+      </div>
+
+      <!-- 2. FORM KHUSUS NON-WARGA (MANUAL LENGKAP) -->
+      <div id="sec-form-nonwarga" class="text-start" style="display: none;">
+        <label class="form-label small fw-bold mb-1">Nama Pemesan*</label>
+        <input type="text" id="order_nama_nonwarga" class="form-control form-control-sm mb-2" placeholder="Nama lengkap / panggilan">
+
+        <label class="form-label small fw-bold mb-1">Alamat / No. Rumah Pemesan*</label>
+        <input type="text" id="order_alamat_nonwarga" class="form-control form-control-sm mb-2" placeholder="Cth: Blok A2 No. 15">
+
+        <label class="form-label small fw-bold mb-1">No. WhatsApp Pemesan</label>
+        <input type="tel" id="order_wa_nonwarga" class="form-control form-control-sm mb-3" placeholder="08xxxxxxxxxx">
+      </div>
+
+      <!-- INPUT JUMLAH & CATATAN -->
+      <div class="text-start border-top pt-2">
+        <div class="row g-2 mb-2">
+          <div class="col-12">
+            <label class="form-label small fw-bold mb-1">Jumlah Pesanan</label>
+            <input type="number" id="order_qty" class="form-control form-control-sm" value="1" min="1">
+          </div>
+        </div>
+
+        <label class="form-label small fw-bold mb-1">Catatan Tambahan (Opsional)</label>
+        <textarea id="order_catatan" class="form-control form-control-sm" rows="2" placeholder="Cth: Antar sore, rasa pedas, dll."></textarea>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: '<i class="fab fa-whatsapp me-1"></i> Kirim Pesanan',
+    confirmButtonColor: '#198754',
+    cancelButtonText: 'Batal',
+    cancelButtonColor: '#6c757d',
+    focusConfirm: false,
+    didOpen: () => {
+      const inp = document.getElementById('order_kode_warga');
+      if (inp) inp.focus();
+    },
+    preConfirm: () => {
+      const qty = parseInt(document.getElementById('order_qty').value) || 1;
+      const catatan = document.getElementById('order_catatan').value.trim();
+
+      if (window.tipePemesanAktif === 'warga') {
+        const kode = document.getElementById('order_kode_warga').value.trim();
+        if (!kode) {
+          Swal.showValidationMessage('Masukkan Kode Unik Warga Anda!');
+          return false;
+        }
+        return { tipe: 'warga', kode_warga: kode, qty, catatan };
+      } else {
+        const nama = document.getElementById('order_nama_nonwarga').value.trim();
+        const alamat = document.getElementById('order_alamat_nonwarga').value.trim();
+        const wa = document.getElementById('order_wa_nonwarga').value.trim();
+
+        if (!nama || !alamat) {
+          Swal.showValidationMessage('Nama dan Alamat rumah wajib diisi!');
+          return false;
+        }
+        return { tipe: 'nonwarga', nama, alamat, waPembeli: wa, qty, catatan };
+      }
+    }
+  }).then((result) => {
+    if (!result.isConfirmed) {
+      bukaModalKatalogPublik();
+      return;
+    }
+
+    const val = result.value;
+
+    // A. JIKA PEMESAN ADALAH WARGA LINGKUNGAN -> AMBIL DATA DARI DATABASE
+    if (val.tipe === 'warga') {
+      Swal.fire({
+        title: 'Memeriksa Data Warga...',
+        text: 'Mengambil biodata Anda dari sistem lingkungan',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      google.script.run
+        .withSuccessHandler(function(resWarga) {
+          if (!resWarga || !resWarga.success) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Kode Tidak Dikenal',
+              text: resWarga ? resWarga.message : 'Kode warga tidak ditemukan di sistem.',
+              confirmButtonText: 'Coba Lagi',
+              confirmButtonColor: '#dc3545'
+            }).then(() => {
+              pesanProdukOtomatis(idProduk);
+            });
+            return;
+          }
+
+          // Data warga berhasil ditarik otomatis!
+			eksekusiKirimPesanan(item, {
+			nama: `${resWarga.data.nama} (Warga)`, // Kode unik disembunyikan
+			alamat: resWarga.data.alamat,
+			waPembeli: resWarga.data.no_wa,
+			qty: val.qty,
+			catatan: val.catatan
+			});
+        })
+        .withFailureHandler(function(err) {
+          Swal.fire('Error Server', String(err), 'error');
+        })
+        .getDetailWargaByKode(val.kode_warga);
+    } 
+    // B. JIKA NON-WARGA -> GUNAKAN DATA MANUAL YANG DIKETIK
+    else {
+      eksekusiKirimPesanan(item, {
+		nama: `${val.nama}`,
+		alamat: val.alamat,
+		waPembeli: val.waPembeli,
+		qty: val.qty,
+		catatan: val.catatan
+});
+    }
+  });
+}
+
+// Fungsi eksekusi pengiriman WA ke nomor toko
+function eksekusiKirimPesanan(item, dataOrder) {
+  let noWaToko = item.toko && item.toko.no_wa ? item.toko.no_wa : '';
+  let num = String(noWaToko).replace(/\D/g, ''); 
+  if (num.startsWith('0')) num = '62' + num.substring(1);
+  else if (num.startsWith('8')) num = '62' + num;             
+  else if (!num.startsWith('62')) num = '62' + num;
+
+  const totalHarga = 'Rp ' + (Number(item.harga) * dataOrder.qty).toLocaleString('id-ID');
+
+  // Rangkai format pesan WhatsApp resmi ke penjual
+  let waText = `*PESANAN BARU - PASAR UMKM WARGA*\n\n` +
+               `Halo *${item.toko.nama_lapak}*,\n` +
+               `Ada pesanan masuk dari etalase produk Anda:\n\n` +
+               `📦 *Produk:* ${item.nama_produk}\n` +
+               `💰 *Harga Satuan:* Rp ${Number(item.harga).toLocaleString('id-ID')}\n` +
+               `🔢 *Jumlah:* ${dataOrder.qty}\n` +
+               `💵 *Total Estimasi:* ${totalHarga}\n\n` +
+               `👤 *Data Pemesan:*\n` +
+               `- *Nama:* ${dataOrder.nama}\n` +
+               `- *Alamat/Rumah:* ${dataOrder.alamat}\n` +
+               `- *No. WA Pemesan:* ${dataOrder.waPembeli || '-'}\n` +
+               `- *Catatan:* ${dataOrder.catatan || '-'}\n\n` +
+               `_Pesan dikirim melalui Portal SIS WARGA._`;
+
+  // Cek saklar mode otomatis
+  let rawMode = typeof appSettings !== 'undefined' ? appSettings['wa_mode_otomatis'] : false;
+  let valString = String(rawMode).toLowerCase().trim(); 
+  let isGatewayAktif = (valString === 'true' || valString === 'ya' || valString === 'on' || valString === '1' || valString === 'aktif');
+
+  if (isGatewayAktif) {
+    Swal.fire({
+      title: 'Mengirim Pesanan...',
+      text: `Meneruskan rincian pesanan ke WhatsApp ${item.toko.nama_lapak}...`,
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    google.script.run
+      .withSuccessHandler((res) => {
+        if (res && res.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Pesanan Terkirim!',
+            html: `Pesanan telah diteruskan ke WhatsApp <b>${item.toko.nama_lapak}</b>.<br><br><small class="text-muted">Penjual akan segera memproses atau menghubungi Anda.</small>`,
+            confirmButtonColor: '#198754'
+          }).then(() => {
+            bukaModalKatalogPublik();
+          });
+        } else {
+          Swal.fire('Gagal Kirim', (res ? res.message : 'Terjadi gangguan gateway server'), 'error');
+        }
+      })
+      .withFailureHandler((err) => {
+        Swal.fire('Error Gateway', String(err), 'error');
+      })
+      .sendWhatsAppMessage(num, waText, null);
+  } else {
+    let waUrl = "https://api.whatsapp.com/send?phone=" + num + "&text=" + encodeURIComponent(waText);
+    window.open(waUrl, '_blank');
+    bukaModalKatalogPublik();
+  }
 }
     </script>
     </body>
