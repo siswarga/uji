@@ -15319,29 +15319,9 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function bukaHalamanUmkm() {
-  // Tampilkan indikator loading jika perlu
-  Swal.fire({
-    title: 'Memuat Pasar Warga...',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading()
-  });
-
-  // Memanggil file umkm.html dari server Google Apps Script
-  google.script.run.withSuccessHandler(function(htmlContent) {
-    Swal.close();
-    // Masukkan isi umkm.html ke dalam kontainer utama dashboard Anda
-    const container = document.getElementById('main-content'); // Sesuaikan dengan id kontainer halaman Anda
-    if (container) {
-      container.innerHTML = htmlContent;
-    } else {
-      // Jika ingin dibuka sebagai jendela/modal atau halaman penuh
-      document.open();
-      document.write(htmlContent);
-      document.close();
-    }
-  }).withFailureHandler(function(err) {
-    Swal.fire('Gagal', 'Terjadi kesalahan saat memuat halaman UMKM: ' + err.message, 'error');
-  }).includeHTMLFile ? google.script.run.includeHTMLFile('umkm.html') : /* Fallback jika menggunakan template khusus */ null;
+    
+  // Atau jika ingin membukanya di tab baru:
+  window.open("umkm.html", "_blank");
 }
     </script>
     </body>
