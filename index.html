@@ -13420,57 +13420,89 @@ function openModalQurban() {
               return '#' + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
               }
               
-              // Terapkan warna tema ke seluruh elemen hijau (Bootstrap success classes) secara dinamis
-              function applyAppThemeColor(colorVal) {
-              if (!colorVal) return;
-              
-              let hex = colorVal.trim();
-              
-              // Mapping kata kunci warna lama jika masih ada di database
-              const colorMap = {
-                  'hijau': '#198754',
-                  'biru': '#0d6efd',
-                  'merah': '#dc3545',
-                  'kuning': '#ffc107',
-                  'ungu': '#6f42c1',
-                  'gelap': '#212529'
-              };
-              
-              if (colorMap[hex.toLowerCase()]) {
-                  hex = colorMap[hex.toLowerCase()];
-              }
-              
-              if (!hex.startsWith('#')) {
-                  hex = '#198754';
-              }
-              
-              let hoverHex = adjustColorBrightness(hex, -15);
-              let rgb = hexToRgb(hex);
-              
-              // Set CSS root variables
-              document.documentElement.style.setProperty('--primary-color', hex);
-              document.documentElement.style.setProperty('--primary-hover', hoverHex);
-              
-              // Buat atau perbarui tag <style> untuk menimpa SEMUA kelas hijau Bootstrap
-              let styleId = 'dynamic-success-override';
-              let styleEl = document.getElementById(styleId);
-              if (!styleEl) {
-                  styleEl = document.createElement('style');
-                  styleEl.id = styleId;
-                  document.head.appendChild(styleEl);
-              }
-              
-              styleEl.innerHTML = `
-                  .bg-success { background-color: ${hex} !important; }
-                  .text-success { color: ${hex} !important; }
-                  .border-success { border-color: ${hex} !important; }
-                  .btn-success { background-color: ${hex} !important; border-color: ${hex} !important; color: #fff !important; }
-                  .btn-success:hover { background-color: ${hoverHex} !important; border-color: ${hoverHex} !important; }
-                  .btn-outline-success { color: ${hex} !important; border-color: ${hex} !important; }
-                  .btn-outline-success:hover { background-color: ${hex} !important; color: #fff !important; border-color: ${hex} !important; }
-                  .alert-success { background-color: rgba(${rgb}, 0.1) !important; color: ${hex} !important; border-color: rgba(${rgb}, 0.2) !important; }
-              `;
-              }
+// =========================================================
+// MODUL TEMA WARNA APLIKASI (MANDIRI & BEBAS ERROR)
+// =========================================================
+
+// 1. Helper konversi HEX ke RGB (Ditaruh global agar tidak ReferenceError)
+window.hexToRgb = function(hex) {
+  if (!hex) return '25, 135, 84';
+  let cleanHex = String(hex).replace('#', '').trim();
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split('').map(c => c + c).join('');
+  }
+  let num = parseInt(cleanHex, 16);
+  if (isNaN(num)) return '25, 135, 84';
+  let r = (num >> 16) & 255;
+  let g = (num >> 8) & 255;
+  let b = num & 255;
+  return `${r}, ${g}, ${b}`;
+};
+
+// 2. Helper penyesuaian kecerahan warna saat tombol disentuh (hover)
+window.adjustColorBrightness = function(hex, percent) {
+  if (!hex) return '#157347';
+  let cleanHex = String(hex).replace('#', '').trim();
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split('').map(c => c + c).join('');
+  }
+  let num = parseInt(cleanHex, 16);
+  if (isNaN(num)) return '#157347';
+  let amt = Math.round(2.55 * percent);
+  let R = Math.min(255, Math.max(0, (num >> 16) + amt));
+  let G = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amt));
+  let B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+  return '#' + (0x1000000 + (R << 16) + (G << 8) + B).toString(16).slice(1);
+};
+
+// 3. Fungsi utama penerapan warna ke elemen Bootstrap
+window.applyAppThemeColor = function(colorVal) {
+  if (!colorVal) return;
+  let hex = String(colorVal).trim();
+
+  const colorMap = {
+    'hijau': '#198754',
+    'biru': '#0d6efd',
+    'merah': '#dc3545',
+    'kuning': '#ffc107',
+    'ungu': '#6f42c1',
+    'gelap': '#212529'
+  };
+
+  if (colorMap[hex.toLowerCase()]) {
+    hex = colorMap[hex.toLowerCase()];
+  }
+
+  if (!hex.startsWith('#')) {
+    hex = '#198754';
+  }
+
+  // Gunakan fungsi dengan awalan window. agar 100% aman
+  let hoverHex = window.adjustColorBrightness(hex, -15);
+  let rgb = window.hexToRgb(hex);
+
+  document.documentElement.style.setProperty('--primary-color', hex);
+  document.documentElement.style.setProperty('--primary-hover', hoverHex);
+
+  let styleId = 'dynamic-success-override';
+  let styleEl = document.getElementById(styleId);
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    document.head.appendChild(styleEl);
+  }
+
+  styleEl.innerHTML = `
+    .bg-success { background-color: ${hex} !important; }
+    .text-success { color: ${hex} !important; }
+    .border-success { border-color: ${hex} !important; }
+    .btn-success { background-color: ${hex} !important; border-color: ${hex} !important; color: #fff !important; }
+    .btn-success:hover { background-color: ${hoverHex} !important; border-color: ${hoverHex} !important; }
+    .btn-outline-success { color: ${hex} !important; border-color: ${hex} !important; }
+    .btn-outline-success:hover { background-color: ${hex} !important; color: #fff !important; border-color: ${hex} !important; }
+    .alert-success { background-color: rgba(${rgb}, 0.1) !important; color: ${hex} !important; border-color: rgba(${rgb}, 0.2) !important; }
+  `;
+};              
               
               // =====================================================
               // GLOBAL GUARD: PENCEGAH KLIK GANDA (DOUBLE SUBMIT) UNTUK SEMUA FORM
