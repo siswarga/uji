@@ -8681,7 +8681,7 @@ function handleLogin(e) {
                   html += `
                           </tbody>
                       </table>
-                      <<div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
+                      <div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
       				Dicetak dari Aplikasi ${appSettings['nama_aplikasi'] || 'SIS WARGA'} pada ${new Date().toLocaleString('id-ID')}
       				</div>`;
               
@@ -13376,7 +13376,7 @@ function handleLogin(e) {
                   html += `
                           </tbody>
                       </table>
-                      <<div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
+                      <div style="text-align: right; font-size: 11px; color: #aaa; margin-top: 20px;">
       				Dicetak dari Aplikasi ${appSettings['nama_aplikasi'] || 'SIS WARGA'} pada ${new Date().toLocaleString('id-ID')}
       				</div>`;
               
@@ -13394,36 +13394,7 @@ function handleLogin(e) {
               });
               }
               
-              // Helper untuk menggelapkan warna sedikit untuk efek hover tombol
-              function adjustColorBrightness(hex, percent) {
-              let cleanHex = hex.replace('#','');
-              if (cleanHex.length === 3) {
-                  cleanHex = cleanHex.split('').map(c => c + c).join('');
-              }
-              let num = parseInt(cleanHex, 16);
-              if (isNaN(num)) return '#157347';
-              let amt = Math.round(2.55 * percent);
-              let R = (num >> 16) + amt;
-              let G = (num >> 8 & 0x00FF) + amt;
-              let B = (num & 0x0000FF) + amt;
-              return '#' + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
-              }
-              
-                  
-              // Helper untuk mengubah HEX ke RGB (untuk warna transparan alert)
-              function hexToRgb(hex) {
-              let cleanHex = hex.replace('#','');
-              if (cleanHex.length === 3) {
-                  cleanHex = cleanHex.split('').map(c => c + c).join('');
-              }
-              let num = parseInt(cleanHex, 16);
-              let r = (num >> 16) & 255;
-              let g = (num >> 8) & 255;
-              let b = num & 255;
-              return `${r}, ${g}, ${b}`;
-              }
-              
-              // Helper untuk menggelapkan warna sedikit untuk efek hover tombol
+           // Helper untuk menggelapkan warna sedikit untuk efek hover tombol
               function adjustColorBrightness(hex, percent) {
               let cleanHex = hex.replace('#','');
               if (cleanHex.length === 3) {
@@ -14190,59 +14161,116 @@ function handleLogin(e) {
         }).getAppSettings();
       }
           
-          function saveIdentitasAplikasi(e) {
-            e.preventDefault();  
-            const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
-            
-            let base64El = document.getElementById('set_logo_base64');
-            let existingEl = document.getElementById('set_logo');
-            let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
-            
-            let namaBaru = getVal('set_nama_aplikasi');
-            
-            const p = {
-                'nama_aplikasi': namaBaru,  
-                'nama_komplek': getVal('set_nama_komplek'),  
-                'domisili': getVal('set_domisili'),  
-                'logo': finalLogo,  
-                'moto': getVal('set_moto'),  
-                'alamat': getVal('set_alamat'),
-                'fitur_pendaftaran_mandiri': getVal('set_pendaftaran_mandiri'),
-                'fitur_pendaftaran_pengurus': getVal('set_pendaftaran_pengurus'),
-                'fitur_lapor_mudik': getVal('set_lapor_mudik'),
-                'warna_aplikasi': getVal('set_warna_aplikasi'),
-          	  'wa_mode_otomatis': document.getElementById('set_wa_mode_otomatis').checked ? 'Aktif' : 'Nonaktif'
-            };
-            
-            const btnSave = document.getElementById('btn-save-identitas');
-            if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
-            
-            google.script.run
-                .withSuccessHandler(res => {
-                    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save"></i> Simpan Identitas & Akses'; }
-                    if (res && res.success) {
-                        Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
-                        
-                        applyAppThemeColor(p['warna_aplikasi']);
-                        appSettings['nama_aplikasi'] = namaBaru; 
-                        
-                        updateFooterAplikasi(); // INI WAJIB ADA
-                        
-                        let pubAppName = document.getElementById('pub-app-name');
-                        if (pubAppName) pubAppName.innerText = namaBaru;
-                        
-                        if (typeof loadAppSettingsAndInit === 'function') loadAppSettingsAndInit();
-                        if (typeof loadDataSuperadmin === 'function') loadDataSuperadmin();
-                    } else {
-                        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
-                    }
-                })
-                .withFailureHandler(err => {
-                    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-save"></i> Simpan Identitas & Akses'; }
-                    Swal.fire('Error Koneksi', String(err), 'error');
-                })
-                .updateAppSettingsBulk(localStorage.getItem('sigas_token'), p);
-          }
+// Perbaikan Simpan Folder Drive (Tombol Ungu)
+window.simpanNamaFolderDriveAction = function() {
+  const inputEl = document.getElementById('inputNamaFolderDrive');
+  if (!inputEl) return;
+
+  const namaBaru = inputEl.value.trim();
+  if (!namaBaru) {
+    return Swal.fire('Peringatan', 'Nama folder tidak boleh kosong!', 'warning');
+  }
+
+  // AMBIL TOKEN DARI KUNCI YANG BENAR: 'sigas_token'
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
+  if (!token) {
+    return Swal.fire('Sesi Habis', 'Silakan logout dan login ulang sebagai Superadmin.', 'warning');
+  }
+
+  if (typeof showLoading === 'function') showLoading();
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Disimpan!',
+          text: 'Nama folder dokumentasi: ' + namaBaru,
+          timer: 1500,
+          showConfirmButton: false
+        });
+        if (typeof appSettings !== 'undefined') {
+          appSettings['folder_dokumentasi'] = namaBaru;
+        }
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      Swal.fire('Error', 'Kesalahan server: ' + err, 'error');
+    })
+    .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
+};
+
+// Perbaikan Simpan Identitas & Hak Akses (Tombol Merah)
+function saveIdentitasAplikasi(e) {
+  e.preventDefault();  
+  const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
+  if (!token) {
+    return Swal.fire('Sesi Habis', 'Silakan login ulang sebagai Superadmin.', 'warning');
+  }
+
+  let base64El = document.getElementById('set_logo_base64');
+  let existingEl = document.getElementById('set_logo');
+  let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
+  let namaBaru = getVal('set_nama_aplikasi');
+
+  // Cek saklar WA otomatis secara aman (tidak crash jika elemen tidak ada di tab aktif)
+  let elSaklarWa = document.getElementById('set_wa_mode_otomatis');
+  let statusWaOtomatis = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : (appSettings['wa_mode_otomatis'] || 'Nonaktif');
+
+  const p = {
+    'nama_aplikasi': namaBaru,  
+    'nama_komplek': getVal('set_nama_komplek'),  
+    'domisili': getVal('set_domisili'),  
+    'logo': finalLogo,  
+    'moto': getVal('set_moto'),  
+    'alamat': getVal('set_alamat'),
+    'fitur_pendaftaran_mandiri': getVal('set_pendaftaran_mandiri'),
+    'fitur_pendaftaran_pengurus': getVal('set_pendaftaran_pengurus'),
+    'fitur_lapor_mudik': getVal('set_lapor_mudik'),
+    'warna_aplikasi': getVal('set_warna_aplikasi'),
+    'wa_mode_otomatis': statusWaOtomatis
+  };
+
+  const btnSave = document.getElementById('btn-save-identitas');
+  if (btnSave) { 
+    btnSave.disabled = true; 
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...'; 
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (btnSave) { 
+        btnSave.disabled = false; 
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses'; 
+      }
+      if (res && res.success) {
+        Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
+        applyAppThemeColor(p['warna_aplikasi']);
+        appSettings['nama_aplikasi'] = namaBaru; 
+        updateFooterAplikasi();
+        let pubAppName = document.getElementById('pub-app-name');
+        if (pubAppName) pubAppName.innerText = namaBaru;
+        if (typeof loadAppSettingsAndInit === 'function') loadAppSettingsAndInit();
+        if (typeof loadDataSuperadmin === 'function') loadDataSuperadmin();
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (btnSave) { 
+        btnSave.disabled = false; 
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses'; 
+      }
+      Swal.fire('Error Koneksi', String(err), 'error');
+    })
+    .updateAppSettingsBulk(token, p);
+}          
           
           function updateFooterAplikasi() {
             let namaApp = (appSettings && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'SI-GAS';
@@ -14742,40 +14770,7 @@ function handleLogin(e) {
           })
           .updateAppSettingsBulk(localStorage.getItem('sigas_token'), settingsObj);
           }
-          
-          function saveApiConfig(e) {
-            e.preventDefault();
-            const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
-            
-            const p = {
-          'api_wa_url': getVal('api_wa_url'),
-          'wa_group_jid': getVal('set_wa_group_jid'),
-          'api_wa_token': getVal('api_wa_token'),
-          'api_wa_url_fonnte': getVal('api_wa_url_fonnte')
-            };
-          
-            const btnSave = document.getElementById('btn-save-api');
-            if(btnSave){ 
-          btnSave.disabled = true; 
-          btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...'; 
-            }
-          
-            google.script.run
-          .withSuccessHandler(res => {
-            if(btnSave){ 
-              btnSave.disabled = false; 
-              btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Konfigurasi WA Gateway'; 
-            }
-            if(res.success) {
-              Swal.fire('Berhasil', 'Konfigurasi WhatsApp Gateway telah diperbarui', 'success');
-              Object.assign(appSettings, p); 
-            } else {
-              Swal.fire('Gagal', res.message, 'error');
-            }
-          })
-          .updateAppSettingsBulk(localStorage.getItem('sigas_token'), p);
-          }
-          
+                  
           function hitungSimulasiPinjaman() {
             let nominal = parseFloat(document.getElementById('kop_pnj_nominal').value) || 0;
             let tenor = parseInt(document.getElementById('kop_pnj_tenor').value) || 1;
@@ -15365,47 +15360,6 @@ function handleLogin(e) {
           })
           .simpanSettingFolderDokumentasi(token, namaBaru);
       }
-      
-      window.simpanNamaFolderDriveAction = function() {
-        const inputEl = document.getElementById('inputNamaFolderDrive');
-        if (!inputEl) return;
-      
-        const namaBaru = inputEl.value.trim();
-        if (!namaBaru) {
-          Swal.fire('Peringatan', 'Nama folder tidak boleh kosong!', 'warning');
-          return;
-        }
-      
-        if (typeof showLoading === 'function') showLoading();
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
-      
-        // Memakai fungsi bawaan Anda yang sudah ada di backend
-        google.script.run
-          .withSuccessHandler(res => {
-            if (typeof hideLoading === 'function') hideLoading();
-            if (res && res.success) {
-              Swal.fire({
-                icon: 'success',
-                title: 'Berhasil Disimpan!',
-                text: 'Nama folder dokumentasi: ' + namaBaru,
-                timer: 1500,
-                showConfirmButton: false
-              });
-      
-              // Sinkronkan ke variabel lokal
-              if (typeof appSettings !== 'undefined') {
-                appSettings['folder_dokumentasi'] = namaBaru;
-              }
-            } else {
-              Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan.', 'error');
-            }
-          })
-          .withFailureHandler(err => {
-            if (typeof hideLoading === 'function') hideLoading();
-            Swal.fire('Error', 'Kesalahan server: ' + err, 'error');
-          })
-          .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
-      };
       
       // Fungsi Zoom / Preview Foto Langsung di Dalam Aplikasi
       window.previewFoto = function(url, uploader, tanggal) {
