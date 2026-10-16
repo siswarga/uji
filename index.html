@@ -14179,10 +14179,12 @@ window.applyAppThemeColor = function(colorVal) {
       
         google.script.run.withSuccessHandler(res => {
           clearTimeout(backupTimer); 
-          if(res && res.success) {
-            appSettings = res.data;
-            
-            updateFooterAplikasi(); 
+          if (res && res.success) {
+			appSettings = res.data || {};
+			localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
+
+			updateFooterAplikasi();
+			applyPengaturanFiturWarga();
             
             if (appSettings['warna_aplikasi']) applyAppThemeColor(appSettings['warna_aplikasi']);
             
@@ -14319,6 +14321,9 @@ function saveIdentitasAplikasi(e) {
       }
       if (res && res.success) {
         Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false });
+		Object.assign(appSettings, p);
+		localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
+		applyPengaturanFiturWarga();
         if (typeof applyAppThemeColor === 'function') applyAppThemeColor(p['warna_aplikasi']);
         if (typeof updateFooterAplikasi === 'function') updateFooterAplikasi();
         let pubAppName = document.getElementById('pub-app-name');
@@ -16685,6 +16690,36 @@ function eksekusiKirimPesanan(item, dataOrder) {
     bukaModalKatalogPublik();
   }
 }
+
+// 1. Fungsi Mandiri Pengatur Visibilitas Menu Warga
+function applyPengaturanFiturWarga() {
+  const settings = (typeof appSettings !== 'undefined' && appSettings) ? appSettings : {};
+
+  // Cek Status Pendaftaran Warga (Kebal Huruf Besar/Kecil & Spasi)
+  const stWarga = String(settings['fitur_pendaftaran_mandiri'] || 'Aktif').trim().toLowerCase();
+  const menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
+  if (menuDaftarWarga) {
+    menuDaftarWarga.style.display = (stWarga === 'nonaktif') ? 'none' : 'block';
+  }
+
+  // Cek Status Lapor Mudik
+  const stMudik = String(settings['fitur_lapor_mudik'] || 'Nonaktif').trim().toLowerCase();
+  const menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
+  if (menuLaporMudik) {
+    menuLaporMudik.style.display = (stMudik === 'aktif') ? 'block' : 'none';
+  }
+}
+
+// 2. Terapkan Cache Instan Saat Halaman Pertama Kali Dibuka (Cegah Kedip/Muncul Kembali)
+(function() {
+  try {
+    const cachedSettings = JSON.parse(localStorage.getItem('sigas_app_settings') || '{}');
+    if (cachedSettings && Object.keys(cachedSettings).length > 0) {
+      window.appSettings = cachedSettings;
+      document.addEventListener('DOMContentLoaded', applyPengaturanFiturWarga);
+    }
+  } catch(e) {}
+})();
     </script>
     </body>
 </html>
