@@ -463,11 +463,7 @@
                 </li>
               </ul>
             </div>
-			<!-- Tombol Akses Pasar Warga -->
-			<button onclick="bukaHalamanUmkm()" class="btn btn-success shadow-sm d-flex align-items-center gap-2">
-				<i class="fas fa-store"></i>
-				<span>Pasar Warga</span>
-			</button>
+
             <!-- Tombol Panic Button SOS -->
             <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="triggerPanicButtonAction()" title="Tombol Darurat SOS">
               <i class="fas fa-exclamation-triangle me-1"></i> SOS
@@ -1151,7 +1147,7 @@
     <i class="fas fa-magic fa-2x mt-1"></i>
   </button>
 
- <!-- HALAMAN LOGIN ADMIN / UMKM -->
+  <!-- HALAMAN LOGIN ADMIN / UMKM -->
 <div id="login-page" style="display:none;">
   <div class="login-card">
     <div class="text-end mb-2">
@@ -1165,7 +1161,7 @@
         <i class="fas fa-shield-alt fa-2x"></i>
       </div>
 
-      <!-- Segmented Slide Toggle (Pengurus / UMKM) -->
+      <!-- Segmented Slide Toggle Mode Login -->
       <div class="d-flex justify-content-center my-2">
         <div class="bg-light p-1 rounded-pill border d-inline-flex" style="width: 230px;">
           <button type="button" id="btn-tab-pengurus" class="btn btn-sm rounded-pill w-50 fw-bold btn-success text-white shadow-sm" onclick="setModeLogin('pengurus')">
@@ -1181,13 +1177,13 @@
       <p class="text-muted small" id="login-subtitle">Masukkan kredensial admin Anda</p>
     </div>
 
+    <!-- Form Login Utama -->
     <form id="form-login" onsubmit="handleLogin(event)">
       <div class="mb-3">
         <label class="form-label small fw-bold">Username</label>
         <input type="text" class="form-control" id="username" required>
       </div>
 
-      <!-- BAGIAN PASSWORD DENGAN TOMBOL SHOW/HIDE -->
       <div class="mb-4">
         <label class="form-label small fw-bold">Password</label>
         <div class="input-group shadow-sm">
@@ -1201,11 +1197,17 @@
       <button type="submit" id="btn-submit-login" class="btn btn-primary w-100 py-2 fw-bold">Masuk Panel</button>
     </form>
 
-    <div class="text-center mt-3">
-      <a href="javascript:void(0)" id="link-daftar" onclick="openModalRegPengurus()" class="small text-success text-decoration-none fw-bold" style="cursor: pointer; display: inline-block; padding: 5px;">
-        <i class="fas fa-user-plus me-1"></i> Daftar Baru
-      </a>
-    </div>
+    <div class="d-flex justify-content-center align-items-center gap-2 mt-3 pt-2 border-top">
+  <!-- Pendaftaran Pengurus Asli (Tetap memanggil fungsi bawaan Anda) -->
+  <a href="javascript:void(0)" onclick="openModalRegPengurus()" class="small text-success text-decoration-none fw-bold p-1">
+    <i class="fas fa-user-plus me-1"></i> Daftar Pengurus
+  </a>
+  <span class="text-muted small">|</span>
+  <!-- Pendaftaran UMKM (Membuka modal langsung via Bootstrap 5 Data API) -->
+  <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modalRegUMKM" class="small text-success text-decoration-none fw-bold p-1">
+    <i class="fas fa-store me-1"></i> Daftar UMKM
+  </a>
+</div>
   </div>
 </div>
 
@@ -5915,54 +5917,47 @@
         </div>
       </div>
     </div>
-	
-	<!-- MODAL PENDAFTARAN LAPAK UMKM -->
+
+<!-- MODAL DAFTAR UMKM (STRUKTUR BOOTSTRAP 5) -->
 <div class="modal fade" id="modalRegUMKM" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg rounded-4 p-3">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold text-success">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form id="formRegUMKM" class="modal-content" onsubmit="handleRegistrasiUMKM(event)">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">
           <i class="fas fa-store me-2"></i>Daftar Lapak UMKM Warga
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted small mb-3">Masukkan data lapak dan Kode Unik Warga Anda yang terdaftar di aplikasi.</p>
-
-        <form id="formRegUMKM" onsubmit="handleRegistrasiUMKM(event)">
-          <div class="mb-3">
-            <label class="form-label small fw-bold">Kode Unik Warga (ID Warga)</label>
-            <input type="text" id="regUmkmKodeWarga" class="form-control rounded-3" placeholder="Contoh: HFD001" required>
-            <div class="form-text small">Kode yang tercatat pada saat registrasi kependudukan.</div>
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Kode Unik Warga (ID Warga)*</label>
+            <input type="text" class="form-control" id="regUmkmKodeWarga" placeholder="Cth: HFD001" required>
+            <div class="form-text small">Kode yang tercatat di sheet warga kolom R.</div>
           </div>
-
-          <div class="mb-3">
-            <label class="form-label small fw-bold">Nama Lapak / Toko</label>
-            <input type="text" id="regUmkmNamaLapak" class="form-control rounded-3" placeholder="Contoh: Abdumart / Dapur Berkah" required>
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Nama Toko / Lapak*</label>
+            <input type="text" class="form-control" id="regUmkmNamaLapak" placeholder="Cth: Abdumart" required>
           </div>
-
-          <div class="mb-3">
-            <label class="form-label small fw-bold">Nomor WhatsApp Usaha</label>
-            <input type="tel" id="regUmkmNoWa" class="form-control rounded-3" placeholder="Contoh: 08123456789" required>
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Nomor WhatsApp Toko*</label>
+            <input type="tel" class="form-control" id="regUmkmNoWa" placeholder="Cth: 08123456789" required>
           </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label small fw-bold">Username Akun</label>
-              <input type="text" id="regUmkmUsername" class="form-control rounded-3" placeholder="Username lapak" required>
-            </div>
-            <div class="col-6">
-              <label class="form-label small fw-bold">Password</label>
-              <input type="password" id="regUmkmPassword" class="form-control rounded-3" placeholder="Password lapak" required>
-            </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Username Login*</label>
+            <input type="text" class="form-control" id="regUmkmUsername" required>
           </div>
-
-          <button type="submit" id="btnSubmitRegUmkm" class="btn btn-success w-100 py-2 rounded-3 fw-bold mt-2">
-            Kirim Pengajuan Lapak
-          </button>
-        </form>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Password Login*</label>
+            <input type="password" class="form-control" id="regUmkmPassword" required>
+          </div>
+        </div>
       </div>
-    </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="submit" id="btnSubmitRegUmkm" class="btn btn-success fw-bold">Kirim Pengajuan Lapak</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -15384,14 +15379,9 @@ document.addEventListener("DOMContentLoaded", function() {
   setTimeout(initCekLisensiAplikasi, 500);
 });
 
-function bukaHalamanUmkm() {
-    
-  // Atau jika ingin membukanya di tab baru:
-  window.open("umkm.html", "_blank");
-}
-
 let currentLoginMode = 'pengurus';
 
+// Toggle tampilan slide Login
 function setModeLogin(mode) {
   currentLoginMode = mode;
   const btnPengurus = document.getElementById('btn-tab-pengurus');
@@ -15399,7 +15389,6 @@ function setModeLogin(mode) {
   const title = document.getElementById('login-title');
   const subtitle = document.getElementById('login-subtitle');
   const btnSubmit = document.getElementById('btn-submit-login');
-  const linkDaftar = document.getElementById('link-daftar');
 
   if (mode === 'pengurus') {
     btnPengurus.className = 'btn btn-sm rounded-pill w-50 fw-bold btn-success text-white shadow-sm';
@@ -15407,27 +15396,32 @@ function setModeLogin(mode) {
     title.innerText = 'LOGIN PENGURUS';
     subtitle.innerText = 'Masukkan kredensial admin Anda';
     btnSubmit.innerText = 'Masuk Panel';
-    linkDaftar.innerHTML = '<i class="fas fa-user-plus me-1"></i> Daftar Baru';
-    linkDaftar.setAttribute('onclick', 'openModalRegPengurus()');
   } else {
     btnUmkm.className = 'btn btn-sm rounded-pill w-50 fw-bold btn-success text-white shadow-sm';
     btnPengurus.className = 'btn btn-sm rounded-pill w-50 fw-bold text-muted border-0 bg-transparent';
     title.innerText = 'LOGIN LAPAK UMKM';
     subtitle.innerText = 'Kelola produk & pesanan lapak Anda';
     btnSubmit.innerText = 'Masuk Lapak';
-    linkDaftar.innerHTML = '<i class="fas fa-store me-1"></i> Daftar Lapak UMKM';
-    linkDaftar.setAttribute('onclick', 'openModalRegUMKM()');
   }
 }
 
-// Membuka modal pendaftaran UMKM
 function openModalRegUMKM() {
-  const modalEl = document.getElementById('modalRegUMKM');
-  const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl);
-  modalObj.show();
+  const modal = document.getElementById('modalRegUMKM');
+  if (modal) {
+    modal.style.display = 'flex';
+  } else {
+    alert("Elemen #modalRegUMKM tidak ditemukan di index.html");
+  }
 }
 
-// Menangani submit pendaftaran lapak
+function closeModalRegUMKM() {
+  const modal = document.getElementById('modalRegUMKM');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Pengiriman formulir UMKM ke Google Apps Script
 function handleRegistrasiUMKM(e) {
   e.preventDefault();
 
@@ -15441,7 +15435,7 @@ function handleRegistrasiUMKM(e) {
 
   const btnSubmit = document.getElementById('btnSubmitRegUmkm');
   btnSubmit.disabled = true;
-  btnSubmit.innerText = 'Memproses Validasi...';
+  btnSubmit.innerText = 'Memvalidasi...';
 
   google.script.run
     .withSuccessHandler(function(res) {
@@ -15451,18 +15445,22 @@ function handleRegistrasiUMKM(e) {
       if (res.success) {
         Swal.fire({
           icon: 'success',
-          title: 'Pengajuan Berhasil Dikirim!',
+          title: 'Berhasil!',
           text: res.message,
           confirmButtonColor: '#198754'
         });
         document.getElementById('formRegUMKM').reset();
-        bootstrap.Modal.getInstance(document.getElementById('modalRegUMKM')).hide();
+        
+        // Tutup modal menggunakan instance Bootstrap 5
+        const modalEl = document.getElementById('modalRegUMKM');
+        const modalObj = bootstrap.Modal.getInstance(modalEl);
+        if (modalObj) modalObj.hide();
       } else {
         Swal.fire({
-          icon: 'error',
-          title: 'Pengajuan Gagal',
+          icon: 'warning',
+          title: 'Gagal Mengajukan',
           text: res.message,
-          confirmButtonColor: '#dc3545'
+          confirmButtonColor: '#ffc107'
         });
       }
     })
