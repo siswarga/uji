@@ -7542,62 +7542,73 @@ function handleLogin(e) {
             document.getElementById('pub-totL').innerHTML = `${d.warga.lakiLaki} <span class="small font-normal text-muted">Jiwa</span>`;
             document.getElementById('pub-totP').innerHTML = `${d.warga.perempuan} <span class="small font-normal text-muted">Jiwa</span>`;
           
-            if(pubChartJkInstance) pubChartJkInstance.destroy(); 
-            
-            pubChartUsiaInstance = new Chart(document.getElementById('pubChartUsia'), {
-                type: 'bar',
-                data: {
-                    labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
-                    datasets: [
-                        {
-                            label: 'Laki-laki',
-                            data: [
-                                d.warga.usia.balita.l, 
-                                d.warga.usia.anak.l, 
-                                d.warga.usia.remaja.l, 
-                                d.warga.usia.dewasa.l, 
-                                d.warga.usia.lansia.l
-                            ],
-                            backgroundColor: '#198754',
-                            borderRadius: 4
-                        },
-                        {
-                            label: 'Perempuan',
-                            data: [
-                                d.warga.usia.balita.p, 
-                                d.warga.usia.anak.p, 
-                                d.warga.usia.remaja.p, 
-                                d.warga.usia.dewasa.p, 
-                                d.warga.usia.lansia.p
-                            ],
-                            backgroundColor: '#ffc107',
-                            borderRadius: 4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { boxWidth: 12, font: { size: 11 } }
-                        }
-                    },
-                    scales: {
-                        x: { 
-                            stacked: false,
-                            grid: { display: false } 
-                        },
-                        y: { 
-                            stacked: false,
-                            beginAtZero: true, 
-                            ticks: { stepSize: 1 } 
-                        }
-                    }
-                }
-            });
-          
+            if (pubChartUsiaInstance) {
+  pubChartUsiaInstance.destroy();
+}
+
+// Pengaman tambahan bawaan Chart.js untuk memastikan kanvas benar-benar bersih
+const chartLama = Chart.getChart('pubChartUsia');
+if (chartLama) {
+  chartLama.destroy();
+}
+
+// 2. Buat grafik baru
+const canvasUsia = document.getElementById('pubChartUsia');
+if (canvasUsia) {
+  pubChartUsiaInstance = new Chart(canvasUsia, {
+    type: 'bar',
+    data: {
+      labels: ['Balita', 'Anak', 'Remaja', 'Dewasa', 'Lansia'],
+      datasets: [
+        {
+          label: 'Laki-laki',
+          data: [
+            d.warga.usia.balita.l, 
+            d.warga.usia.anak.l, 
+            d.warga.usia.remaja.l, 
+            d.warga.usia.dewasa.l, 
+            d.warga.usia.lansia.l
+          ],
+          backgroundColor: '#198754',
+          borderRadius: 4
+        },
+        {
+          label: 'Perempuan',
+          data: [
+            d.warga.usia.balita.p, 
+            d.warga.usia.anak.p, 
+            d.warga.usia.remaja.p, 
+            d.warga.usia.dewasa.p, 
+            d.warga.usia.lansia.p
+          ],
+          backgroundColor: '#ffc107',
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { boxWidth: 12, font: { size: 11 } }
+        }
+      },
+      scales: {
+        x: { 
+          stacked: false,
+          grid: { display: false } 
+        },
+        y: { 
+          stacked: false,
+          beginAtZero: true, 
+          ticks: { stepSize: 1 } 
+        }
+      }
+    }
+  });
+        }  
             if (d.kasOrganisasi) {
                 if(document.getElementById('valKasPkk')) document.getElementById('valKasPkk').innerText = formatRupiah(d.kasOrganisasi.pkk);
                 if(document.getElementById('valPkkIn')) document.getElementById('valPkkIn').innerText = formatRupiah(d.kasOrganisasi.pkkIn);
@@ -10535,42 +10546,55 @@ function handleLogin(e) {
                 }
               }
               
-             function openModalRegPengurus() {
-  console.log("🔘 Tombol Daftar Pengurus diklik");
+window.openModalRegPengurus = function() {
+  console.log("🔘 Memeriksa status pendaftaran pengurus...");
 
-  // 1. Cek pengaturan status pendaftaran
-  if (window.appSettings && appSettings['fitur_pendaftaran_pengurus'] === 'Nonaktif') {
-    return Swal.fire('Ditutup', 'Maaf, pendaftaran mandiri pengurus saat ini sedang dinonaktifkan oleh Superadmin.', 'warning');
+  // 1. Ambil pengaturan dari variabel appSettings lokal maupun window
+  const settings = (typeof appSettings !== 'undefined' && appSettings) 
+    ? appSettings 
+    : (window.appSettings || {});
+
+  // 2. Cek status fitur (kebal spasi dan huruf besar/kecil)
+  const statusFitur = String(settings['fitur_pendaftaran_pengurus'] || 'Aktif').trim().toLowerCase();
+
+  if (statusFitur === 'nonaktif') {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Pendaftaran Ditutup',
+      text: 'Maaf, pendaftaran mandiri pengurus saat ini sedang dinonaktifkan oleh Superadmin.',
+      confirmButtonColor: '#198754'
+    });
   }
 
-  // 2. Ambil elemen modal
+  // 3. Jika AKTIF, baru buka modal ke depan layar
   const modalEl = document.getElementById('modalRegPengurus');
-  if (!modalEl) {
-    console.error("Elemen modalRegPengurus tidak ditemukan di HTML!");
-    return;
-  }
+  const loginPage = document.getElementById('login-page');
+  if (!modalEl) return;
 
-  // 3. Pindahkan modal ke body utama agar tidak terhalang kotak login
   if (modalEl.parentNode !== document.body) {
     document.body.appendChild(modalEl);
   }
+  modalEl.style.cssText = 'z-index: 10000005 !important;';
 
-  // 4. Reset form isian jika ada
+  if (loginPage) loginPage.style.display = 'none';
+
   const formReg = document.getElementById('formRegPengurus');
   if (formReg) formReg.reset();
 
-  // 5. Tampilkan modal menggunakan instance Bootstrap
   const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl, {
     backdrop: true,
     focus: true
   });
   modalObj.show();
-}
-              
-              
-              
-              
-              
+
+  modalEl.addEventListener('hidden.bs.modal', function handler() {
+    if (loginPage && (!window.currentUser)) {
+      triggerAdminLogin();
+    }
+    modalEl.removeEventListener('hidden.bs.modal', handler);
+  });
+};
+
               function prosesGenerateSurat(e) {
                 e.preventDefault();
                 
@@ -14204,7 +14228,7 @@ window.applyAppThemeColor = function(colorVal) {
         }).getAppSettings();
       }
           
-// Perbaikan Simpan Folder Drive (Tombol Ungu)
+// 1. Simpan Folder Google Drive (Tombol Ungu)
 window.simpanNamaFolderDriveAction = function() {
   const inputEl = document.getElementById('inputNamaFolderDrive');
   if (!inputEl) return;
@@ -14214,7 +14238,7 @@ window.simpanNamaFolderDriveAction = function() {
     return Swal.fire('Peringatan', 'Nama folder tidak boleh kosong!', 'warning');
   }
 
-  // AMBIL TOKEN DARI KUNCI YANG BENAR: 'sigas_token'
+  // AMBIL TOKEN DARI 'sigas_token'
   const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
   if (!token) {
     return Swal.fire('Sesi Habis', 'Silakan logout dan login ulang sebagai Superadmin.', 'warning');
@@ -14233,6 +14257,7 @@ window.simpanNamaFolderDriveAction = function() {
           timer: 1500,
           showConfirmButton: false
         });
+
         if (typeof appSettings !== 'undefined') {
           appSettings['folder_dokumentasi'] = namaBaru;
         }
@@ -14247,73 +14272,71 @@ window.simpanNamaFolderDriveAction = function() {
     .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
 };
 
-// Perbaikan Simpan Identitas & Hak Akses (Tombol Merah)
+// 2. Simpan Identitas & Hak Akses (Tombol Merah)
 function saveIdentitasAplikasi(e) {
-  e.preventDefault();  
-  const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+  if (e) e.preventDefault();
 
   const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
   if (!token) {
     return Swal.fire('Sesi Habis', 'Silakan login ulang sebagai Superadmin.', 'warning');
   }
 
+  const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
+
   let base64El = document.getElementById('set_logo_base64');
   let existingEl = document.getElementById('set_logo');
   let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
   let namaBaru = getVal('set_nama_aplikasi');
 
-  // Cek saklar WA otomatis secara aman (tidak crash jika elemen tidak ada di tab aktif)
   let elSaklarWa = document.getElementById('set_wa_mode_otomatis');
-  let statusWaOtomatis = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : (appSettings['wa_mode_otomatis'] || 'Nonaktif');
+  let statusWa = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : (appSettings['wa_mode_otomatis'] || 'Nonaktif');
 
   const p = {
-    'nama_aplikasi': namaBaru,  
-    'nama_komplek': getVal('set_nama_komplek'),  
-    'domisili': getVal('set_domisili'),  
-    'logo': finalLogo,  
-    'moto': getVal('set_moto'),  
+    'nama_aplikasi': namaBaru,
+    'nama_komplek': getVal('set_nama_komplek'),
+    'domisili': getVal('set_domisili'),
+    'logo': finalLogo,
+    'moto': getVal('set_moto'),
     'alamat': getVal('set_alamat'),
     'fitur_pendaftaran_mandiri': getVal('set_pendaftaran_mandiri'),
     'fitur_pendaftaran_pengurus': getVal('set_pendaftaran_pengurus'),
     'fitur_lapor_mudik': getVal('set_lapor_mudik'),
     'warna_aplikasi': getVal('set_warna_aplikasi'),
-    'wa_mode_otomatis': statusWaOtomatis
+    'wa_mode_otomatis': statusWa
   };
 
   const btnSave = document.getElementById('btn-save-identitas');
-  if (btnSave) { 
-    btnSave.disabled = true; 
-    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...'; 
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
   }
 
   google.script.run
     .withSuccessHandler(res => {
-      if (btnSave) { 
-        btnSave.disabled = false; 
-        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses'; 
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses';
       }
       if (res && res.success) {
-        Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false});
-        applyAppThemeColor(p['warna_aplikasi']);
-        appSettings['nama_aplikasi'] = namaBaru; 
-        updateFooterAplikasi();
+        Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false });
+        if (typeof applyAppThemeColor === 'function') applyAppThemeColor(p['warna_aplikasi']);
+        if (typeof updateFooterAplikasi === 'function') updateFooterAplikasi();
         let pubAppName = document.getElementById('pub-app-name');
         if (pubAppName) pubAppName.innerText = namaBaru;
-        if (typeof loadAppSettingsAndInit === 'function') loadAppSettingsAndInit();
         if (typeof loadDataSuperadmin === 'function') loadDataSuperadmin();
       } else {
         Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
       }
     })
     .withFailureHandler(err => {
-      if (btnSave) { 
-        btnSave.disabled = false; 
-        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses'; 
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses';
       }
       Swal.fire('Error Koneksi', String(err), 'error');
     })
     .updateAppSettingsBulk(token, p);
-}          
+}         
           
           function updateFooterAplikasi() {
             let namaApp = (appSettings && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'SI-GAS';
