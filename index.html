@@ -11461,8 +11461,6 @@ function handleLogin(e) {
           .savePengajian(token, formElement); 
       }
       	
-              function openModalQurban() { document.getElementById('formQurban').reset(); new bootstrap.Modal(document.getElementById('modalQurban')).show(); }
-              
               function saveMuadzin(e) { 
                 e.preventDefault(); const b=document.getElementById('btn-save-mdz'); b.disabled=true; b.innerHTML='Menyimpan...';
                 google.script.run.withSuccessHandler(r=>{
@@ -11551,15 +11549,28 @@ function handleLogin(e) {
                 }
                 }
               }
-              
-              // Buka Modal Biasa
-              function openModalQurban() { 
-                document.getElementById('formQurban').reset(); 
-                document.getElementById('modeBaru').checked = true;
-                toggleModeQurban();
-                new bootstrap.Modal(document.getElementById('modalQurban')).show(); 
-              }
-              
+
+// Buka Modal Qurban Biasa (Pendaftar Baru)
+function openModalQurban() { 
+  const form = document.getElementById('formQurban');
+  if (form) form.reset();
+
+  // 1. Pastikan radio button kembali ke mode Pendaftar Baru
+  const modeBaruRadio = document.getElementById('modeBaru');
+  if (modeBaruRadio) modeBaruRadio.checked = true;
+
+  // 2. Sesuaikan tampilan input form sesuai mode baru
+  if (typeof toggleModeQurban === 'function') {
+    toggleModeQurban();
+  }
+
+  // 3. Tampilkan modal secara aman
+  const modalEl = document.getElementById('modalQurban');
+  if (modalEl) {
+    bootstrap.Modal.getOrCreateInstance(modalEl).show(); 
+  }
+}
+			  
               // Buka Modal Langsung Mode Cicilan (Dari Tabel)
               function openModalQurbanCicil(idTarget) {
                 document.getElementById('formQurban').reset(); 
@@ -14460,22 +14471,6 @@ function saveIdentitasAplikasi(e) {
             });
           }
           
-          let dataKoperasiGlobal = { anggota: [], simpanan: [], totalSimpanan: 0 };
-          let listWargaKopTemp = [];
-          
-          function loadKoperasiData() {
-            showLoading();
-            google.script.run.withSuccessHandler(res => {
-              hideLoading();
-              if (res && res.success) {
-                dataKoperasiGlobal = res.data;
-                document.getElementById('kop-total-simpanan').innerText = formatRupiah(res.data.totalSimpanan);
-                renderTableKopAnggota();
-                renderTableKopSimpanan();
-              }
-            }).getKoperasiData(localStorage.getItem('sigas_token'));
-          }
-          
           function renderTableKopAnggota() {
             let tb = document.getElementById('tbody-kop-anggota');
             if (!tb) return;
@@ -14616,19 +14611,34 @@ function saveIdentitasAplikasi(e) {
           
           let dataKoperasiPinjamanGlobal = [];
           
-          function loadKoperasiData() {
-            showLoading();
-            google.script.run.withSuccessHandler(res => {
-              hideLoading();
-              if (res && res.success) {
-                dataKoperasiGlobal = res.data;
-                document.getElementById('kop-total-simpanan').innerText = formatRupiah(res.data.totalSimpanan);
-                renderTableKopAnggota();
-                renderTableKopSimpanan();
-                loadKoperasiPinjamanData();
-              }
-            }).getKoperasiData(localStorage.getItem('sigas_token'));
-          }
+function loadKoperasiData() {
+  showLoading();
+  google.script.run
+    .withSuccessHandler(res => {
+      hideLoading();
+      if (res && res.success) {
+        dataKoperasiGlobal = res.data;
+
+        // 1. Tampilkan total simpanan
+        const totalSimpananEl = document.getElementById('kop-total-simpanan');
+        if (totalSimpananEl) {
+          totalSimpananEl.innerText = formatRupiah(res.data.totalSimpanan);
+        }
+
+        // 2. Render data tabel anggota & simpanan
+        renderTableKopAnggota();
+        renderTableKopSimpanan();
+
+        // 3. Muat data pinjaman & piutang anggota secara otomatis
+        loadKoperasiPinjamanData();
+      }
+    })
+    .withFailureHandler(err => {
+      hideLoading();
+      Swal.fire('Error', 'Gagal memuat data koperasi: ' + err, 'error');
+    })
+    .getKoperasiData(localStorage.getItem('sigas_token'));
+}
           
           function loadKoperasiPinjamanData() {
             google.script.run.withSuccessHandler(res => {
@@ -14661,20 +14671,7 @@ function saveIdentitasAplikasi(e) {
               </tr>`;
             });
           }
-          
-          function openModalKopPinjaman() {
-            document.getElementById('formKopPinjaman').reset();
-            document.getElementById('kop_pnj_tgl').valueAsDate = new Date();
-            
-            let sa = document.getElementById('kop_pnj_anggota');
-            sa.innerHTML = '<option value="">-- Pilih Anggota Koperasi --</option>';
-            dataKoperasiGlobal.anggota.forEach(a => {
-              sa.innerHTML += `<option value="${a.id}">${a.nama}</option>`;
-            });
-            
-            new bootstrap.Modal(document.getElementById('modalKopPinjaman')).show();
-          }
-          
+              
           function submitKopPinjaman(e) {
             e.preventDefault();
             let agtId = document.getElementById('kop_pnj_anggota').value;
@@ -14812,22 +14809,35 @@ function saveIdentitasAplikasi(e) {
             if (box) box.style.display = 'block';
           }
           
-          // Pastikan simulasi direset saat modal dibuka
-          function openModalKopPinjaman() {
-            document.getElementById('formKopPinjaman').reset();
-            document.getElementById('kop_pnj_tgl').valueAsDate = new Date();
-            
-            let box = document.getElementById('box-simulasi-pinjaman');
-            if (box) box.style.display = 'none';
-            
-            let sa = document.getElementById('kop_pnj_anggota');
-            sa.innerHTML = '<option value="">-- Pilih Anggota Koperasi --</option>';
-            dataKoperasiGlobal.anggota.forEach(a => {
-          sa.innerHTML += `<option value="${a.id}">${a.nama}</option>`;
-            });
-            
-            new bootstrap.Modal(document.getElementById('modalKopPinjaman')).show();
-          }
+// Gunakan versi ini (Versi 2 yang disempurnakan)
+function openModalKopPinjaman() {
+  const form = document.getElementById('formKopPinjaman');
+  if (form) form.reset();
+
+  const tglInput = document.getElementById('kop_pnj_tgl');
+  if (tglInput) tglInput.valueAsDate = new Date();
+
+  // 1. Sembunyikan kotak simulasi hitungan bunga/cicilan
+  const box = document.getElementById('box-simulasi-pinjaman');
+  if (box) box.style.display = 'none';
+
+  // 2. Muat daftar anggota koperasi ke dropdown
+  const sa = document.getElementById('kop_pnj_anggota');
+  if (sa) {
+    sa.innerHTML = '<option value="">-- Pilih Anggota Koperasi --</option>';
+    if (dataKoperasiGlobal && dataKoperasiGlobal.anggota) {
+      dataKoperasiGlobal.anggota.forEach(a => {
+        sa.innerHTML += `<option value="${a.id}">${a.nama}</option>`;
+      });
+    }
+  }
+
+  // 3. Buka modal dengan aman
+  const modalEl = document.getElementById('modalKopPinjaman');
+  if (modalEl) {
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  }
+}
           
           function previewKajianGambar(input) {
             const file = input.files[0];
