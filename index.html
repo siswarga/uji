@@ -5915,6 +5915,56 @@
         </div>
       </div>
     </div>
+	
+	<!-- MODAL PENDAFTARAN LAPAK UMKM -->
+<div class="modal fade" id="modalRegUMKM" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 p-3">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-success">
+          <i class="fas fa-store me-2"></i>Daftar Lapak UMKM Warga
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">Masukkan data lapak dan Kode Unik Warga Anda yang terdaftar di aplikasi.</p>
+
+        <form id="formRegUMKM" onsubmit="handleRegistrasiUMKM(event)">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Kode Unik Warga (ID Warga)</label>
+            <input type="text" id="regUmkmKodeWarga" class="form-control rounded-3" placeholder="Contoh: HFD001" required>
+            <div class="form-text small">Kode yang tercatat pada saat registrasi kependudukan.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Nama Lapak / Toko</label>
+            <input type="text" id="regUmkmNamaLapak" class="form-control rounded-3" placeholder="Contoh: Abdumart / Dapur Berkah" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Nomor WhatsApp Usaha</label>
+            <input type="tel" id="regUmkmNoWa" class="form-control rounded-3" placeholder="Contoh: 08123456789" required>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-bold">Username Akun</label>
+              <input type="text" id="regUmkmUsername" class="form-control rounded-3" placeholder="Username lapak" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold">Password</label>
+              <input type="password" id="regUmkmPassword" class="form-control rounded-3" placeholder="Password lapak" required>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmitRegUmkm" class="btn btn-success w-100 py-2 rounded-3 fw-bold mt-2">
+            Kirim Pengajuan Lapak
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
     <!-- ===================================================== -->
     <!-- JAVASCRIPT APLIKASI -->
@@ -15368,6 +15418,60 @@ function setModeLogin(mode) {
     linkDaftar.innerHTML = '<i class="fas fa-store me-1"></i> Daftar Lapak UMKM';
     linkDaftar.setAttribute('onclick', 'openModalRegUMKM()');
   }
+}
+
+// Membuka modal pendaftaran UMKM
+function openModalRegUMKM() {
+  const modalEl = document.getElementById('modalRegUMKM');
+  const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modalObj.show();
+}
+
+// Menangani submit pendaftaran lapak
+function handleRegistrasiUMKM(e) {
+  e.preventDefault();
+
+  const payload = {
+    kode_warga: document.getElementById('regUmkmKodeWarga').value.trim(),
+    nama_lapak: document.getElementById('regUmkmNamaLapak').value.trim(),
+    no_wa: document.getElementById('regUmkmNoWa').value.trim(),
+    username: document.getElementById('regUmkmUsername').value.trim(),
+    password: document.getElementById('regUmkmPassword').value.trim()
+  };
+
+  const btnSubmit = document.getElementById('btnSubmitRegUmkm');
+  btnSubmit.disabled = true;
+  btnSubmit.innerText = 'Memproses Validasi...';
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      btnSubmit.disabled = false;
+      btnSubmit.innerText = 'Kirim Pengajuan Lapak';
+
+      if (res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Pengajuan Berhasil Dikirim!',
+          text: res.message,
+          confirmButtonColor: '#198754'
+        });
+        document.getElementById('formRegUMKM').reset();
+        bootstrap.Modal.getInstance(document.getElementById('modalRegUMKM')).hide();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Pengajuan Gagal',
+          text: res.message,
+          confirmButtonColor: '#dc3545'
+        });
+      }
+    })
+    .withFailureHandler(function(err) {
+      btnSubmit.disabled = false;
+      btnSubmit.innerText = 'Kirim Pengajuan Lapak';
+      Swal.fire('Error Server', err.message, 'error');
+    })
+    .daftarLapakUMKM(payload);
 }
     </script>
     </body>
