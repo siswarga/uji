@@ -463,7 +463,11 @@
                 </li>
               </ul>
             </div>
-
+			<!-- Tombol Akses Pasar Warga -->
+			<button onclick="bukaHalamanUmkm()" class="btn btn-success shadow-sm d-flex align-items-center gap-2">
+				<i class="fas fa-store"></i>
+				<span>Pasar Warga</span>
+			</button>
             <!-- Tombol Panic Button SOS -->
             <button class="btn btn-danger btn-sm fw-bold shadow-sm" onclick="triggerPanicButtonAction()" title="Tombol Darurat SOS">
               <i class="fas fa-exclamation-triangle me-1"></i> SOS
@@ -15215,36 +15219,46 @@ function bukaModalDeveloper() {
           Swal.showValidationMessage('PIN Developer wajib diisi!');
           return false;
         }
+        
+        // Debugging data yang akan dikirim
+        console.log("Mengirim data lisensi:", { tipe, expired: exp });
         return { pin, data: { tipe, expired: exp } };
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        google.script.run.withSuccessHandler(function(resp) {
-          if (resp && resp.success) {
-            // Hapus paksa elemen layar kunci jika ada
-            const lockEl = document.getElementById('lock-screen-expired');
-            if (lockEl) lockEl.remove();
-            
-            // Hapus juga banner warning jika ada
-            const bannerEl = document.getElementById('banner-warning-sewa');
-            if (bannerEl) bannerEl.remove();
+        Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            console.log("Respon server:", resp);
+            if (resp && resp.success) {
+              // Hapus elemen layar kunci jika ada
+              const lockEl = document.getElementById('lock-screen-expired');
+              if (lockEl) lockEl.remove();
+              
+              const bannerEl = document.getElementById('banner-warning-sewa');
+              if (bannerEl) bannerEl.remove();
 
-            // Muat ulang status lisensi terbaru dari server
-            initCekLisensiAplikasi();
-
-            Swal.fire({
-              title: 'Berhasil!',
-              text: resp.message,
-              icon: 'success',
-              confirmButtonColor: '#198754'
-            });
-          } else {
-            Swal.fire('Gagal', resp.message || 'PIN Salah atau Terjadi Kesalahan', 'error').then(() => {
+              // Muat ulang status terbaru
               initCekLisensiAplikasi();
-            });
-          }
-        }).verifikasiDanSimpanLisensi(result.value.pin, result.value.data);
+
+              Swal.fire({
+                title: 'Berhasil!',
+                text: resp.message,
+                icon: 'success',
+                confirmButtonColor: '#198754'
+              });
+            } else {
+              Swal.fire('Gagal Menyimpan', resp.message || 'PIN Salah atau Terjadi Kesalahan', 'error').then(() => {
+                initCekLisensiAplikasi();
+              });
+            }
+          })
+          .withFailureHandler(function(err) {
+            console.error("Error Google Script Run:", err);
+            Swal.fire('Error Koneksi', err.message || 'Gagal terhubung ke server backend', 'error');
+          })
+          .verifikasiDanSimpanLisensi(result.value.pin, result.value.data);
       } else {
         initCekLisensiAplikasi();
       }
@@ -15303,6 +15317,32 @@ document.addEventListener("DOMContentLoaded", function() {
   // Panggil pengecekan lisensi dari server saat halaman siap
   setTimeout(initCekLisensiAplikasi, 500);
 });
+
+function bukaHalamanUmkm() {
+  // Tampilkan indikator loading jika perlu
+  Swal.fire({
+    title: 'Memuat Pasar Warga...',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  // Memanggil file umkm.html dari server Google Apps Script
+  google.script.run.withSuccessHandler(function(htmlContent) {
+    Swal.close();
+    // Masukkan isi umkm.html ke dalam kontainer utama dashboard Anda
+    const container = document.getElementById('main-content'); // Sesuaikan dengan id kontainer halaman Anda
+    if (container) {
+      container.innerHTML = htmlContent;
+    } else {
+      // Jika ingin dibuka sebagai jendela/modal atau halaman penuh
+      document.open();
+      document.write(htmlContent);
+      document.close();
+    }
+  }).withFailureHandler(function(err) {
+    Swal.fire('Gagal', 'Terjadi kesalahan saat memuat halaman UMKM: ' + err.message, 'error');
+  }).includeHTMLFile ? google.script.run.includeHTMLFile('umkm.html') : /* Fallback jika menggunakan template khusus */ null;
+}
     </script>
     </body>
 </html>
