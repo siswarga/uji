@@ -10536,25 +10536,35 @@ function handleLogin(e) {
               }
               
              function openModalRegPengurus() {
-  // Cek aman jika pengaturan belum termuat
+  console.log("🔘 Tombol Daftar Pengurus diklik");
+
+  // 1. Cek pengaturan status pendaftaran
   if (window.appSettings && appSettings['fitur_pendaftaran_pengurus'] === 'Nonaktif') {
     return Swal.fire('Ditutup', 'Maaf, pendaftaran mandiri pengurus saat ini sedang dinonaktifkan oleh Superadmin.', 'warning');
   }
-  
-  // Reset form jika ada
-  let formReg = document.getElementById('formRegPengurus');
-  if (formReg) {
-    formReg.reset();
-  }
-  
-  // Tampilkan modal registrasi pengurus dengan aman
-  let modalEl = document.getElementById('modalRegPengurus');
-  if (modalEl) {
-    let myModal = new bootstrap.Modal(modalEl);
-    myModal.show();
-  } else {
+
+  // 2. Ambil elemen modal
+  const modalEl = document.getElementById('modalRegPengurus');
+  if (!modalEl) {
     console.error("Elemen modalRegPengurus tidak ditemukan di HTML!");
+    return;
   }
+
+  // 3. Pindahkan modal ke body utama agar tidak terhalang kotak login
+  if (modalEl.parentNode !== document.body) {
+    document.body.appendChild(modalEl);
+  }
+
+  // 4. Reset form isian jika ada
+  const formReg = document.getElementById('formRegPengurus');
+  if (formReg) formReg.reset();
+
+  // 5. Tampilkan modal menggunakan instance Bootstrap
+  const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl, {
+    backdrop: true,
+    focus: true
+  });
+  modalObj.show();
 }
               
               
