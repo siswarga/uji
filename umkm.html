@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kelola Lapak UMKM Warga</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold text-dark"><i class="fas fa-store text-success me-2"></i> Kelola Lapak & Produk Warga</h3>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahProduk">
+        <i class="fas fa-plus me-1"></i> Tambah Produk Baru
+      </button>
+    </div>
+
+    <!-- Tabel Daftar Produk -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Foto</th>
+                <th>Nama Toko</th>
+                <th>Produk</th>
+                <th>Kategori</th>
+                <th>Harga</th>
+                <th>No. WhatsApp</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-produk-body">
+              <tr><td colspan="7" class="text-center py-4 text-muted">Memuat data produk...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tambah Produk -->
+  <div class="modal fade" id="modalTambahProduk" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Tambah Produk UMKM</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formTambahProduk">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Nama Toko / Usaha</label>
+              <input type="text" id="nama_toko" class="form-control" required placeholder="Contoh: Warung Bu Siti">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Nama Produk</label>
+              <input type="text" id="nama_produk" class="form-control" required placeholder="Contoh: Keripik Singkong Balado">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Kategori</label>
+              <select id="kategori" class="form-select">
+                <option value="Kuliner / Makanan">Kuliner / Makanan</option>
+                <option value="Produk / Fashion">Produk / Fashion</option>
+                <option value="Jasa & Layanan">Jasa & Layanan</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Harga (Rp)</label>
+              <input type="number" id="harga" class="form-control" required placeholder="Contoh: 15000">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">URL Foto Produk (Link Gambar)</label>
+              <input type="url" id="url_foto" class="form-control" required placeholder="https://link-gambar.com/foto.jpg">
+              <div class="form-text small">Gunakan link gambar langsung (misal dari Google Drive publik atau Postimages).</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">No. WhatsApp Pemilik (Format: 628xxx)</label>
+              <input type="text" id="no_wa" class="form-control" required placeholder="628123456789">
+            </div>
+            <button type="submit" class="btn btn-success w-100 fw-bold">Simpan Produk</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Contoh variabel user yang sedang login (bisa disesuaikan dengan sistem login aplikasi utama Anda)
+    const currentUserEmail = "warga@example.com"; 
+    const currentUserRole = "Warga"; // atau "Superadmin"
+
+    function loadProdukLapak() {
+      google.script.run.withSuccessHandler(function(res) {
+        const tbody = document.getElementById('tabel-produk-body');
+        if (!res.success || res.data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Belum ada produk terdaftar di lapak Anda.</td></tr>`;
+          return;
+        }
+
+        let html = '';
+        res.data.forEach(p => {
+          html += `
+            <tr>
+              <td><img src="${p.url_foto}" alt="Foto" width="50" height="50" class="rounded object-fit-cover" onerror="this.src='https://via.placeholder.com/50'"></td>
+              <td class="fw-bold">${p.nama_toko}</td>
+              <td>${p.nama_produk}</td>
+              <td><span class="badge bg-secondary">${p.kategori}</span></td>
+              <td>Rp ${Number(p.harga).toLocaleString('id-ID')}</td>
+              <td><a href="https://wa.me/${p.no_wa}" target="_blank" class="text-success text-decoration-none"><i class="fab fa-whatsapp"></i> ${p.no_wa}</a></td>
+              <td>
+                <button class="btn btn-sm btn-outline-danger" onclick="hapusProduk(${p.rowId})">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+      }).getProdukByAkses(currentUserEmail, currentUserRole);
+    }
+
+    document.getElementById('formTambahProduk').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const payload = {
+        nama_toko: document.getElementById('nama_toko').value,
+        nama_produk: document.getElementById('nama_produk').value,
+        kategori: document.getElementById('kategori').value,
+        harga: document.getElementById('harga').value,
+        url_foto: document.getElementById('url_foto').value,
+        no_wa: document.getElementById('no_wa').value
+      };
+
+      google.script.run.withSuccessHandler(function(res) {
+        if (res.success) {
+          alert(res.message);
+          bootstrap.Modal.getInstance(document.getElementById('modalTambahProduk')).hide();
+          document.getElementById('formTambahProduk').reset();
+          loadProdukLapak();
+        } else {
+          alert('Gagal: ' + res.message);
+        }
+      }).simpanProdukLapak(payload, currentUserEmail, currentUserRole);
+    });
+
+    function hapusProduk(rowId) {
+      if (confirm('Yakin ingin menghapus produk ini dari lapak?')) {
+        google.script.run.withSuccessHandler(function(res) {
+          if (res.success) {
+            alert(res.message);
+            loadProdukLapak();
+          } else {
+            alert('Gagal: ' + res.message);
+          }
+        }).hapusProdukLapak(rowId, currentUserEmail, currentUserRole);
+      }
+    }
+
+    // Panggil saat halaman dimuat
+    window.onload = loadProdukLapak;
+  </script>
+</body>
+</html>
