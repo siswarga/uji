@@ -16550,9 +16550,14 @@ window.gantiTipePemesan = function(tipe) {
   }
 };
 
-// Fungsi utama pemesanan produk
+// Fungsi utama pemesanan produk (dengan pilihan Diantar / Ambil Sendiri)
 function pesanProdukOtomatis(idProduk) {
-  const item = cacheKatalogUMKM.find(p => String(p.id_produk) === String(idProduk));
+  // Ambil data produk (dengan pengaman cache/global)
+  const listKatalog = (typeof cacheKatalogUMKM !== 'undefined' && cacheKatalogUMKM) 
+    ? cacheKatalogUMKM 
+    : (window.dataKatalogGlobal || []);
+
+  const item = listKatalog.find(p => String(p.id_produk) === String(idProduk));
   if (!item) {
     Swal.fire('Error', 'Data produk tidak ditemukan.', 'error');
     return;
@@ -16560,8 +16565,10 @@ function pesanProdukOtomatis(idProduk) {
 
   // Sembunyikan modal katalog sementara agar fokus input leluasa
   const modalKatalogEl = document.getElementById('modalKatalogUMKM');
-  const modalKatalogInst = bootstrap.Modal.getInstance(modalKatalogEl);
-  if (modalKatalogInst) modalKatalogInst.hide();
+  if (modalKatalogEl) {
+    const modalKatalogInst = bootstrap.Modal.getInstance(modalKatalogEl);
+    if (modalKatalogInst) modalKatalogInst.hide();
+  }
 
   window.tipePemesanAktif = 'warga';
 
@@ -16570,7 +16577,7 @@ function pesanProdukOtomatis(idProduk) {
     html: `
       <!-- Rincian Produk -->
       <div class="text-start small mb-3 p-2 bg-light rounded border">
-        <div><b>Lapak:</b> ${item.toko.nama_lapak}</div>
+        <div><b>Lapak:</b> ${item.toko ? item.toko.nama_lapak : (item.nama_lapak || 'Lapak Warga')}</div>
         <div><b>Harga Satuan:</b> Rp ${Number(item.harga).toLocaleString('id-ID')}</div>
       </div>
 
@@ -16598,15 +16605,26 @@ function pesanProdukOtomatis(idProduk) {
         <label class="form-label small fw-bold mb-1">Nama Pemesan*</label>
         <input type="text" id="order_nama_nonwarga" class="form-control form-control-sm mb-2" placeholder="Nama lengkap / panggilan">
 
-        <label class="form-label small fw-bold mb-1">Alamat / No. Rumah Pemesan*</label>
-        <input type="text" id="order_alamat_nonwarga" class="form-control form-control-sm mb-2" placeholder="Cth: Blok A2 No. 15">
+        <div id="box_alamat_nonwarga">
+          <label class="form-label small fw-bold mb-1">Alamat / No. Rumah Pemesan*</label>
+          <input type="text" id="order_alamat_nonwarga" class="form-control form-control-sm mb-2" placeholder="Cth: Blok A2 No. 15">
+        </div>
 
         <label class="form-label small fw-bold mb-1">No. WhatsApp Pemesan</label>
         <input type="tel" id="order_wa_nonwarga" class="form-control form-control-sm mb-3" placeholder="08xxxxxxxxxx">
       </div>
 
-      <!-- INPUT JUMLAH & CATATAN -->
+      <!-- INPUT METODE PENGIRIMAN, JUMLAH & CATATAN -->
       <div class="text-start border-top pt-2">
+        <!-- Pilihan Antar / Ambil -->
+        <div class="mb-2">
+          <label class="form-label small fw-bold mb-1">Metode Pengiriman*</label>
+          <select id="order_metode" class="form-select form-select-sm">
+            <option value="Diantar ke Rumah">🛵 Minta Diantar ke Rumah</option>
+            <option value="Ambil Sendiri">🏪 Ambil Sendiri ke Lapak</option>
+          </select>
+        </div>
+
         <div class="row g-2 mb-2">
           <div class="col-12">
             <label class="form-label small fw-bold mb-1">Jumlah Pesanan</label>
@@ -16615,7 +16633,7 @@ function pesanProdukOtomatis(idProduk) {
         </div>
 
         <label class="form-label small fw-bold mb-1">Catatan Tambahan (Opsional)</label>
-        <textarea id="order_catatan" class="form-control form-control-sm" rows="2" placeholder="Cth: Antar sore, rasa pedas, dll."></textarea>
+        <textarea id="order_catatan" class="form-control form-control-sm" rows="2" placeholder="Cth: Antar sore, rasa pedas, dingin, dll."></textarea>
       </div>
     `,
     showCancelButton: true,
@@ -16627,10 +16645,22 @@ function pesanProdukOtomatis(idProduk) {
     didOpen: () => {
       const inp = document.getElementById('order_kode_warga');
       if (inp) inp.focus();
+
+      // Saklar sembunyikan alamat non-warga jika memilih ambil sendiri
+      const selMetode = document.getElementById('order_metode');
+      const boxAlamat = document.getElementById('box_alamat_nonwarga');
+      if (selMetode && boxAlamat) {
+        selMetode.addEventListener('change', function() {
+          if (window.tipePemesanAktif === 'nonwarga') {
+            boxAlamat.style.display = (this.value === 'Diantar ke Rumah') ? 'block' : 'none';
+          }
+        });
+      }
     },
     preConfirm: () => {
       const qty = parseInt(document.getElementById('order_qty').value) || 1;
       const catatan = document.getElementById('order_catatan').value.trim();
+      const metode = document.getElementById('order_metode').value;
 
       if (window.tipePemesanAktif === 'warga') {
         const kode = document.getElementById('order_kode_warga').value.trim();
@@ -16638,22 +16668,29 @@ function pesanProdukOtomatis(idProduk) {
           Swal.showValidationMessage('Masukkan Kode Unik Warga Anda!');
           return false;
         }
-        return { tipe: 'warga', kode_warga: kode, qty, catatan };
+        return { tipe: 'warga', kode_warga: kode, qty, metode, catatan };
       } else {
         const nama = document.getElementById('order_nama_nonwarga').value.trim();
         const alamat = document.getElementById('order_alamat_nonwarga').value.trim();
         const wa = document.getElementById('order_wa_nonwarga').value.trim();
 
-        if (!nama || !alamat) {
-          Swal.showValidationMessage('Nama dan Alamat rumah wajib diisi!');
+        if (!nama) {
+          Swal.showValidationMessage('Nama pemesan wajib diisi!');
           return false;
         }
-        return { tipe: 'nonwarga', nama, alamat, waPembeli: wa, qty, catatan };
+
+        // Alamat wajib hanya jika memilih Diantar ke Rumah
+        if (metode === 'Diantar ke Rumah' && !alamat) {
+          Swal.showValidationMessage('Alamat pengantaran wajib diisi!');
+          return false;
+        }
+
+        return { tipe: 'nonwarga', nama, alamat: alamat || '-', waPembeli: wa, qty, metode, catatan };
       }
     }
   }).then((result) => {
     if (!result.isConfirmed) {
-      bukaModalKatalogPublik();
+      if (typeof bukaModalKatalogPublik === 'function') bukaModalKatalogPublik();
       return;
     }
 
@@ -16683,67 +16720,105 @@ function pesanProdukOtomatis(idProduk) {
             return;
           }
 
-          // Data warga berhasil ditarik otomatis!
-			eksekusiKirimPesanan(item, {
-			nama: `${resWarga.data.nama} (Warga)`, // Kode unik disembunyikan
-			alamat: resWarga.data.alamat,
-			waPembeli: resWarga.data.no_wa,
-			qty: val.qty,
-			catatan: val.catatan
-			});
+          // Data warga berhasil ditarik otomatis
+          eksekusiKirimPesanan(item, {
+            nama: `${resWarga.data.nama} (Warga)`,
+            alamat: resWarga.data.alamat,
+            waPembeli: resWarga.data.no_wa,
+            qty: val.qty,
+            metode: val.metode,
+            catatan: val.catatan
+          });
         })
         .withFailureHandler(function(err) {
           Swal.fire('Error Server', String(err), 'error');
         })
         .getDetailWargaByKode(val.kode_warga);
     } 
-    // B. JIKA NON-WARGA -> GUNAKAN DATA MANUAL YANG DIKETIK
+    // B. JIKA NON-WARGA -> GUNAKAN DATA MANUAL
     else {
       eksekusiKirimPesanan(item, {
-		nama: `${val.nama}`,
-		alamat: val.alamat,
-		waPembeli: val.waPembeli,
-		qty: val.qty,
-		catatan: val.catatan
-});
+        nama: `${val.nama} (Umum)`,
+        alamat: val.alamat,
+        waPembeli: val.waPembeli,
+        qty: val.qty,
+        metode: val.metode,
+        catatan: val.catatan
+      });
     }
   });
 }
 
-// Fungsi eksekusi pengiriman WA ke nomor toko
+// =========================================================================
+// FUNGSI EKSEKUSI PENGIRIMAN PESANAN (OTOMATIS GATEWAY / MANUAL VIA SAKLAR)
+// =========================================================================
 function eksekusiKirimPesanan(item, dataOrder) {
-  let noWaToko = item.toko && item.toko.no_wa ? item.toko.no_wa : '';
+  // 1. Validasi dan Normalisasi Nomor WhatsApp Toko
+  const namaLapak = (item.toko && item.toko.nama_lapak) ? item.toko.nama_lapak : (item.nama_lapak || 'Lapak Warga');
+  const noWaToko = (item.toko && item.toko.no_wa) ? item.toko.no_wa : (item.no_wa || '');
+
+  if (!noWaToko) {
+    Swal.fire('Kontak Kosong', 'Nomor WhatsApp pemilik lapak belum diatur di sistem.', 'warning');
+    return;
+  }
+
   let num = String(noWaToko).replace(/\D/g, ''); 
   if (num.startsWith('0')) num = '62' + num.substring(1);
   else if (num.startsWith('8')) num = '62' + num;             
   else if (!num.startsWith('62')) num = '62' + num;
 
-  const totalHarga = 'Rp ' + (Number(item.harga) * dataOrder.qty).toLocaleString('id-ID');
+  const totalHarga = 'Rp ' + (Number(item.harga) * Number(dataOrder.qty)).toLocaleString('id-ID');
+  const metode = dataOrder.metode || 'Diantar ke Rumah';
 
-  // Rangkai format pesan WhatsApp resmi ke penjual
-  let waText = `*PESANAN BARU - PASAR UMKM WARGA*\n\n` +
-               `Halo *${item.toko.nama_lapak}*,\n` +
+  // Ambil nama aplikasi dinamis
+  let settings = (typeof appSettings !== 'undefined' && appSettings) ? appSettings : {};
+  if (!settings || Object.keys(settings).length === 0) {
+    try { settings = JSON.parse(localStorage.getItem('sigas_app_settings') || '{}'); } catch(e) {}
+  }
+  const namaApp = settings['nama_aplikasi'] || 'SIS WARGA';
+
+  // 2. Rangkai Format Pesan WhatsApp Resmi (Lengkap dengan Metode Pengiriman)
+  let waText = `🛒 *PESANAN BARU - PASAR UMKM*\n` +
+               `------------------------------------\n` +
+               `Halo *${namaLapak}*,\n` +
                `Ada pesanan masuk dari etalase produk Anda:\n\n` +
                `📦 *Produk:* ${item.nama_produk}\n` +
                `💰 *Harga Satuan:* Rp ${Number(item.harga).toLocaleString('id-ID')}\n` +
-               `🔢 *Jumlah:* ${dataOrder.qty}\n` +
-               `💵 *Total Estimasi:* ${totalHarga}\n\n` +
+               `🔢 *Jumlah:* ${dataOrder.qty} pcs\n` +
+               `💵 *Total Estimasi:* ${totalHarga}\n` +
+               `🚚 *Metode Pengiriman:* ${metode}\n\n` +
                `👤 *Data Pemesan:*\n` +
-               `- *Nama:* ${dataOrder.nama}\n` +
-               `- *Alamat/Rumah:* ${dataOrder.alamat}\n` +
-               `- *No. WA Pemesan:* ${dataOrder.waPembeli || '-'}\n` +
-               `- *Catatan:* ${dataOrder.catatan || '-'}\n\n` +
-               `_Pesan dikirim melalui Portal SIS WARGA._`;
+               `- *Nama:* ${dataOrder.nama}\n`;
 
-  // Cek saklar mode otomatis
-  let rawMode = typeof appSettings !== 'undefined' ? appSettings['wa_mode_otomatis'] : false;
+  if (metode === 'Diantar ke Rumah') {
+    waText += `- *Alamat Antar:* ${dataOrder.alamat || '-'}\n`;
+  } else {
+    waText += `- *Pengambilan:* Ambil Sendiri ke Lapak\n`;
+  }
+
+  if (dataOrder.waPembeli && dataOrder.waPembeli !== '-') {
+    waText += `- *No. WA Pemesan:* ${dataOrder.waPembeli}\n`;
+  }
+
+  if (dataOrder.catatan && dataOrder.catatan !== '-') {
+    waText += `- *Catatan:* ${dataOrder.catatan}\n`;
+  }
+
+  waText += `\n------------------------------------\n` +
+            `_Pesan otomatis dikirim melalui Portal ${namaApp}._`;
+
+  // 3. Pengecekan Saklar Otomatis
+  let rawMode = settings['wa_mode_otomatis'] || settings['wa_gateway_mode'] || settings['api_wa_status'] || false;
   let valString = String(rawMode).toLowerCase().trim(); 
   let isGatewayAktif = (valString === 'true' || valString === 'ya' || valString === 'on' || valString === '1' || valString === 'aktif');
 
+  // =========================================================
+  // JALUR A: SAKLAR AKTIF -> KIRIM OTOMATIS TANPA BUKA WHATSAPP
+  // =========================================================
   if (isGatewayAktif) {
     Swal.fire({
       title: 'Mengirim Pesanan...',
-      text: `Meneruskan rincian pesanan ke WhatsApp ${item.toko.nama_lapak}...`,
+      text: `Meneruskan rincian pesanan langsung ke WhatsApp ${namaLapak}...`,
       allowOutsideClick: false,
       didOpen: () => { Swal.showLoading(); }
     });
@@ -16754,23 +16829,60 @@ function eksekusiKirimPesanan(item, dataOrder) {
           Swal.fire({
             icon: 'success',
             title: 'Pesanan Terkirim!',
-            html: `Pesanan telah diteruskan ke WhatsApp <b>${item.toko.nama_lapak}</b>.<br><br><small class="text-muted">Penjual akan segera memproses atau menghubungi Anda.</small>`,
-            confirmButtonColor: '#198754'
+            html: `Pesanan berhasil diteruskan langsung ke WhatsApp <b>${namaLapak}</b>.<br><br>` +
+                  `<small class="text-muted">Total: <b>${totalHarga}</b> (${metode})</small>`,
+            confirmButtonColor: '#198754',
+            confirmButtonText: 'Selesai'
           }).then(() => {
-            bukaModalKatalogPublik();
+            if (typeof bukaModalKatalogPublik === 'function') bukaModalKatalogPublik();
           });
         } else {
-          Swal.fire('Gagal Kirim', (res ? res.message : 'Terjadi gangguan gateway server'), 'error');
+          // Opsi pengaman: jika gateway gagal/down, beri pilihan buka WA manual
+          Swal.fire({
+            icon: 'warning',
+            title: 'Gateway Menolak',
+            html: `Gagal kirim otomatis: ${res ? res.message : 'Gangguan gateway server'}.<br><br>Kirim pesanan secara manual via WhatsApp?`,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fab fa-whatsapp me-1"></i> Buka WhatsApp Manual',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#198754'
+          }).then((pilih) => {
+            if (pilih.isConfirmed) {
+              let waUrl = "https://api.whatsapp.com/send?phone=" + num + "&text=" + encodeURIComponent(waText);
+              window.open(waUrl, '_blank');
+            }
+            if (typeof bukaModalKatalogPublik === 'function') bukaModalKatalogPublik();
+          });
         }
       })
       .withFailureHandler((err) => {
-        Swal.fire('Error Gateway', String(err), 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Gateway',
+          html: `Terjadi kendala jaringan: ${err}.<br><br>Kirim pesanan secara manual via WhatsApp?`,
+          showCancelButton: true,
+          confirmButtonText: '<i class="fab fa-whatsapp me-1"></i> Buka WhatsApp Manual',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#198754'
+        }).then((pilih) => {
+          if (pilih.isConfirmed) {
+            let waUrl = "https://api.whatsapp.com/send?phone=" + num + "&text=" + encodeURIComponent(waText);
+            window.open(waUrl, '_blank');
+          }
+          if (typeof bukaModalKatalogPublik === 'function') bukaModalKatalogPublik();
+        });
       })
       .sendWhatsAppMessage(num, waText, null);
-  } else {
+  } 
+  // =========================================================
+  // JALUR B: SAKLAR NONAKTIF -> BUKA WHATSAPP MANUAL SEPERTI BIASA
+  // =========================================================
+  else {
     let waUrl = "https://api.whatsapp.com/send?phone=" + num + "&text=" + encodeURIComponent(waText);
     window.open(waUrl, '_blank');
-    bukaModalKatalogPublik();
+    if (typeof bukaModalKatalogPublik === 'function') {
+      bukaModalKatalogPublik();
+    }
   }
 }
 
