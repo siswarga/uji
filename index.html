@@ -2078,9 +2078,15 @@
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link fw-bold text-danger" id="tab-blacklist-ronda-btn" data-bs-toggle="tab" data-bs-target="#tab-blacklist-ronda" type="button" role="tab" onclick="if(typeof loadBlacklistData === 'function') loadBlacklistData();">
-        <i class="fas fa-user-slash me-1"></i> Dispensasi Ronda
-      </button>
+      <button class="nav-link fw-bold text-danger" 
+        id="tab-blacklist-ronda-btn" 
+        data-bs-toggle="tab" 
+        data-bs-target="#tab-blacklist-ronda" 
+        type="button" 
+        role="tab" 
+        onclick="if(typeof loadDataBlacklist === 'function') loadDataBlacklist();">
+		<i class="fas fa-user-slash me-1"></i> Dispensasi Ronda
+		</button>
     </li>
   </ul>
 
@@ -3071,32 +3077,46 @@
               </div>
 
               <!-- 5. TAB MONITORING PEMUDIK / RUMAH KOSONG -->
-              <div class="tab-pane fade" id="satpam-tab-pemudik" role="tabpanel">
-                <div class="card shadow-sm border-0">
-                  <div class="card-body">
-                    <h5 class="fw-bold text-dark mb-3"><i class="fas fa-car-side text-warning me-2"></i>Daftar Rumah Kosong / Pemudik</h5>
-                    <p class="text-muted small">Gunakan data ini sebagai acuan prioritas rute patroli keliling pos keamanan.</p>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Keluarga & Kontak</th>
-                            <th>Tujuan Mudik</th>
-                            <th>Berangkat - Kembali</th>
-                            <th>Kendaraan</th>
-                            <th>Status Keamanan</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tbody-satpam-pemudik">
-                          <tr>
-                            <td colspan="5" class="text-center text-muted py-3">Memuat data pemudik...</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
+<div class="tab-pane fade" id="satpam-tab-pemudik" role="tabpanel">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <!-- Header dengan Tombol Segarkan Data -->
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h5 class="fw-bold text-dark mb-1">
+            <i class="fas fa-car-side text-warning me-2"></i>Daftar Rumah Kosong / Pemudik
+          </h5>
+          <p class="text-muted small m-0">Gunakan data ini sebagai acuan prioritas rute patroli keliling pos keamanan.</p>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-success" onclick="if(typeof loadDataPemudik === 'function') loadDataPemudik();">
+          <i class="fas fa-sync-alt me-1"></i> Segarkan Data
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Keluarga & Kontak</th>
+              <th>Tujuan Mudik</th>
+              <th>Berangkat - Kembali</th>
+              <th>Kendaraan</th>
+              <th>Status Keamanan</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-satpam-pemudik">
+            <tr>
+              <td colspan="5" class="text-center text-muted py-3">
+                <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
+                Memuat data pemudik...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
               <!-- 6. TAB CCTV LIVE -->
               <div class="tab-pane fade" id="satpam-tab-cctv" role="tabpanel">
@@ -6617,6 +6637,46 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// =====================================================
+// DETEKSI DEVTOOLS DARI MENU BROWSER & JEBAKAN DEBUGGER
+// =====================================================
+(function() {
+  function cekAksesPengembang() {
+    const isSuperadmin = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'Superadmin');
+    const isDebugMode = window.location.search.includes('dev=hfd') && isSuperadmin;
+
+    // Jika Anda masuk dengan kunci rahasia (?dev=hfd), matikan jebakan
+    if (isDebugMode) return;
+
+    // 1. Deteksi lewat selisih waktu eksekusi debugger
+    const t0 = performance.now();
+    debugger; // Perintah ini otomatis menjeda browser jika DevTools terbuka
+    const t1 = performance.now();
+
+    // 2. Deteksi lewat perubahan dimensi peramban yang terpotong DevTools
+    const ambangBatas = 160;
+    const devtoolsTerbuka = 
+      (window.outerWidth - window.innerWidth > ambangBatas) || 
+      (window.outerHeight - window.innerHeight > ambangBatas) ||
+      (t1 - t0 > 100);
+
+    if (devtoolsTerbuka) {
+      // Tindakan jika warga/orang lain mencoba membuka DevTools:
+      document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;background:#1a1a1a;color:#ffffff;font-family:sans-serif;text-align:center;padding:20px;">
+          <h2 style="color:#e63946;margin-bottom:10px;">Akses Ditolak</h2>
+          <p style="color:#cccccc;max-width:500px;">Alat pengembang (Developer Tools) tidak diizinkan pada aplikasi ini demi keamanan data warga.</p>
+          <button onclick="location.reload()" style="margin-top:15px;padding:8px 18px;background:#e63946;color:#fff;border:none;border-radius:6px;cursor:pointer;">Muat Ulang Halaman</button>
+        </div>
+      `;
+    }
+  }
+
+  // Jalankan pemeriksaan berkala setiap 1 detik
+  setInterval(cekAksesPengembang, 1000);
+})();
+
+
           // Helper universal untuk mengambil pengaturan aplikasi secara akurat
           function getSetting(key, defaultValue) {
             if (typeof appSettings !== 'undefined' && appSettings && appSettings[key]) {
@@ -9058,7 +9118,62 @@ function updateStatusServer(tanggal) {
               function openModalGenerateRonda(){ document.getElementById('formGenerateRonda').reset(); document.getElementById('ronda_jam_mulai').value=appSettings['jam_ronda_mulai']||'21:00'; document.getElementById('ronda_jam_selesai').value=appSettings['jam_ronda_selesai']||'01:00'; new bootstrap.Modal(document.getElementById('modalGenerateRonda')).show(); }
               function generateRonda(e){ e.preventDefault(); const b=document.getElementById('btn-save-ronda'); b.disabled=true; Swal.fire({title:'Mengkalkulasi...',html:'AI sedang menghitung rotasi pembagian petugas...',allowOutsideClick:false,didOpen:()=>{Swal.showLoading();}}); google.script.run.withSuccessHandler(res=>{b.disabled=false;if(res.success){bootstrap.Modal.getInstance(document.getElementById('modalGenerateRonda')).hide();Swal.fire('Berhasil',res.message,'success');loadDataRonda();}else Swal.fire('Ditolak',res.message,'error');}).withFailureHandler(err=>{b.disabled=false;Swal.fire('Error',String(err),'error');}).generateJadwalRonda(localStorage.getItem('sigas_token'), document.getElementById('ronda_tgl').value, document.getElementById('ronda_jam_mulai').value, document.getElementById('ronda_jam_selesai').value, null, document.getElementById('ronda_durasi').value); }
               
-              function loadDataBlacklist(){ showLoading(); google.script.run.withSuccessHandler(res=>{hideLoading();if(res.success){const tb=document.getElementById('tbody-blacklist');tb.innerHTML='';if(res.data.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center">Kosong</td></tr>';}else{res.data.forEach(b=>{let bs=b.status==='Aktif'?'<span class="badge bg-danger">Aktif</span>':'<span class="badge bg-success">Dicabut</span>'; let btn=b.status==='Aktif'?`<button class="btn btn-sm btn-outline-success" onclick="ubahStatusBlacklist('${b.id}', 'Dicabut')">Cabut</button>`:''; tb.innerHTML+=`<tr><td>${b.tanggal}</td><td><b>${b.namaKK}</b></td><td><b>${b.alasan}</b><br><small>${b.keterangan}</small></td><td>${bs}</td><td>${btn}</td></tr>`;});}}}).withFailureHandler(()=>hideLoading()).getBlacklistData(localStorage.getItem('sigas_token')); }
+function loadDataBlacklist() {
+  if (typeof showLoading === 'function') showLoading();
+  
+  const tb = document.getElementById('tbody-blacklist');
+  if (!tb) {
+    if (typeof hideLoading === 'function') hideLoading();
+    console.error("Elemen 'tbody-blacklist' tidak ditemukan di HTML!");
+    return;
+  }
+
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      
+      if (res && res.success) {
+        tb.innerHTML = '';
+        if (!res.data || res.data.length === 0) {
+          tb.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Belum ada data dispensasi ronda.</td></tr>';
+        } else {
+          let rowsHtml = '';
+          res.data.forEach(b => {
+            let bs = (b.status === 'Aktif') 
+              ? '<span class="badge bg-danger">Aktif</span>' 
+              : '<span class="badge bg-success">Dicabut</span>';
+
+            let btn = (b.status === 'Aktif') 
+              ? `<button class="btn btn-sm btn-outline-success" onclick="ubahStatusBlacklist('${b.id}', 'Dicabut')"><i class="fas fa-check me-1"></i>Cabut</button>` 
+              : '<span class="text-muted small">-</span>';
+
+            rowsHtml += `
+              <tr>
+                <td><i class="far fa-calendar-alt text-muted me-1"></i>${b.tanggal}</td>
+                <td><b>${b.namaKK}</b></td>
+                <td>
+                  <b>${b.alasan}</b>
+                  ${b.keterangan && b.keterangan !== '-' ? `<br><small class="text-muted">${b.keterangan}</small>` : ''}
+                </td>
+                <td>${bs}</td>
+                <td>${btn}</td>
+              </tr>
+            `;
+          });
+          tb.innerHTML = rowsHtml;
+        }
+      } else {
+        tb.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Gagal: ${res ? res.message : 'Respon server tidak valid'}</td></tr>`;
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      tb.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Koneksi Error: ${err}</td></tr>`;
+    })
+    .getBlacklistData(token);
+}
               	
               function openModalBlacklist(){
                 document.getElementById('formBlacklist').reset();
@@ -9082,46 +9197,38 @@ function updateStatusServer(tanggal) {
               	
 function saveBlacklistData(e) {
   e.preventDefault();
-  const b = document.getElementById('btn-save-blacklist');
-  if (b) b.disabled = true;
+  const btn = document.getElementById('btn-save-blacklist');
+  if (btn) btn.disabled = true;
 
-  const elKK = document.getElementById('blacklist_kk') || document.getElementById('blacklist_nama_kk') || document.getElementById('blacklist_warga');
-
-  // Ambil teks nama warga terpilih jika berupa dropdown <select>
+  const selKK = document.getElementById('blacklist_kk');
   let namaTerpilih = '';
-  let idWargaTerpilih = '';
-  if (elKK) {
-    if (elKK.tagName === 'SELECT' && elKK.selectedIndex >= 0) {
-      namaTerpilih = elKK.options[elKK.selectedIndex].text;
-      idWargaTerpilih = elKK.value;
-    } else {
-      namaTerpilih = elKK.value;
-    }
+  let idTerpilih = '';
+
+  if (selKK && selKK.selectedIndex >= 0) {
+    idTerpilih = selKK.value; // Nilai value (ID / NIK)
+    namaTerpilih = selKK.options[selKK.selectedIndex].text; // Teks nama yang tampak di layar
   }
 
   const payload = {
-    idWarga: idWargaTerpilih,
-    namaKK: namaTerpilih,
-    alasan: document.getElementById('blacklist_alasan')?.value || '-',
-    keterangan: document.getElementById('blacklist_ket')?.value || '-'
+    idWarga: idTerpilih || '-',
+    namaKK: namaTerpilih || idTerpilih || '-',
+    alasan: document.getElementById('blacklist_alasan').value,
+    keterangan: document.getElementById('blacklist_ket').value || '-'
   };
 
   google.script.run
     .withSuccessHandler(res => {
-      if (b) b.disabled = false;
+      if (btn) btn.disabled = false;
       if (res && res.success) {
-        const modalEl = document.getElementById('modalBlacklist');
-        if (modalEl && typeof bootstrap !== 'undefined') {
-          bootstrap.Modal.getInstance(modalEl)?.hide();
-        }
+        bootstrap.Modal.getInstance(document.getElementById('modalBlacklist')).hide();
         Swal.fire('Berhasil', res.message, 'success');
         if (typeof loadDataBlacklist === 'function') loadDataBlacklist();
       } else {
-        Swal.fire('Error', res ? res.message : 'Gagal menyimpan', 'error');
+        Swal.fire('Error', res ? res.message : 'Gagal simpan', 'error');
       }
     })
     .withFailureHandler(err => {
-      if (b) b.disabled = false;
+      if (btn) btn.disabled = false;
       Swal.fire('Error Server', String(err), 'error');
     })
     .saveBlacklist(localStorage.getItem('sigas_token') || '', payload);
@@ -12094,51 +12201,109 @@ function openModalQurban() {
                 }).saveQurban(localStorage.getItem('sigas_token'), p); 
               }
               
-              // =====================================================
-              // SCRIPT DAFTAR PEMUDIK
-              // =====================================================
-              var dataPemudikGlobal = [];
-              
-              function loadDataPemudik() {
-                showLoading();
-                google.script.run.withSuccessHandler(res => {
-              hideLoading();
-              if(res.success){
-                dataPemudikGlobal = res.data; 
-                renderTablePemudik();
-              }
-                }).withFailureHandler(() => hideLoading()).getPemudik(localStorage.getItem('sigas_token')); 
-              }
-              
-              function renderTablePemudik() { 
-                const s = document.getElementById('search-pemudik').value.toLowerCase(); 
-                let f = dataPemudikGlobal.filter(k => k.nama.toLowerCase().includes(s) || k.tujuan.toLowerCase().includes(s) || k.kendaraan.toLowerCase().includes(s)); 
-                const tb = document.getElementById('tbody-pemudik'); 
-                tb.innerHTML = ''; 
-                
-                if (f.length === 0) { 
-                tb.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Belum ada data pemudik</td></tr>'; 
-                } else { 
-                f.forEach(k => { 
-                    let statWarna = 'secondary';
-                    if(k.status === 'Rumah Kosong') statWarna = 'danger';
-                    else if(k.status === 'Dititipkan Satpam') statWarna = 'primary';
-                    else if(k.status === 'Ada Penghuni Sisa') statWarna = 'success';
-                    
-                    let btn = '<button class="btn btn-sm btn-outline-primary me-1" onclick="editPemudik(\'' + k.id + '\')" title="Edit"><i class="fas fa-edit"></i></button>' + 
-                              '<button class="btn btn-sm btn-outline-danger" onclick="deletePemudik(\'' + k.id + '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
-                        
-                    tb.innerHTML += '<tr>' +
-                        '<td><b>' + k.nama + '</b><br><small><i class="fab fa-whatsapp text-success"></i> ' + k.kontak + '</small></td>' +
-                        '<td><i class="fas fa-map-marker-alt text-danger"></i> <b>' + k.tujuan + '</b></td>' +
-                        '<td><small>Brkt: ' + k.tglBerangkat + '<br>Kmbli: ' + (k.tglKembali || '-') + '</small></td>' +
-                        '<td>' + (k.kendaraan || '-') + '</td>' +
-                        '<td><span class="badge bg-' + statWarna + '">' + k.status + '</span><br><small class="text-muted">' + k.keterangan + '</small></td>' +
-                        '<td style="white-space:nowrap;">' + btn + '</td>' +
-                        '</tr>'; 
-                }); 
-                } 
-              }
+// =====================================================
+// SCRIPT DAFTAR PEMUDIK (DIPERBARUI DENGAN STATUS OTOMATIS)
+// =====================================================
+var dataPemudikGlobal = [];
+
+function loadDataPemudik() {
+  showLoading();
+  google.script.run
+    .withSuccessHandler(res => {
+      hideLoading();
+      if (res.success) {
+        dataPemudikGlobal = res.data;
+        // 1. Render tabel di menu Kegiatan Warga
+        renderTablePemudik();
+        // 2. Render otomatis juga ke tabel Satpam
+        renderSatpamPemudik();
+      }
+    })
+    .withFailureHandler(() => hideLoading())
+    .getPemudik(localStorage.getItem('sigas_token'));
+}
+
+// Render Tabel di Menu "Kegiatan & Warga"
+function renderTablePemudik() {
+  const s = document.getElementById('search-pemudik') ? document.getElementById('search-pemudik').value.toLowerCase() : '';
+  let f = dataPemudikGlobal.filter(k => 
+    (k.nama && k.nama.toLowerCase().includes(s)) || 
+    (k.tujuan && k.tujuan.toLowerCase().includes(s)) || 
+    (k.kendaraan && k.kendaraan.toLowerCase().includes(s))
+  );
+
+  const tb = document.getElementById('tbody-pemudik');
+  if (!tb) return;
+  tb.innerHTML = '';
+
+  if (f.length === 0) {
+    tb.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Belum ada data pemudik</td></tr>';
+  } else {
+    // Ambil tanggal hari ini format YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
+
+    f.forEach(k => {
+      let statusTampil = k.status;
+      let statWarna = 'secondary';
+
+      // --- LOGIKA CEK TANGGAL BERAKHIR ---
+      if (k.tglKembali && k.tglKembali !== '-' && k.tglKembali < today) {
+        statusTampil = 'Sudah Kembali';
+        statWarna = 'secondary'; // Warna abu-abu redup
+      } else {
+        if (k.status === 'Rumah Kosong') statWarna = 'danger';
+        else if (k.status === 'Dititipkan Satpam') statWarna = 'primary';
+        else if (k.status === 'Ada Penghuni Sisa') statWarna = 'success';
+      }
+
+      let btn = '<button class="btn btn-sm btn-outline-primary me-1" onclick="editPemudik(\'' + k.id + '\')" title="Edit"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-sm btn-outline-danger" onclick="deletePemudik(\'' + k.id + '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
+
+      tb.innerHTML += '<tr>' +
+        '<td><b>' + k.nama + '</b><br><small><i class="fab fa-whatsapp text-success"></i> ' + (k.kontak || '-') + '</small></td>' +
+        '<td><i class="fas fa-map-marker-alt text-danger"></i> <b>' + k.tujuan + '</b></td>' +
+        '<td><small>Brkt: ' + k.tglBerangkat + '<br>Kmbli: ' + (k.tglKembali || '-') + '</small></td>' +
+        '<td>' + (k.kendaraan || '-') + '</td>' +
+        '<td><span class="badge bg-' + statWarna + '">' + statusTampil + '</span><br><small class="text-muted">' + (k.keterangan || '') + '</small></td>' +
+        '<td style="white-space:nowrap;">' + btn + '</td>' +
+        '</tr>';
+    });
+  }
+}
+
+// Render Tabel di Menu "Pusat Kontrol Satpam"
+function renderSatpamPemudik() {
+  const tbSatpam = document.getElementById('tbody-satpam-pemudik');
+  if (!tbSatpam) return;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Khusus Satpam: Hanya tampilkan rumah yang warganya BELUM KEMBALI
+  const rumahKosongAktif = dataPemudikGlobal.filter(k => {
+    const belumKembali = !k.tglKembali || k.tglKembali === '-' || k.tglKembali >= today;
+    return belumKembali;
+  });
+
+  if (rumahKosongAktif.length === 0) {
+    tbSatpam.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Tidak ada data pemudik atau rumah kosong saat ini</td></tr>';
+    return;
+  }
+
+  let html = '';
+  rumahKosongAktif.forEach(p => {
+    let statWarna = (p.status === 'Rumah Kosong') ? 'danger' : 'primary';
+
+    html += '<tr>' +
+      '<td><b>' + p.nama + '</b><br><small><i class="fab fa-whatsapp text-success"></i> ' + (p.kontak || '-') + '</small></td>' +
+      '<td><span class="text-danger"><i class="fas fa-map-marker-alt me-1"></i>' + p.tujuan + '</span></td>' +
+      '<td><small class="d-block">Brkt: ' + p.tglBerangkat + '</small><small class="d-block text-muted">Kmbli: ' + (p.tglKembali || '-') + '</small></td>' +
+      '<td>' + (p.kendaraan || '-') + '</td>' +
+      '<td><span class="badge bg-' + statWarna + '">' + p.status + '</span></td>' +
+      '</tr>';
+  });
+
+  tbSatpam.innerHTML = html;
+}              
               
               function openModalPemudik() {
                 document.getElementById('formPemudik').reset();
