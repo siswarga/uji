@@ -6389,7 +6389,8 @@
   </div>
 </div>
 
-   <!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
+<!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -6397,35 +6398,6 @@
 <!-- JAVASCRIPT APLIKASI TERPADU & GOD MODE PROXY V3       -->
 <!-- ===================================================== -->
 <script>
-  // 1. URL Cadangan Default (digunakan jika routes.json belum/gagal dimuat)
-  const DEFAULT_BACKEND_URL = "https://script.google.com/macros/s/AKfycbwxhHXx27PG8K4FdV81UOy9VdeFeRBbYIYt8lU9SnLnMIoP7bjm8SAoA0zErOIMj_yOGA/exec";
-  var BACKEND_URL = DEFAULT_BACKEND_URL;
-
-  // 2. Routing Dinamis Otomatis berdasarkan URL Folder GitHub
-  async function initBackendRouting() {
-    // Membaca path folder: contoh /assalam, /demo, /uji
-    const path = window.location.pathname.split('/').filter(Boolean)[0] || 'demo';
-
-    try {
-      const res = await fetch('https://siswarga.github.io/routes.json');
-      if (res.ok) {
-        const routeMap = await res.json();
-        if (routeMap && routeMap[path]) {
-          BACKEND_URL = routeMap[path];
-          console.log(`🔗 Backend aktif untuk [${path}]:`, BACKEND_URL);
-        }
-      }
-    } catch (err) {
-      console.warn("⚠️ Gagal memuat routes.json, memakai URL default:", err);
-    }
-
-    // Jalankan inisialisasi aplikasi setelah URL terkonfirmasi
-    if (typeof loadAppSettingsAndInit === 'function') {
-      loadAppSettingsAndInit();
-    }
-  }
-
-  // 3. GOD MODE PROXY V3 (Menghubungkan google.script.run ke BACKEND_URL aktif)
   console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
 
   function createRunProxy(sCb, fCb) {
@@ -6528,10 +6500,17 @@
   // Pasang Proxy ke window.google
   window.google = { script: { run: createRunProxy(null, null) } };
 
-  // Jalankan routing saat dokumen dimuat
-  initBackendRouting();
+  // Pasang Proxy ke window.google
+  window.google = { script: { run: createRunProxy(null, null) } };
 
-  // 4. HELPER UNIVERSAL WHATSAPP (OTOMATIS VS MANUAL)
+  // Jalankan inisialisasi aplikasi saat dokumen selesai dimuat
+  document.addEventListener("DOMContentLoaded", function () {
+    if (typeof loadAppSettingsAndInit === 'function') {
+      loadAppSettingsAndInit();
+    }
+  });
+
+  // HELPER UNIVERSAL WHATSAPP (OTOMATIS VS MANUAL)
   function kirimPesanWhatsAppUniversal(nomorTujuan, teksPesan, konteksJudul = 'Pesan', callbackSukses = null) {
     const settings = typeof appSettings !== 'undefined' ? appSettings : {};
     let rawMode = settings['wa_mode_otomatis'] || settings['wa_gateway_mode'] || settings['api_wa_status'] || false;
@@ -6606,7 +6585,43 @@
     const urlWa = `https://wa.me/${nomor}?text=${encodeURIComponent(pesan)}`;
     window.open(urlWa, '_blank');
   }
-       
+ 
+// Blokir Klik Kanan
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+
+// =====================================================
+// PENGAMANAN DEVTOOLS & KLIK KANAN 
+// =====================================================
+
+// 1. Blokir Klik Kanan
+document.addEventListener('contextmenu', function(e) {
+  const isSuperadmin = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'Superadmin');
+  const isDebugMode = window.location.search.includes('dev=hfd') && isSuperadmin;
+
+  if (!isDebugMode) {
+    e.preventDefault();
+  }
+});
+
+// 2. Blokir F12 & Shortcut Inspect
+document.addEventListener('keydown', function(e) {
+  const isSuperadmin = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'Superadmin');
+  const isDebugMode = window.location.search.includes('dev=hfd') && isSuperadmin;
+
+  if (isDebugMode) return;
+
+  if (
+    e.key === 'F12' ||
+    (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
+    (e.ctrlKey && ['U', 'u'].includes(e.key))
+  ) {
+    e.preventDefault();
+    return false;
+  }
+});
+
           // Helper universal untuk mengambil pengaturan aplikasi secara akurat
           function getSetting(key, defaultValue) {
             if (typeof appSettings !== 'undefined' && appSettings && appSettings[key]) {
