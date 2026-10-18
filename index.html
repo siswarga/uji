@@ -2074,12 +2074,12 @@
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link fw-bold text-primary" id="tab-hasil-absen-ronda-btn" data-bs-toggle="tab" data-bs-target="#tab-hasil-absen-ronda" type="button" role="tab" onclick="loadRondaAbsenData()">
-        <i class="fas fa-clipboard-list me-1"></i> Daftar Absensi
+        <i class="fas fa-clipboard-list me-1"></i> Absensi Ronda
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link fw-bold text-danger" id="tab-blacklist-ronda-btn" data-bs-toggle="tab" data-bs-target="#tab-blacklist-ronda" type="button" role="tab" onclick="if(typeof loadBlacklistData === 'function') loadBlacklistData();">
-        <i class="fas fa-user-slash me-1"></i> Blacklist Ronda
+        <i class="fas fa-user-slash me-1"></i> Dispensasi Ronda
       </button>
     </li>
   </ul>
@@ -2155,7 +2155,7 @@
     <!-- TAB 3: BLACKLIST RONDA -->
     <div class="tab-pane fade" id="tab-blacklist-ronda" role="tabpanel">
       <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <h4 class="text-danger fw-bold m-0"><i class="fas fa-user-slash me-2"></i>Daftar Blacklist Ronda</h4>
+        <h4 class="text-danger fw-bold m-0"><i class="fas fa-user-slash me-2"></i>Daftar Dispensasi Ronda</h4>
         <button class="btn btn-danger mt-2 mt-sm-0" onclick="openModalBlacklist()"><i class="fas fa-plus"></i> Tambah Pengecualian</button>
       </div>
       <div class="card shadow-sm border-0">
@@ -5324,7 +5324,7 @@
               <div class="col-6">
                 <div class="form-check">
                   <input class="form-check-input chk-akses" type="checkbox" value="menu-ronda" id="akses_ronda">
-                  <label class="form-check-label small" for="akses_ronda">Jadwal Ronda & Blacklist</label>
+                  <label class="form-check-label small" for="akses_ronda">Jadwal Ronda & Dispensasi</label>
                 </div>
               </div>
               <div class="col-6">
@@ -5620,7 +5620,7 @@
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <form id="formBlacklist" class="modal-content" onsubmit="saveBlacklistData(event)">
           <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title">Tambah Blacklist Warga</h5>
+            <h5 class="modal-title">Tambah Daftar Dispensasi</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -7144,7 +7144,7 @@ document.addEventListener('keydown', function(e) {
                                `Terimakasih Kepada Seluruh Warga ${namaKomplek} atas partisipasinya, semoga dilipatgandakan oleh Allah SWT 🙏\n\n` +
                                `_Pesan otomatis dari Aplikasi ${namaApp}_`;
                     } else {
-                      const jenisKasTeks = payload.tipe === 'kas_warga' ? 'Kas Warga / RT' : 'Kas Masjid Assalam';
+                      const jenisKasTeks = payload.tipe === 'kas_warga' ? 'Kas Warga / RT' : 'Kas Masjid';
                       const bulanInfo = checkedBulan.length > 0 ? `📅 Bulan: *${payload.bulan}*\n` : '';
                       const targetNama = (namaKKVal !== '-' && namaKKVal) ? namaKKVal : namaVal;
           
@@ -12327,7 +12327,7 @@ function openModalQurban() {
               
               } else if (tipe === 'kas_masjid') {
                   imgUrl = appSettings['qris_2_url'] || '';
-                  titleName = appSettings['qris_2_nama'] || 'Kas Masjid Assalam';
+                  titleName = appSettings['qris_2_nama'] || 'Kas Masjid';
                   let titleEl = document.getElementById('qrisModalTitle');
                   if (titleEl) titleEl.innerText = 'Bayar QRIS - Kas Masjid';
                   
