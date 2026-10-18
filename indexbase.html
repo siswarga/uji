@@ -6654,38 +6654,117 @@ document.addEventListener('keydown', function(e) {
     `;
   }
 
-  function periksaDevtools() {
-    const isSuperadmin = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'Superadmin');
-    const isDebugMode = window.location.search.includes('dev=hfd') && isSuperadmin;
+  /**
+ * PENGAMANAN DEVTOOLS INSTAN (ZERO DELAY ANTI-INSPECT)
+ * Mencegah pembongkaran kode dengan reaksi seketika (<50ms).
+ */
+(function() {
+  'use strict';
 
-    // Lewati jika membuka URL rahasia ?dev=hfd
-    if (isDebugMode) return;
-
-    // 1. Deteksi instan panel DevTools (docked di samping / bawah)
-    const ambangBatas = 160;
-    const panelTerbuka = 
-      (window.outerWidth - window.innerWidth > ambangBatas) || 
-      (window.outerHeight - window.innerHeight > ambangBatas);
-
-    if (panelTerbuka) {
-	// Lempar browser ke halaman kosong seketika sehingga tab Sources langsung bersih
-	window.location.replace("about:blank");
-	}
-
-    // 2. Deteksi instan jika DevTools dibuka di jendela terpisah (undocked)
-    const detektor = new Image();
-    Object.defineProperty(detektor, 'id', {
-      get: function() {
-        tampilkanLayarBlokir();
-      }
-    });
-    console.log('%c', detektor);
-    console.clear();
+  // 1. Parameter Rahasia Pengembang (?dev=hfd)
+  // Membuka jalan bagi Anda untuk inspeksi/edit tanpa terblokir
+  const isDebugMode = window.location.search.includes('dev=hfd');
+  if (isDebugMode) {
+    console.warn("⚠️ Mode Pengembang Aktif: Semua proteksi dimatikan.");
+    return;
   }
 
-  // Jalankan pemeriksaan setiap 500 milidetik dan saat ukuran jendela berubah
-  setInterval(periksaDevtools, 500);
-  window.addEventListener('resize', periksaDevtools);
+  /**
+   * Tindakan Pemusnahan Instan:
+   * Bukan hanya mengganti tulisan, tapi langsung memusnahkan seluruh elemen HTML
+   * dari memori dan mengalihkan peramban ke halaman kosong (about:blank).
+   */
+  function hancurkanHalaman() {
+    try {
+      // Hapus seluruh DOM secara instan dari RAM browser
+      if (document.documentElement) {
+        document.documentElement.innerHTML = '';
+      }
+      document.body = document.createElement('body');
+      
+      // Hentikan eksekusi script lain
+      window.stop();
+    } catch (e) {}
+
+    // Tendang keluar ke halaman kosong seketika sehingga tab Elements & Sources langsung kosong melompong
+    window.location.replace("about:blank");
+  }
+
+  // 2. Blokir Klik Kanan Seketika (0 ms)
+  window.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }, true);
+
+  // 3. Perangkap Tombol Keyboard (Windows, Linux, MacOS)
+  window.addEventListener('keydown', function(e) {
+    const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+    const isShift = e.shiftKey;
+    const isAlt = e.altKey;
+    const key = e.key ? e.key.toUpperCase() : '';
+
+    if (
+      key === 'F12' ||
+      // Ctrl+Shift+I / J / C (Windows/Linux)
+      (isCmdOrCtrl && isShift && ['I', 'J', 'C'].includes(key)) ||
+      // Cmd+Option+I / J / C (Mac OS)
+      (isCmdOrCtrl && isAlt && ['I', 'J', 'C'].includes(key)) ||
+      // Ctrl+U (View Source) & Ctrl+S (Save Page HTML)
+      (isCmdOrCtrl && ['U', 'S'].includes(key))
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      hancurkanHalaman();
+      return false;
+    }
+  }, true);
+
+  // 4. Deteksi Instan DevTools yang Menempel di Sisi / Bawah Layar
+  // Event resize browser berjalan langsung pada milidetik yang sama saat panel terbuka
+  function deteksiResizeDocked() {
+    // Abaikan perangkat ponsel layar sentuh agar keyboard HP tidak memicu blokir
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) return;
+
+    const batasAmbang = 160;
+    const perbedaanLebar = window.outerWidth - window.innerWidth;
+    const perbedaanTinggi = window.outerHeight - window.innerHeight;
+
+    if (perbedaanLebar > batasAmbang || perbedaanTinggi > batasAmbang) {
+      hancurkanHalaman();
+    }
+  }
+
+  window.addEventListener('resize', deteksiResizeDocked, { passive: true });
+
+  // 5. Deteksi Jendela Terpisah (Undocked Window) & Tab Console
+  // Menggunakan jebakan pembacaan getter RegExp/Elemen di konsol
+  const detektorObj = /./;
+  detektorObj.toString = function() {
+    hancurkanHalaman();
+    return '';
+  };
+
+  const detektorElemen = document.createElement('div');
+  Object.defineProperty(detektorElemen, 'id', {
+    get: function() {
+      hancurkanHalaman();
+      return '';
+    }
+  });
+
+  // 6. Pemantauan Sangat Cepat (Heartbeat 60ms)
+  // Menjaga peramban agar tidak memberi celah 1 detik pun bagi pengguna
+  const heartbeat = setInterval(function() {
+    deteksiResizeDocked();
+
+    // Memicu getter saat tab console dirender
+    console.log('%c', detektorElemen);
+    console.log(detektorObj);
+    console.clear();
+  }, 60);
+
 })();
 
 
