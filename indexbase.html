@@ -6607,73 +6607,72 @@
   }
 
 // =====================================================
-// PENGAMANAN DEVTOOLS & KLIK KANAN (VERSI OPTIMAL)
+// PENGAMANAN DEVTOOLS & KLIK KANAN 
+// =====================================================
+
+// 1. Blokir Klik Kanan
+document.addEventListener('contextmenu', function(e) {
+  const isSuperadmin = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'Superadmin');
+  const isDebugMode = window.location.search.includes('dev=hfd') && isSuperadmin;
+
+  if (!isDebugMode) {
+    e.preventDefault();
+  }
+});
+
+// 2. Blokir F12 & Shortcut Inspect
+document.addEventListener('keydown', function(e) {
+  const isSuperadmin = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'Superadmin');
+  const isDebugMode = window.location.search.includes('dev=hfd') && isSuperadmin;
+
+  if (isDebugMode) return;
+
+  if (
+    e.key === 'F12' ||
+    (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
+    (e.ctrlKey && ['U', 'u'].includes(e.key))
+  ) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+// =====================================================
+// DETEKSI DEVTOOLS INSTAN (LANGSUNG BLOKIR TANPA JEDA)
 // =====================================================
 (function() {
-  // 1. Parameter Bypass Rahasia (Cukup tambahkan ?dev=hfd di URL)
-  // Tidak bergantung pada currentUser agar Anda bisa membuka console sejak awal muat halaman
-  const isDebugMode = window.location.search.includes('dev=hfd');
-  if (isDebugMode) {
-    console.warn("⚠️ Mode Pengembang Aktif: Semua proteksi dimatikan.");
-    return;
-  }
-
-  // 2. Blokir Klik Kanan
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-  });
-
-  // 3. Blokir Tombol F12, View Source, dan Shortcut Inspect (Windows & Mac)
-  document.addEventListener('keydown', function(e) {
-    const isCtrlOrCmd = e.ctrlKey || e.metaKey;
-    const isShift = e.shiftKey;
-    const isAlt = e.altKey;
-
-    if (
-      e.key === 'F12' ||
-      // Ctrl+Shift+I / J / C (Windows/Linux)
-      (isCtrlOrCmd && isShift && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
-      // Cmd+Option+I / J / C (Mac)
-      (isCtrlOrCmd && isAlt && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) ||
-      // Ctrl+U (View Source) & Ctrl+S (Save Page)
-      (isCtrlOrCmd && ['U', 'u', 'S', 's'].includes(e.key))
-    ) {
-      e.preventDefault();
-      return false;
-    }
-  });
-
-  // 4. Layar Peringatan Akses Ditolak
   function tampilkanLayarBlokir() {
+    // Cegah penimpaan berulang jika layar sudah diganti
     if (document.getElementById('layar-akses-ditolak')) return;
 
     document.body.innerHTML = `
-      <div id="layar-akses-ditolak" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;background:#1a1a1a;color:#ffffff;font-family:sans-serif;text-align:center;padding:20px;position:fixed;top:0;left:0;width:100vw;z-index:9999999;">
+      <div id="layar-akses-ditolak" style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;background:#1a1a1a;color:#ffffff;font-family:sans-serif;text-align:center;padding:20px;">
         <h2 style="color:#e63946;margin-bottom:10px;">Akses Ditolak</h2>
-        <p style="color:#cccccc;max-width:500px;">Alat pengembang (Developer Tools) dinonaktifkan demi keamanan data warga.</p>
+        <p style="color:#cccccc;max-width:500px;">Alat pengembang (Developer Tools) tidak diizinkan pada aplikasi ini demi keamanan data warga.</p>
         <button onclick="location.reload()" style="margin-top:15px;padding:8px 18px;background:#e63946;color:#fff;border:none;border-radius:6px;cursor:pointer;">Muat Ulang Halaman</button>
       </div>
     `;
   }
 
-  // 5. Deteksi DevTools Instan
   function periksaDevtools() {
-    // Abaikan jika diakses dari perangkat ponsel layar sentuh agar tidak memicu deteksi salah
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isSuperadmin = (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'Superadmin');
+    const isDebugMode = window.location.search.includes('dev=hfd') && isSuperadmin;
 
-    if (!isMobile) {
-      const ambangBatas = 160;
-      const panelTerbuka = 
-        (window.outerWidth - window.innerWidth > ambangBatas) || 
-        (window.outerHeight - window.innerHeight > ambangBatas);
+    // Lewati jika membuka URL rahasia ?dev=hfd
+    if (isDebugMode) return;
 
-      if (panelTerbuka) {
-        tampilkanLayarBlokir();
-        return;
-      }
-    }
+    // 1. Deteksi instan panel DevTools (docked di samping / bawah)
+    const ambangBatas = 160;
+    const panelTerbuka = 
+      (window.outerWidth - window.innerWidth > ambangBatas) || 
+      (window.outerHeight - window.innerHeight > ambangBatas);
 
-    // Deteksi jendela terpisah (Undocked Window)
+    if (panelTerbuka) {
+	// Lempar browser ke halaman kosong seketika sehingga tab Sources langsung bersih
+	window.location.replace("about:blank");
+	}
+
+    // 2. Deteksi instan jika DevTools dibuka di jendela terpisah (undocked)
     const detektor = new Image();
     Object.defineProperty(detektor, 'id', {
       get: function() {
@@ -6681,12 +6680,15 @@
       }
     });
     console.log('%c', detektor);
+    console.clear();
   }
 
-  // Jalankan pemeriksaan berkala
-  setInterval(periksaDevtools, 800);
+  // Jalankan pemeriksaan setiap 500 milidetik dan saat ukuran jendela berubah
+  setInterval(periksaDevtools, 500);
   window.addEventListener('resize', periksaDevtools);
 })();
+
+
           // Helper universal untuk mengambil pengaturan aplikasi secara akurat
           function getSetting(key, defaultValue) {
             if (typeof appSettings !== 'undefined' && appSettings && appSettings[key]) {
