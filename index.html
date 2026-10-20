@@ -6412,24 +6412,25 @@
           <!-- Rincian Identitas Warga -->
           <div class="row align-items-center mb-3">
             <div class="col-8">
-              <span class="badge bg-warning text-dark mb-1" id="kta-status-hunian">Warga Tetap</span>
+              <span class="badge bg-warning text-dark mb-1" id="kta-status-hunian">Aktif</span>
               <h5 class="fw-bold mb-1 text-truncate" id="kta-nama">Nama Warga</h5>
-              <div class="small mb-1"><i class="fas fa-home me-1"></i> <span id="kta-alamat">Blok A No. 01</span></div>
-              <div class="small"><i class="fas fa-key me-1"></i> ID: <b id="kta-kode">WRG-0001</b></div>
+              <div class="small mb-1"><i class="fas fa-home me-1"></i> <span id="kta-alamat">Blok C-31</span></div>
+              <!-- DIGANTI: ID dihapus, diganti No. WhatsApp -->
+              <div class="small"><i class="fab fa-whatsapp me-1 text-white"></i> <span id="kta-wa">08xxxxxxxxxx</span></div>
             </div>
             
-            <!-- QR Code Otomatis -->
+            <!-- QR Code (Tetap membawa kode unik untuk verifikasi scan satpam) -->
             <div class="col-4 text-center">
               <div class="p-1 bg-white rounded-3 shadow-sm d-inline-block">
-                <img id="kta-qrcode" src="" alt="QR Code Warga" style="width: 85px; height: 85px; display: block;">
+                <img id="kta-qrcode" src="" alt="QR Code" style="width: 85px; height: 85px; display: block;">
               </div>
             </div>
           </div>
 
-          <!-- Footer Kartu -->
-          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-50" style="font-size: 0.68rem; opacity: 0.85;">
-            <span>Terdaftar Resmi di Lingkungan RT/RW</span>
-            <span id="kta-tgl-terbit">2026</span>
+          <!-- Footer Kartu: DIGANTI DENGAN NAMA KOMPLEK -->
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-50" style="font-size: 0.72rem; opacity: 0.9;">
+            <span id="kta-komplek" class="fw-semibold"><i class="fas fa-map-marker-alt me-1"></i> Grand Assalam</span>
+            <span id="kta-tgl-terbit">Valid • 2026</span>
           </div>
 
         </div>
@@ -18077,27 +18078,31 @@ function bunyikanNotifikasiDanAdzan(namaSholat) {
 function tampilkanKtaDigital(warga) {
   if (!warga) return;
 
-  const kode = (warga.kodeUnik || warga.kode || 'WRG000').toUpperCase();
+  const kode = (warga.kodeUnik || warga.kode || '').toUpperCase();
   const nama = warga.nama || warga.namaWarga || 'Warga';
-  const alamat = warga.alamat || (warga.blok ? 'Blok ' + warga.blok : 'Komplek Perumahan');
-  const status = warga.statusWarga || 'Warga Tetap';
+  const alamat = warga.alamat || '-';
+  const status = warga.statusWarga || 'Aktif';
+  const noWa = warga.noWa || '-';
 
-  // Isi data ke elemen kartu
+  // Ambil nama komplek dari database/elemen header domisili
+  const elDomisili = document.getElementById('pub-app-domisili');
+  const namaKomplek = warga.namaKomplek || (elDomisili ? elDomisili.innerText.trim() : 'Grand Assalam');
+
+  // Tampilkan data ke kartu
   document.getElementById('kta-nama').innerText = nama;
   document.getElementById('kta-alamat').innerText = alamat;
-  document.getElementById('kta-kode').innerText = kode;
   document.getElementById('kta-status-hunian').innerText = status;
+  document.getElementById('kta-wa').innerText = noWa;
+  document.getElementById('kta-komplek').innerHTML = `<i class="fas fa-map-marker-alt me-1 text-warning"></i> ${namaKomplek}`;
   document.getElementById('kta-tgl-terbit').innerText = 'Valid • ' + new Date().getFullYear();
 
-  // Generate QR Code instan berbasis API publik (resolusi tajam & tanpa library berat)
+  // QR Code tetap menggunakan kode unik agar satpam tetap bisa memverifikasi saat discan
   const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(kode);
   document.getElementById('kta-qrcode').src = qrUrl;
 
-  // Buka modal kartu
   const modalEl = document.getElementById('modalKtaDigital');
   if (modalEl) {
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
+    new bootstrap.Modal(modalEl).show();
   }
 }
 
