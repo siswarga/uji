@@ -444,71 +444,76 @@
     <h5 class="mt-3 text-success fw-bold">Memuat Sistem...</h5>
   </div>
 
-  <!-- PORTAL PUBLIK (DASHBOARD WARGA) -->
-  <div id="public-page" style="display: none;">
-    <div class="container py-3">
+ <!-- PORTAL PUBLIK (DASHBOARD WARGA) -->
+<div id="public-page" style="display: none;">
+  <div class="container py-3">
 
-      <!-- BARIS 1: Header / Brand -->
-      <div class="row align-items-center mb-4 pb-3 border-bottom">
-        <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <!-- BARIS 1: Header / Brand -->
+    <div class="row align-items-center mb-4 pb-3 border-bottom">
+      <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-2">
 
-          <!-- KIRI: Brand / Logo -->
-          <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" style="cursor: pointer;">
-            <div id="pub-logo-container" class="bg-success text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center overflow-hidden" style="width: 48px; height: 48px;">
-              <i class="fas fa-leaf fa-lg" id="pub-logo-icon"></i>
-            </div>
-            <div>
-              <h4 class="fw-bold mb-0 text-success" id="pub-app-name">SI-GAS</h4>
-              <small class="text-muted" id="pub-app-domisili"><i class="fas fa-map-marker-alt text-danger me-1"></i> Grand Assalam</small>
-            </div>
+        <!-- KIRI: Brand / Logo -->
+        <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" style="cursor: pointer;">
+          <div id="pub-logo-container" class="bg-success text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center overflow-hidden" style="width: 48px; height: 48px;">
+            <i class="fas fa-leaf fa-lg" id="pub-logo-icon"></i>
+          </div>
+          <div>
+            <h4 class="fw-bold mb-0 text-success" id="pub-app-name">SI-GAS</h4>
+            <small class="text-muted" id="pub-app-domisili"><i class="fas fa-map-marker-alt text-danger me-1"></i> Grand Assalam</small>
+          </div>
+        </div>
+
+        <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
+        <div class="d-flex align-items-center gap-2 gap-md-3">
+
+          <!-- 1. Tombol Dokumentasi (Kamera & Galeri) -->
+          <div class="dropdown">
+            <button class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Dokumentasi & Galeri Kegiatan" style="width: 42px; height: 42px;">
+              <i class="fas fa-camera fa-lg"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+              <li>
+                <label class="dropdown-item py-2" style="cursor: pointer;">
+                  <i class="fas fa-cloud-upload-alt text-success me-2"></i> Unggah Foto Warga
+                  <input type="file" accept="image/*" multiple style="display: none;" onchange="prosesPilihFoto(this)">
+                </label>
+              </li>
+              <li>
+                <hr class="dropdown-divider my-1">
+              </li>
+              <li>
+                <a class="dropdown-item py-2" href="javascript:void(0)" onclick="bukaGaleriFoto()">
+                  <i class="fas fa-images text-primary me-2"></i> Lihat Galeri Foto
+                </a>
+              </li>
+            </ul>
           </div>
 
-          <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
-          <div class="d-flex align-items-center gap-2 gap-md-3">
+          <!-- 2. Tombol Lapak UMKM Warga -->
+          <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
+            <i class="fas fa-store fa-lg"></i>
+          </button>
 
-            <!-- 1. Tombol Dokumentasi (Kamera & Galeri) -->
-            <div class="dropdown">
-              <button class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Dokumentasi & Galeri Kegiatan" style="width: 42px; height: 42px;">
-                <i class="fas fa-camera fa-lg"></i>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
-                <li>
-                  <label class="dropdown-item py-2" style="cursor: pointer;">
-                    <i class="fas fa-cloud-upload-alt text-success me-2"></i> Unggah Foto Warga
-                    <input type="file" accept="image/*" multiple style="display: none;" onchange="prosesPilihFoto(this)">
-                  </label>
-                </li>
-                <li>
-                  <hr class="dropdown-divider my-1">
-                </li>
-                <li>
-                  <a class="dropdown-item py-2" href="javascript:void(0)" onclick="bukaGaleriFoto()">
-                    <i class="fas fa-images text-primary me-2"></i> Lihat Galeri Foto
-                  </a>
-                </li>
-              </ul>
-            </div>
+          <!-- 3. Tombol Kartu Warga Digital (Hanya Ikon ID Card/QR) -->
+          <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
+            <i class="fas fa-id-card fa-lg"></i>
+          </button>
 
-            <!-- 2. Tombol Lapak UMKM Warga -->
-            <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
-              <i class="fas fa-store fa-lg"></i>
-            </button>
+          <!-- 4. Tombol Darurat SOS -->
+          <button type="button" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
+            <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
+            <span class="fw-bold small">SOS</span>
+          </button>
 
-            <!-- 3. Tombol Darurat SOS -->
-            <button type="button" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
-              <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
-              <span class="fw-bold small">SOS</span>
-            </button>
-
-            <!-- 4. Badge Status Portal (Tampil di Layar Desktop) -->
-            <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-lg-inline-block ms-1">
-              <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
-            </span>
-
-          </div>
+          <!-- 5. Badge Status Portal (Tampil di Layar Desktop) -->
+          <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-lg-inline-block ms-1">
+            <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
+          </span>
 
         </div>
+
       </div>
+    </div>
 
       <!-- BARIS 2: RUNNING TEXT / PENGUMUMAN BERJALAN -->
       <div class="row mb-4" id="row-running-text">
@@ -6385,6 +6390,55 @@
       </form>
     </div>
   </div>
+  
+<!-- Modal Kartu Tanda Warga Digital -->
+<div class="modal fade" id="modalKtaDigital" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      
+      <!-- Desain Kartu Identitas -->
+      <div class="card border-0 text-white" style="background: linear-gradient(135deg, #134e5e, #71b280);">
+        <div class="card-body p-4 position-relative">
+          
+          <!-- Header Kartu -->
+          <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 border-white-50">
+            <div>
+              <h6 class="fw-bold mb-0 text-uppercase tracking-wider">KARTU WARGA DIGITAL</h6>
+              <small style="font-size: 0.7rem; opacity: 0.85;">SISTEM KEPENDUDUKAN KETAWA</small>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <!-- Rincian Identitas Warga -->
+          <div class="row align-items-center mb-3">
+            <div class="col-8">
+              <span class="badge bg-warning text-dark mb-1" id="kta-status-hunian">Warga Tetap</span>
+              <h5 class="fw-bold mb-1 text-truncate" id="kta-nama">Nama Warga</h5>
+              <div class="small mb-1"><i class="fas fa-home me-1"></i> <span id="kta-alamat">Blok A No. 01</span></div>
+              <div class="small"><i class="fas fa-key me-1"></i> ID: <b id="kta-kode">WRG-0001</b></div>
+            </div>
+            
+            <!-- QR Code Otomatis -->
+            <div class="col-4 text-center">
+              <div class="p-1 bg-white rounded-3 shadow-sm d-inline-block">
+                <img id="kta-qrcode" src="" alt="QR Code Warga" style="width: 85px; height: 85px; display: block;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Kartu -->
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-50" style="font-size: 0.68rem; opacity: 0.85;">
+            <span>Terdaftar Resmi di Lingkungan RT/RW</span>
+            <span id="kta-tgl-terbit">2026</span>
+          </div>
+
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
 <!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -8674,13 +8728,20 @@ if (canvasUsia) {
               }
               
               	function renderTableKas(){ const s=document.getElementById('search-kas').value.toLowerCase(), fil=document.getElementById('filter-kas-jenis').value; let f=dataKasGlobal.filter(k=>{let ket=String(k.keterangan).toLowerCase(); let nWg=String(k.namaWarga).toLowerCase(); let nKK=String(k.namaKK).toLowerCase(); let kat=String(k.kategori).toLowerCase(); return (fil==='All'||k.jenis===fil)&&(ket.includes(s)||nWg.includes(s)||nKK.includes(s)||kat.includes(s));}); const st=(currentPageKas-1)*dataPerPage; const pg=f.slice(st,st+dataPerPage); const tb=document.getElementById('tbody-kas'); tb.innerHTML=''; if(pg.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center">Kosong</td></tr>';}else{pg.forEach(k=>{let nm=k.kategori==='Iuran Warga'||k.kategori==='Denda Ronda'?k.namaKK:k.namaWarga; let statusBadge = k.status === 'Menunggu Konfirmasi' ? `<span class="badge bg-warning text-dark">Pending</span> <button class="btn btn-sm btn-success py-0 ms-1" onclick="konfirmasiKasWarga('${k.id}', true)">Terima</button>` : `<span class="badge bg-success">Selesai</span>`; tb.innerHTML+=`<tr><td>${k.tanggal}</td><td><i class="fas ${k.jenis==='Kas Masuk'?'fa-arrow-down text-primary':'fa-arrow-up text-danger'}"></i> ${k.kategori}</td><td>${k.keterangan} ${nm!=='-'?`(<b>${nm}</b>)`:''}</td><td class="fw-bold ${k.jenis==='Kas Masuk'?'text-primary':'text-danger'}">${formatRupiah(k.nominal)}</td><td>${k.status==='Menunggu Konfirmasi'?'<span class="badge bg-warning text-dark">Pending</span>':'<span class="badge bg-success">Selesai</span>'}</td></tr>`;});} document.getElementById('kas-info').innerText=`Menampilkan ${st+1} - ${st+pg.length} dari ${f.length}`; document.getElementById('kas-pagination').innerHTML=`${currentPageKas>1?`<button class="btn btn-sm btn-outline-secondary" onclick="currentPageKas--; renderTableKas()">Prev</button>`:''}${currentPageKas<Math.ceil(f.length/dataPerPage)?`<button class="btn btn-sm btn-outline-secondary" onclick="currentPageKas++; renderTableKas()">Next</button>`:''}`; }
-              function fetchRiwayatIuran(){ const kk=document.getElementById('kas_in_kk').value, thn=document.getElementById('kas_in_tahun').value, c=document.getElementById('checkbox-bulan'); if(!kk||!thn){generateBulanCheckboxes([]);return;} c.innerHTML='<small class="text-muted">Mengecek...</small>'; google.script.run.withSuccessHandler(res=>{if(res.success)generateBulanCheckboxes(res.data);else generateBulanCheckboxes([]);}).getRiwayatIuranKK(localStorage.getItem('sigas_token'), kk, thn); }
-              function generateBulanCheckboxes(paid=[]){ const c=document.getElementById('checkbox-bulan'); c.innerHTML=''; bulanArray.forEach(b=>{let ip=paid.includes(b); let d=ip?'disabled checked':''; let cls=ip?'text-success text-decoration-line-through':''; c.innerHTML+=`<div class="form-check form-check-inline"><input class="form-check-input check-bulan" type="checkbox" value="${b}" onchange="calculateIuran()" ${d}><label class="form-check-label ${cls}">${b}</label></div>`;}); calculateIuran(); }
-              function calculateIuran(){ if(document.getElementById('kas_in_kat').value!=='Iuran Warga')return; document.getElementById('kas_in_nom').value=document.querySelectorAll('.check-bulan:checked:not([disabled])').length*(parseInt(appSettings['iuran_warga'])||0); }
-              function toggleFormKasIn(){ const k=document.getElementById('kas_in_kat').value; document.getElementById('div_kas_in_kk').classList.add('d-none'); document.getElementById('div_kas_in_warga').classList.add('d-none'); document.getElementById('div_kas_in_bulan').classList.add('d-none'); document.getElementById('kas_in_kk').required=false; document.getElementById('kas_in_nom').readOnly=false; if(k==='Iuran Warga'){document.getElementById('div_kas_in_kk').classList.remove('d-none');document.getElementById('div_kas_in_bulan').classList.remove('d-none');document.getElementById('kas_in_kk').required=true;document.getElementById('kas_in_nom').readOnly=true; document.getElementById('kas_in_tahun').value=new Date().getFullYear(); fetchRiwayatIuran();}else if(k==='Denda Ronda'){document.getElementById('div_kas_in_kk').classList.remove('d-none');document.getElementById('kas_in_kk').required=true;document.getElementById('kas_in_nom').value=parseInt(appSettings['denda_ronda'])||0;}else if(k==='Donasi'){document.getElementById('div_kas_in_warga').classList.remove('d-none');document.getElementById('kas_in_nom').value='';}else{document.getElementById('kas_in_nom').value='';} }
-              function toggleFormKasOut(){ const k=document.getElementById('kas_out_kat').value; document.getElementById('div_kas_out_warga').classList.toggle('d-none', k!=='Santunan'); }
-              function openModalKasMasuk(){ document.getElementById('formKasMasuk').reset(); document.getElementById('kas_in_tgl').valueAsDate=new Date(); toggleFormKasIn(); new bootstrap.Modal(document.getElementById('modalKasMasuk')).show(); }
-              function openModalKasKeluar(){ document.getElementById('formKasKeluar').reset(); document.getElementById('kas_out_tgl').valueAsDate=new Date(); toggleFormKasOut(); new bootstrap.Modal(document.getElementById('modalKasKeluar')).show(); }
+             
+			 function fetchRiwayatIuran(){ const kk=document.getElementById('kas_in_kk').value, thn=document.getElementById('kas_in_tahun').value, c=document.getElementById('checkbox-bulan'); if(!kk||!thn){generateBulanCheckboxes([]);return;} c.innerHTML='<small class="text-muted">Mengecek...</small>'; google.script.run.withSuccessHandler(res=>{if(res.success)generateBulanCheckboxes(res.data);else generateBulanCheckboxes([]);}).getRiwayatIuranKK(localStorage.getItem('sigas_token'), kk, thn); }
+              
+			  function generateBulanCheckboxes(paid=[]){ const c=document.getElementById('checkbox-bulan'); c.innerHTML=''; bulanArray.forEach(b=>{let ip=paid.includes(b); let d=ip?'disabled checked':''; let cls=ip?'text-success text-decoration-line-through':''; c.innerHTML+=`<div class="form-check form-check-inline"><input class="form-check-input check-bulan" type="checkbox" value="${b}" onchange="calculateIuran()" ${d}><label class="form-check-label ${cls}">${b}</label></div>`;}); calculateIuran(); }
+              
+			  function calculateIuran(){ if(document.getElementById('kas_in_kat').value!=='Iuran Warga')return; document.getElementById('kas_in_nom').value=document.querySelectorAll('.check-bulan:checked:not([disabled])').length*(parseInt(appSettings['iuran_warga'])||0); }
+              
+			  function toggleFormKasIn(){ const k=document.getElementById('kas_in_kat').value; document.getElementById('div_kas_in_kk').classList.add('d-none'); document.getElementById('div_kas_in_warga').classList.add('d-none'); document.getElementById('div_kas_in_bulan').classList.add('d-none'); document.getElementById('kas_in_kk').required=false; document.getElementById('kas_in_nom').readOnly=false; if(k==='Iuran Warga'){document.getElementById('div_kas_in_kk').classList.remove('d-none');document.getElementById('div_kas_in_bulan').classList.remove('d-none');document.getElementById('kas_in_kk').required=true;document.getElementById('kas_in_nom').readOnly=true; document.getElementById('kas_in_tahun').value=new Date().getFullYear(); fetchRiwayatIuran();}else if(k==='Denda Ronda'){document.getElementById('div_kas_in_kk').classList.remove('d-none');document.getElementById('kas_in_kk').required=true;document.getElementById('kas_in_nom').value=parseInt(appSettings['denda_ronda'])||0;}else if(k==='Donasi'){document.getElementById('div_kas_in_warga').classList.remove('d-none');document.getElementById('kas_in_nom').value='';}else{document.getElementById('kas_in_nom').value='';} }
+             
+			 function toggleFormKasOut(){ const k=document.getElementById('kas_out_kat').value; document.getElementById('div_kas_out_warga').classList.toggle('d-none', k!=='Santunan'); }
+              
+			  function openModalKasMasuk(){ document.getElementById('formKasMasuk').reset(); document.getElementById('kas_in_tgl').valueAsDate=new Date(); toggleFormKasIn(); new bootstrap.Modal(document.getElementById('modalKasMasuk')).show(); }
+             
+			 function openModalKasKeluar(){ document.getElementById('formKasKeluar').reset(); document.getElementById('kas_out_tgl').valueAsDate=new Date(); toggleFormKasOut(); new bootstrap.Modal(document.getElementById('modalKasKeluar')).show(); }
               
               	function saveKas(e, j){ 
                 e.preventDefault(); 
@@ -9306,7 +9367,8 @@ function updateStatusServer(tanggal) {
               }
               
               function openModalGenerateRonda(){ document.getElementById('formGenerateRonda').reset(); document.getElementById('ronda_jam_mulai').value=appSettings['jam_ronda_mulai']||'21:00'; document.getElementById('ronda_jam_selesai').value=appSettings['jam_ronda_selesai']||'01:00'; new bootstrap.Modal(document.getElementById('modalGenerateRonda')).show(); }
-              function generateRonda(e){ e.preventDefault(); const b=document.getElementById('btn-save-ronda'); b.disabled=true; Swal.fire({title:'Mengkalkulasi...',html:'AI sedang menghitung rotasi pembagian petugas...',allowOutsideClick:false,didOpen:()=>{Swal.showLoading();}}); google.script.run.withSuccessHandler(res=>{b.disabled=false;if(res.success){bootstrap.Modal.getInstance(document.getElementById('modalGenerateRonda')).hide();Swal.fire('Berhasil',res.message,'success');loadDataRonda();}else Swal.fire('Ditolak',res.message,'error');}).withFailureHandler(err=>{b.disabled=false;Swal.fire('Error',String(err),'error');}).generateJadwalRonda(localStorage.getItem('sigas_token'), document.getElementById('ronda_tgl').value, document.getElementById('ronda_jam_mulai').value, document.getElementById('ronda_jam_selesai').value, null, document.getElementById('ronda_durasi').value); }
+              
+			  function generateRonda(e){ e.preventDefault(); const b=document.getElementById('btn-save-ronda'); b.disabled=true; Swal.fire({title:'Mengkalkulasi...',html:'AI sedang menghitung rotasi pembagian petugas...',allowOutsideClick:false,didOpen:()=>{Swal.showLoading();}}); google.script.run.withSuccessHandler(res=>{b.disabled=false;if(res.success){bootstrap.Modal.getInstance(document.getElementById('modalGenerateRonda')).hide();Swal.fire('Berhasil',res.message,'success');loadDataRonda();}else Swal.fire('Ditolak',res.message,'error');}).withFailureHandler(err=>{b.disabled=false;Swal.fire('Error',String(err),'error');}).generateJadwalRonda(localStorage.getItem('sigas_token'), document.getElementById('ronda_tgl').value, document.getElementById('ronda_jam_mulai').value, document.getElementById('ronda_jam_selesai').value, null, document.getElementById('ronda_durasi').value); }
               
 function loadDataBlacklist() {
   if (typeof showLoading === 'function') showLoading();
@@ -15831,72 +15893,119 @@ function openModalKopPinjaman() {
                   });
               }
       		
-      function kirimAbsenRonda() {
-        let elKode = document.getElementById('rondaKodeWarga');
-        let kode = elKode ? elKode.value.trim() : '';
-      
-        if (!kode) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Kode Kosong',
-            text: 'Silakan masukkan Kode Unik Anda (Contoh: WRG001)!',
-            confirmButtonColor: '#198754'
-          });
-          return;
-        }
-      
-        showLoading();
-      
-        google.script.run
-          .withSuccessHandler(res => {
-            hideLoading();
+function kirimAbsenRonda() {
+  let elKode = document.getElementById('rondaKodeWarga');
+  let kode = elKode ? elKode.value.trim() : '';
+
+  if (!kode) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Kode Kosong',
+      text: 'Silakan masukkan Kode Unik Anda (Contoh: WRG001)!',
+      confirmButtonColor: '#198754'
+    });
+    return;
+  }
+
+  // 1. Cek dukungan GPS di perangkat pengguna
+  if (!navigator.geolocation) {
+    Swal.fire({
+      icon: 'error',
+      title: 'GPS Tidak Didukung',
+      text: 'Browser perangkat Anda tidak mendukung akses lokasi GPS.',
+      confirmButtonColor: '#dc3545'
+    });
+    return;
+  }
+
+  // 2. Tampilkan loading verifikasi lokasi
+  showLoading();
+
+  // 3. Ambil koordinat GPS saat ini
+  navigator.geolocation.getCurrentPosition(
+    function(posisi) {
+      const payloadAbsen = {
+        kodeWarga: kode,
+        lat: posisi.coords.latitude,
+        lng: posisi.coords.longitude,
+        akurasi: posisi.coords.accuracy
+      };
+
+      // 4. Kirim data kode & koordinat GPS ke server
+      google.script.run
+        .withSuccessHandler(res => {
+          hideLoading();
+          
+          let teksKeterangan = "Akses ditolak oleh sistem.";
+          if (res && res.pesan) {
+            teksKeterangan = res.pesan;
+          } else if (res && res.message) {
+            teksKeterangan = res.message;
+          } else if (res && res.data && res.data.pesan) {
+            teksKeterangan = res.data.pesan;
+          }
+
+          let isBerhasil = (res && res.status === "success") || 
+                           (res && res.data && res.data.status === "success") ||
+                           (res && res.success === true);
+
+          if (isBerhasil) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Presensi Berhasil!',
+              text: teksKeterangan, 
+              confirmButtonColor: '#198754'
+            });
             
-            // LOGIKA PINTAR: Menangkap alasan penolakan dari berbagai format server
-            let teksKeterangan = "Akses ditolak oleh sistem."; // Teks default jika server blank
-            if (res && res.pesan) {
-                teksKeterangan = res.pesan;
-            } else if (res && res.message) {
-                teksKeterangan = res.message;
-            } else if (res && res.data && res.data.pesan) {
-                teksKeterangan = res.data.pesan;
-            }
-      
-            // Cek apakah status berhasil
-            let isBerhasil = (res && res.status === "success") || (res && res.data && res.data.status === "success");
-      
-            if (isBerhasil) {
-              Swal.fire({
-                icon: 'success',
-                title: 'Presensi Berhasil!',
-                text: teksKeterangan, 
-                confirmButtonColor: '#198754'
-              });
-              
-              if (elKode) elKode.value = '';
-              if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
-              if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
-              
-            } else {
-              // TAMPILKAN POP-UP ERROR BESERTA KETERANGAN PENOLAKANNYA
-              Swal.fire({
-                icon: 'error',
-                title: 'Presensi Ditolak',
-                text: teksKeterangan, // Baris ini yang memunculkan alasan spesifik di layar
-                confirmButtonColor: '#dc3545'
-              });
-            }
-          })
-          .withFailureHandler(err => {
-            hideLoading();
+            if (elKode) elKode.value = '';
+            if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
+            if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
+            
+          } else {
             Swal.fire({
               icon: 'error',
-              title: 'Error Koneksi',
-              text: 'Gagal terhubung ke server: ' + err,
+              title: 'Presensi Ditolak',
+              text: teksKeterangan,
               confirmButtonColor: '#dc3545'
             });
-          })
-          .simpanAbsenRonda({ kodeWarga: kode });
+          }
+        })
+        .withFailureHandler(err => {
+          hideLoading();
+          Swal.fire({
+            icon: 'error',
+            title: 'Error Koneksi',
+            text: 'Gagal terhubung ke server: ' + err,
+            confirmButtonColor: '#dc3545'
+          });
+        })
+        .simpanAbsenRonda(payloadAbsen); // Mengirim objek berisi kodeWarga + koordinat GPS
+    },
+    function(error) {
+      hideLoading();
+      let alasan = 'Gagal mendeteksi lokasi.';
+      if (error.code === error.PERMISSION_DENIED) {
+        alasan = 'Izin lokasi (GPS) ditolak. Harap izinkan akses lokasi pada browser HP Anda agar bisa absen ronda.';
+      } else if (error.code === error.POSITION_UNAVAILABLE) {
+        alasan = 'Sinyal lokasi tidak ditemukan. Pastikan GPS aktif.';
+      } else if (error.code === error.TIMEOUT) {
+        alasan = 'Waktu pencarian lokasi habis. Silakan coba klik kirim lagi.';
       }
+      
+      Swal.fire({
+        icon: 'warning',
+        title: 'Lokasi Diperlukan',
+        text: alasan,
+        confirmButtonColor: '#f39c12'
+      });
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+}
       
       let dataAbsenRondaGlobal = [];
       let isSuperAdminRonda = false;
@@ -15930,40 +16039,65 @@ function openModalKopPinjaman() {
       }
       
       // 2. Fungsi Penggambar Tabel (Sama seperti sebelumnya tapi diberi pengaman tambahan)
-      function renderTabelHasilAbsen(data) {
-        let tb = document.getElementById('tbody-hasil-absen-ronda');
-        if (!tb) return;
-        tb.innerHTML = '';
-      
-        // PENGAMANAN: Pastikan 'data' benar-benar array
-        if (!Array.isArray(data)) {
-          console.error("Data yang diterima bukan Array:", data);
-          tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Terjadi kesalahan format data dari server.</td></tr>';
-          return;
-        }
-      
-        if (data.length === 0) {
-          tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada riwayat absensi ronda malam yang tercatat.</td></tr>';
-          return;
-        }
-      
-        data.forEach(item => {
-          let btnAksi = isSuperAdminRonda
-            ? `<button class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" title="Hapus" onclick="konfirmasiHapusAbsen('${item.id}', '${item.nama}')"><i class="fas fa-trash-alt"></i></button>`
-            : `<span class="badge bg-light text-secondary border"><i class="fas fa-shield-alt text-success me-1"></i>Terkunci</span>`;
-      
-          tb.innerHTML += `
-            <tr>
-              <td class="fw-bold text-dark"><i class="far fa-calendar-check text-primary me-2"></i>${item.tanggal || '-'}</td>
-              <td><b>${item.nama || '-'}</b></td>
-              <td class="small text-muted"><i class="far fa-clock me-1 text-warning"></i>${item.waktuAbsen || '-'}</td>
-              <td><span class="badge bg-success px-2 py-1"><i class="fas fa-check me-1"></i>${item.status || 'Hadir'}</span></td>
-              <td class="small text-secondary"><i class="fas fa-key text-warning me-1"></i>${item.keterangan || '-'}</td>
-              <td class="text-center">${btnAksi}</td>
-            </tr>
-          `;
-        });
-      }
+     function renderTabelHasilAbsen(data) {
+  let tb = document.getElementById('tbody-hasil-absen-ronda');
+  if (!tb) return;
+  tb.innerHTML = '';
+
+  // 1. Validasi tipe data array
+  if (!Array.isArray(data)) {
+    console.error("Data yang diterima bukan Array:", data);
+    tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Terjadi kesalahan format data dari server.</td></tr>';
+    return;
+  }
+
+  // 2. Tampilan data kosong
+  if (data.length === 0) {
+    tb.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada riwayat absensi ronda malam yang tercatat.</td></tr>';
+    return;
+  }
+
+  // 3. Render baris tabel beserta tautan Google Maps
+  data.forEach(item => {
+    let btnAksi = isSuperAdminRonda
+      ? `<button class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" title="Hapus" onclick="konfirmasiHapusAbsen('${item.id}', '${item.nama}')"><i class="fas fa-trash-alt"></i></button>`
+      : `<span class="badge bg-light text-secondary border"><i class="fas fa-shield-alt text-success me-1"></i>Terkunci</span>`;
+
+    // Deteksi URL Google Maps dari properti item
+    let urlMaps = item.linkMaps || item.maps || '';
+    if (!urlMaps && item.keterangan && item.keterangan.startsWith('http')) {
+      urlMaps = item.keterangan;
+    }
+
+    // Jika kolom keterangan berisi titik koordinat (contoh: "-6.970284, 107.777391")
+    if (!urlMaps && item.keterangan && item.keterangan.includes(',')) {
+      urlMaps = `https://www.google.com/maps?q=${item.keterangan.trim()}`;
+    }
+
+    // Buat tombol pintasan Google Maps
+    let tombolPeta = urlMaps
+      ? `<div class="mt-1">
+           <a href="${urlMaps}" target="_blank" class="btn btn-outline-primary btn-sm py-0 px-2 rounded-pill shadow-none" style="font-size: 0.72rem;">
+             <i class="fas fa-map-marker-alt text-danger me-1"></i>Buka Peta
+           </a>
+         </div>`
+      : '';
+
+    tb.innerHTML += `
+      <tr>
+        <td class="fw-bold text-dark"><i class="far fa-calendar-check text-primary me-2"></i>${item.tanggal || '-'}</td>
+        <td><b>${item.nama || '-'}</b></td>
+        <td class="small text-muted"><i class="far fa-clock me-1 text-warning"></i>${item.waktuAbsen || '-'}</td>
+        <td><span class="badge bg-success px-2 py-1"><i class="fas fa-check me-1"></i>${item.status || 'Hadir'}</span></td>
+        <td class="small text-secondary">
+          <div><i class="fas fa-map-pin text-warning me-1"></i>${item.keterangan || 'Presensi Mandiri'}</div>
+          ${tombolPeta}
+        </td>
+        <td class="text-center">${btnAksi}</td>
+      </tr>
+    `;
+  });
+}
       
       // 3. Filter pencarian cepat
       function filterTabelAbsenRonda() {
@@ -17934,6 +18068,72 @@ function bunyikanNotifikasiDanAdzan(namaSholat) {
       if (audio) audio.pause();
     });
   }
+}
+
+/**
+ * Membuka Kartu Tanda Warga Digital lengkap dengan generate QR Code
+ * @param {Object} warga - Objek data warga (nama, alamat/blok, kodeUnik, status)
+ */
+function tampilkanKtaDigital(warga) {
+  if (!warga) return;
+
+  const kode = (warga.kodeUnik || warga.kode || 'WRG000').toUpperCase();
+  const nama = warga.nama || warga.namaWarga || 'Warga';
+  const alamat = warga.alamat || (warga.blok ? 'Blok ' + warga.blok : 'Komplek Perumahan');
+  const status = warga.statusWarga || 'Warga Tetap';
+
+  // Isi data ke elemen kartu
+  document.getElementById('kta-nama').innerText = nama;
+  document.getElementById('kta-alamat').innerText = alamat;
+  document.getElementById('kta-kode').innerText = kode;
+  document.getElementById('kta-status-hunian').innerText = status;
+  document.getElementById('kta-tgl-terbit').innerText = 'Valid • ' + new Date().getFullYear();
+
+  // Generate QR Code instan berbasis API publik (resolusi tajam & tanpa library berat)
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(kode);
+  document.getElementById('kta-qrcode').src = qrUrl;
+
+  // Buka modal kartu
+  const modalEl = document.getElementById('modalKtaDigital');
+  if (modalEl) {
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+}
+
+function bukaKartuSaya() {
+  // Minta warga memasukkan Kode Unik atau NIK mereka
+  Swal.fire({
+    title: 'Kartu Tanda Warga',
+    text: 'Masukkan Kode Unik Warga Anda (Contoh: WRG001):',
+    input: 'text',
+    inputPlaceholder: 'Kode Unik Warga...',
+    showCancelButton: true,
+    confirmButtonText: 'Buka Kartu',
+    confirmButtonColor: '#198754',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed && result.value) {
+      const kodeInput = result.value.trim().toUpperCase();
+      showLoading();
+
+      // Cari data warga berdasarkan kode yang diinput
+      google.script.run
+        .withSuccessHandler((res) => {
+          hideLoading();
+          if (res && res.success && res.data) {
+            tampilkanKtaDigital(res.data);
+          } else {
+            Swal.fire('Tidak Ditemukan', 'Kode Unik Warga tidak terdaftar dalam database!', 'error');
+          }
+        })
+        .withFailureHandler((err) => {
+          hideLoading();
+          Swal.fire('Error', 'Gagal memuat data: ' + err, 'error');
+        })
+        .cariDataWargaByKode(kodeInput);
+    }
+  });
 }
     </script>
 <!-- Audio Player Adzan Global -->
