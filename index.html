@@ -15401,15 +15401,21 @@ function terapkanPengaturanKeElemen(s) {
   }
 
   // B. Visibilitas Tombol Header Portal Warga
-  const btnKamera = document.getElementById('header-btn-kamera');
-  const btnUmkm   = document.getElementById('header-btn-umkm');
-  const btnKta    = document.getElementById('header-btn-kta');
-  const btnSos    = document.getElementById('header-btn-sos');
+  const aturVisibilitasTombol = (id, nilai) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const sembunyikan = (String(nilai).toLowerCase().trim() === 'tidak');
+    if (sembunyikan) {
+      el.style.setProperty('display', 'none', 'important');
+    } else {
+      el.style.removeProperty('display');
+    }
+  };
 
-  if (btnKamera) btnKamera.style.display = (String(s['show_kamera']).toLowerCase().trim() === 'tidak') ? 'none' : '';
-  if (btnUmkm)   btnUmkm.style.display   = (String(s['show_umkm']).toLowerCase().trim() === 'tidak') ? 'none' : '';
-  if (btnKta)    btnKta.style.display    = (String(s['show_kta']).toLowerCase().trim() === 'tidak') ? 'none' : '';
-  if (btnSos)    btnSos.style.display    = (String(s['show_sos']).toLowerCase().trim() === 'tidak') ? 'none' : '';
+  aturVisibilitasTombol('header-btn-kamera', s['show_kamera']);
+  aturVisibilitasTombol('header-btn-umkm',   s['show_umkm']);
+  aturVisibilitasTombol('header-btn-kta',    s['show_kta']);
+  aturVisibilitasTombol('header-btn-sos',    s['show_sos']);
 
   // C. Branding Dashboard Warga & Sidebar
   const appName = s['nama_aplikasi'] || s['nama_app'] || 'SI-GAS';
@@ -15558,7 +15564,7 @@ function saveIdentitasAplikasi(e) {
     'warna_aplikasi': getVal('set_warna_aplikasi'),
     'wa_mode_otomatis': statusWa,
 
-    // Kirim kedua varian kunci agar baris 52-54 spreadsheet otomatis ter-update
+    // Sinkronkan kedua format nama key agar baris 52-54 spreadsheet terperbarui
     'pendaftaran_mandiri': valDaftarWarga,
     'fitur_pendaftaran_mandiri': valDaftarWarga,
     'pendaftaran_pengurus': valDaftarPengurus,
@@ -15566,7 +15572,7 @@ function saveIdentitasAplikasi(e) {
     'lapor_mudik': valLaporMudik,
     'fitur_lapor_mudik': valLaporMudik,
 
-    // Switch visibilitas tombol portal warga
+    // Status switch visibilitas tombol header
     'show_kamera': getCheck('seting-show-kamera', 'show_kamera'),
     'show_umkm':   getCheck('seting-show-umkm', 'show_umkm'),
     'show_kta':    getCheck('seting-show-kta', 'show_kta'),
