@@ -7235,12 +7235,13 @@ function setDynamicManifest(namaApp, themeColor) {
               });
               
 // =====================================================
-// SISTEM AUTO LOGOUT (IDLE TIMEOUT) DENGAN AUTO CLOSE MODAL
+// SISTEM AUTO LOGOUT (IDLE TIMEOUT) & TUTUP SEMUA MODAL
 // =====================================================
 let idleTimer;
+let isTimerResetting = false;
 const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 menit
 
-// 1. Fungsi penutup semua modal yang sedang melayang di layar
+// 1. Helper untuk menutup paksa seluruh modal yang sedang terbuka
 function tutupSemuaModal() {
   document.querySelectorAll('.modal').forEach(el => {
     const modalInstance = bootstrap.Modal.getInstance(el);
@@ -7248,60 +7249,76 @@ function tutupSemuaModal() {
       modalInstance.hide();
     }
   });
-  // Bersihkan sisa backdrop abu-abu dan kembalikan scroll layar
   document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
   document.body.classList.remove('modal-open');
   document.body.style.removeProperty('overflow');
   document.body.style.removeProperty('padding-right');
 }
 
-// 2. Fungsi eksekusi saat 15 menit tidak ada aktivitas
-function triggerAutoLogout() {
-  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token');
-  
-  // Hanya jalankan auto-logout jika user sedang dalam kondisi login
-  if (!token) return;
+// 2. Eksekusi logout otomatis saat 15 menit tidak ada aktivitas
+function logoutDueToInactivity() {
+  if (!currentUser) return; // Mencegah pemicu ganda
 
-  // Tutup semua modal form yang masih terbuka seketika
+  // Tutup seketika semua modal form yang masih melayang di layar
   tutupSemuaModal();
 
-  // Bersihkan sesi di backend dan memori browser
-  google.script.run.logout(token);
-  localStorage.removeItem('sigas_token');
-  localStorage.removeItem('token');
-  localStorage.removeItem('sigas_user');
+  if (typeof showLoading === 'function') showLoading();
+  const token = localStorage.getItem('sigas_token');
 
-  // Sembunyikan panel admin dan arahkan ke layar login
-  const adminPanel = document.getElementById('dashboard-admin') || document.getElementById('admin-page');
-  const loginPage = document.getElementById('halaman-login') || document.getElementById('login-page');
-  
-  if (adminPanel) adminPanel.style.display = 'none';
-  if (loginPage) loginPage.style.display = 'block';
+  // Panggil fungsi logout di backend
+  google.script.run
+    .withSuccessHandler(() => {
+      localStorage.removeItem('sigas_token');
+      currentUser = null;
 
-  Swal.fire({
-    icon: 'warning',
-    title: 'Sesi Berakhir',
-    text: 'Anda telah otomatis keluar dari sistem karena tidak ada aktivitas selama 15 menit.',
-    confirmButtonColor: '#0d6efd'
-  });
+      if (typeof hideLoading === 'function') hideLoading();
+
+      // Sembunyikan panel admin & tampilkan halaman login
+      const appLayout = document.getElementById('app-layout');
+      const loginPage = document.getElementById('halaman-login') || document.getElementById('login-page');
+      if (appLayout) appLayout.style.display = 'none';
+      if (loginPage) loginPage.style.display = 'block';
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sesi Berakhir',
+        text: 'Anda telah keluar otomatis karena tidak ada aktivitas selama 15 menit.',
+        confirmButtonColor: '#0d6efd'
+      });
+    })
+    .withFailureHandler(() => {
+      localStorage.removeItem('sigas_token');
+      currentUser = null;
+      if (typeof hideLoading === 'function') hideLoading();
+      location.reload();
+    })
+    .logout(token);
 }
 
-// 3. Fungsi reset hitungan mundur setiap ada pergerakan pengguna
+// 3. Reset hitungan mundur setiap ada interaksi pengguna
 function resetIdleTimer() {
-  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token');
-  if (!token) return; // Tidak perlu hitung mundur jika belum login
+  // Hanya jalankan deteksi jika ada user yang sedang login di panel admin
+  const appLayout = document.getElementById('app-layout');
+  if (!currentUser || (appLayout && appLayout.style.display === 'none')) return;
 
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(triggerAutoLogout, IDLE_TIMEOUT_MS);
+  // Throttle: Batasi reset maksimal 1 detik sekali agar browser tetap ringan
+  if (!isTimerResetting) {
+    isTimerResetting = true;
+    clearTimeout(idleTimer);
+
+    idleTimer = setTimeout(logoutDueToInactivity, IDLE_TIMEOUT_MS);
+
+    setTimeout(() => { isTimerResetting = false; }, 1000);
+  }
 }
 
-// 4. Pasang pendeteksi aktivitas (gerakan kursor, ketikan keyboard, scroll, klik)
+// 4. Pasang pendeteksi aktivitas (kursor, keyboard, sentuhan layar, scroll)
 ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
   window.addEventListener(evt, resetIdleTimer, { passive: true });
 });
 
-// Mulai timer pertama kali saat halaman dimuat
-resetIdleTimer();              
+// Mulai timer pertama kali
+resetIdleTimer();           
                
                  function startMasjidClock() {
                 // Hentikan interval yang lama jika sebelumnya sudah berjalan
@@ -7945,81 +7962,7 @@ function submitPendaftaranWarga(e) {
               .submitQrisPayment(payload);
           }
           	
-// =====================================================
-// DEKLARASI VARIABEL TIMER & AUTO-LOGOUT
-// =====================================================
-let idleTimer;
-let isTimerResetting = false;
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 menit
 
-// Helper untuk menutup paksa seluruh modal yang melayang
-function tutupSemuaModal() {
-  document.querySelectorAll('.modal').forEach(el => {
-    const modalInstance = bootstrap.Modal.getInstance(el);
-    if (modalInstance) {
-      modalInstance.hide();
-    }
-  });
-  document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
-  document.body.classList.remove('modal-open');
-  document.body.style.removeProperty('overflow');
-  document.body.style.removeProperty('padding-right');
-}
-
-function resetIdleTimer() {
-  // Hanya jalankan deteksi jika ada user yang sedang login di panel admin
-  if (!currentUser || document.getElementById('app-layout').style.display === 'none') return;
-
-  // Throttle: Mencegah reset berlebihan yang bikin berat browser (maksimal 1 detik sekali)
-  if (!isTimerResetting) {
-    isTimerResetting = true;
-    clearTimeout(idleTimer);
-
-    // Mulai hitung mundur auto-logout
-    idleTimer = setTimeout(logoutDueToInactivity, IDLE_TIMEOUT_MS);
-
-    setTimeout(() => { isTimerResetting = false; }, 1000);
-  }
-}
-
-function logoutDueToInactivity() {
-  if (!currentUser) return; // Mencegah double trigger
-
-  // 1. Tutup seketika semua modal form yang masih terbuka beserta backdrop-nya
-  tutupSemuaModal();
-
-  showLoading();
-  const token = localStorage.getItem('sigas_token');
-
-  // 2. Panggil fungsi logout di backend secara paksa
-  google.script.run
-    .withSuccessHandler(() => {
-      localStorage.removeItem('sigas_token');
-      currentUser = null;
-
-      if (typeof hideLoading === 'function') hideLoading();
-
-      // Sembunyikan panel admin & tampilkan halaman login
-      const appLayout = document.getElementById('app-layout');
-      const loginPage = document.getElementById('halaman-login') || document.getElementById('login-page');
-      if (appLayout) appLayout.style.display = 'none';
-      if (loginPage) loginPage.style.display = 'block';
-
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sesi Berakhir',
-        text: 'Anda telah keluar otomatis karena tidak ada aktivitas selama 15 menit.',
-        confirmButtonColor: '#0d6efd'
-      });
-    })
-    .withFailureHandler(() => {
-      localStorage.removeItem('sigas_token');
-      currentUser = null;
-      if (typeof hideLoading === 'function') hideLoading();
-      location.reload();
-    })
-    .logout(token);
-}
               
               function showLoading() { document.getElementById('loading-overlay').style.display='flex'; } 
               function hideLoading() { document.getElementById('loading-overlay').style.display='none'; } 
