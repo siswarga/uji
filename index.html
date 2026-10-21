@@ -7527,44 +7527,65 @@ function setDynamicManifest(namaApp, themeColor) {
               }
               
 // =====================================================
-// SIMPAN / UPDATE DATA WARGA OLEH ADMIN
+// SIMPAN / UPDATE DATA WARGA OLEH ADMIN (ANTI DUPLIKAT KODE UNIK)
 // =====================================================
 function saveWargaData(e) {
   e.preventDefault();
 
-  // 1. Cek status saklar dari database / appSettings
-  const isKKAktif = (typeof appSettings !== 'undefined' && String(appSettings['show_reg_kk']).toLowerCase().trim() !== 'tidak');
-  const isNikAktif = (typeof appSettings !== 'undefined' && String(appSettings['show_reg_nik']).toLowerCase().trim() !== 'tidak');
+  const id = document.getElementById('warga_id')?.value || '';
 
-  // 2. Ambil nilai dasar input
-  let kkVal = document.getElementById('warga_kk') ? document.getElementById('warga_kk').value.trim() : '';
-  let nikVal = document.getElementById('warga_nik') ? document.getElementById('warga_nik').value.trim() : '';
-  let blokVal = document.getElementById('warga_blok') ? document.getElementById('warga_blok').value.trim() : '';
+  // 1. Deteksi apakah kolom NIK dan KK sedang disembunyikan di layar
+  const divNik = document.getElementById('div_warga_nik');
+  const divKK  = document.getElementById('div_warga_kk');
 
-  // 3. Validasi Nomor KK: Hanya periksa jika kolom aktif
-  if (isKKAktif) {
+  const isNikSembunyi = divNik ? (divNik.classList.contains('d-none') || divNik.style.display === 'none') : false;
+  const isKKSembunyi  = divKK  ? (divKK.classList.contains('d-none') || divKK.style.display === 'none') : false;
+
+  let kkVal   = document.getElementById('warga_kk') ? document.getElementById('warga_kk').value.trim() : '';
+  let nikVal  = document.getElementById('warga_nik') ? document.getElementById('warga_nik').value.trim() : '';
+  let blokVal = document.getElementById('warga_blok') ? document.getElementById('warga_blok').value.trim().toUpperCase() : '';
+
+  // 2. Validasi Nomor KK: Lewati jika kolom tersembunyi
+  if (!isKKSembunyi) {
     if (kkVal.length !== 16 || !/^\d+$/.test(kkVal)) {
       return Swal.fire('Peringatan', 'Nomor KK harus persis 16 digit angka!', 'warning');
     }
   } else {
-    if (!kkVal) kkVal = '-';
+    kkVal = '-';
   }
 
-  // 4. Validasi NIK: Hanya periksa jika kolom aktif
-  if (isNikAktif) {
+  // 3. Validasi NIK: Lewati jika kolom tersembunyi
+  if (!isNikSembunyi) {
     if (nikVal.length !== 16 || !/^\d+$/.test(nikVal)) {
       return Swal.fire('Peringatan', 'NIK harus persis 16 digit angka!', 'warning');
     }
   } else {
-    if (!nikVal) nikVal = '-';
+    nikVal = '-';
   }
 
-  // 5. Validasi Kode Unik (Blok)
+  // 4. Validasi Format Kode Unik
   if (blokVal.length !== 6) {
     return Swal.fire('Peringatan', 'Kode Unik (Blok) harus persis 6 karakter!', 'warning');
   }
 
-  // 6. Kunci tombol simpan
+  // 5. Validasi Duplikasi Kode Unik di Memori Frontend (dataWargaGlobal)
+  if (Array.isArray(dataWargaGlobal) && dataWargaGlobal.length > 0) {
+    const isBlokKembar = dataWargaGlobal.some(w => {
+      const rowId = Array.isArray(w) ? String(w[0]).trim() : String(w.id || '').trim();
+      const rowBlok = Array.isArray(w) ? String(w[17]).trim().toUpperCase() : String(w.blok || '').trim().toUpperCase();
+
+      // Lewati baris data milik warga itu sendiri jika sedang mode edit
+      if (id && rowId === String(id).trim()) return false;
+
+      return rowBlok === blokVal;
+    });
+
+    if (isBlokKembar) {
+      return Swal.fire('Kode Unik Terpakai', `Kode Unik "${blokVal}" sudah digunakan warga lain. Gunakan kode yang berbeda!`, 'warning');
+    }
+  }
+
+  // 6. Kunci Tombol Simpan
   const b = document.getElementById('btn-save-warga');
   if (b) {
     b.disabled = true;
@@ -7580,7 +7601,7 @@ function saveWargaData(e) {
     jk: document.getElementById('warga_jk')?.value || 'Laki-laki',
     golDarah: document.getElementById('warga_gol')?.value || '-',
     agama: document.getElementById('warga_agama')?.value || 'Islam',
-    blok: blokVal.toUpperCase(),
+    blok: blokVal,
     tempatLahir: document.getElementById('warga_tempatLahir')?.value.trim() || '',
     tglLahir: document.getElementById('warga_tglLahir')?.value || '',
     statusTinggal: document.getElementById('warga_statusTinggal')?.value || 'Tetap',
@@ -7596,17 +7617,13 @@ function saveWargaData(e) {
     fotoKtp: document.getElementById('warga_foto_ktp_base64')?.value || ''
   };
 
-  const id = document.getElementById('warga_id')?.value || '';
   const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
 
-  // 8. Eksekusi Berdasarkan Mode (Tambah Baru vs Edit Data)
+  // 8. Kirim ke Server
   if (id === '') {
     google.script.run
       .withSuccessHandler(r => {
-        if (b) {
-          b.disabled = false;
-          b.innerHTML = 'Simpan';
-        }
+        if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
         if (r && r.success) {
           const modalEl = document.getElementById('modalWarga');
           if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
@@ -7617,10 +7634,7 @@ function saveWargaData(e) {
         }
       })
       .withFailureHandler(err => {
-        if (b) {
-          b.disabled = false;
-          b.innerHTML = 'Simpan';
-        }
+        if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
         Swal.fire('Error Koneksi', String(err), 'error');
       })
       .saveWarga(token, p);
@@ -7628,10 +7642,7 @@ function saveWargaData(e) {
   } else {
     google.script.run
       .withSuccessHandler(r => {
-        if (b) {
-          b.disabled = false;
-          b.innerHTML = 'Simpan';
-        }
+        if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
         if (r && r.success) {
           const modalEl = document.getElementById('modalWarga');
           if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
@@ -7642,10 +7653,7 @@ function saveWargaData(e) {
         }
       })
       .withFailureHandler(err => {
-        if (b) {
-          b.disabled = false;
-          b.innerHTML = 'Simpan';
-        }
+        if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
         Swal.fire('Error Koneksi', String(err), 'error');
       })
       .updateWarga(token, id, p);
@@ -7653,32 +7661,40 @@ function saveWargaData(e) {
 }
 
 // =====================================================
-// PENDAFTARAN MANDIRI OLEH WARGA (PORTAL PUBLIK)
+// PENDAFTARAN MANDIRI (DENGAN CEK KODE UNIK KEMBAR)
 // =====================================================
 function submitPendaftaranWarga(e) {
   e.preventDefault();
   const btn = document.getElementById('btn-submit-pendaftaran');
 
-  const isKKAktif = (typeof appSettings !== 'undefined' && String(appSettings['show_reg_kk']).toLowerCase().trim() !== 'tidak');
-  const isNikAktif = (typeof appSettings !== 'undefined' && String(appSettings['show_reg_nik']).toLowerCase().trim() !== 'tidak');
+  const divNik = document.getElementById('div_reg_nik');
+  const divKK  = document.getElementById('div_reg_kk');
 
-  let valKK = document.getElementById('reg_kk') ? document.getElementById('reg_kk').value.trim() : '';
-  let valNIK = document.getElementById('reg_nik') ? document.getElementById('reg_nik').value.trim() : '';
+  const isNikSembunyi = divNik ? (divNik.classList.contains('d-none') || divNik.style.display === 'none') : false;
+  const isKKSembunyi  = divKK  ? (divKK.classList.contains('d-none') || divKK.style.display === 'none') : false;
 
-  if (isKKAktif) {
+  let valKK   = document.getElementById('reg_kk') ? document.getElementById('reg_kk').value.trim() : '';
+  let valNIK  = document.getElementById('reg_nik') ? document.getElementById('reg_nik').value.trim() : '';
+  let valBlok = (document.getElementById('reg_blok')?.value.trim() || '').toUpperCase();
+
+  if (!isKKSembunyi) {
     if (valKK.length !== 16 || !/^\d+$/.test(valKK)) {
       return Swal.fire('Peringatan', 'Nomor KK harus persis 16 digit angka!', 'warning');
     }
   } else {
-    if (!valKK) valKK = '-';
+    valKK = '-';
   }
 
-  if (isNikAktif) {
+  if (!isNikSembunyi) {
     if (valNIK.length !== 16 || !/^\d+$/.test(valNIK)) {
       return Swal.fire('Peringatan', 'NIK harus persis 16 digit angka!', 'warning');
     }
   } else {
-    if (!valNIK) valNIK = '-';
+    valNIK = '-';
+  }
+
+  if (valBlok.length !== 6) {
+    return Swal.fire('Peringatan', 'Kode Unik harus persis 6 karakter!', 'warning');
   }
 
   const p = {
@@ -7689,7 +7705,7 @@ function submitPendaftaranWarga(e) {
     jk: document.getElementById('reg_jk')?.value || 'Laki-laki',
     golDarah: document.getElementById('reg_gol')?.value || '-',
     agama: document.getElementById('reg_agama')?.value || 'Islam',
-    blok: (document.getElementById('reg_blok')?.value.trim() || '').toUpperCase(),
+    blok: valBlok,
     tempatLahir: document.getElementById('reg_tempatLahir')?.value.trim() || '',
     tglLahir: document.getElementById('reg_tglLahir')?.value || '',
     statusTinggal: document.getElementById('reg_statusTinggal')?.value || 'Tetap',
@@ -7723,7 +7739,7 @@ function submitPendaftaranWarga(e) {
       Swal.fire('Error Koneksi', err.message || String(err), 'error');
     })
     .saveWargaMandiri(p);
-}              
+}        
               	let listWargaQrisTemp = [];
               
            // ====================================================================
@@ -11978,65 +11994,79 @@ window.openModalRegPengurus = function() {
                 }
               }
               
-              // FUNGSI PENGIRIMAN VOTE PUBLIK KE SERVER
-              function submitPublicVote(e, idVoting) {
-                e.preventDefault();
-                
-                let identitasEl = document.getElementById(`voter_identitas_${idVoting}`);
-                let selectedRadio = document.querySelector(`input[name="vote_choice_${idVoting}"]:checked`);
-                
-                if(!selectedRadio) {
-              Swal.fire('Peringatan', 'Silakan pilih salah satu opsi jawaban terlebih dahulu!', 'warning');
-              return;
-                }
-                
-                if(!identitasEl || !identitasEl.value.trim()) {
-              Swal.fire('Peringatan', 'Silakan masukkan Nama atau NIK Anda untuk verifikasi!', 'warning');
-              return;
-                }
-                
-                let btn = document.getElementById(`btn_vote_${idVoting}`);
-                if(btn) {
-              btn.disabled = true;
-              btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Mengirim Suara...';
-                }
-                
-                let p = {
-              idVoting: idVoting,
-              identitas: identitasEl.value,
-              pilihan: selectedRadio.value
-                };
-                
-                google.script.run
-              .withSuccessHandler(res => {
-                if(btn) {
-                  btn.disabled = false;
-                  btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Kirim Suara Saya';
-                }
-                
-                if(res && res.success) {
-                  Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: res.message,
-                    timer: 2500,
-                    showConfirmButton: false
-                  });
-                  loadPublicVoting(); // Refresh tampilan polling di portal warga
-                } else {
-                  Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan pada sistem.', 'error');
-                }
-              })
-              .withFailureHandler(err => {
-                if(btn) {
-                  btn.disabled = false;
-                  btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Kirim Suara Saya';
-                }
-                console.error("Error submit vote:", err);
-                Swal.fire('Gagal Terhubung', 'Terjadi kesalahan koneksi ke server.', 'error');
-              })
-              .submitVotePublic(p);
-              }
+// ============================================================================
+// FUNGSI PENGIRIMAN VOTE PUBLIK KE SERVER (VERIFIKASI KODE UNIK)
+// ============================================================================
+function submitPublicVote(e, idVoting) {
+  e.preventDefault();
+
+  let identitasEl = document.getElementById(`voter_identitas_${idVoting}`);
+  let selectedRadio = document.querySelector(`input[name="vote_choice_${idVoting}"]:checked`);
+
+  // 1. Validasi Pilihan Polling
+  if (!selectedRadio) {
+    return Swal.fire('Peringatan', 'Silakan pilih salah satu opsi jawaban terlebih dahulu!', 'warning');
+  }
+
+  // 2. Ambil & Format Kode Unik
+  let kodeUnikVal = identitasEl ? identitasEl.value.trim().toUpperCase() : '';
+
+  // 3. Validasi Kode Unik (Wajib 6 Karakter)
+  if (!kodeUnikVal) {
+    return Swal.fire('Peringatan', 'Silakan masukkan Kode Unik Anda untuk verifikasi!', 'warning');
+  }
+
+  if (kodeUnikVal.length !== 6) {
+    return Swal.fire('Peringatan', 'Kode Unik harus persis 6 karakter!', 'warning');
+  }
+
+  // 4. Kunci Tombol Kirim
+  let btn = document.getElementById(`btn_vote_${idVoting}`);
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Mengirim Suara...';
+  }
+
+  // 5. Susun Payload Data
+  let p = {
+    idVoting: idVoting,
+    kodeUnik: kodeUnikVal,
+    identitas: kodeUnikVal, // Dikirim dua-duanya agar kompatibel ke backend
+    pilihan: selectedRadio.value
+  };
+
+  // 6. Eksekusi ke Server Apps Script
+  google.script.run
+    .withSuccessHandler(res => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Kirim Suara Saya';
+      }
+
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: res.message,
+          timer: 2500,
+          showConfirmButton: false
+        });
+        if (identitasEl) identitasEl.value = ''; // Bersihkan kolom input
+        if (typeof loadPublicVoting === 'function') loadPublicVoting(); // Refresh data polling
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan pada sistem.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> Kirim Suara Saya';
+      }
+      console.error("Error submit vote:", err);
+      Swal.fire('Gagal Terhubung', 'Terjadi kesalahan koneksi ke server.', 'error');
+    })
+    .submitVotePublic(p);
+}
               
               // =====================================================
               // PENCEGAH LAYAR BLANK & KELUAR APLIKASI SAAT TEKAN BACK DI HP
