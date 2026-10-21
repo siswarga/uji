@@ -7273,16 +7273,27 @@ function logoutDueToInactivity() {
 
       if (typeof hideLoading === 'function') hideLoading();
 
-      // Sembunyikan panel admin & tampilkan halaman login
+      // 1. Sembunyikan panel admin & halaman login
       const appLayout = document.getElementById('app-layout');
       const loginPage = document.getElementById('halaman-login') || document.getElementById('login-page');
       if (appLayout) appLayout.style.display = 'none';
-      if (loginPage) loginPage.style.display = 'block';
+      if (loginPage) loginPage.style.display = 'none';
+
+      // 2. Tampilkan Dashboard Warga (Portal Publik)
+      const publicPage = document.getElementById('public-page') || document.getElementById('halaman-publik');
+      if (publicPage) {
+        publicPage.style.display = 'block';
+      }
+
+      // 3. Refresh data dashboard & polling warga
+      if (typeof loadPublicDashboardData === 'function') loadPublicDashboardData();
+      if (typeof loadPublicVoting === 'function') loadPublicVoting();
+      if (typeof loadPublicData === 'function') loadPublicData();
 
       Swal.fire({
         icon: 'warning',
         title: 'Sesi Berakhir',
-        text: 'Anda telah keluar otomatis karena tidak ada aktivitas selama 15 menit.',
+        text: 'Anda telah keluar otomatis karena tidak ada aktivitas. Dialihkan kembali ke Dashboard Warga.',
         confirmButtonColor: '#0d6efd'
       });
     })
