@@ -13348,52 +13348,64 @@ function renderSatpamPemudik() {
               }
                 });
               }
-              function loadPublicVoting() {
-                google.script.run.withSuccessHandler(res => {
-              let section = document.getElementById('section-public-voting');
-              let container = document.getElementById('container-public-voting-list');
-              if (!section || !container) return;
-              
-              if (res && res.success && res.data && res.data.length > 0) {
-                section.style.display = 'block';
-                container.innerHTML = '';
-                res.data.forEach(v => {
-                  let opsiArr = v.opsi ? v.opsi.split(',') : [];
-                  let opsiHtml = opsiArr.map(opt => `
-                    <div class="form-check mb-2">
-                      <input class="form-check-input border-primary" type="radio" name="vote_choice_${v.id}" id="opt_${v.id}_${opt.trim()}" value="${opt.trim()}">
-                      <label class="form-check-label fw-bold" for="opt_${v.id}_${opt.trim()}">
-                        ${opt.trim()}
-                      </label>
-                    </div>
-                  `).join('');
-              
-                  container.innerHTML += `
-                    <div class="card border border-primary border-opacity-25 shadow-sm mb-3">
-                      <div class="card-body">
-                        <h5 class="fw-bold text-primary mb-1">${v.judul}</h5>
-                        <p class="text-muted small mb-3">${v.deskripsi}</p>
-                        <form onsubmit="submitPublicVote(event, '${v.id}')">
-                          <div class="mb-3">
-                            ${opsiHtml}
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label small fw-bold">Masukkan Nama Sesuai KTP (Untuk Verifikasi Warga)*</label>
-                            <input type="text" class="form-control form-control-sm bg-light" id="voter_identitas_${v.id}" placeholder="Ketik Nama atau NIK..." required>
-                          </div>
-                          <button type="submit" class="btn btn-sm btn-primary fw-bold px-4" id="btn_vote_${v.id}">
-                            <i class="fas fa-paper-plane me-1"></i> Kirim Suara / Pilihan Saya
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                  `;
-                });
-              } else {
-                section.style.display = 'none';
-              }
-                }).getActiveVotingPublic();
-              }
+
+function loadPublicVoting() {
+  google.script.run.withSuccessHandler(res => {
+    let section = document.getElementById('section-public-voting');
+    let container = document.getElementById('container-public-voting-list');
+    if (!section || !container) return;
+
+    if (res && res.success && res.data && res.data.length > 0) {
+      section.style.display = 'block';
+      container.innerHTML = '';
+      res.data.forEach(v => {
+        let opsiArr = v.opsi ? v.opsi.split(',') : [];
+        let opsiHtml = opsiArr.map(opt => `
+          <div class="form-check mb-2">
+            <input class="form-check-input border-primary" type="radio" name="vote_choice_${v.id}" id="opt_${v.id}_${opt.trim()}" value="${opt.trim()}">
+            <label class="form-check-label fw-bold" for="opt_${v.id}_${opt.trim()}">
+              ${opt.trim()}
+            </label>
+          </div>
+        `).join('');
+
+        container.innerHTML += `
+          <div class="card border border-primary border-opacity-25 shadow-sm mb-3">
+            <div class="card-body">
+              <h5 class="fw-bold text-primary mb-1">${v.judul}</h5>
+              <p class="text-muted small mb-3">${v.deskripsi}</p>
+              <form onsubmit="submitPublicVote(event, '${v.id}')">
+                <div class="mb-3">
+                  ${opsiHtml}
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-bold text-primary">
+                    <i class="fas fa-key me-1"></i>Kode Unik Warga (6 Karakter)*
+                  </label>
+                  <input type="text" 
+                    class="form-control form-control-sm bg-light fw-bold text-primary" 
+                    id="voter_identitas_${v.id}" 
+                    placeholder="Contoh: A1B2C3" 
+                    maxlength="6" 
+                    minlength="6" 
+                    style="text-transform: uppercase; letter-spacing: 2px;" 
+                    oninput="this.value = this.value.toUpperCase();" 
+                    required>
+                  <small class="text-muted" style="font-size: 0.72rem;">Gunakan 6 digit kode unik yang terdaftar pada data warga Anda.</small>
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary fw-bold px-4" id="btn_vote_${v.id}">
+                  <i class="fas fa-paper-plane me-1"></i> Kirim Suara / Pilihan Saya
+                </button>
+              </form>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      section.style.display = 'none';
+    }
+  }).getActiveVotingPublic();
+}
               
               function savePengajianAdmin(e) { 
                 e.preventDefault(); 
