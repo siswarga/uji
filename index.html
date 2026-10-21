@@ -5265,156 +5265,163 @@
     </div>
   </div>
 
-  <!-- MODAL INPUT / EDIT DATA WARGA (PANEL ADMIN) -->
-  <div class="modal fade" id="modalWarga" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <form id="formWarga" class="modal-content" onsubmit="saveWargaData(event)">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title" id="modalWargaTitle">Data Warga</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="warga_id">
-          <div class="row g-3">
-            <div class="col-md-12">
-              <label class="form-label">Nama Lengkap*</label>
-              <input type="text" class="form-control" id="warga_nama" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">No KK*</label>
-              <input type="text" class="form-control" id="warga_kk" placeholder="16 Digit Angka..." maxlength="16" minlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">NIK*</label>
-              <input type="text" class="form-control" id="warga_nik" placeholder="16 Digit Angka..." maxlength="16" minlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">No HP / WhatsApp</label>
-              <input type="text" class="form-control" id="warga_hp">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Jenis Kelamin*</label>
-              <select class="form-select" id="warga_jk" required>
-                <option value="Laki-laki">Laki-laki</option>
-                <option value="Perempuan">Perempuan</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Gol Darah</label>
-              <select class="form-select" id="warga_gol">
-                <option value="-">-</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="AB">AB</option>
-                <option value="O">O</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Agama*</label>
-              <select class="form-select" id="warga_agama" required>
-                <option value="Islam">Islam</option>
-                <option value="Kristen">Kristen</option>
-                <option value="Katolik">Katolik</option>
-                <option value="Hindu">Hindu</option>
-                <option value="Buddha">Buddha</option>
-                <option value="Konghucu">Konghucu</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Kode Unik (6 Karakter)*</label>
-              <input type="text" class="form-control fw-bold text-primary" id="warga_blok" placeholder="Cth: X7Y8Z9" maxlength="6" minlength="6" style="text-transform: uppercase;" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Tempat Lahir</label>
-              <input type="text" class="form-control" id="warga_tempatLahir">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Tanggal Lahir</label>
-              <input type="date" class="form-control" id="warga_tglLahir">
-            </div>
+ <!-- MODAL INPUT / EDIT DATA WARGA (PANEL ADMIN) -->
+<div class="modal fade" id="modalWarga" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <form id="formWarga" class="modal-content" onsubmit="saveWargaData(event)">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modalWargaTitle">Data Warga</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="warga_id">
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label class="form-label fw-bold small">Nama Lengkap*</label>
+            <input type="text" class="form-control" id="warga_nama" required>
+          </div>
 
-            <div class="col-md-4">
-              <label class="form-label">Status Tinggal*</label>
-              <select class="form-select" id="warga_statusTinggal" onchange="updateWargaFieldVisibility()" required>
-                <option value="Tetap">Tetap</option>
-                <option value="Kontrak">Kontrak</option>
-              </select>
-            </div>
-            <div class="col-md-4 d-none" id="div_tglMasuk">
-              <label class="form-label">Tgl Masuk</label>
-              <input type="date" class="form-control" id="warga_tglMasuk">
-            </div>
+          <!-- 1. Input No KK (Diberi ID div_warga_kk) -->
+          <div class="col-md-6" id="div_warga_kk">
+            <label class="form-label fw-bold small">No KK*</label>
+            <input type="text" class="form-control" id="warga_kk" placeholder="16 Digit Angka..." maxlength="16" minlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);" required>
+          </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Status Pernikahan*</label>
-              <select class="form-select" id="warga_nikah" required>
-                <option value="Belum Kawin">Belum Kawin</option>
-                <option value="Kawin">Kawin</option>
-                <option value="Cerai Hidup">Cerai Hidup</option>
-                <option value="Cerai Mati">Cerai Mati</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Status Keluarga*</label>
-              <select class="form-select" id="warga_statusKeluarga" onchange="toggleWargaStatusKeluarga()" required>
-                <option value="Kepala Keluarga">Kepala Keluarga</option>
-                <option value="Istri">Istri</option>
-                <option value="Anak">Anak</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
-            </div>
+          <!-- 2. Input NIK (Diberi ID div_warga_nik) -->
+          <div class="col-md-6" id="div_warga_nik">
+            <label class="form-label fw-bold small">NIK*</label>
+            <input type="text" class="form-control" id="warga_nik" placeholder="16 Digit Angka..." maxlength="16" minlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);" required>
+          </div>
 
-            <!-- UPLOAD DOKUMEN (OTOMATIS BERDASARKAN STATUS KELUARGA) -->
-            <div class="col-md-6" id="div_warga_foto_kk">
-              <label class="form-label fw-bold small text-primary">Foto Kartu Keluarga (Opsional)</label>
-              <input type="file" class="form-control bg-light" id="warga_file_kk" accept="image/*" onchange="previewWargaDoc(this, 'warga_kk')">
-              <input type="hidden" id="warga_foto_kk_base64">
-            </div>
-            <div class="col-md-6" id="div_warga_foto_ktp">
-              <label class="form-label fw-bold small text-success">Foto KTP (Opsional)</label>
-              <input type="file" class="form-control bg-light" id="warga_file_ktp" accept="image/*" onchange="previewWargaDoc(this, 'warga_ktp')">
-              <input type="hidden" id="warga_foto_ktp_base64">
-            </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">No HP / WhatsApp</label>
+            <input type="text" class="form-control" id="warga_hp">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">Jenis Kelamin*</label>
+            <select class="form-select" id="warga_jk" required>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold small">Gol Darah</label>
+            <select class="form-select" id="warga_gol">
+              <option value="-">-</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="AB">AB</option>
+              <option value="O">O</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold small">Agama*</label>
+            <select class="form-select" id="warga_agama" required>
+              <option value="Islam">Islam</option>
+              <option value="Kristen">Kristen</option>
+              <option value="Katolik">Katolik</option>
+              <option value="Hindu">Hindu</option>
+              <option value="Buddha">Buddha</option>
+              <option value="Konghucu">Konghucu</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold small">Kode Unik (6 Karakter)*</label>
+            <input type="text" class="form-control fw-bold text-primary" id="warga_blok" placeholder="Cth: X7Y8Z9" maxlength="6" minlength="6" style="text-transform: uppercase;" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">Tempat Lahir</label>
+            <input type="text" class="form-control" id="warga_tempatLahir">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">Tanggal Lahir</label>
+            <input type="date" class="form-control" id="warga_tglLahir">
+          </div>
 
-            <div class="col-md-12">
-              <label class="form-label">Alamat Sesuai KTP*</label>
-              <textarea class="form-control" id="warga_alamatKtp" rows="2" required oninput="syncAlamat()"></textarea>
-            </div>
-            <div class="col-md-12">
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="check_alamat_sama" onchange="toggleAlamatSama()">
-                <label class="form-check-label fw-bold text-success" for="check_alamat_sama">Alamat tinggal sama dengan KTP</label>
-              </div>
-              <label class="form-label">Alamat Tinggal / Domisili*</label>
-              <textarea class="form-control" id="warga_alamatTinggal" rows="2" required></textarea>
-            </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold small">Status Tinggal*</label>
+            <select class="form-select" id="warga_statusTinggal" onchange="updateWargaFieldVisibility()" required>
+              <option value="Tetap">Tetap</option>
+              <option value="Kontrak">Kontrak</option>
+            </select>
+          </div>
+          <div class="col-md-4 d-none" id="div_tglMasuk">
+            <label class="form-label fw-bold small">Tgl Masuk</label>
+            <input type="date" class="form-control" id="warga_tglMasuk">
+          </div>
 
-            <div class="col-md-4 d-none" id="div_tglKeluar">
-              <label class="form-label">Tgl Keluar</label>
-              <input type="date" class="form-control" id="warga_tglKeluar">
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">Status Pernikahan*</label>
+            <select class="form-select" id="warga_nikah" required>
+              <option value="Belum Kawin">Belum Kawin</option>
+              <option value="Kawin">Kawin</option>
+              <option value="Cerai Hidup">Cerai Hidup</option>
+              <option value="Cerai Mati">Cerai Mati</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">Status Keluarga*</label>
+            <select class="form-select" id="warga_statusKeluarga" onchange="toggleWargaStatusKeluarga()" required>
+              <option value="Kepala Keluarga">Kepala Keluarga</option>
+              <option value="Istri">Istri</option>
+              <option value="Anak">Anak</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+
+          <!-- 3. Foto KK (Sudah ada ID div_warga_foto_kk) -->
+          <div class="col-md-6" id="div_warga_foto_kk">
+            <label class="form-label fw-bold small text-primary">Foto Kartu Keluarga (Opsional)</label>
+            <input type="file" class="form-control bg-light" id="warga_file_kk" accept="image/*" onchange="previewWargaDoc(this, 'warga_kk')">
+            <input type="hidden" id="warga_foto_kk_base64">
+          </div>
+
+          <!-- 4. Foto KTP (Sudah ada ID div_warga_foto_ktp) -->
+          <div class="col-md-6" id="div_warga_foto_ktp">
+            <label class="form-label fw-bold small text-success">Foto KTP (Opsional)</label>
+            <input type="file" class="form-control bg-light" id="warga_file_ktp" accept="image/*" onchange="previewWargaDoc(this, 'warga_ktp')">
+            <input type="hidden" id="warga_foto_ktp_base64">
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label fw-bold small">Alamat Sesuai KTP*</label>
+            <textarea class="form-control" id="warga_alamatKtp" rows="2" required oninput="syncAlamat()"></textarea>
+          </div>
+          <div class="col-md-12">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="check_alamat_sama" onchange="toggleAlamatSama()">
+              <label class="form-check-label fw-bold text-success" for="check_alamat_sama">Alamat tinggal sama dengan KTP</label>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Keaktifan</label>
-              <select class="form-select" id="warga_aktif" onchange="updateWargaFieldVisibility()">
-                <option value="Aktif">Aktif</option>
-                <option value="Tidak Aktif">Tidak Aktif</option>
-                <option value="Pindah">Pindah</option>
-                <option value="Meninggal">Meninggal</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Keterangan</label>
-              <input type="text" class="form-control" id="warga_ket">
-            </div>
+            <label class="form-label fw-bold small">Alamat Tinggal / Domisili*</label>
+            <textarea class="form-control" id="warga_alamatTinggal" rows="2" required></textarea>
+          </div>
+
+          <div class="col-md-4 d-none" id="div_tglKeluar">
+            <label class="form-label fw-bold small">Tgl Keluar</label>
+            <input type="date" class="form-control" id="warga_tglKeluar">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">Keaktifan</label>
+            <select class="form-select" id="warga_aktif" onchange="updateWargaFieldVisibility()">
+              <option value="Aktif">Aktif</option>
+              <option value="Tidak Aktif">Tidak Aktif</option>
+              <option value="Pindah">Pindah</option>
+              <option value="Meninggal">Meninggal</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small">Keterangan</label>
+            <input type="text" class="form-control" id="warga_ket">
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-success" id="btn-save-warga">Simpan</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-success fw-bold" id="btn-save-warga">Simpan</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- MODAL VERIFIKASI ADMIN (BUKA SENSOR DATA) -->
   <div class="modal fade" id="modalVerify" tabindex="-1" aria-hidden="true">
@@ -15580,7 +15587,11 @@ function terapkanPengaturanKeElemen(s) {
   aturKolomForm('div_reg_kk', 'reg_kk', s['show_reg_kk'], true);
   aturKolomForm('div_reg_foto_ktp', 'reg_file_ktp', s['show_reg_foto_ktp'], false);
   aturKolomForm('div_reg_foto_kk', 'reg_file_kk', s['show_reg_foto_kk'], false);
-
+  aturKolomForm('div_warga_nik', 'warga_nik', s['show_reg_nik'], true);
+  aturKolomForm('div_warga_kk', 'warga_kk', s['show_reg_kk'], true);
+  aturKolomForm('div_warga_foto_ktp', 'warga_file_ktp', s['show_reg_foto_ktp'], false);
+  aturKolomForm('div_warga_foto_kk', 'warga_file_kk', s['show_reg_foto_kk'], false);
+  
   // 2. Set posisi switch di Superadmin
   setSwitch('seting-show-reg-nik', s['show_reg_nik']);
   setSwitch('seting-show-reg-kk', s['show_reg_kk']);
