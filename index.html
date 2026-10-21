@@ -2355,42 +2355,83 @@
             </div>
           </div>
 
-          <!-- PAGE BUKU TAMU / SATPAM -->
-          <div id="page-buku-tamu" class="page-view" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-              <h3 class="text-success fw-bold m-0"><i class="fas fa-id-badge me-2"></i>Buku Keluar / Masuk Tamu</h3>
-              <button class="btn btn-success mt-2 mt-sm-0" onclick="openModalTamu()"><i class="fas fa-sign-in-alt"></i> Catat Tamu Masuk</button>
-            </div>
-            <div class="card shadow-sm border-0">
-              <div class="card-body">
-                <div class="row mb-3">
-                  <div class="col-md-4 mb-2"><input type="text" id="search-tamu" class="form-control" placeholder="Cari nama, plat, tujuan..." onkeyup="renderTableTamu()"></div>
-                  <div class="col-md-3 mb-2">
-                    <select id="filter-tamu" class="form-select" onchange="renderTableTamu()">
-                      <option value="All">Semua Riwayat</option>
-                      <option value="Masuk">Masih di Dalam (Masuk)</option>
-                      <option value="Keluar">Sudah Keluar</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                      <tr>
-                        <th>Waktu Masuk</th>
-                        <th>Identitas & Plat</th>
-                        <th>Tujuan & Keperluan</th>
-                        <th>Waktu Keluar</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbody-tamu"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+         <!-- PAGE BUKU TAMU / SATPAM -->
+<div id="page-buku-tamu" class="page-view" style="display: none;">
+
+  <!-- Header Halaman & Kelompok Tombol Aksi -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h3 class="text-success fw-bold m-0 d-flex align-items-center">
+      <i class="fas fa-id-badge me-2"></i>Buku Keluar / Masuk Tamu
+    </h3>
+    
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <button type="button" class="btn btn-outline-success rounded-pill px-3 shadow-sm" onclick="bukaScannerKTA()">
+        <i class="fas fa-qrcode me-1"></i> Scan KTA
+      </button>
+      <button type="button" class="btn btn-success rounded-pill px-3 fw-bold shadow-sm" onclick="openModalTamu()">
+        <i class="fas fa-sign-in-alt me-1"></i> Catat Tamu Masuk
+      </button>
+    </div>
+  </div>
+
+  <!-- Konten Utama: Card Tabel & Filter -->
+  <div class="card shadow-sm border-0 rounded-3">
+    <div class="card-body p-3 p-md-4">
+      
+      <!-- Baris Filter & Pencarian -->
+      <div class="row g-2 mb-3 align-items-center">
+        <!-- Input Pencarian -->
+        <div class="col-md-5 col-lg-4">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" id="search-tamu" class="form-control border-start-0 ps-0" placeholder="Cari nama, plat, tujuan..." onkeyup="renderTableTamu()">
           </div>
+        </div>
+
+        <!-- Filter Status Tamu -->
+        <div class="col-md-4 col-lg-3">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 text-muted">
+              <i class="fas fa-filter"></i>
+            </span>
+            <select id="filter-tamu" class="form-select border-start-0 ps-0" onchange="renderTableTamu()">
+              <option value="All">Semua Riwayat</option>
+              <option value="Masuk">Masih di Dalam (Masuk)</option>
+              <option value="Keluar">Sudah Keluar</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel Data Tamu -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="min-width: 140px;">Waktu Masuk</th>
+              <th style="min-width: 160px;">Identitas & Plat</th>
+              <th style="min-width: 180px;">Tujuan & Keperluan</th>
+              <th style="min-width: 130px;">Waktu Keluar</th>
+              <th style="min-width: 110px;">Status</th>
+              <th class="text-center" style="min-width: 100px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-tamu">
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="fas fa-spinner fa-spin me-2"></i>Memuat data tamu...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
 
           <!-- PAGE LAYANAN, PERMOHONAN & SURAT -->
           <div id="page-pengaduan" class="page-view" style="display: none;">
@@ -3025,36 +3066,60 @@
                 </div>
               </div>
 
-              <!-- 4. TAB BUKU TAMU -->
-              <div class="tab-pane fade" id="satpam-tab-tamu" role="tabpanel">
-                <div class="card shadow-sm border-0">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between mb-3">
-                      <input type="text" id="search-satpam-tamu" class="form-control w-50" placeholder="Cari nama/plat tamu..." onkeyup="renderTableTamu()">
-                      <button class="btn btn-primary fw-bold" onclick="openModalTamu()"><i class="fas fa-sign-in-alt me-1"></i> Catat Tamu Masuk</button>
-                    </div>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Waktu Masuk</th>
-                            <th>Identitas & Plat</th>
-                            <th>Tujuan & Keperluan</th>
-                            <th>Waktu Keluar</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tbody-satpam-tamu">
-                          <tr>
-                            <td colspan="6" class="text-center text-muted py-3">Memuat data tamu...</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
+             <!-- 4. TAB BUKU TAMU -->
+<div class="tab-pane fade" id="satpam-tab-tamu" role="tabpanel">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+
+      <!-- Bar Kontrol: Pencarian & Tombol Aksi -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+        
+        <!-- Input Pencarian dengan Ikon Kaca Pembesar -->
+        <div class="input-group" style="max-width: 320px;">
+          <span class="input-group-text bg-white border-end-0 text-muted">
+            <i class="fas fa-search"></i>
+          </span>
+          <input type="text" id="search-satpam-tamu" class="form-control border-start-0 ps-0" placeholder="Cari nama, plat, tujuan..." onkeyup="renderTableTamu()">
+        </div>
+
+        <!-- Kelompok Tombol Aksi -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button type="button" class="btn btn-outline-success rounded-pill px-3 shadow-sm" onclick="bukaScannerKTA()">
+            <i class="fas fa-qrcode me-1"></i> Scan KTA
+          </button>
+          <button type="button" class="btn btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="openModalTamu()">
+            <i class="fas fa-sign-in-alt me-1"></i> Catat Tamu Masuk
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Tabel Riwayat Tamu -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="min-width: 140px;">Waktu Masuk</th>
+              <th style="min-width: 160px;">Identitas & Plat</th>
+              <th style="min-width: 180px;">Tujuan & Keperluan</th>
+              <th style="min-width: 130px;">Waktu Keluar</th>
+              <th style="min-width: 110px;">Status</th>
+              <th class="text-center" style="min-width: 100px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-satpam-tamu">
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="fas fa-spinner fa-spin me-2"></i>Memuat data tamu...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
 
               <!-- 5. TAB MONITORING PEMUDIK / RUMAH KOSONG -->
               <div class="tab-pane fade" id="satpam-tab-pemudik" role="tabpanel">
@@ -6440,11 +6505,43 @@
   </div>
 </div>
 
+<!-- Modal Scanner QR Code KTA -->
+<div class="modal fade" id="modalScannerKTA" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      
+      <div class="modal-header bg-dark text-white border-0 py-3">
+        <h6 class="modal-title fw-bold">
+          <i class="fas fa-qrcode text-success me-2"></i>Pindai QR Code Warga
+        </h6>
+        <button type="button" class="btn-close btn-close-white" onclick="tutupScannerKTA()" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-3 text-center bg-light">
+        <div class="alert alert-info py-2 small mb-3">
+          Arahkan kamera ke QR Code pada Kartu Tanda Warga.
+        </div>
+
+        <!-- Wadah Tampilan Kamera -->
+        <div id="reader-qr-kta" class="rounded-3 overflow-hidden shadow-sm mx-auto bg-black" style="width: 100%; min-height: 260px;"></div>
+
+        <!-- Tombol Aksi Kamera -->
+        <div class="mt-3 d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="tutupScannerKTA()">
+            <i class="fas fa-times me-1"></i> Batal
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <!-- ===================================================== -->
 <!-- JAVASCRIPT APLIKASI TERPADU & GOD MODE PROXY V3       -->
 <!-- ===================================================== -->
@@ -18140,7 +18237,147 @@ function bukaKartuSaya() {
     }
   });
 }
+
+let html5QrScannerInstance = null;
+
+/**
+ * Membuka kamera dan memulai pemindaian QR Code
+ */
+function bukaScannerKTA() {
+  const modalEl = document.getElementById('modalScannerKTA');
+  if (!modalEl) return;
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+
+  // Inisialisasi scanner setelah modal terbuka sempurna
+  setTimeout(() => {
+    html5QrScannerInstance = new Html5Qrcode("reader-qr-kta");
+    const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+
+    html5QrScannerInstance.start(
+      { facingMode: "environment" }, // Kamera belakang
+      config,
+      (decodedText) => {
+        // Berhasil memindai QR Code
+        handleHasilScan(decodedText);
+      },
+      (errorMessage) => {
+        // Sedang memindai / frame tidak terbaca (abaikan)
+      }
+    ).catch(err => {
+      console.error("Gagal membuka kamera:", err);
+      tutupScannerKTA();
+      Swal.fire('Kamera Error', 'Gagal mengakses kamera perangkat. Pastikan izin kamera telah diberikan.', 'error');
+    });
+  }, 400);
+}
+
+/**
+ * Menutup kamera dan menghentikan streaming video
+ */
+function tutupScannerKTA() {
+  if (html5QrScannerInstance) {
+    html5QrScannerInstance.stop().then(() => {
+      html5QrScannerInstance.clear();
+      html5QrScannerInstance = null;
+    }).catch(err => {
+      console.error("Error stop scanner:", err);
+      html5QrScannerInstance = null;
+    });
+  }
+
+  const modalEl = document.getElementById('modalScannerKTA');
+  if (modalEl) {
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+  }
+}
+
+/**
+ * Memproses hasil kode yang didapat dari scan kamera
+ */
+function handleHasilScan(kodeUnik) {
+  // Matikan kamera terlebih dahulu agar tidak memindai berulang-ulang
+  tutupScannerKTA();
+
+  showLoading();
+
+  // Cari data warga ke server Apps Script
+  google.script.run
+    .withSuccessHandler(res => {
+      hideLoading();
+      if (res && res.success && res.data) {
+        // Tampilkan langsung kartu data warga hasil scan
+        tampilkanKtaDigital(res.data);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'QR Code Tidak Dikenal',
+          text: `Kode "${kodeUnik}" tidak cocok dengan data warga terdaftar!`,
+          confirmButtonColor: '#dc3545'
+        });
+      }
+    })
+    .withFailureHandler(err => {
+      hideLoading();
+      Swal.fire('Error', 'Gagal memverifikasi: ' + err, 'error');
+    })
+    .cariDataWargaByKode(kodeUnik);
+}
+
+function tutupScannerKTA() {
+  // 1. Matikan kamera scanner secara aman jika sedang aktif
+  if (html5QrScannerInstance) {
+    try {
+      // Cek apakah kamera sedang aktif sebelum di-stop
+      if (html5QrScannerInstance.isScanning) {
+        html5QrScannerInstance.stop().then(() => {
+          html5QrScannerInstance.clear();
+          html5QrScannerInstance = null;
+        }).catch(() => {
+          html5QrScannerInstance = null;
+        });
+      } else {
+        html5QrScannerInstance.clear();
+        html5QrScannerInstance = null;
+      }
+    } catch (e) {
+      console.warn("Gagal stop scanner:", e);
+      html5QrScannerInstance = null;
+    }
+  }
+
+  // 2. Tutup Modal dengan berbagai metode fallback
+  const modalEl = document.getElementById('modalScannerKTA');
+  if (modalEl) {
+    // Cara A: Bootstrap 5
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl);
+      if (modalObj) modalObj.hide();
+    }
+    // Cara B: jQuery (Bootstrap 4/3)
+    if (typeof $ !== 'undefined' && typeof $(modalEl).modal === 'function') {
+      $(modalEl).modal('hide');
+    }
+
+    // Cara C: Penutupan paksa jika script Bootstrap macet
+    setTimeout(() => {
+      modalEl.classList.remove('show');
+      modalEl.style.display = 'none';
+      modalEl.setAttribute('aria-hidden', 'true');
+      modalEl.removeAttribute('aria-modal');
+      
+      // Bersihkan backdrop gelap yang tertinggal di layar
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+      document.body.style.removeProperty('overflow');
+    }, 150);
+  }
+}
     </script>
+
 <!-- Audio Player Adzan Global -->
 <audio id="audio-adzan" preload="auto">
   <source src="https://cdn.aladhan.com/audio/adhans/makkah.mp3" type="audio/mpeg">
