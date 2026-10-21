@@ -466,7 +466,7 @@
         <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
 <div class="d-flex align-items-center gap-2 gap-md-3">
 
-  <!-- 1. Tombol Kamera (Sudah berfungsi) -->
+  <!-- 1. Tombol Dokumentasi (Kamera & Galeri) -->
   <div class="dropdown" id="header-btn-kamera">
     <button class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Dokumentasi & Galeri Kegiatan" style="width: 42px; height: 42px;">
       <i class="fas fa-camera fa-lg"></i>
@@ -487,23 +487,29 @@
     </ul>
   </div>
 
-  <!-- 2. Tombol Lapak UMKM (WAJIB ADA id="header-btn-umkm") -->
-  <button type="button" id="header-btn-umkm" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
-    <i class="fas fa-store fa-lg"></i>
-  </button>
+  <!-- 2. Tombol Lapak UMKM Warga (Dibungkus DIV ID) -->
+  <div id="header-btn-umkm">
+    <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
+      <i class="fas fa-store fa-lg"></i>
+    </button>
+  </div>
 
-  <!-- 3. Tombol KTA Digital (WAJIB ADA id="header-btn-kta") -->
-  <button type="button" id="header-btn-kta" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
-    <i class="fas fa-id-card fa-lg"></i>
-  </button>
+  <!-- 3. Tombol Kartu Warga Digital / KTA (Dibungkus DIV ID) -->
+  <div id="header-btn-kta">
+    <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
+      <i class="fas fa-id-card fa-lg"></i>
+    </button>
+  </div>
 
-  <!-- 4. Tombol Darurat SOS (WAJIB ADA id="header-btn-sos") -->
-  <button type="button" id="header-btn-sos" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
-    <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
-    <span class="fw-bold small">SOS</span>
-  </button>
+  <!-- 4. Tombol Darurat SOS (Dibungkus DIV ID) -->
+  <div id="header-btn-sos">
+    <button type="button" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
+      <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
+      <span class="fw-bold small">SOS</span>
+    </button>
+  </div>
 
-  <!-- 5. Badge Status -->
+  <!-- 5. Badge Status Portal -->
   <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-lg-inline-block ms-1">
     <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
   </span>
