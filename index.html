@@ -5104,50 +5104,72 @@
     </div>
   </div>
 
-  <!-- MODAL BUAT VOTING -->
-  <div class="modal fade" id="modalVoting" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <form id="formVoting" class="modal-content" onsubmit="submitVoting(event)">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title fw-bold"><i class="fas fa-poll me-2"></i>Buat Polling Baru</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+ <!-- MODAL BUAT VOTING (DENGAN TOGGLE BATASAN USIA 18+) -->
+<div class="modal fade" id="modalVoting" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="formVoting" class="modal-content" onsubmit="submitVoting(event)">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold"><i class="fas fa-poll me-2"></i>Buat Polling Baru</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row g-3">
+        <!-- Judul Polling -->
+        <div class="col-md-12">
+          <label class="form-label small fw-bold">Judul Polling / Pertanyaan*</label>
+          <input type="text" class="form-control" id="vote_judul" placeholder="Cth: Persetujuan Kenaikan Iuran Kebersihan" required>
         </div>
-        <div class="modal-body row g-3">
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Judul Polling / Pertanyaan*</label>
-            <input type="text" class="form-control" id="vote_judul" placeholder="Cth: Persetujuan Kenaikan Iuran Kebersihan" required>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label small fw-bold">Penjelasan / Deskripsi*</label>
-            <textarea class="form-control" id="vote_deskripsi" rows="2" placeholder="Jelaskan alasan polling ini diadakan..." required></textarea>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label small fw-bold text-success">Opsi Pilihan (Pisahkan dengan koma)*</label>
-            <input type="text" class="form-control border-success" id="vote_opsi" placeholder="Cth: Setuju, Tidak Setuju, Abstain" required>
-            <small class="text-muted">Ketik opsi jawaban yang bisa dipilih warga, dipisah dengan tanda koma (,).</small>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary w-100 fw-bold py-2" id="btn-submit-voting">Publikasikan Polling</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
-  <!-- MODAL HASIL VOTING -->
-  <div class="modal fade" id="modalHasilVoting" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-dark text-white">
-          <h5 class="modal-title fw-bold">Statistik Hasil Polling</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <!-- Deskripsi Polling -->
+        <div class="col-md-12">
+          <label class="form-label small fw-bold">Penjelasan / Deskripsi*</label>
+          <textarea class="form-control" id="vote_deskripsi" rows="2" placeholder="Jelaskan alasan polling ini diadakan..." required></textarea>
         </div>
-        <div class="modal-body p-4 text-center" id="area-hasil-voting">
-          <!-- Akan di-generate via JS -->
+
+        <!-- Opsi Jawaban -->
+        <div class="col-md-12">
+          <label class="form-label small fw-bold text-success">Opsi Pilihan (Pisahkan dengan koma)*</label>
+          <input type="text" class="form-control border-success" id="vote_opsi" placeholder="Cth: Setuju, Tidak Setuju, Abstain" required>
+          <small class="text-muted" style="font-size: 0.72rem;">Ketik opsi jawaban yang bisa dipilih warga, dipisah dengan tanda koma (,).</small>
         </div>
+
+        <!-- Switch Pembatasan Usia 18+ -->
+        <div class="col-md-12">
+          <div class="p-3 bg-light rounded-3 border">
+            <div class="form-check form-switch m-0 d-flex align-items-center justify-content-between">
+              <label class="form-check-label fw-bold small text-dark" for="vote_min_usia" style="cursor: pointer;">
+                <i class="fas fa-user-shield text-danger me-1"></i> Batasi Khusus Usia 18 Tahun ke Atas
+              </label>
+              <input class="form-check-input ms-2" type="checkbox" id="vote_min_usia" style="cursor: pointer; transform: scale(1.15);">
+            </div>
+            <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+              Bila dicentang, hanya warga berumur &ge; 18 tahun (terhitung dari tanggal lahir) yang berhak memberikan suara.
+            </small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" id="btn-submit-voting">
+          <i class="fas fa-paper-plane me-1"></i> Publikasikan Polling
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL HASIL VOTING -->
+<div class="modal fade" id="modalHasilVoting" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold"><i class="fas fa-chart-pie me-2"></i>Statistik Hasil Polling</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4 text-center" id="area-hasil-voting">
+        <!-- Akan di-generate via JS -->
       </div>
     </div>
   </div>
+</div>
 
   <!-- MODAL BUKU TAMU -->
   <div class="modal fade" id="modalTamu" tabindex="-1" aria-hidden="true">
@@ -11722,42 +11744,77 @@ window.openModalRegPengurus = function() {
                 new bootstrap.Modal(document.getElementById('modalVoting')).show();
               }
               
-              function submitVoting(e) {
-                e.preventDefault();
-                let btn = document.getElementById('btn-submit-voting');
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Membuat Polling...';
-                
-                let p = {
-              judul: document.getElementById('vote_judul').value,
-              deskripsi: document.getElementById('vote_deskripsi').value,
-              opsi: document.getElementById('vote_opsi').value
-                };
-                
-                google.script.run
-              .withSuccessHandler(res => {
-                btn.disabled = false; 
-                btn.innerHTML = 'Publikasikan Polling';
-                if(res.success) {
-                  // Tutup modal dengan aman
-                  let modalEl = document.getElementById('modalVoting');
-                  let modalObj = bootstrap.Modal.getInstance(modalEl);
-                  if(modalObj) modalObj.hide();
-                  
-                  Swal.fire({icon: 'success', title: 'Berhasil', text: res.message, timer: 2000, showConfirmButton: false});
-                  loadDataVoting();
-                } else { 
-                  Swal.fire('Gagal', res.message, 'error'); 
-                }
-              })
-              .withFailureHandler(err => {
-                btn.disabled = false; 
-                btn.innerHTML = 'Publikasikan Polling';
-                console.error("Error Backend Voting:", err);
-                Swal.fire('Gagal Terhubung', 'Terjadi kesalahan koneksi ke server. Pastikan Deploy Ulang sudah dilakukan.', 'error');
-              })
-              .saveVoting(localStorage.getItem('sigas_token'), p);
-              }
+// ============================================================================
+// SIMPAN POLLING BARU DARI MODAL ADMIN
+// ============================================================================
+function submitVoting(e) {
+  e.preventDefault();
+
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
+  if (!token) {
+    return Swal.fire('Sesi Habis', 'Silakan login ulang terlebih dahulu.', 'warning');
+  }
+
+  const judul = document.getElementById('vote_judul')?.value.trim();
+  const deskripsi = document.getElementById('vote_deskripsi')?.value.trim();
+  const opsi = document.getElementById('vote_opsi')?.value.trim();
+  const is18Plus = document.getElementById('vote_min_usia')?.checked ? 'Ya' : 'Tidak';
+
+  if (!judul || !deskripsi || !opsi) {
+    return Swal.fire('Peringatan', 'Lengkapi seluruh data polling sebelum mempublikasikan!', 'warning');
+  }
+
+  const btn = document.getElementById('btn-submit-voting');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mempublikasikan...';
+  }
+
+  const payload = {
+    judul: judul,
+    deskripsi: deskripsi,
+    opsi: opsi,
+    minUsia18: is18Plus
+  };
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Publikasikan Polling';
+      }
+
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Dipublikasikan!',
+          text: res.message || 'Polling baru telah aktif.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        // Reset form & tutup modal
+        const form = document.getElementById('formVoting');
+        if (form) form.reset();
+
+        const modalEl = document.getElementById('modalVoting');
+        if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
+
+        if (typeof loadDataVoting === 'function') loadDataVoting(); // Refresh tabel admin
+        if (typeof loadPublicVoting === 'function') loadPublicVoting(); // Refresh layar publik
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Terjadi kendala saat menyimpan polling.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Publikasikan Polling';
+      }
+      Swal.fire('Error Koneksi', String(err), 'error');
+    })
+    .saveVoting(token, payload);
+}
               
               function tutupVoting(id) {
                 Swal.fire({
