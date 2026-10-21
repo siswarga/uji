@@ -7235,13 +7235,56 @@ function setDynamicManifest(namaApp, themeColor) {
               });
               
 // =====================================================
-// SISTEM AUTO LOGOUT (IDLE TIMEOUT) & TUTUP SEMUA MODAL
+// 1. SINKRONISASI DATA PORTAL PUBLIK & RUNNING TEXT (TIAP 10 DETIK)
+// =====================================================
+setInterval(() => {
+  const publicPage = document.getElementById('public-page');
+  
+  // Hanya jalankan sinkronisasi jika layar sedang berada di portal publik
+  if (publicPage && publicPage.style.display !== 'none') {
+    // Sinkronisasi data warga & saldo kas
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.success && res.data) {
+        let d = res.data;
+        if(document.getElementById('pub-totKK')) document.getElementById('pub-totKK').innerText = d.warga.kepalaKeluarga;
+        if(document.getElementById('pub-totDom')) document.getElementById('pub-totDom').innerText = d.warga.domisiliKtp || 0;
+        if(document.getElementById('pub-totND')) document.getElementById('pub-totND').innerText = d.warga.nonDomisili;
+        if(document.getElementById('pub-totK')) document.getElementById('pub-totK').innerText = d.warga.kontrak;
+        if(document.getElementById('pub-kw-saldo-umum')) document.getElementById('pub-kw-saldo-umum').innerText = formatRupiah(d.kasWarga.saldoUmum);
+        if(document.getElementById('pub-kw-saldo-jimpitan')) document.getElementById('pub-kw-saldo-jimpitan').innerText = formatRupiah(d.kasWarga.saldoJimpitan);
+        if(document.getElementById('pub-km-saldo')) document.getElementById('pub-km-saldo').innerText = formatRupiah(d.kasMasjid.saldo);
+      }
+    }).getPublicDashboardData();
+
+    // Sinkronisasi Running Text
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.success && res.data) {
+        let runningTextEl = document.getElementById('pub-running-text-content');
+        let namaApp = res.data['nama_aplikasi'] || res.data['nama_app'] || res.data['nama_web'] || 'SI-GAS';
+        let namaKomplek = res.data['nama_komplek'] || 'Komplek Warga';
+        let serverText = res.data['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama!';
+
+        serverText = serverText
+          .replace(/\$namaapp\$/gi, namaApp)
+          .replace(/\$namakomplek\$/gi, namaKomplek);
+
+        if (runningTextEl && runningTextEl.innerText !== serverText) {
+          runningTextEl.innerText = serverText;
+        }
+      }
+    }).getAppSettings();
+  }
+}, 10000);
+
+
+// =====================================================
+// 2. SISTEM AUTO LOGOUT (IDLE 10 MENIT) & TUTUP SEMUA MODAL
 // =====================================================
 let idleTimer;
 let isTimerResetting = false;
-const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 15 menit
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 menit
 
-// 1. Helper untuk menutup paksa seluruh modal yang sedang terbuka
+// Helper untuk menutup paksa seluruh modal yang sedang terbuka
 function tutupSemuaModal() {
   document.querySelectorAll('.modal').forEach(el => {
     const modalInstance = bootstrap.Modal.getInstance(el);
@@ -7255,17 +7298,17 @@ function tutupSemuaModal() {
   document.body.style.removeProperty('padding-right');
 }
 
-// 2. Eksekusi logout otomatis saat 15 menit tidak ada aktivitas
+// Eksekusi logout otomatis saat tidak ada aktivitas
 function logoutDueToInactivity() {
   if (!currentUser) return; // Mencegah pemicu ganda
 
-  // Tutup seketika semua modal form yang masih melayang di layar
+  // 1. Tutup seketika semua modal form yang masih melayang
   tutupSemuaModal();
 
   if (typeof showLoading === 'function') showLoading();
   const token = localStorage.getItem('sigas_token');
 
-  // Panggil fungsi logout di backend
+  // 2. Panggil fungsi logout di backend
   google.script.run
     .withSuccessHandler(() => {
       localStorage.removeItem('sigas_token');
@@ -7273,19 +7316,19 @@ function logoutDueToInactivity() {
 
       if (typeof hideLoading === 'function') hideLoading();
 
-      // 1. Sembunyikan panel admin & halaman login
+      // Sembunyikan panel admin & login page
       const appLayout = document.getElementById('app-layout');
       const loginPage = document.getElementById('halaman-login') || document.getElementById('login-page');
       if (appLayout) appLayout.style.display = 'none';
       if (loginPage) loginPage.style.display = 'none';
 
-      // 2. Tampilkan Dashboard Warga (Portal Publik)
+      // Tampilkan Dashboard Warga (Portal Publik)
       const publicPage = document.getElementById('public-page') || document.getElementById('halaman-publik');
       if (publicPage) {
         publicPage.style.display = 'block';
       }
 
-      // 3. Refresh data dashboard & polling warga
+      // Refresh data tampilan publik
       if (typeof loadPublicDashboardData === 'function') loadPublicDashboardData();
       if (typeof loadPublicVoting === 'function') loadPublicVoting();
       if (typeof loadPublicData === 'function') loadPublicData();
@@ -7293,7 +7336,7 @@ function logoutDueToInactivity() {
       Swal.fire({
         icon: 'warning',
         title: 'Sesi Berakhir',
-        text: 'Anda telah keluar otomatis karena tidak ada aktivitas. Dialihkan kembali ke Dashboard Warga.',
+        text: 'Anda telah keluar otomatis karena tidak ada aktivitas selama 10 menit. Dialihkan kembali ke Dashboard Warga.',
         confirmButtonColor: '#0d6efd'
       });
     })
@@ -7306,13 +7349,11 @@ function logoutDueToInactivity() {
     .logout(token);
 }
 
-// 3. Reset hitungan mundur setiap ada interaksi pengguna
+// Reset hitungan mundur setiap ada interaksi admin
 function resetIdleTimer() {
-  // Hanya jalankan deteksi jika ada user yang sedang login di panel admin
   const appLayout = document.getElementById('app-layout');
   if (!currentUser || (appLayout && appLayout.style.display === 'none')) return;
 
-  // Throttle: Batasi reset maksimal 1 detik sekali agar browser tetap ringan
   if (!isTimerResetting) {
     isTimerResetting = true;
     clearTimeout(idleTimer);
@@ -7323,13 +7364,13 @@ function resetIdleTimer() {
   }
 }
 
-// 4. Pasang pendeteksi aktivitas (kursor, keyboard, sentuhan layar, scroll)
+// Pasang pendeteksi interaksi pengguna
 ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
   window.addEventListener(evt, resetIdleTimer, { passive: true });
 });
 
-// Mulai timer pertama kali
-resetIdleTimer();           
+// Jalankan timer pertama kali
+resetIdleTimer();         
                
                  function startMasjidClock() {
                 // Hentikan interval yang lama jika sebelumnya sudah berjalan
