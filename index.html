@@ -463,55 +463,52 @@
           </div>
         </div>
 
-        <!-- KANAN: Kelompok Tombol Aksi & Badge Status (Dengan ID Dinamis) -->
-        <div class="d-flex align-items-center gap-2 gap-md-3">
+        <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
+<div class="d-flex align-items-center gap-2 gap-md-3">
 
-          <!-- 1. Tombol Dokumentasi (Kamera & Galeri) -->
-          <div class="dropdown" id="header-btn-kamera">
-            <button class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Dokumentasi & Galeri Kegiatan" style="width: 42px; height: 42px;">
-              <i class="fas fa-camera fa-lg"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
-              <li>
-                <label class="dropdown-item py-2" style="cursor: pointer;">
-                  <i class="fas fa-cloud-upload-alt text-success me-2"></i> Unggah Foto Warga
-                  <input type="file" accept="image/*" multiple style="display: none;" onchange="prosesPilihFoto(this)">
-                </label>
-              </li>
-              <li>
-                <hr class="dropdown-divider my-1">
-              </li>
-              <li>
-                <a class="dropdown-item py-2" href="javascript:void(0)" onclick="bukaGaleriFoto()">
-                  <i class="fas fa-images text-primary me-2"></i> Lihat Galeri Foto
-                </a>
-              </li>
-            </ul>
-          </div>
+  <!-- 1. Tombol Kamera (Sudah berfungsi) -->
+  <div class="dropdown" id="header-btn-kamera">
+    <button class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Dokumentasi & Galeri Kegiatan" style="width: 42px; height: 42px;">
+      <i class="fas fa-camera fa-lg"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+      <li>
+        <label class="dropdown-item py-2" style="cursor: pointer;">
+          <i class="fas fa-cloud-upload-alt text-success me-2"></i> Unggah Foto Warga
+          <input type="file" accept="image/*" multiple style="display: none;" onchange="prosesPilihFoto(this)">
+        </label>
+      </li>
+      <li><hr class="dropdown-divider my-1"></li>
+      <li>
+        <a class="dropdown-item py-2" href="javascript:void(0)" onclick="bukaGaleriFoto()">
+          <i class="fas fa-images text-primary me-2"></i> Lihat Galeri Foto
+        </a>
+      </li>
+    </ul>
+  </div>
 
-          <!-- 2. Tombol Lapak UMKM Warga -->
-          <button type="button" id="header-btn-umkm" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
-            <i class="fas fa-store fa-lg"></i>
-          </button>
+  <!-- 2. Tombol Lapak UMKM (WAJIB ADA id="header-btn-umkm") -->
+  <button type="button" id="header-btn-umkm" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
+    <i class="fas fa-store fa-lg"></i>
+  </button>
 
-          <!-- 3. Tombol Kartu Warga Digital (KTA) -->
-          <button type="button" id="header-btn-kta" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
-            <i class="fas fa-id-card fa-lg"></i>
-          </button>
+  <!-- 3. Tombol KTA Digital (WAJIB ADA id="header-btn-kta") -->
+  <button type="button" id="header-btn-kta" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
+    <i class="fas fa-id-card fa-lg"></i>
+  </button>
 
-          <!-- 4. Tombol Darurat SOS -->
-          <button type="button" id="header-btn-sos" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
-            <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
-            <span class="fw-bold small">SOS</span>
-          </button>
+  <!-- 4. Tombol Darurat SOS (WAJIB ADA id="header-btn-sos") -->
+  <button type="button" id="header-btn-sos" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
+    <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
+    <span class="fw-bold small">SOS</span>
+  </button>
 
-          <!-- 5. Badge Status Portal (Tampil di Layar Desktop) -->
-          <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-lg-inline-block ms-1">
-            <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
-          </span>
+  <!-- 5. Badge Status -->
+  <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-lg-inline-block ms-1">
+    <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
+  </span>
 
-        </div>
-
+</div>
       </div>
     </div>
 
@@ -15171,67 +15168,6 @@ window.applyAppThemeColor = function(colorVal) {
                 let wargaStatusKeluargaEl = document.getElementById('warga_statusKeluarga');
                 if (wargaStatusKeluargaEl) wargaStatusKeluargaEl.addEventListener('change', toggleWargaStatusKeluarga);
               });
-          	
-          function loadAppSettingsAndInit() {
-        let backupTimer = setTimeout(() => { hideLoading(); checkSession(); }, 5000);
-		
-        google.script.run.withSuccessHandler(res => {
-          clearTimeout(backupTimer); 
-          if (res && res.success) {
-			appSettings = res.data || {};
-			localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
-			initGlobalPrayerTimes();
-			updateFooterAplikasi();
-			applyPengaturanFiturWarga();
-            
-            if (appSettings['warna_aplikasi']) applyAppThemeColor(appSettings['warna_aplikasi']);
-            
-            let appName = appSettings['nama_aplikasi'] || appSettings['nama_app'] || 'SI-GAS';
-            let namaKomplek = appSettings['nama_komplek'] || 'Komplek Warga';
-      
-            let pubAppName = document.getElementById('pub-app-name');
-            if (pubAppName) pubAppName.innerText = appName;
-            let sidebarAppName = document.getElementById('sidebar-app-name');
-            if (sidebarAppName) sidebarAppName.innerText = appName;
-            
-            let elDomisili = document.getElementById('pub-app-domisili');
-            if (elDomisili) elDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${namaKomplek} (${appSettings['domisili'] || 'Kecamatan'})`;
-            
-            let elMoto = document.getElementById('pub-app-moto');
-            if (elMoto) elMoto.innerText = `"${appSettings['moto'] || 'Harmonis, Religius dan Gotong Royong'}"`;
-            
-            let menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
-            if (menuDaftarWarga) menuDaftarWarga.style.display = appSettings['fitur_pendaftaran_mandiri'] === 'Nonaktif' ? 'none' : 'block';
-            
-            let menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
-            if (menuLaporMudik) menuLaporMudik.style.display = appSettings['fitur_lapor_mudik'] === 'Aktif' ? 'block' : 'none';
-            
-			let elBackendUrl = document.getElementById('set_backend_url');
-			if (elBackendUrl) {
-			elBackendUrl.value = appSettings['backend_url'] || '';
-			}
-			
-            // --- PENYESUAIAN RUNNING TEXT DINAMIS ---
-            let runningTextEl = document.getElementById('pub-running-text-content');
-            if (runningTextEl) {
-              let rawText = appSettings['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama!';
-              runningTextEl.innerText = rawText
-                .replace(/\$namaapp\$/gi, appName)
-                .replace(/\$namakomplek\$/gi, namaKomplek);
-            }
-            
-            if(appSettings['logo']) {
-              let logoContainer = document.getElementById('pub-logo-container');
-              if (logoContainer) logoContainer.innerHTML = `<img src="${appSettings['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
-            }
-          }
-          checkSession();
-        }).withFailureHandler(err => {
-          clearTimeout(backupTimer); 
-          console.error("Gagal terhubung:", err); 
-          checkSession();
-        }).getAppSettings();
-      }
           
 // 1. Simpan Folder Google Drive (Tombol Ungu)
 window.simpanNamaFolderDriveAction = function() {
@@ -15276,124 +15212,7 @@ window.simpanNamaFolderDriveAction = function() {
     })
     .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
 };
-
-// ============================================================================
-// SIMPAN SEMUA PENGATURAN IDENTITAS, CLOUD, & AKSES (SUPERADMIN)
-// ============================================================================
-function saveIdentitasAplikasi(e) {
-  if (e) e.preventDefault();
-
-  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
-  if (!token) {
-    return Swal.fire('Sesi Habis', 'Silakan login ulang sebagai Superadmin.', 'warning');
-  }
-
-  const getVal = (id) => {
-    const el = document.getElementById(id);
-    return el ? el.value.trim() : '';
-  };
-
-  // Helper untuk membaca nilai checkbox/switch (ya/tidak)
-  const getCheck = (id, defaultKey) => {
-    const el = document.getElementById(id);
-    if (el) return el.checked ? 'ya' : 'tidak';
-    return (typeof appSettings !== 'undefined' && appSettings[defaultKey]) ? appSettings[defaultKey] : 'ya';
-  };
-
-  let base64El = document.getElementById('set_logo_base64');
-  let existingEl = document.getElementById('set_logo');
-  let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
-  let namaBaru = getVal('set_nama_aplikasi');
-
-  let elSaklarWa = document.getElementById('set_wa_mode_otomatis');
-  let statusWa = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : ((typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || 'Nonaktif');
-
-  // Kumpulan seluruh parameter identitas, Drive, dan visibilitas tombol portal
-  const p = {
-    'nama_aplikasi': namaBaru,
-    'nama_komplek': getVal('set_nama_komplek'),
-    'backend_url': getVal('set_backend_url'),
-    'nama_folder_drive': getVal('inputNamaFolderDrive'),
-    'domisili': getVal('set_domisili'),
-    'logo': finalLogo,
-    'moto': getVal('set_moto'),
-    'alamat': getVal('set_alamat'),
-    'fitur_pendaftaran_mandiri': getVal('set_pendaftaran_mandiri'),
-    'fitur_pendaftaran_pengurus': getVal('set_pendaftaran_pengurus'),
-    'fitur_lapor_mudik': getVal('set_lapor_mudik'),
-    'warna_aplikasi': getVal('set_warna_aplikasi'),
-    'wa_mode_otomatis': statusWa,
-
-    // Status switch visibilitas tombol header portal publik
-    'show_kamera': getCheck('seting-show-kamera', 'show_kamera'),
-    'show_umkm':   getCheck('seting-show-umkm', 'show_umkm'),
-    'show_kta':    getCheck('seting-show-kta', 'show_kta'),
-    'show_sos':    getCheck('seting-show-sos', 'show_sos')
-  };
-
-  const btnSave = document.getElementById('btn-save-identitas');
-  if (btnSave) {
-    btnSave.disabled = true;
-    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan Semua Data...';
-  }
-
-  google.script.run
-    .withSuccessHandler(res => {
-      if (btnSave) {
-        btnSave.disabled = false;
-        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Semua Pengaturan';
-      }
-
-      if (res && res.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Berhasil Disimpan',
-          text: res.message || 'Semua pengaturan berhasil diperbarui.',
-          timer: 1500,
-          showConfirmButton: false
-        });
-
-        // Sinkronisasi data ke state aplikasi dan localStorage
-        if (typeof appSettings !== 'undefined') {
-          Object.assign(appSettings, p);
-        }
-        localStorage.setItem('sigas_app_settings', JSON.stringify(typeof appSettings !== 'undefined' ? appSettings : p));
-
-        // Terapkan langsung perubahan visibilitas tombol portal secara instan
-        if (typeof terapkanVisibilitasTombolHeader === 'function') {
-          terapkanVisibilitasTombolHeader(p);
-        }
-
-        // Jalankan pembaruan tema, footer, dan form publik
-        if (typeof applyPengaturanFiturWarga === 'function') applyPengaturanFiturWarga();
-        if (typeof applyAppThemeColor === 'function') applyAppThemeColor(p['warna_aplikasi']);
-        if (typeof updateFooterAplikasi === 'function') updateFooterAplikasi();
-
-        // Perbarui teks nama aplikasi & komplek di header portal warga
-        let pubAppName = document.getElementById('pub-app-name');
-        if (pubAppName && namaBaru) pubAppName.innerText = namaBaru;
-
-        let pubDomisili = document.getElementById('pub-app-domisili');
-        if (pubDomisili && p['nama_komplek']) {
-          pubDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${p['nama_komplek']}`;
-        }
-
-        if (typeof loadDataSuperadmin === 'function') loadDataSuperadmin();
-
-      } else {
-        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem.', 'error');
-      }
-    })
-    .withFailureHandler(err => {
-      if (btnSave) {
-        btnSave.disabled = false;
-        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Semua Pengaturan';
-      }
-      Swal.fire('Error Koneksi', String(err), 'error');
-    })
-    .updateAppSettingsBulk(token, p);
-}
-          
+    
           function updateFooterAplikasi() {
             let namaApp = (appSettings && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'SI-GAS';
           
@@ -15522,39 +15341,294 @@ function simpanPengaturan(e) {
     .updateAppSettingsBulk(token, dataPengaturan); // Memanggil updateAppSettingsBulk dengan token
 }
           
-         function simpanPengaturanSuperadmin() {
-        const elFolder = document.getElementById('inputNamaFolderDrive');
-      
-        let dataPengaturan = {
-          nama_aplikasi: document.getElementById('set_nama_aplikasi').value,
-          nama_komplek: document.getElementById('set_nama_komplek').value,
-          api_wa_url: document.getElementById('api_wa_url') ? document.getElementById('api_wa_url').value.trim() : '',
-          wa_group_jid: document.getElementById('set_wa_group_jid') ? document.getElementById('set_wa_group_jid').value.trim() : '',
-          
-          // >>> TAMBAHKAN BARIS INI <<<
-          folder_dokumentasi: elFolder ? elFolder.value.trim() : 'DOKUMENTASI_WARGA'
-      
-          // ... (parameter pengaturan lainnya sesuai form Anda)
-        };
-      
-        if (typeof showLoading === 'function') showLoading();
-      
-        google.script.run
-          .withSuccessHandler(res => {
-            if (typeof hideLoading === 'function') hideLoading();
-            if (res && res.success) {
-              Swal.fire('Berhasil!', 'Pengaturan berhasil disimpan.', 'success');
-              loadDataSuperadmin(); // Memuat ulang data pengaturan terkini
-            } else {
-              Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan', 'error');
-            }
-          })
-          .withFailureHandler(err => {
-            if (typeof hideLoading === 'function') hideLoading();
-            Swal.fire('Error', 'Koneksi gagal: ' + err, 'error');
-          })
-          .saveAppSettings(dataPengaturan);
+// ============================================================================
+// 1. FUNGSI PEMBANTU: TERAPKAN PENGATURAN KE FORMULIR & TAMPILAN
+// ============================================================================
+function terapkanPengaturanKeElemen(s) {
+  if (!s || typeof s !== 'object') return;
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null) el.value = val;
+  };
+
+  const setSwitch = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) {
+      // Switch aktif (true) kecuali jika di database tertulis 'tidak'
+      el.checked = (String(val).toLowerCase().trim() !== 'tidak');
+    }
+  };
+
+  // A. Isi Formulir Panel Superadmin (Tab Identitas)
+  setVal('set_nama_aplikasi', s['nama_aplikasi'] || s['nama_app'] || '');
+  setVal('set_nama_komplek', s['nama_komplek'] || '');
+  setVal('set_domisili', s['domisili'] || '');
+  setVal('set_moto', s['moto'] || '');
+  setVal('set_alamat', s['alamat'] || '');
+  setVal('set_backend_url', s['backend_url'] || '');
+  setVal('inputNamaFolderDrive', s['nama_folder_drive'] || s['folder_dokumentasi'] || '');
+
+  // Tema Warna
+  if (s['warna_aplikasi']) {
+    setVal('set_warna_aplikasi', s['warna_aplikasi']);
+    setVal('set_warna_aplikasi_text', s['warna_aplikasi']);
+    if (typeof applyAppThemeColor === 'function') {
+      try { applyAppThemeColor(s['warna_aplikasi']); } catch (e) {}
+    }
+  }
+
+  // Dropdown Kebijakan Form
+  setVal('set_pendaftaran_mandiri', s['fitur_pendaftaran_mandiri'] || s['pendaftaran_mandiri'] || 'Aktif');
+  setVal('set_pendaftaran_pengurus', s['fitur_pendaftaran_pengurus'] || s['pendaftaran_pengurus'] || 'Aktif');
+  setVal('set_lapor_mudik', s['fitur_lapor_mudik'] || s['lapor_mudik'] || 'Aktif');
+
+  // Saklar Switch Visibilitas di Form Superadmin
+  setSwitch('seting-show-kamera', s['show_kamera']);
+  setSwitch('seting-show-umkm',   s['show_umkm']);
+  setSwitch('seting-show-kta',    s['show_kta']);
+  setSwitch('seting-show-sos',    s['show_sos']);
+
+  // Preview Logo di Form
+  if (s['logo']) {
+    const imgEl = document.getElementById('set_logo_img');
+    const hiddenEl = document.getElementById('set_logo');
+    if (imgEl) {
+      imgEl.src = s['logo'];
+      imgEl.style.display = 'block';
+    }
+    if (hiddenEl) hiddenEl.value = s['logo'];
+  }
+
+  // B. Visibilitas Tombol Header Portal Warga
+  const btnKamera = document.getElementById('header-btn-kamera');
+  const btnUmkm   = document.getElementById('header-btn-umkm');
+  const btnKta    = document.getElementById('header-btn-kta');
+  const btnSos    = document.getElementById('header-btn-sos');
+
+  if (btnKamera) btnKamera.style.display = (String(s['show_kamera']).toLowerCase().trim() === 'tidak') ? 'none' : '';
+  if (btnUmkm)   btnUmkm.style.display   = (String(s['show_umkm']).toLowerCase().trim() === 'tidak') ? 'none' : '';
+  if (btnKta)    btnKta.style.display    = (String(s['show_kta']).toLowerCase().trim() === 'tidak') ? 'none' : '';
+  if (btnSos)    btnSos.style.display    = (String(s['show_sos']).toLowerCase().trim() === 'tidak') ? 'none' : '';
+
+  // C. Branding Dashboard Warga & Sidebar
+  const appName = s['nama_aplikasi'] || s['nama_app'] || 'SI-GAS';
+  const namaKomplek = s['nama_komplek'] || 'Komplek Warga';
+
+  const pubAppName = document.getElementById('pub-app-name');
+  if (pubAppName) pubAppName.innerText = appName;
+
+  const sidebarAppName = document.getElementById('sidebar-app-name');
+  if (sidebarAppName) sidebarAppName.innerText = appName;
+
+  const elDomisili = document.getElementById('pub-app-domisili');
+  if (elDomisili) {
+    elDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${namaKomplek} (${s['domisili'] || 'Kecamatan'})`;
+  }
+
+  const elMoto = document.getElementById('pub-app-moto');
+  if (elMoto) {
+    elMoto.innerText = `"${s['moto'] || 'Harmonis, Religius dan Gotong Royong'}"`;
+  }
+
+  // D. Menu Pendaftaran & Mudik
+  const menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
+  if (menuDaftarWarga) {
+    const statusDaftar = s['fitur_pendaftaran_mandiri'] || s['pendaftaran_mandiri'];
+    menuDaftarWarga.style.display = (statusDaftar === 'Nonaktif') ? 'none' : 'block';
+  }
+
+  const menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
+  if (menuLaporMudik) {
+    const statusMudik = s['fitur_lapor_mudik'] || s['lapor_mudik'];
+    menuLaporMudik.style.display = (statusMudik === 'Aktif') ? 'block' : 'none';
+  }
+
+  // E. Logo Header Publik
+  if (s['logo']) {
+    const logoContainer = document.getElementById('pub-logo-container');
+    if (logoContainer) {
+      logoContainer.innerHTML = `<img src="${s['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
+    }
+  }
+
+  // F. Running Text Dinamis
+  const runningTextEl = document.getElementById('pub-running-text-content');
+  if (runningTextEl) {
+    let rawText = s['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama!';
+    runningTextEl.innerText = rawText
+      .replace(/\$namaapp\$/gi, appName)
+      .replace(/\$namakomplek\$/gi, namaKomplek);
+  }
+}
+
+// ============================================================================
+// 2. LOAD PENGATURAN SAAT APLIKASI DIBUKA / REFRESH
+// ============================================================================
+function loadAppSettingsAndInit() {
+  // Muat instan dari localStorage agar tampilan tidak berkedip
+  try {
+    const localData = localStorage.getItem('sigas_app_settings');
+    if (localData) {
+      appSettings = JSON.parse(localData);
+      terapkanPengaturanKeElemen(appSettings);
+    }
+  } catch (e) {}
+
+  let backupTimer = setTimeout(() => { 
+    if (typeof hideLoading === 'function') hideLoading(); 
+    if (typeof checkSession === 'function') checkSession(); 
+  }, 5000);
+
+  google.script.run
+    .withSuccessHandler(res => {
+      clearTimeout(backupTimer);
+      if (res && res.success) {
+        appSettings = (res.data && typeof res.data === 'object') ? res.data : res;
+        localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
+
+        // Sinkronisasi data ke formulir dan halaman
+        terapkanPengaturanKeElemen(appSettings);
+
+        // Eksekusi fungsi pelengkap secara aman
+        if (typeof initGlobalPrayerTimes === 'function') {
+          try { initGlobalPrayerTimes(); } catch (err) {}
+        }
+        if (typeof updateFooterAplikasi === 'function') {
+          try { updateFooterAplikasi(); } catch (err) {}
+        }
+        if (typeof applyPengaturanFiturWarga === 'function') {
+          try { applyPengaturanFiturWarga(); } catch (err) {}
+        }
       }
+      if (typeof checkSession === 'function') checkSession();
+    })
+    .withFailureHandler(err => {
+      clearTimeout(backupTimer);
+      console.error("Gagal terhubung getAppSettings:", err);
+      if (typeof checkSession === 'function') checkSession();
+    })
+    .getAppSettings();
+}
+
+// ============================================================================
+// 3. SIMPAN IDENTITAS, CLOUD, DAN VISIBILITAS FITUR (SUPERADMIN)
+// ============================================================================
+function saveIdentitasAplikasi(e) {
+  if (e) e.preventDefault();
+
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
+  if (!token) {
+    return Swal.fire('Sesi Habis', 'Silakan login ulang sebagai Superadmin.', 'warning');
+  }
+
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  };
+
+  const getCheck = (id, fallbackKey) => {
+    const el = document.getElementById(id);
+    if (el) return el.checked ? 'ya' : 'tidak';
+    return (typeof appSettings !== 'undefined' && appSettings[fallbackKey]) ? appSettings[fallbackKey] : 'ya';
+  };
+
+  let base64El = document.getElementById('set_logo_base64');
+  let existingEl = document.getElementById('set_logo');
+  let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
+  let namaBaru = getVal('set_nama_aplikasi');
+
+  let elSaklarWa = document.getElementById('set_wa_mode_otomatis');
+  let statusWa = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : ((typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || 'Nonaktif');
+
+  const valDaftarWarga = getVal('set_pendaftaran_mandiri') || 'Nonaktif';
+  const valDaftarPengurus = getVal('set_pendaftaran_pengurus') || 'Nonaktif';
+  const valLaporMudik = getVal('set_lapor_mudik') || 'Nonaktif';
+
+  const p = {
+    'nama_aplikasi': namaBaru || 'SI-GAS',
+    'nama_komplek': getVal('set_nama_komplek'),
+    'backend_url': getVal('set_backend_url'),
+    'nama_folder_drive': getVal('inputNamaFolderDrive'),
+    'folder_dokumentasi': getVal('inputNamaFolderDrive'),
+    'domisili': getVal('set_domisili'),
+    'logo': finalLogo,
+    'moto': getVal('set_moto'),
+    'alamat': getVal('set_alamat'),
+    'warna_aplikasi': getVal('set_warna_aplikasi'),
+    'wa_mode_otomatis': statusWa,
+
+    // Kirim kedua varian kunci agar baris 52-54 spreadsheet otomatis ter-update
+    'pendaftaran_mandiri': valDaftarWarga,
+    'fitur_pendaftaran_mandiri': valDaftarWarga,
+    'pendaftaran_pengurus': valDaftarPengurus,
+    'fitur_pendaftaran_pengurus': valDaftarPengurus,
+    'lapor_mudik': valLaporMudik,
+    'fitur_lapor_mudik': valLaporMudik,
+
+    // Switch visibilitas tombol portal warga
+    'show_kamera': getCheck('seting-show-kamera', 'show_kamera'),
+    'show_umkm':   getCheck('seting-show-umkm', 'show_umkm'),
+    'show_kta':    getCheck('seting-show-kta', 'show_kta'),
+    'show_sos':    getCheck('seting-show-sos', 'show_sos')
+  };
+
+  const btnSave = document.getElementById('btn-save-identitas');
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan Semua Data...';
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Semua Pengaturan';
+      }
+
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Disimpan',
+          text: res.message || 'Semua pengaturan berhasil diperbarui.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        // Simpan ke memori dan localStorage
+        Object.assign(appSettings, p);
+        localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
+
+        // Terapkan perubahan ke seluruh elemen secara langsung
+        terapkanPengaturanKeElemen(appSettings);
+
+        if (typeof applyPengaturanFiturWarga === 'function') {
+          try { applyPengaturanFiturWarga(); } catch (err) {}
+        }
+        if (typeof updateFooterAplikasi === 'function') {
+          try { updateFooterAplikasi(); } catch (err) {}
+        }
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Semua Pengaturan';
+      }
+      Swal.fire('Error Koneksi', String(err), 'error');
+    })
+    .updateAppSettingsBulk(token, p);
+}
+
+// ============================================================================
+// 4. PENYELARAS FUNGSI LAMA
+// ============================================================================
+// Menjembatani pemanggilan simpanPengaturanSuperadmin agar tidak memicu error
+function simpanPengaturanSuperadmin(e) {
+  return saveIdentitasAplikasi(e);
+}
           
           function triggerPanicButtonAction() {
             Swal.fire({
@@ -18461,6 +18535,8 @@ function tutupScannerKTA() {
     }, 150);
   }
 }
+
+
     </script>
 
 <!-- Audio Player Adzan Global -->
