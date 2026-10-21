@@ -444,7 +444,7 @@
     <h5 class="mt-3 text-success fw-bold">Memuat Sistem...</h5>
   </div>
 
- <!-- PORTAL PUBLIK (DASHBOARD WARGA) -->
+<!-- PORTAL PUBLIK (DASHBOARD WARGA) -->
 <div id="public-page" style="display: none;">
   <div class="container py-3">
 
@@ -463,11 +463,11 @@
           </div>
         </div>
 
-        <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
+        <!-- KANAN: Kelompok Tombol Aksi & Badge Status (Dengan ID Dinamis) -->
         <div class="d-flex align-items-center gap-2 gap-md-3">
 
           <!-- 1. Tombol Dokumentasi (Kamera & Galeri) -->
-          <div class="dropdown">
+          <div class="dropdown" id="header-btn-kamera">
             <button class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Dokumentasi & Galeri Kegiatan" style="width: 42px; height: 42px;">
               <i class="fas fa-camera fa-lg"></i>
             </button>
@@ -490,17 +490,17 @@
           </div>
 
           <!-- 2. Tombol Lapak UMKM Warga -->
-          <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
+          <button type="button" id="header-btn-umkm" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
             <i class="fas fa-store fa-lg"></i>
           </button>
 
-          <!-- 3. Tombol Kartu Warga Digital (Hanya Ikon ID Card/QR) -->
-          <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
+          <!-- 3. Tombol Kartu Warga Digital (KTA) -->
+          <button type="button" id="header-btn-kta" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
             <i class="fas fa-id-card fa-lg"></i>
           </button>
 
           <!-- 4. Tombol Darurat SOS -->
-          <button type="button" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
+          <button type="button" id="header-btn-sos" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
             <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
             <span class="fw-bold small">SOS</span>
           </button>
@@ -3729,182 +3729,220 @@
             <!-- PEMBUKA TAB-CONTENT -->
             <div class="tab-content mt-3">
 
-              <!-- 1. TAB IDENTITAS -->
-              <div class="tab-pane fade show active" id="tab-identitas" role="tabpanel">
-                <div class="card shadow-sm border-0 mb-4">
-                  <form class="card-body" id="formIdentitasAplikasi" onsubmit="saveIdentitasAplikasi(event)">
-                    <div class="row g-3">
+            <!-- 1. TAB IDENTITAS & PENGATURAN UMUM -->
+<div class="tab-pane fade show active" id="tab-identitas" role="tabpanel">
+  <form id="formIdentitasAplikasi" onsubmit="saveIdentitasAplikasi(event)">
 
-                      <!-- Nama Aplikasi -->
-                      <div class="col-md-6">
-                        <label class="form-label text-muted small">Nama Aplikasi</label>
-                        <input type="text" class="form-control" id="set_nama_aplikasi" required>
-                      </div>
+    <!-- KARTU 1: IDENTITAS & BRANDING LINGKUNGAN -->
+    <div class="card shadow-sm border-0 rounded-3 mb-3">
+      <div class="card-header bg-white border-bottom py-3">
+        <h6 class="fw-bold mb-0 text-danger">
+          <i class="fas fa-building me-2"></i>Identitas & Branding Lingkungan
+        </h6>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Nama Aplikasi -->
+          <div class="col-md-6">
+            <label class="form-label text-muted small fw-semibold">Nama Aplikasi</label>
+            <input type="text" class="form-control" id="set_nama_aplikasi" placeholder="Contoh: SI-GAS / KETAWA" required>
+          </div>
 
-                      <!-- Warna Tema -->
-                      <div class="col-md-6">
-                        <label class="form-label text-muted small fw-bold">Warna Tema Aplikasi</label>
-                        <div class="input-group">
-                          <input type="color" class="form-control form-control-color w-25" id="set_warna_aplikasi" value="#198754" title="Pilih warna tema utama">
-                          <input type="text" class="form-control bg-light fw-bold font-monospace" id="set_warna_aplikasi_text" readonly placeholder="#198754">
-                        </div>
-                        <small class="text-muted">Pilih warna bebas untuk menyesuaikan tombol dan header aplikasi.</small>
-                      </div>
+          <!-- Warna Tema -->
+          <div class="col-md-6">
+            <label class="form-label text-muted small fw-semibold">Warna Tema Utama</label>
+            <div class="input-group">
+              <input type="color" class="form-control form-control-color" id="set_warna_aplikasi" value="#198754" title="Pilih warna tema" oninput="document.getElementById('set_warna_aplikasi_text').value = this.value">
+              <input type="text" class="form-control bg-light fw-bold font-monospace" id="set_warna_aplikasi_text" value="#198754" readonly>
+            </div>
+          </div>
 
-                      <!-- Nama Komplek & Domisili -->
-                      <div class="col-md-6">
-                        <label class="form-label text-muted small">Nama Komplek</label>
-                        <input type="text" class="form-control" id="set_nama_komplek" required>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label text-muted small">Domisili / Kecamatan</label>
-                        <input type="text" class="form-control" id="set_domisili" required>
-                      </div>
+          <!-- Nama Komplek & Domisili -->
+          <div class="col-md-6">
+            <label class="form-label text-muted small fw-semibold">Nama Komplek / Perumahan</label>
+            <input type="text" class="form-control" id="set_nama_komplek" placeholder="Contoh: Grand Assalam" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-muted small fw-semibold">Domisili / Kecamatan / Kota</label>
+            <input type="text" class="form-control" id="set_domisili" placeholder="Contoh: Rancaekek, Bandung" required>
+          </div>
 
-                      <!-- Logo Komplek -->
-                      <div class="col-md-6">
-                        <label class="form-label text-muted small">Logo Komplek (Pilih File Gambar)</label>
-                        <div class="d-flex align-items-center gap-3">
-                          <div class="flex-grow-1">
-                            <input type="file" class="form-control" id="set_logo_file" accept="image/*" onchange="previewLogo(this)">
-                            <input type="hidden" id="set_logo_base64">
-                            <input type="hidden" id="set_logo">
-                          </div>
-                          <div>
-                            <img id="set_logo_img" src="" alt="Logo Preview" class="img-thumbnail" style="height: 60px; width: 60px; object-fit: contain; display: none;">
-                          </div>
-                        </div>
-                      </div>
+          <!-- Motto Lingkungan -->
+          <div class="col-12">
+            <label class="form-label text-muted small fw-semibold">Motto Lingkungan</label>
+            <input type="text" class="form-control" id="set_moto" placeholder="Contoh: Rukun, Nyaman, dan Berkelanjutan" required>
+          </div>
 
-                      <!-- Motto Lingkungan -->
-                      <div class="col-md-12">
-                        <label class="form-label text-muted small">Motto Lingkungan</label>
-                        <input type="text" class="form-control" id="set_moto" required>
-                      </div>
+          <!-- Alamat Lengkap -->
+          <div class="col-md-8">
+            <label class="form-label text-muted small fw-semibold">Alamat Sekretariat Lengkap</label>
+            <input type="text" class="form-control" id="set_alamat" placeholder="Jl. Assalam No. 1..." required>
+          </div>
 
-                      <!-- Alamat Lengkap -->
-                      <div class="col-md-12">
-                        <label class="form-label text-muted small">Alamat Lengkap</label>
-                        <input type="text" class="form-control" id="set_alamat" required>
-                      </div>
+          <!-- Logo Komplek -->
+          <div class="col-md-4">
+            <label class="form-label text-muted small fw-semibold">Logo Komplek</label>
+            <div class="d-flex align-items-center gap-2">
+              <input type="file" class="form-control" id="set_logo_file" accept="image/*" onchange="previewLogo(this)">
+              <input type="hidden" id="set_logo_base64">
+              <input type="hidden" id="set_logo">
+              <img id="set_logo_img" src="" alt="Preview" class="img-thumbnail rounded-3 p-1 flex-shrink-0" style="height: 42px; width: 42px; object-fit: contain; display: none;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                      <!-- Kartu Khusus URL Backend & Google Drive -->
-                      <div class="col-12">
-                        <div class="card shadow-sm border-0 rounded-4 bg-light">
-                          <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3" style="color: #6f42c1;">
-                              <i class="fab fa-google-drive me-2"></i>Penyimpanan URL API Backend & Folder Dokumentasi Warga
-                            </h6>
+    <!-- KARTU 2: INTEGRASI BACKEND & GOOGLE DRIVE -->
+    <div class="card shadow-sm border-0 rounded-3 mb-3">
+      <div class="card-header bg-white border-bottom py-3">
+        <h6 class="fw-bold mb-0" style="color: #6f42c1;">
+          <i class="fab fa-google-drive me-2"></i>Koneksi Backend & Cloud Drive
+        </h6>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- URL Backend -->
+          <div class="col-md-6">
+            <label class="form-label text-muted small fw-semibold">URL Backend Web App (Google Apps Script)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-muted"><i class="fas fa-link"></i></span>
+              <input type="url" class="form-control" id="set_backend_url" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+          </div>
 
-                            <div class="row g-3">
-                              <!-- URL Backend -->
-                              <div class="col-md-6">
-                                <label class="form-label fw-bold small">URL Backend / API Endpoint</label>
-                                <div class="input-group">
-                                  <span class="input-group-text"><i class="fas fa-link"></i></span>
-                                  <input type="url" class="form-control" id="set_backend_url" placeholder="https://script.google.com/macros/s/.../exec">
-                                </div>
-                                <div class="form-text text-muted small">URL Web App Apps Script atau API backend untuk lingkungan ini.</div>
-                              </div>
+          <!-- Folder Drive -->
+          <div class="col-md-6">
+            <label class="form-label text-muted small fw-semibold">Nama Folder Dokumentasi di Google Drive</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-warning"><i class="fas fa-folder"></i></span>
+              <input type="text" id="inputNamaFolderDrive" class="form-control" placeholder="DOKUMENTASI_WARGA">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                              <!-- Folder Drive -->
-                              <div class="col-md-6">
-                                <label class="form-label fw-bold small">Folder Penyimpanan Dokumentasi</label>
-                                <div class="input-group">
-                                  <span class="input-group-text bg-white border-end-0">
-                                    <i class="fas fa-folder text-warning"></i>
-                                  </span>
-                                  <input type="text" id="inputNamaFolderDrive" class="form-control" placeholder="DOKUMENTASI_WARGA">
-                                </div>
-                                <div class="form-text text-muted small">Nama Folder di Google Drive untuk berkas foto dokumentasi warga.</div>
-                              </div>
-                            </div>
-
-                            <div class="mt-3">
-                              <button type="button" class="btn btn-primary px-4 fw-semibold" style="background-color: #6f42c1; border-color: #6f42c1;" onclick="simpanNamaFolderDriveAction()">
-                                <i class="fas fa-save me-1"></i> Simpan Folder & Backend
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="col-12 mt-2">
-                        <hr>
-                      </div>
-
-                      <!-- Pengaturan Fitur Pendaftaran & Mudik -->
-                      <div class="col-md-4">
-                        <label class="form-label fw-bold text-success small">Form Daftar Warga</label>
-                        <select class="form-select border-success" id="set_pendaftaran_mandiri" required>
-                          <option value="Aktif">Aktif</option>
-                          <option value="Nonaktif">Nonaktif</option>
-                        </select>
-                      </div>
-
-                      <div class="col-md-4">
-                        <label class="form-label fw-bold text-success small">Form Daftar Pengurus</label>
-                        <select class="form-select border-success" id="set_pendaftaran_pengurus" required>
-                          <option value="Aktif">Aktif</option>
-                          <option value="Nonaktif">Nonaktif</option>
-                        </select>
-                      </div>
-
-                      <div class="col-md-4">
-                        <label class="form-label fw-bold text-warning small">Form Lapor Mudik</label>
-                        <select class="form-select border-warning" id="set_lapor_mudik" required>
-                          <option value="Aktif">Aktif</option>
-                          <option value="Nonaktif">Nonaktif</option>
-                        </select>
-                      </div>
-
-                    </div> <!-- Tutup row g-3 -->
-
-                    <hr class="my-4">
-                    <button type="submit" class="btn btn-danger" id="btn-save-identitas">
-                      <i class="fas fa-save me-1"></i> Simpan Identitas & Akses
-                    </button>
-                  </form>
+    <!-- KARTU 3: VISIBILITAS FITUR TOMBOL PORTAL DEPAN -->
+    <div class="card shadow-sm border-0 rounded-3 mb-3">
+      <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h6 class="fw-bold mb-0 text-success">
+          <i class="fas fa-toggle-on me-2"></i>Visibilitas Tombol Header Portal Warga
+        </h6>
+        <span class="badge bg-light text-muted border">Atur tombol yang ingin diaktifkan di layar warga</span>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <!-- Toggle Kamera -->
+          <div class="col-6 col-md-3">
+            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold"><i class="fas fa-camera text-success me-1"></i> Kamera</span>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="seting-show-kamera" checked>
                 </div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Unggah & galeri foto warga</small>
+            </div>
+          </div>
 
-                <!-- Zona Berbahaya -->
-                <div class="card shadow-sm border-danger bg-danger bg-opacity-10 mb-4">
-                  <div class="card-body">
-                    <h5 class="fw-bold text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Zona Berbahaya: Reset Database</h5>
-                    <p class="text-muted small">Tindakan ini akan menghapus seluruh database dan riwayat secara permanen. Header tabel akan dipertahankan agar sistem tidak error.</p>
-                    <button type="button" class="btn btn-danger fw-bold px-4 py-2" onclick="promptResetDatabase()">
-                      <i class="fas fa-trash-alt me-2"></i>Kosongkan Seluruh Database
-                    </button>
-                  </div>
+          <!-- Toggle Lapak UMKM -->
+          <div class="col-6 col-md-3">
+            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold"><i class="fas fa-store text-success me-1"></i> Lapak UMKM</span>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="seting-show-umkm" checked>
                 </div>
-              </div> <!-- Tutup tab-identitas -->
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Katalog belanja warga</small>
+            </div>
+          </div>
 
-              <!-- 2. TAB HAK AKSES -->
-              <div class="tab-pane fade" id="tab-hak-akses" role="tabpanel">
-                <div class="card shadow-sm border-0">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h5 class="fw-bold text-primary mb-0">Daftar Akun & Hak Akses</h5>
-                      <button class="btn btn-primary btn-sm" onclick="openModalUser()"><i class="fas fa-user-plus me-1"></i> Tambah Akun</button>
-                    </div>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Nama</th>
-                            <th>Username</th>
-                            <th>Role (Hak Akses)</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tbody-users"></tbody>
-                      </table>
-                    </div>
-                  </div>
+          <!-- Toggle KTA Digital -->
+          <div class="col-6 col-md-3">
+            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold"><i class="fas fa-id-card text-success me-1"></i> KTA Digital</span>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="seting-show-kta" checked>
                 </div>
-              </div> <!-- Tutup tab-hak-akses -->
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Kartu identitas & barcode</small>
+            </div>
+          </div>
 
+          <!-- Toggle SOS -->
+          <div class="col-6 col-md-3">
+            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold"><i class="fas fa-exclamation-triangle text-danger me-1"></i> Tombol SOS</span>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="seting-show-sos" checked>
+                </div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Sinyal bahaya ke satpam</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KARTU 4: KEBIJAKAN FORMULIR MANDIRI -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-white border-bottom py-3">
+        <h6 class="fw-bold mb-0 text-primary">
+          <i class="fas fa-user-edit me-2"></i>Akses Formulir Mandiri Warga
+        </h6>
+      </div>
+      <div class="card-body p-3 p-md-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label text-muted small fw-semibold">Pendaftaran Warga Baru</label>
+            <select class="form-select border-success" id="set_pendaftaran_mandiri" required>
+              <option value="Aktif">Aktif</option>
+              <option value="Nonaktif">Nonaktif</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label text-muted small fw-semibold">Pendaftaran Calon Pengurus</label>
+            <select class="form-select border-success" id="set_pendaftaran_pengurus" required>
+              <option value="Aktif">Aktif</option>
+              <option value="Nonaktif">Nonaktif</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label text-muted small fw-semibold">Laporan Mudik & Rumah Kosong</label>
+            <select class="form-select border-warning" id="set_lapor_mudik" required>
+              <option value="Aktif">Aktif</option>
+              <option value="Nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SATU TOMBOL SIMPAN UTAMA (MENYATU) -->
+    <div class="d-flex justify-content-end mb-4">
+      <button type="submit" class="btn btn-danger btn-lg px-4 py-2 rounded-pill fw-bold shadow" id="btn-save-identitas">
+        <i class="fas fa-save me-2"></i>Simpan Semua Pengaturan
+      </button>
+    </div>
+
+  </form>
+
+  <!-- ZONA BERBAHAYA -->
+  <div class="card shadow-sm border-danger bg-danger bg-opacity-10 mb-4 rounded-3">
+    <div class="card-body p-4">
+      <h5 class="fw-bold text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Zona Berbahaya: Reset Database</h5>
+      <p class="text-muted small mb-3">Tindakan ini akan mengosongkan seluruh database kependudukan, buku tamu, dan absensi ronda secara permanen. Baris judul (header) akan tetap dipertahankan.</p>
+      <button type="button" class="btn btn-danger fw-bold px-4 py-2 rounded-pill" onclick="promptResetDatabase()">
+        <i class="fas fa-trash-alt me-2"></i>Kosongkan Seluruh Database
+      </button>
+    </div>
+  </div>
+
+</div>
               <!-- 3. TAB HISTORY -->
               <div class="tab-pane fade" id="tab-history" role="tabpanel">
                 <div class="card shadow-sm border-0">
@@ -15239,75 +15277,64 @@ window.simpanNamaFolderDriveAction = function() {
     .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
 };
 
-// 2. Simpan Identitas & Hak Akses (Tombol Merah)
-function saveIdentitasAplikasi(e) {
-  if (e) e.preventDefault();
-
-  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
-  if (!token) {
-    return Swal.fire('Sesi Habis', 'Silakan login ulang sebagai Superadmin.', 'warning');
-  }
-
-  const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
-
-  let base64El = document.getElementById('set_logo_base64');
-  let existingEl = document.getElementById('set_logo');
-  let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
-  let namaBaru = getVal('set_nama_aplikasi');
-
-  let elSaklarWa = document.getElementById('set_wa_mode_otomatis');
-  let statusWa = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : (appSettings['wa_mode_otomatis'] || 'Nonaktif');
-
-  const p = {
-  'nama_aplikasi': namaBaru,
-  'nama_komplek': getVal('set_nama_komplek'),
-  'backend_url': getVal('set_backend_url'),
-  'domisili': getVal('set_domisili'),
-  'logo': finalLogo,
-  'moto': getVal('set_moto'),
-  'alamat': getVal('set_alamat'),
-  'fitur_pendaftaran_mandiri': getVal('set_pendaftaran_mandiri'),
-  'fitur_pendaftaran_pengurus': getVal('set_pendaftaran_pengurus'),
-  'fitur_lapor_mudik': getVal('set_lapor_mudik'),
-  'warna_aplikasi': getVal('set_warna_aplikasi'),
-  'wa_mode_otomatis': statusWa
-};
+function saveIdentitasAplikasi(event) {
+  event.preventDefault();
 
   const btnSave = document.getElementById('btn-save-identitas');
-  if (btnSave) {
-    btnSave.disabled = true;
-    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
-  }
+  const txtAsli = btnSave.innerHTML;
+  btnSave.disabled = true;
+  btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan Semua Data...';
+
+  // Kumpulkan seluruh data form dan switch ke dalam satu objek terpadu
+  const payload = {
+    nama_aplikasi: document.getElementById('set_nama_aplikasi').value.trim(),
+    warna_aplikasi: document.getElementById('set_warna_aplikasi').value,
+    nama_komplek: document.getElementById('set_nama_komplek').value.trim(),
+    domisili: document.getElementById('set_domisili').value.trim(),
+    moto: document.getElementById('set_moto').value.trim(),
+    alamat: document.getElementById('set_alamat').value.trim(),
+    logo: document.getElementById('set_logo_base64').value || document.getElementById('set_logo').value,
+    backend_url: document.getElementById('set_backend_url').value.trim(),
+    nama_folder_drive: document.getElementById('inputNamaFolderDrive').value.trim(),
+    pendaftaran_mandiri: document.getElementById('set_pendaftaran_mandiri').value,
+    pendaftaran_pengurus: document.getElementById('set_pendaftaran_pengurus').value,
+    lapor_mudik: document.getElementById('set_lapor_mudik').value,
+    
+    // Status Switch Tombol Header Portal Depan
+    show_kamera: document.getElementById('seting-show-kamera').checked ? 'ya' : 'tidak',
+    show_umkm:   document.getElementById('seting-show-umkm').checked ? 'ya' : 'tidak',
+    show_kta:    document.getElementById('seting-show-kta').checked ? 'ya' : 'tidak',
+    show_sos:    document.getElementById('seting-show-sos').checked ? 'ya' : 'tidak'
+  };
+
+  const token = typeof currentUser !== 'undefined' && currentUser.token ? currentUser.token : '';
 
   google.script.run
     .withSuccessHandler(res => {
-      if (btnSave) {
-        btnSave.disabled = false;
-        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses';
-      }
+      btnSave.disabled = false;
+      btnSave.innerHTML = txtAsli;
+
       if (res && res.success) {
-        Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, timer: 1500, showConfirmButton: false });
-		Object.assign(appSettings, p);
-		localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
-		applyPengaturanFiturWarga();
-        if (typeof applyAppThemeColor === 'function') applyAppThemeColor(p['warna_aplikasi']);
-        if (typeof updateFooterAplikasi === 'function') updateFooterAplikasi();
-        let pubAppName = document.getElementById('pub-app-name');
-        if (pubAppName) pubAppName.innerText = namaBaru;
-        if (typeof loadDataSuperadmin === 'function') loadDataSuperadmin();
+        // Terapkan langsung perubahan tombol di portal tanpa perlu refresh
+        terapkanVisibilitasTombolHeader(payload);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Disimpan!',
+          text: 'Seluruh identitas, koneksi cloud, dan visibilitas tombol berhasil diperbarui.',
+          confirmButtonColor: '#198754'
+        });
       } else {
-        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
+        Swal.fire('Gagal Menyimpan', res.message || 'Terjadi kesalahan sistem.', 'error');
       }
     })
     .withFailureHandler(err => {
-      if (btnSave) {
-        btnSave.disabled = false;
-        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Identitas & Akses';
-      }
-      Swal.fire('Error Koneksi', String(err), 'error');
+      btnSave.disabled = false;
+      btnSave.innerHTML = txtAsli;
+      Swal.fire('Error Server', err.toString(), 'error');
     })
-    .updateAppSettingsBulk(token, p);
-}         
+    .updateAppSettingsBulk(token, payload);
+}
           
           function updateFooterAplikasi() {
             let namaApp = (appSettings && appSettings['nama_aplikasi']) ? appSettings['nama_aplikasi'] : 'SI-GAS';
