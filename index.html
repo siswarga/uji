@@ -15277,63 +15277,121 @@ window.simpanNamaFolderDriveAction = function() {
     .updateAppSettingsBulk(token, { folder_dokumentasi: namaBaru });
 };
 
-function saveIdentitasAplikasi(event) {
-  event.preventDefault();
+// ============================================================================
+// SIMPAN SEMUA PENGATURAN IDENTITAS, CLOUD, & AKSES (SUPERADMIN)
+// ============================================================================
+function saveIdentitasAplikasi(e) {
+  if (e) e.preventDefault();
 
-  const btnSave = document.getElementById('btn-save-identitas');
-  const txtAsli = btnSave.innerHTML;
-  btnSave.disabled = true;
-  btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan Semua Data...';
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
+  if (!token) {
+    return Swal.fire('Sesi Habis', 'Silakan login ulang sebagai Superadmin.', 'warning');
+  }
 
-  // Kumpulkan seluruh data form dan switch ke dalam satu objek terpadu
-  const payload = {
-    nama_aplikasi: document.getElementById('set_nama_aplikasi').value.trim(),
-    warna_aplikasi: document.getElementById('set_warna_aplikasi').value,
-    nama_komplek: document.getElementById('set_nama_komplek').value.trim(),
-    domisili: document.getElementById('set_domisili').value.trim(),
-    moto: document.getElementById('set_moto').value.trim(),
-    alamat: document.getElementById('set_alamat').value.trim(),
-    logo: document.getElementById('set_logo_base64').value || document.getElementById('set_logo').value,
-    backend_url: document.getElementById('set_backend_url').value.trim(),
-    nama_folder_drive: document.getElementById('inputNamaFolderDrive').value.trim(),
-    pendaftaran_mandiri: document.getElementById('set_pendaftaran_mandiri').value,
-    pendaftaran_pengurus: document.getElementById('set_pendaftaran_pengurus').value,
-    lapor_mudik: document.getElementById('set_lapor_mudik').value,
-    
-    // Status Switch Tombol Header Portal Depan
-    show_kamera: document.getElementById('seting-show-kamera').checked ? 'ya' : 'tidak',
-    show_umkm:   document.getElementById('seting-show-umkm').checked ? 'ya' : 'tidak',
-    show_kta:    document.getElementById('seting-show-kta').checked ? 'ya' : 'tidak',
-    show_sos:    document.getElementById('seting-show-sos').checked ? 'ya' : 'tidak'
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
   };
 
-  const token = typeof currentUser !== 'undefined' && currentUser.token ? currentUser.token : '';
+  // Helper untuk membaca nilai checkbox/switch (ya/tidak)
+  const getCheck = (id, defaultKey) => {
+    const el = document.getElementById(id);
+    if (el) return el.checked ? 'ya' : 'tidak';
+    return (typeof appSettings !== 'undefined' && appSettings[defaultKey]) ? appSettings[defaultKey] : 'ya';
+  };
+
+  let base64El = document.getElementById('set_logo_base64');
+  let existingEl = document.getElementById('set_logo');
+  let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
+  let namaBaru = getVal('set_nama_aplikasi');
+
+  let elSaklarWa = document.getElementById('set_wa_mode_otomatis');
+  let statusWa = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : ((typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || 'Nonaktif');
+
+  // Kumpulan seluruh parameter identitas, Drive, dan visibilitas tombol portal
+  const p = {
+    'nama_aplikasi': namaBaru,
+    'nama_komplek': getVal('set_nama_komplek'),
+    'backend_url': getVal('set_backend_url'),
+    'nama_folder_drive': getVal('inputNamaFolderDrive'),
+    'domisili': getVal('set_domisili'),
+    'logo': finalLogo,
+    'moto': getVal('set_moto'),
+    'alamat': getVal('set_alamat'),
+    'fitur_pendaftaran_mandiri': getVal('set_pendaftaran_mandiri'),
+    'fitur_pendaftaran_pengurus': getVal('set_pendaftaran_pengurus'),
+    'fitur_lapor_mudik': getVal('set_lapor_mudik'),
+    'warna_aplikasi': getVal('set_warna_aplikasi'),
+    'wa_mode_otomatis': statusWa,
+
+    // Status switch visibilitas tombol header portal publik
+    'show_kamera': getCheck('seting-show-kamera', 'show_kamera'),
+    'show_umkm':   getCheck('seting-show-umkm', 'show_umkm'),
+    'show_kta':    getCheck('seting-show-kta', 'show_kta'),
+    'show_sos':    getCheck('seting-show-sos', 'show_sos')
+  };
+
+  const btnSave = document.getElementById('btn-save-identitas');
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan Semua Data...';
+  }
 
   google.script.run
     .withSuccessHandler(res => {
-      btnSave.disabled = false;
-      btnSave.innerHTML = txtAsli;
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Semua Pengaturan';
+      }
 
       if (res && res.success) {
-        // Terapkan langsung perubahan tombol di portal tanpa perlu refresh
-        terapkanVisibilitasTombolHeader(payload);
-
         Swal.fire({
           icon: 'success',
-          title: 'Berhasil Disimpan!',
-          text: 'Seluruh identitas, koneksi cloud, dan visibilitas tombol berhasil diperbarui.',
-          confirmButtonColor: '#198754'
+          title: 'Berhasil Disimpan',
+          text: res.message || 'Semua pengaturan berhasil diperbarui.',
+          timer: 1500,
+          showConfirmButton: false
         });
+
+        // Sinkronisasi data ke state aplikasi dan localStorage
+        if (typeof appSettings !== 'undefined') {
+          Object.assign(appSettings, p);
+        }
+        localStorage.setItem('sigas_app_settings', JSON.stringify(typeof appSettings !== 'undefined' ? appSettings : p));
+
+        // Terapkan langsung perubahan visibilitas tombol portal secara instan
+        if (typeof terapkanVisibilitasTombolHeader === 'function') {
+          terapkanVisibilitasTombolHeader(p);
+        }
+
+        // Jalankan pembaruan tema, footer, dan form publik
+        if (typeof applyPengaturanFiturWarga === 'function') applyPengaturanFiturWarga();
+        if (typeof applyAppThemeColor === 'function') applyAppThemeColor(p['warna_aplikasi']);
+        if (typeof updateFooterAplikasi === 'function') updateFooterAplikasi();
+
+        // Perbarui teks nama aplikasi & komplek di header portal warga
+        let pubAppName = document.getElementById('pub-app-name');
+        if (pubAppName && namaBaru) pubAppName.innerText = namaBaru;
+
+        let pubDomisili = document.getElementById('pub-app-domisili');
+        if (pubDomisili && p['nama_komplek']) {
+          pubDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${p['nama_komplek']}`;
+        }
+
+        if (typeof loadDataSuperadmin === 'function') loadDataSuperadmin();
+
       } else {
-        Swal.fire('Gagal Menyimpan', res.message || 'Terjadi kesalahan sistem.', 'error');
+        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem.', 'error');
       }
     })
     .withFailureHandler(err => {
-      btnSave.disabled = false;
-      btnSave.innerHTML = txtAsli;
-      Swal.fire('Error Server', err.toString(), 'error');
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Semua Pengaturan';
+      }
+      Swal.fire('Error Koneksi', String(err), 'error');
     })
-    .updateAppSettingsBulk(token, payload);
+    .updateAppSettingsBulk(token, p);
 }
           
           function updateFooterAplikasi() {
