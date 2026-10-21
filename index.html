@@ -7526,49 +7526,81 @@ function setDynamicManifest(namaApp, themeColor) {
                  }
               }
               
-              // Submit Data Warga Mandiri ke Backend
-              function submitPendaftaranWarga(e) {
-                 e.preventDefault();
-                 const btn = document.getElementById('btn-submit-pendaftaran');
-                 
-                 const p = {
-                nama: document.getElementById('reg_nama').value,
-                kk: document.getElementById('reg_kk').value,
-                nik: document.getElementById('reg_nik').value,
-                noHp: document.getElementById('reg_hp').value,
-                jk: document.getElementById('reg_jk').value,
-                golDarah: document.getElementById('reg_gol').value,
-                agama: document.getElementById('reg_agama').value,
-                blok: document.getElementById('reg_blok').value,
-                tempatLahir: document.getElementById('reg_tempatLahir').value,
-                tglLahir: document.getElementById('reg_tglLahir').value,
-                statusTinggal: document.getElementById('reg_statusTinggal').value,
-                tglMasuk: document.getElementById('reg_tglMasuk').value || '-',
-                statusPernikahan: document.getElementById('reg_nikah').value,
-                statusKeluarga: document.getElementById('reg_statusKeluarga').value,
-                alamatKtp: document.getElementById('reg_alamatKtp').value,
-                alamatTinggal: document.getElementById('reg_alamatTinggal').value
-                 };
-              
-                 btn.disabled = true;
-                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Data...';
-              
-                 google.script.run.withSuccessHandler(res => {
-                btn.disabled = false;
-                btn.innerHTML = 'Kirim & Simpan Data Warga';
-                if(res && res.success) {
-                   Swal.fire('Terima Kasih!', res.message, 'success');
-                   document.getElementById('halaman-pendaftaran-warga').style.display = 'none';
-                   loadPublicData(); // Refresh data di portal publik
-                } else {
-                   Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
-                }
-                 }).withFailureHandler(err => {
-                btn.disabled = false;
-                btn.innerHTML = 'Kirim & Simpan Data Warga';
-                Swal.fire('Error Koneksi', err.message, 'error');
-                 }).saveWargaMandiri(p);
-              }
+             // Submit Data Warga Mandiri ke Backend (Abaikan NIK & KK jika Nonaktif)
+function submitPendaftaranWarga(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-submit-pendaftaran');
+
+  // 1. Cek status saklar dari database/appSettings
+  const isKKAktif = (typeof appSettings !== 'undefined' && String(appSettings['show_reg_kk']).toLowerCase().trim() !== 'tidak');
+  const isNikAktif = (typeof appSettings !== 'undefined' && String(appSettings['show_reg_nik']).toLowerCase().trim() !== 'tidak');
+
+  let valKK = document.getElementById('reg_kk') ? document.getElementById('reg_kk').value.trim() : '';
+  let valNIK = document.getElementById('reg_nik') ? document.getElementById('reg_nik').value.trim() : '';
+
+  // 2. Validasi Nomor KK: Hanya diperiksa jika statusnya AKTIF
+  if (isKKAktif) {
+    if (valKK.length !== 16 || !/^\d+$/.test(valKK)) {
+      return Swal.fire('Peringatan', 'Nomor KK harus persis 16 digit angka!', 'warning');
+    }
+  } else {
+    // Jika nonaktif, isi otomatis dengan tanda strip '-' agar kolom database tidak kosong
+    if (!valKK) valKK = '-';
+  }
+
+  // 3. Validasi NIK: Hanya diperiksa jika statusnya AKTIF
+  if (isNikAktif) {
+    if (valNIK.length !== 16 || !/^\d+$/.test(valNIK)) {
+      return Swal.fire('Peringatan', 'NIK harus persis 16 digit angka!', 'warning');
+    }
+  } else {
+    // Jika nonaktif, isi otomatis dengan tanda strip '-'
+    if (!valNIK) valNIK = '-';
+  }
+
+  const p = {
+    nama: document.getElementById('reg_nama')?.value.trim() || '',
+    kk: valKK,
+    nik: valNIK,
+    noHp: document.getElementById('reg_hp')?.value.trim() || '',
+    jk: document.getElementById('reg_jk')?.value || 'Laki-laki',
+    golDarah: document.getElementById('reg_gol')?.value || '-',
+    agama: document.getElementById('reg_agama')?.value || 'Islam',
+    blok: document.getElementById('reg_blok')?.value.trim().toUpperCase() || '',
+    tempatLahir: document.getElementById('reg_tempatLahir')?.value.trim() || '',
+    tglLahir: document.getElementById('reg_tglLahir')?.value || '',
+    statusTinggal: document.getElementById('reg_statusTinggal')?.value || 'Tetap',
+    tglMasuk: document.getElementById('reg_tglMasuk')?.value || '-',
+    statusPernikahan: document.getElementById('reg_nikah')?.value || 'Belum Kawin',
+    statusKeluarga: document.getElementById('reg_statusKeluarga')?.value || 'Kepala Keluarga',
+    alamatKtp: document.getElementById('reg_alamatKtp')?.value.trim() || '',
+    alamatTinggal: document.getElementById('reg_alamatTinggal')?.value.trim() || '',
+    fotoKk: document.getElementById('reg_foto_kk_base64')?.value || '',
+    fotoKtp: document.getElementById('reg_foto_ktp_base64')?.value || ''
+  };
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Data...';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false;
+      btn.innerHTML = 'Kirim & Simpan Data Warga';
+      if (res && res.success) {
+        Swal.fire('Terima Kasih!', res.message, 'success');
+        document.getElementById('halaman-pendaftaran-warga').style.display = 'none';
+        if (typeof loadPublicData === 'function') loadPublicData();
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      btn.disabled = false;
+      btn.innerHTML = 'Kirim & Simpan Data Warga';
+      Swal.fire('Error Koneksi', err.message || String(err), 'error');
+    })
+    .saveWargaMandiri(p);
+}
               
               	let listWargaQrisTemp = [];
               
