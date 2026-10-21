@@ -3732,7 +3732,7 @@
             <!-- PEMBUKA TAB-CONTENT -->
             <div class="tab-content mt-3">
 
-            <!-- 1. TAB IDENTITAS & PENGATURAN UMUM -->
+           <!-- 1. TAB IDENTITAS & PENGATURAN UMUM -->
 <div class="tab-pane fade show active" id="tab-identitas" role="tabpanel">
   <form id="formIdentitasAplikasi" onsubmit="saveIdentitasAplikasi(event)">
 
@@ -3891,41 +3891,59 @@
       </div>
     </div>
 
-    <!-- KARTU 4: KEBIJAKAN FORMULIR MANDIRI -->
+    <!-- KARTU 4: AKSES FORMULIR MANDIRI WARGA (DESAIN SWITCH TOGGLE) -->
     <div class="card shadow-sm border-0 rounded-3 mb-4">
-      <div class="card-header bg-white border-bottom py-3">
+      <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h6 class="fw-bold mb-0 text-primary">
           <i class="fas fa-user-edit me-2"></i>Akses Formulir Mandiri Warga
         </h6>
+        <span class="badge bg-light text-muted border">Aktifkan atau matikan formulir publik bagi warga</span>
       </div>
       <div class="card-body p-3 p-md-4">
         <div class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label text-muted small fw-semibold">Pendaftaran Warga Baru</label>
-            <select class="form-select border-success" id="set_pendaftaran_mandiri" required>
-              <option value="Aktif">Aktif</option>
-              <option value="Nonaktif">Nonaktif</option>
-            </select>
+          <!-- Toggle Pendaftaran Warga Baru -->
+          <div class="col-12 col-md-4">
+            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold"><i class="fas fa-user-plus text-success me-1"></i> Pendaftaran Warga Baru</span>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="set_pendaftaran_mandiri" checked>
+                </div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Form pendaftaran mandiri warga baru di portal publik</small>
+            </div>
           </div>
-          <div class="col-md-4">
-            <label class="form-label text-muted small fw-semibold">Pendaftaran Calon Pengurus</label>
-            <select class="form-select border-success" id="set_pendaftaran_pengurus" required>
-              <option value="Aktif">Aktif</option>
-              <option value="Nonaktif">Nonaktif</option>
-            </select>
+
+          <!-- Toggle Pendaftaran Pengurus -->
+          <div class="col-12 col-md-4">
+            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold"><i class="fas fa-user-tie text-primary me-1"></i> Pendaftaran Pengurus</span>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="set_pendaftaran_pengurus" checked>
+                </div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Form registrasi calon pengurus lingkungan baru</small>
+            </div>
           </div>
-          <div class="col-md-4">
-            <label class="form-label text-muted small fw-semibold">Laporan Mudik & Rumah Kosong</label>
-            <select class="form-select border-warning" id="set_lapor_mudik" required>
-              <option value="Aktif">Aktif</option>
-              <option value="Nonaktif">Nonaktif</option>
-            </select>
+
+          <!-- Toggle Lapor Mudik -->
+          <div class="col-12 col-md-4">
+            <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-bold"><i class="fas fa-home text-warning me-1"></i> Lapor Mudik / Rumah Kosong</span>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="set_lapor_mudik" checked>
+                </div>
+              </div>
+              <small class="text-muted" style="font-size: 0.72rem;">Fitur pelaporan rumah kosong saat ditinggal bepergian</small>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SATU TOMBOL SIMPAN UTAMA (MENYATU) -->
+    <!-- SATU TOMBOL SIMPAN UTAMA -->
     <div class="d-flex justify-content-end mb-4">
       <button type="submit" class="btn btn-danger btn-lg px-4 py-2 rounded-pill fw-bold shadow" id="btn-save-identitas">
         <i class="fas fa-save me-2"></i>Simpan Semua Pengaturan
@@ -3946,6 +3964,33 @@
   </div>
 
 </div>
+
+ <!-- 2. TAB HAK AKSES -->
+              <div class="tab-pane fade" id="tab-hak-akses" role="tabpanel">
+                <div class="card shadow-sm border-0">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h5 class="fw-bold text-primary mb-0">Daftar Akun & Hak Akses</h5>
+                      <button class="btn btn-primary btn-sm" onclick="openModalUser()"><i class="fas fa-user-plus me-1"></i> Tambah Akun</button>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Nama</th>
+                            <th>Username</th>
+                            <th>Role (Hak Akses)</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody id="tbody-users"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- Tutup tab-hak-akses -->
+
               <!-- 3. TAB HISTORY -->
               <div class="tab-pane fade" id="tab-history" role="tabpanel">
                 <div class="card shadow-sm border-0">
@@ -15358,15 +15403,29 @@ function terapkanPengaturanKeElemen(s) {
     if (el && val !== undefined && val !== null) el.value = val;
   };
 
+  // Helper untuk switch: mati jika bernilai 'tidak' atau 'nonaktif'
   const setSwitch = (id, val) => {
     const el = document.getElementById(id);
     if (el) {
-      // Switch aktif (true) kecuali jika di database tertulis 'tidak'
-      el.checked = (String(val).toLowerCase().trim() !== 'tidak');
+      const v = String(val).toLowerCase().trim();
+      el.checked = !(v === 'tidak' || v === 'nonaktif' || v === 'false');
     }
   };
 
-  // A. Isi Formulir Panel Superadmin (Tab Identitas)
+  // Helper sembunyikan elemen secara mutlak menggunakan class d-none
+  const setVisibilitas = (id, harusSembunyi) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (harusSembunyi) {
+      el.classList.add('d-none');
+      el.style.setProperty('display', 'none', 'important');
+    } else {
+      el.classList.remove('d-none');
+      el.style.removeProperty('display');
+    }
+  };
+
+  // 1. Terapkan data teks ke Form Superadmin
   setVal('set_nama_aplikasi', s['nama_aplikasi'] || s['nama_app'] || '');
   setVal('set_nama_komplek', s['nama_komplek'] || '');
   setVal('set_domisili', s['domisili'] || '');
@@ -15375,7 +15434,6 @@ function terapkanPengaturanKeElemen(s) {
   setVal('set_backend_url', s['backend_url'] || '');
   setVal('inputNamaFolderDrive', s['nama_folder_drive'] || s['folder_dokumentasi'] || '');
 
-  // Tema Warna
   if (s['warna_aplikasi']) {
     setVal('set_warna_aplikasi', s['warna_aplikasi']);
     setVal('set_warna_aplikasi_text', s['warna_aplikasi']);
@@ -15384,18 +15442,18 @@ function terapkanPengaturanKeElemen(s) {
     }
   }
 
-  // Dropdown Kebijakan Form
-  setVal('set_pendaftaran_mandiri', s['fitur_pendaftaran_mandiri'] || s['pendaftaran_mandiri'] || 'Aktif');
-  setVal('set_pendaftaran_pengurus', s['fitur_pendaftaran_pengurus'] || s['pendaftaran_pengurus'] || 'Aktif');
-  setVal('set_lapor_mudik', s['fitur_lapor_mudik'] || s['lapor_mudik'] || 'Aktif');
-
-  // Saklar Switch Visibilitas di Form Superadmin
+  // 2. Set Switch Visibilitas Tombol Header (Baris 55-58 Spreadsheet)
   setSwitch('seting-show-kamera', s['show_kamera']);
   setSwitch('seting-show-umkm',   s['show_umkm']);
   setSwitch('seting-show-kta',    s['show_kta']);
   setSwitch('seting-show-sos',    s['show_sos']);
 
-  // Preview Logo di Form
+  // 3. Set Switch Formulir Mandiri (Baris 52-54 Spreadsheet)
+  setSwitch('set_pendaftaran_mandiri', s['pendaftaran_mandiri'] || s['fitur_pendaftaran_mandiri']);
+  setSwitch('set_pendaftaran_pengurus', s['pendaftaran_pengurus'] || s['fitur_pendaftaran_pengurus']);
+  setSwitch('set_lapor_mudik', s['lapor_mudik'] || s['fitur_lapor_mudik']);
+
+  // Preview Logo
   if (s['logo']) {
     const imgEl = document.getElementById('set_logo_img');
     const hiddenEl = document.getElementById('set_logo');
@@ -15406,71 +15464,34 @@ function terapkanPengaturanKeElemen(s) {
     if (hiddenEl) hiddenEl.value = s['logo'];
   }
 
-  // B. Visibilitas Tombol Header Portal Warga
-  const aturVisibilitasTombol = (id, nilai) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const sembunyikan = (String(nilai).toLowerCase().trim() === 'tidak');
-    if (sembunyikan) {
-      el.style.setProperty('display', 'none', 'important');
-    } else {
-      el.style.removeProperty('display');
-    }
-  };
+  // 4. Terapkan visibilitas tombol di Header Portal Publik
+  setVisibilitas('header-btn-kamera', String(s['show_kamera']).toLowerCase().trim() === 'tidak');
+  setVisibilitas('header-btn-umkm',   String(s['show_umkm']).toLowerCase().trim() === 'tidak');
+  setVisibilitas('header-btn-kta',    String(s['show_kta']).toLowerCase().trim() === 'tidak');
+  setVisibilitas('header-btn-sos',    String(s['show_sos']).toLowerCase().trim() === 'tidak');
 
-  aturVisibilitasTombol('header-btn-kamera', s['show_kamera']);
-  aturVisibilitasTombol('header-btn-umkm',   s['show_umkm']);
-  aturVisibilitasTombol('header-btn-kta',    s['show_kta']);
-  aturVisibilitasTombol('header-btn-sos',    s['show_sos']);
+  // 5. Terapkan visibilitas kartu menu formulir di halaman depan warga
+  const statusDaftar = String(s['pendaftaran_mandiri'] || s['fitur_pendaftaran_mandiri']).toLowerCase().trim();
+  setVisibilitas('card-menu-daftar-warga', statusDaftar === 'nonaktif' || statusDaftar === 'tidak');
 
-  // C. Branding Dashboard Warga & Sidebar
+  const statusMudik = String(s['lapor_mudik'] || s['fitur_lapor_mudik']).toLowerCase().trim();
+  setVisibilitas('card-menu-lapor-mudik', statusMudik === 'nonaktif' || statusMudik === 'tidak');
+
+  // 6. Teks Brand Portal Depan
   const appName = s['nama_aplikasi'] || s['nama_app'] || 'SI-GAS';
   const namaKomplek = s['nama_komplek'] || 'Komplek Warga';
 
   const pubAppName = document.getElementById('pub-app-name');
   if (pubAppName) pubAppName.innerText = appName;
 
-  const sidebarAppName = document.getElementById('sidebar-app-name');
-  if (sidebarAppName) sidebarAppName.innerText = appName;
-
-  const elDomisili = document.getElementById('pub-app-domisili');
-  if (elDomisili) {
-    elDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${namaKomplek} (${s['domisili'] || 'Kecamatan'})`;
+  const pubDomisili = document.getElementById('pub-app-domisili');
+  if (pubDomisili) {
+    pubDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${namaKomplek} (${s['domisili'] || 'Kecamatan'})`;
   }
 
-  const elMoto = document.getElementById('pub-app-moto');
-  if (elMoto) {
-    elMoto.innerText = `"${s['moto'] || 'Harmonis, Religius dan Gotong Royong'}"`;
-  }
-
-  // D. Menu Pendaftaran & Mudik
-  const menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
-  if (menuDaftarWarga) {
-    const statusDaftar = s['fitur_pendaftaran_mandiri'] || s['pendaftaran_mandiri'];
-    menuDaftarWarga.style.display = (statusDaftar === 'Nonaktif') ? 'none' : 'block';
-  }
-
-  const menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
-  if (menuLaporMudik) {
-    const statusMudik = s['fitur_lapor_mudik'] || s['lapor_mudik'];
-    menuLaporMudik.style.display = (statusMudik === 'Aktif') ? 'block' : 'none';
-  }
-
-  // E. Logo Header Publik
-  if (s['logo']) {
-    const logoContainer = document.getElementById('pub-logo-container');
-    if (logoContainer) {
-      logoContainer.innerHTML = `<img src="${s['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
-    }
-  }
-
-  // F. Running Text Dinamis
-  const runningTextEl = document.getElementById('pub-running-text-content');
-  if (runningTextEl) {
-    let rawText = s['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama!';
-    runningTextEl.innerText = rawText
-      .replace(/\$namaapp\$/gi, appName)
-      .replace(/\$namakomplek\$/gi, namaKomplek);
+  const pubLogo = document.getElementById('pub-logo-container');
+  if (pubLogo && s['logo']) {
+    pubLogo.innerHTML = `<img src="${s['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
   }
 }
 
@@ -15534,31 +15555,30 @@ function saveIdentitasAplikasi(e) {
     return Swal.fire('Sesi Habis', 'Silakan login ulang sebagai Superadmin.', 'warning');
   }
 
-  const getVal = (id) => {
+  const getVal = (id) => document.getElementById(id)?.value?.trim() || '';
+
+  // Helper switch: menghasilkan 'Aktif' / 'Nonaktif'
+  const getSwitchStatus = (id) => {
     const el = document.getElementById(id);
-    return el ? el.value.trim() : '';
+    return (el && el.checked) ? 'Aktif' : 'Nonaktif';
   };
 
-  const getCheck = (id, fallbackKey) => {
+  // Helper switch: menghasilkan 'ya' / 'tidak'
+  const getSwitchYaTidak = (id) => {
     const el = document.getElementById(id);
-    if (el) return el.checked ? 'ya' : 'tidak';
-    return (typeof appSettings !== 'undefined' && appSettings[fallbackKey]) ? appSettings[fallbackKey] : 'ya';
+    return (el && el.checked) ? 'ya' : 'tidak';
   };
 
   let base64El = document.getElementById('set_logo_base64');
   let existingEl = document.getElementById('set_logo');
   let finalLogo = (base64El && base64El.value) ? base64El.value : (existingEl ? existingEl.value : '');
-  let namaBaru = getVal('set_nama_aplikasi');
 
-  let elSaklarWa = document.getElementById('set_wa_mode_otomatis');
-  let statusWa = elSaklarWa ? (elSaklarWa.checked ? 'Aktif' : 'Nonaktif') : ((typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || 'Nonaktif');
-
-  const valDaftarWarga = getVal('set_pendaftaran_mandiri') || 'Nonaktif';
-  const valDaftarPengurus = getVal('set_pendaftaran_pengurus') || 'Nonaktif';
-  const valLaporMudik = getVal('set_lapor_mudik') || 'Nonaktif';
+  const valDaftarWarga = getSwitchStatus('set_pendaftaran_mandiri');
+  const valDaftarPengurus = getSwitchStatus('set_pendaftaran_pengurus');
+  const valLaporMudik = getSwitchStatus('set_lapor_mudik');
 
   const p = {
-    'nama_aplikasi': namaBaru || 'SI-GAS',
+    'nama_aplikasi': getVal('set_nama_aplikasi') || 'SI-GAS',
     'nama_komplek': getVal('set_nama_komplek'),
     'backend_url': getVal('set_backend_url'),
     'nama_folder_drive': getVal('inputNamaFolderDrive'),
@@ -15568,9 +15588,8 @@ function saveIdentitasAplikasi(e) {
     'moto': getVal('set_moto'),
     'alamat': getVal('set_alamat'),
     'warna_aplikasi': getVal('set_warna_aplikasi'),
-    'wa_mode_otomatis': statusWa,
 
-    // Sinkronkan kedua format nama key agar baris 52-54 spreadsheet terperbarui
+    // Nilai formulir mandiri (Aktif / Nonaktif)
     'pendaftaran_mandiri': valDaftarWarga,
     'fitur_pendaftaran_mandiri': valDaftarWarga,
     'pendaftaran_pengurus': valDaftarPengurus,
@@ -15578,17 +15597,17 @@ function saveIdentitasAplikasi(e) {
     'lapor_mudik': valLaporMudik,
     'fitur_lapor_mudik': valLaporMudik,
 
-    // Status switch visibilitas tombol header
-    'show_kamera': getCheck('seting-show-kamera', 'show_kamera'),
-    'show_umkm':   getCheck('seting-show-umkm', 'show_umkm'),
-    'show_kta':    getCheck('seting-show-kta', 'show_kta'),
-    'show_sos':    getCheck('seting-show-sos', 'show_sos')
+    // Nilai visibilitas tombol header portal (ya / tidak)
+    'show_kamera': getSwitchYaTidak('seting-show-kamera'),
+    'show_umkm':   getSwitchYaTidak('seting-show-umkm'),
+    'show_kta':    getSwitchYaTidak('seting-show-kta'),
+    'show_sos':    getSwitchYaTidak('seting-show-sos')
   };
 
   const btnSave = document.getElementById('btn-save-identitas');
   if (btnSave) {
     btnSave.disabled = true;
-    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan Semua Data...';
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
   }
 
   google.script.run
@@ -15607,19 +15626,9 @@ function saveIdentitasAplikasi(e) {
           showConfirmButton: false
         });
 
-        // Simpan ke memori dan localStorage
         Object.assign(appSettings, p);
         localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
-
-        // Terapkan perubahan ke seluruh elemen secara langsung
         terapkanPengaturanKeElemen(appSettings);
-
-        if (typeof applyPengaturanFiturWarga === 'function') {
-          try { applyPengaturanFiturWarga(); } catch (err) {}
-        }
-        if (typeof updateFooterAplikasi === 'function') {
-          try { updateFooterAplikasi(); } catch (err) {}
-        }
       } else {
         Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem.', 'error');
       }
@@ -15633,7 +15642,6 @@ function saveIdentitasAplikasi(e) {
     })
     .updateAppSettingsBulk(token, p);
 }
-
 // ============================================================================
 // 4. PENYELARAS FUNGSI LAMA
 // ============================================================================
