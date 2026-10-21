@@ -15676,147 +15676,75 @@ function simpanPengaturan(e) {
     .updateAppSettingsBulk(token, dataPengaturan); // Memanggil updateAppSettingsBulk dengan token
 }
           
-// ============================================================================
-// 1. FUNGSI PEMBANTU: TERAPKAN PENGATURAN KE FORMULIR & TAMPILAN
-// ============================================================================
-function terapkanPengaturanKeElemen(s) {
-  if (!s || typeof s !== 'object') return;
+// =====================================================
+// HELPER: TERAPKAN PENGATURAN KE ELEMEN HTML (LENGKAP & AMAN)
+// =====================================================
+function terapkanPengaturanKeElemen(settings) {
+  if (!settings || typeof settings !== 'object') return;
 
-  const setVal = (id, val) => {
-    const el = document.getElementById(id);
-    if (el && val !== undefined && val !== null) el.value = val;
-  };
+  const appName = settings['nama_aplikasi'] || settings['nama_app'] || 'SISWARGA';
+  const namaKomplek = settings['nama_komplek'] || 'Komplek Warga';
 
-  // Helper untuk switch: mati jika bernilai 'tidak' atau 'nonaktif'
-  const setSwitch = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const v = String(val).toLowerCase().trim();
-      el.checked = !(v === 'tidak' || v === 'nonaktif' || v === 'false');
-    }
-  };
-
-  // Helper sembunyikan elemen secara mutlak menggunakan class d-none
-  const setVisibilitas = (id, harusSembunyi) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (harusSembunyi) {
-      el.classList.add('d-none');
-      el.style.setProperty('display', 'none', 'important');
-    } else {
-      el.classList.remove('d-none');
-      el.style.removeProperty('display');
-    }
-  };
-
-  // 1. Terapkan data teks ke Form Superadmin
-  setVal('set_nama_aplikasi', s['nama_aplikasi'] || s['nama_app'] || '');
-  setVal('set_nama_komplek', s['nama_komplek'] || '');
-  setVal('set_domisili', s['domisili'] || '');
-  setVal('set_moto', s['moto'] || '');
-  setVal('set_alamat', s['alamat'] || '');
-  setVal('set_backend_url', s['backend_url'] || '');
-  setVal('inputNamaFolderDrive', s['nama_folder_drive'] || s['folder_dokumentasi'] || '');
-
-  if (s['warna_aplikasi']) {
-    setVal('set_warna_aplikasi', s['warna_aplikasi']);
-    setVal('set_warna_aplikasi_text', s['warna_aplikasi']);
-    if (typeof applyAppThemeColor === 'function') {
-      try { applyAppThemeColor(s['warna_aplikasi']); } catch (e) {}
-    }
+  // 1. Warna Tema Aplikasi
+  if (settings['warna_aplikasi'] && typeof applyAppThemeColor === 'function') {
+    applyAppThemeColor(settings['warna_aplikasi']);
   }
 
-  // 2. Set Switch Visibilitas Tombol Header (Baris 55-58 Spreadsheet)
-  setSwitch('seting-show-kamera', s['show_kamera']);
-  setSwitch('seting-show-umkm',   s['show_umkm']);
-  setSwitch('seting-show-kta',    s['show_kta']);
-  setSwitch('seting-show-sos',    s['show_sos']);
-
-  // 3. Set Switch Formulir Mandiri (Baris 52-54 Spreadsheet)
-  setSwitch('set_pendaftaran_mandiri', s['pendaftaran_mandiri'] || s['fitur_pendaftaran_mandiri']);
-  setSwitch('set_pendaftaran_pengurus', s['pendaftaran_pengurus'] || s['fitur_pendaftaran_pengurus']);
-  setSwitch('set_lapor_mudik', s['lapor_mudik'] || s['fitur_lapor_mudik']);
-
-  // Preview Logo
-  if (s['logo']) {
-    const imgEl = document.getElementById('set_logo_img');
-    const hiddenEl = document.getElementById('set_logo');
-    if (imgEl) {
-      imgEl.src = s['logo'];
-      imgEl.style.display = 'block';
-    }
-    if (hiddenEl) hiddenEl.value = s['logo'];
-  }
-
-  // 4. Terapkan visibilitas tombol di Header Portal Publik
-  setVisibilitas('header-btn-kamera', String(s['show_kamera']).toLowerCase().trim() === 'tidak');
-  setVisibilitas('header-btn-umkm',   String(s['show_umkm']).toLowerCase().trim() === 'tidak');
-  setVisibilitas('header-btn-kta',    String(s['show_kta']).toLowerCase().trim() === 'tidak');
-  setVisibilitas('header-btn-sos',    String(s['show_sos']).toLowerCase().trim() === 'tidak');
-
-  // 5. Terapkan visibilitas kartu menu formulir di halaman depan warga
-  const statusDaftar = String(s['pendaftaran_mandiri'] || s['fitur_pendaftaran_mandiri']).toLowerCase().trim();
-  setVisibilitas('card-menu-daftar-warga', statusDaftar === 'nonaktif' || statusDaftar === 'tidak');
-
-  const statusMudik = String(s['lapor_mudik'] || s['fitur_lapor_mudik']).toLowerCase().trim();
-  setVisibilitas('card-menu-lapor-mudik', statusMudik === 'nonaktif' || statusMudik === 'tidak');
-
-  // 6. Teks Brand Portal Depan
-  const appName = s['nama_aplikasi'] || s['nama_app'] || 'SI-GAS';
-  const namaKomplek = s['nama_komplek'] || 'Komplek Warga';
-
+  // 2. Nama Aplikasi di Navbar & Sidebar
   const pubAppName = document.getElementById('pub-app-name');
   if (pubAppName) pubAppName.innerText = appName;
+  const sidebarAppName = document.getElementById('sidebar-app-name');
+  if (sidebarAppName) sidebarAppName.innerText = appName;
 
-  const pubDomisili = document.getElementById('pub-app-domisili');
-  if (pubDomisili) {
-    pubDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${namaKomplek} (${s['domisili'] || 'Kecamatan'})`;
+  // 3. Domisili & Moto
+  const elDomisili = document.getElementById('pub-app-domisili');
+  if (elDomisili) {
+    elDomisili.innerHTML = `<i class="fas fa-map-marker-alt text-danger me-1"></i> ${namaKomplek} (${settings['domisili'] || 'Kecamatan'})`;
   }
-  // Helper khusus untuk mengatur kolom input formulir beserta atribut required
-  const aturKolomForm = (divId, inputId, nilai, isRequiredDefault) => {
-    const divEl = document.getElementById(divId);
-    const inputEl = document.getElementById(inputId);
-    const sembunyi = (String(nilai).toLowerCase().trim() === 'tidak');
+  const elMoto = document.getElementById('pub-app-moto');
+  if (elMoto) {
+    elMoto.innerText = `"${settings['moto'] || 'Harmonis, Religius dan Gotong Royong'}"`;
+  }
 
-    if (divEl) {
-      if (sembunyi) {
-        divEl.classList.add('d-none');
-        divEl.style.setProperty('display', 'none', 'important');
-        if (inputEl) inputEl.removeAttribute('required'); // Hapus required agar form bisa dikirim
-      } else {
-        divEl.classList.remove('d-none');
-        divEl.style.removeProperty('display');
-        if (inputEl && isRequiredDefault) inputEl.setAttribute('required', 'required');
-      }
+  // 4. Pengaturan Menu Warga
+  const menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
+  if (menuDaftarWarga) {
+    menuDaftarWarga.style.display = settings['fitur_pendaftaran_mandiri'] === 'Nonaktif' ? 'none' : 'block';
+  }
+  const menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
+  if (menuLaporMudik) {
+    menuLaporMudik.style.display = settings['fitur_lapor_mudik'] === 'Aktif' ? 'block' : 'none';
+  }
+
+  // 5. Backend URL (Panel Pengaturan)
+  const elBackendUrl = document.getElementById('set_backend_url');
+  if (elBackendUrl) {
+    elBackendUrl.value = settings['backend_url'] || '';
+  }
+
+  // 6. Running Text Dinamis
+  const runningTextEl = document.getElementById('pub-running-text-content');
+  if (runningTextEl) {
+    let rawText = settings['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama!';
+    runningTextEl.innerText = rawText
+      .replace(/\$namaapp\$/gi, appName)
+      .replace(/\$namakomplek\$/gi, namaKomplek);
+  }
+
+  // 7. Logo Aplikasi
+  if (settings['logo']) {
+    const logoContainer = document.getElementById('pub-logo-container');
+    if (logoContainer) {
+      logoContainer.innerHTML = `<img src="${settings['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
     }
-  };
-
-  // 1. Terapkan ke Formulir Pendaftaran Warga
-  aturKolomForm('div_reg_nik', 'reg_nik', s['show_reg_nik'], true);
-  aturKolomForm('div_reg_kk', 'reg_kk', s['show_reg_kk'], true);
-  aturKolomForm('div_reg_foto_ktp', 'reg_file_ktp', s['show_reg_foto_ktp'], false);
-  aturKolomForm('div_reg_foto_kk', 'reg_file_kk', s['show_reg_foto_kk'], false);
-  aturKolomForm('div_warga_nik', 'warga_nik', s['show_reg_nik'], true);
-  aturKolomForm('div_warga_kk', 'warga_kk', s['show_reg_kk'], true);
-  aturKolomForm('div_warga_foto_ktp', 'warga_file_ktp', s['show_reg_foto_ktp'], false);
-  aturKolomForm('div_warga_foto_kk', 'warga_file_kk', s['show_reg_foto_kk'], false);
-  
-  // 2. Set posisi switch di Superadmin
-  setSwitch('seting-show-reg-nik', s['show_reg_nik']);
-  setSwitch('seting-show-reg-kk', s['show_reg_kk']);
-  setSwitch('seting-show-reg-foto-ktp', s['show_reg_foto_ktp']);
-  setSwitch('seting-show-reg-foto-kk', s['show_reg_foto_kk']);
-  const pubLogo = document.getElementById('pub-logo-container');
-  if (pubLogo && s['logo']) {
-    pubLogo.innerHTML = `<img src="${s['logo']}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">`;
   }
 }
 
-// ============================================================================
-// 2. LOAD PENGATURAN SAAT APLIKASI DIBUKA / REFRESH
-// ============================================================================
+// =====================================================
+// INISIALISASI PENGATURAN (ANTI-KEDIP + DEFENSIVE ERROR)
+// =====================================================
 function loadAppSettingsAndInit() {
-  // Muat instan dari localStorage agar tampilan tidak berkedip
+  // 1. Muat instan dari memori lokal agar tampilan tidak kedip kosong
   try {
     const localData = localStorage.getItem('sigas_app_settings');
     if (localData) {
@@ -15825,11 +15753,13 @@ function loadAppSettingsAndInit() {
     }
   } catch (e) {}
 
+  // 2. Timer cadangan (timeout) jika jaringan lambat
   let backupTimer = setTimeout(() => { 
     if (typeof hideLoading === 'function') hideLoading(); 
     if (typeof checkSession === 'function') checkSession(); 
   }, 5000);
 
+  // 3. Ambil data terbaru dari server Google Apps Script
   google.script.run
     .withSuccessHandler(res => {
       clearTimeout(backupTimer);
@@ -15837,10 +15767,10 @@ function loadAppSettingsAndInit() {
         appSettings = (res.data && typeof res.data === 'object') ? res.data : res;
         localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
 
-        // Sinkronisasi data ke formulir dan halaman
+        // Sinkronisasi data ke formulir dan tampilan halaman
         terapkanPengaturanKeElemen(appSettings);
 
-        // Eksekusi fungsi pelengkap secara aman
+        // Eksekusi fungsi pelengkap (jadwal sholat, footer, dll) secara aman
         if (typeof initGlobalPrayerTimes === 'function') {
           try { initGlobalPrayerTimes(); } catch (err) {}
         }
