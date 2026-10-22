@@ -465,7 +465,7 @@
           </div>
         </div>
 
-        <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
+       <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
 <div class="d-flex align-items-center gap-2 gap-md-3">
 
   <!-- 1. Tombol Dokumentasi (Kamera & Galeri) -->
@@ -489,21 +489,28 @@
     </ul>
   </div>
 
-  <!-- 2. Tombol Lapak UMKM Warga (Dibungkus DIV ID) -->
+  <!-- 2. Tombol Lapak UMKM Warga -->
   <div id="header-btn-umkm">
     <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModalKatalogPublik()" title="Pasar & UMKM Warga" style="width: 42px; height: 42px;">
       <i class="fas fa-store fa-lg"></i>
     </button>
   </div>
 
-  <!-- 3. Tombol Kartu Warga Digital / KTA (Dibungkus DIV ID) -->
+  <!-- 3. Tombol E-Book Warga (Ikon Bulat Seragam) -->
+  <div id="header-btn-ebook">
+    <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaModulEbook()" title="Pojok Baca & E-Book Warga" style="width: 42px; height: 42px;">
+      <i class="fas fa-book-open fa-lg"></i>
+    </button>
+  </div>
+
+  <!-- 4. Tombol Kartu Warga Digital / KTA -->
   <div id="header-btn-kta">
     <button type="button" class="btn btn-outline-success rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0 position-relative" onclick="bukaKartuSaya()" title="Kartu Warga Digital (KTA)" style="width: 42px; height: 42px;">
       <i class="fas fa-id-card fa-lg"></i>
     </button>
   </div>
 
-  <!-- 4. Tombol Darurat SOS (Dibungkus DIV ID) -->
+  <!-- 5. Tombol Darurat SOS -->
   <div id="header-btn-sos">
     <button type="button" class="btn btn-danger rounded-pill shadow-sm d-flex align-items-center justify-content-center px-3" onclick="triggerPanicButtonAction()" title="Tombol Darurat (Sinyal Bantuan / Bahaya)" style="height: 42px; min-width: 42px;">
       <i class="fas fa-exclamation-triangle animate-pulse me-1"></i>
@@ -511,14 +518,14 @@
     </button>
   </div>
 
-  <!-- 5. Badge Status Portal -->
+  <!-- 6. Badge Status Portal -->
   <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-bold d-none d-lg-inline-block ms-1">
     <i class="fas fa-shield-alt me-1"></i> Portal Warga Aktif
   </span>
 
 </div>
-      </div>
-    </div>
+</div>
+</div>
 
       <!-- BARIS 2: RUNNING TEXT / PENGUMUMAN BERJALAN -->
       <div class="row mb-4" id="row-running-text">
@@ -6722,12 +6729,57 @@
   </div>
 </div>
 
+<!-- Modul E-Book Warga -->
+<div id="sectionEbook" class="hidden space-y-6">
+  
+  <!-- Header & Bar Pencarian -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-5 rounded-2xl">
+    <div>
+      <h2 class="text-lg font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-book-bookmark text-amber-400"></i>
+        <span>Pojok Baca & E-Book Warga</span>
+      </h2>
+      <p class="text-xs text-slate-400 mt-0.5">Koleksi buku digital seputar keluarga, pola asuh, dan lingkungan sosial.</p>
+    </div>
+
+    <!-- Kolom Cari & Filter Kategori -->
+    <div class="flex items-center gap-2">
+      <input type="text" id="cariBukuInput" oninput="filterEbook()" placeholder="Cari judul / penulis..." 
+        class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-400 w-44 sm:w-56">
+      
+      <select id="kategoriBukuFilter" onchange="filterEbook()" 
+        class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-400">
+        <option value="semua">Semua Kategori</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loadingEbook" class="text-center py-12 text-slate-400 text-xs">
+    <i class="fa-solid fa-circle-notch fa-spin text-cyan-400 text-2xl mb-2 block"></i>
+    Memuat daftar buku...
+  </div>
+
+  <!-- Grid Daftar Buku -->
+  <div id="daftarBukuGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 hidden">
+    <!-- Item buku akan dimasukkan lewat script -->
+  </div>
+
+  <!-- Status Kosong -->
+  <div id="emptyEbook" class="hidden text-center py-12 text-slate-500 text-xs">
+    <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-600"></i>
+    Tidak ada buku yang cocok dengan pencarian.
+  </div>
+
+</div>
+
+<!-- ================================================================= -->
 <!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
+<!-- ================================================================= -->
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
 <!-- ===================================================== -->
 <!-- JAVASCRIPT APLIKASI TERPADU & GOD MODE PROXY V3       -->
 <!-- ===================================================== -->
@@ -18810,6 +18862,113 @@ function tutupScannerKTA() {
   }
 }
 
+let kumpulanBuku = [];
+
+// Membuka modul ebook dan mengambil data dari backend
+function bukaModulEbook() {
+  // Sembunyikan bagian dashboard/halaman lain jika ada, lalu tampilkan sectionEbook
+  const secEbook = document.getElementById('sectionEbook');
+  if (secEbook) secEbook.classList.remove('hidden');
+
+  muatDataEbook();
+}
+
+function muatDataEbook() {
+  document.getElementById('loadingEbook').classList.remove('hidden');
+  document.getElementById('daftarBukuGrid').classList.add('hidden');
+  document.getElementById('emptyEbook').classList.add('hidden');
+
+  // Memanggil fungsi Apps Script
+  google.script.run
+    .withSuccessHandler(function(res) {
+      document.getElementById('loadingEbook').classList.add('hidden');
+      if (res && res.success && res.data) {
+        kumpulanBuku = res.data;
+        isiPilihanKategori(kumpulanBuku);
+        tampilkanBuku(kumpulanBuku);
+      } else {
+        alert(res.message || "Gagal memuat buku.");
+      }
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById('loadingEbook').classList.add('hidden');
+      alert("Koneksi gagal: " + err.message);
+    })
+    .getEbookList();
+}
+
+function isiPilihanKategori(bukuList) {
+  const filterEl = document.getElementById('kategoriBukuFilter');
+  const kategoriUnik = [...new Set(bukuList.map(b => b.kategori).filter(Boolean))];
+  
+  filterEl.innerHTML = '<option value="semua">Semua Kategori</option>';
+  kategoriUnik.forEach(kat => {
+    filterEl.innerHTML += `<option value="${kat}">${kat}</option>`;
+  });
+}
+
+function tampilkanBuku(list) {
+  const grid = document.getElementById('daftarBukuGrid');
+  const empty = document.getElementById('emptyEbook');
+  grid.innerHTML = '';
+
+  if (list.length === 0) {
+    grid.classList.add('hidden');
+    empty.classList.remove('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  grid.classList.remove('hidden');
+
+  list.forEach(item => {
+    const cover = item.cover_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+    grid.innerHTML += `
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-cyan-500/50 transition duration-200">
+        <div class="relative w-full h-48 bg-slate-800 overflow-hidden">
+          <img src="${cover}" alt="${item.judul}" class="w-full h-full object-cover">
+          <span class="absolute top-2 left-2 bg-slate-950/80 backdrop-blur-sm text-cyan-300 border border-cyan-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            ${item.kategori || 'Umum'}
+          </span>
+        </div>
+        
+        <div class="p-3.5 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="text-xs font-bold text-white line-clamp-2 leading-snug">${item.judul}</h3>
+            <p class="text-[11px] text-slate-400 mt-1"><i class="fa-solid fa-pen-nib text-[9px] text-slate-500 mr-1"></i>${item.penulis || 'Anonim'}</p>
+          </div>
+          
+          <button onclick="bacaEbook('${item.file_url}', '${item.judul.replace(/'/g, "\\'")}')" 
+            class="w-full mt-2 py-1.5 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 border border-cyan-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <span>Baca</span>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function filterEbook() {
+  const keyword = document.getElementById('cariBukuInput').value.toLowerCase();
+  const kat = document.getElementById('kategoriBukuFilter').value;
+
+  const hasilFilter = kumpulanBuku.filter(b => {
+    const cocokJudul = (b.judul || '').toLowerCase().includes(keyword) || (b.penulis || '').toLowerCase().includes(keyword);
+    const cocokKat = kat === 'semua' || b.kategori === kat;
+    return cocokJudul && cocokKat;
+  });
+
+  tampilkanBuku(hasilFilter);
+}
+
+function bacaEbook(url, judul) {
+  if (!url || url.trim() === '') {
+    alert("Tautan file buku belum tersedia.");
+    return;
+  }
+  window.open(url, '_blank');
+}
 
     </script>
 
