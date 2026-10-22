@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sedang Dalam Perbaikan</title>
+  <title>Sedang Dalam Perbaikan - SI-GAS</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome CDN -->
@@ -201,51 +201,59 @@
     </div>
 
     <!-- Action Links -->
-<div class="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-center gap-3">
-  <button onclick="window.location.href='index.html'" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center gap-2 transition">
-    <i class="fa-solid fa-arrow-rotate-right text-cyan-400"></i>
-    <span>Muat Ulang Halaman</span>
-  </button>
-</div>
+    <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-center gap-3">
+      <button onclick="handleMuatUlang()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center gap-2 transition">
+        <i class="fa-solid fa-arrow-rotate-right text-cyan-400"></i>
+        <span>Muat Ulang Halaman</span>
+      </button>
+    </div>
   </div>
 
   <script>
-  const STORAGE_KEY = 'sigas_maintenance_endtime';
-  const DURATION_MS = 2.5 * 60 * 60 * 1000; // 2.5 Jam
-
-  // 1. Ambil target waktu lama, atau buat baru jika belum pernah ada
-  let savedTarget = localStorage.getItem(STORAGE_KEY);
-  let targetTime;
-
-  if (!savedTarget) {
-    targetTime = new Date().getTime() + DURATION_MS;
-    localStorage.setItem(STORAGE_KEY, targetTime);
-  } else {
-    targetTime = parseInt(savedTarget, 10);
-  }
-
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const diff = targetTime - now;
-
-    // Jika waktu sudah habis
-    if (diff <= 0) {
-      document.getElementById('cdDays').textContent = '00';
-      document.getElementById('cdHours').textContent = '00';
-      document.getElementById('cdMinutes').textContent = '00';
-      document.getElementById('cdSeconds').textContent = '00';
-      return;
+    // Arahkan kembali ke portal utama saat klik Muat Ulang
+    function handleMuatUlang() {
+      window.location.href = 'https://siswarga.github.io/uji/';
     }
 
-    document.getElementById('cdDays').textContent = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
-    document.getElementById('cdHours').textContent = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-    document.getElementById('cdMinutes').textContent = String(Math.floor((diff % (1000 * 60)) / (1000 * 60))).padStart(2, '0');
-    document.getElementById('cdSeconds').textContent = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-  }
+    const STORAGE_KEY = 'sigas_maintenance_target_time_v2';
+    const DURATION_MS = (2 * 60 + 30) * 60 * 1000; // 2 Jam 30 Menit
 
-  // Jalankan langsung tanpa menunggu interval 1 detik pertama
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-</script>
+    let savedTarget = localStorage.getItem(STORAGE_KEY);
+    let targetTime = savedTarget ? parseInt(savedTarget, 10) : null;
+    const nowInit = new Date().getTime();
+
+    // Jika belum tersimpan atau waktu di cache sudah lewat, buat target baru
+    if (!targetTime || targetTime <= nowInit) {
+      targetTime = nowInit + DURATION_MS;
+      localStorage.setItem(STORAGE_KEY, targetTime);
+    }
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        document.getElementById('cdDays').textContent = '00';
+        document.getElementById('cdHours').textContent = '00';
+        document.getElementById('cdMinutes').textContent = '00';
+        document.getElementById('cdSeconds').textContent = '00';
+        return;
+      }
+
+      // Perhitungan sinkron Hari, Jam, Menit, Detik
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
+      document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('cdMinutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('cdSeconds').textContent = String(seconds).padStart(2, '0');
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
 </body>
 </html>
