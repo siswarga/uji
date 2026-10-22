@@ -210,17 +210,42 @@
   </div>
 
   <script>
-    // Countdown Timer (2.5 Jam ke depan)
-    const targetTime = new Date().getTime() + (2.5 * 60 * 60 * 1000);
-    setInterval(() => {
-      const now = new Date().getTime();
-      const diff = targetTime - now;
-      if (diff <= 0) return;
-      document.getElementById('cdDays').textContent = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
-      document.getElementById('cdHours').textContent = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-      document.getElementById('cdMinutes').textContent = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-      document.getElementById('cdSeconds').textContent = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
-    }, 1000);
-  </script>
+  const STORAGE_KEY = 'sigas_maintenance_endtime';
+  const DURATION_MS = 2.5 * 60 * 60 * 1000; // 2.5 Jam
+
+  // 1. Ambil target waktu lama, atau buat baru jika belum pernah ada
+  let savedTarget = localStorage.getItem(STORAGE_KEY);
+  let targetTime;
+
+  if (!savedTarget) {
+    targetTime = new Date().getTime() + DURATION_MS;
+    localStorage.setItem(STORAGE_KEY, targetTime);
+  } else {
+    targetTime = parseInt(savedTarget, 10);
+  }
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const diff = targetTime - now;
+
+    // Jika waktu sudah habis
+    if (diff <= 0) {
+      document.getElementById('cdDays').textContent = '00';
+      document.getElementById('cdHours').textContent = '00';
+      document.getElementById('cdMinutes').textContent = '00';
+      document.getElementById('cdSeconds').textContent = '00';
+      return;
+    }
+
+    document.getElementById('cdDays').textContent = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+    document.getElementById('cdHours').textContent = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+    document.getElementById('cdMinutes').textContent = String(Math.floor((diff % (1000 * 60)) / (1000 * 60))).padStart(2, '0');
+    document.getElementById('cdSeconds').textContent = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+  }
+
+  // Jalankan langsung tanpa menunggu interval 1 detik pertama
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+</script>
 </body>
 </html>
