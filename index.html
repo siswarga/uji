@@ -8854,7 +8854,7 @@ if (canvasUsia) {
               }
             }
           
-            // Render Tabel Kegiatan
+// Render Tabel Kegiatan
 const tk = document.getElementById('pub-tb-kegiatan'); 
 if (tk) {
   tk.innerHTML = '';
@@ -10750,50 +10750,60 @@ function openModalPermohonan() {
               function loadDataAset() { loadDataInventory(); loadDataPeminjaman(); }
               function loadDataInventory() { showLoading(); google.script.run.withSuccessHandler(res=>{hideLoading();if(res.success){dataInvGlobal=res.data; currentPageInv=1; renderTableInventory();}}).withFailureHandler(()=>hideLoading()).getInventory(localStorage.getItem('sigas_token')); }
               
-              function renderTableInventory() {  
-              const s = document.getElementById('search-inv').value.toLowerCase();  
-              let f = dataInvGlobal.filter(i => String(i.namaBarang).toLowerCase().includes(s) || String(i.merek).toLowerCase().includes(s));  
-              const start = (currentPageInv - 1) * dataPerPage;  
-              const pag = f.slice(start, start + dataPerPage);  
-              const tb = document.getElementById('tbody-inv');  
-              tb.innerHTML = '';  
-              
-              if (pag.length === 0) {
-                  tb.innerHTML = '<tr><td colspan="6" class="text-center">Kosong</td></tr>';
-              } else {
-                  let ht = '';
-                  pag.forEach(i => {
-                      let bs = i.status === 'Digudang' ? '<span class="badge bg-success">Di Gudang</span>' : '<span class="badge bg-warning text-dark">Dipinjam</span>';  
-                      let btn = i.status === 'Digudang' ? `<button class="btn btn-sm btn-primary" onclick="editInventory('${i.id}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="deleteInventory('${i.id}')"><i class="fas fa-trash"></i></button>` : `<button class="btn btn-sm btn-secondary" disabled title="Sedang dipinjam"><i class="fas fa-lock"></i></button>`;  
-                      
-                      // --- TAMPILKAN JENIS PEMANFAATAN & TARIF SEWA ---
-                      let jenisPemanfaatan = i.jenisPemanfaatan || 'Gratis';
-                      let badgePemanfaatan = (jenisPemanfaatan === 'Disewakan') 
-                          ? `<span class="badge bg-primary mb-1">Disewakan</span>` 
-                          : `<span class="badge bg-secondary mb-1">Tidak Disewakan</span>`;
-              
-                      let infoSewa = (jenisPemanfaatan === 'Disewakan') 
-                          ? `<small class="text-danger fw-bold d-block">Tarif: ${formatRupiah(i.hargaSewa || 0)}</small>` 
-                          : `<small class="text-success fw-bold d-block">Gratis</small>`;
-              
-                      ht += `<tr>
-                          <td><strong>${i.namaBarang}</strong><br><small class="text-muted">${i.merek}</small></td>
-                          <td><small>${i.tglBeli||'-'}</small><br><b class="text-secondary">${formatRupiah(i.hargaBeli||0)}</b></td>
-                          <td>
-                              ${i.kondisi}<br>
-                              ${badgePemanfaatan}
-                              ${infoSewa}
-                          </td>
-                          <td>${i.keterangan || '-'}</td>
-                          <td>${bs}</td>
-                          <td>${btn}</td>
-                      </tr>`;
-                  });
-                  tb.innerHTML = ht;
-              }  
-              document.getElementById('inv-info').innerText = `Menampilkan ${start+1} - ${start+pag.length} dari ${f.length}`;  
-              document.getElementById('inv-pagination').innerHTML = `${currentPageInv > 1 ? `<button class="btn btn-sm btn-outline-secondary" onclick="currentPageInv--; renderTableInventory()">Prev</button>` : ''}${currentPageInv < Math.ceil(f.length / dataPerPage) ? `<button class="btn btn-sm btn-outline-secondary" onclick="currentPageInv++; renderTableInventory()">Next</button>` : ''}`;  
-              }
+function renderTableInventory() {  
+  const s = document.getElementById('search-inv').value.toLowerCase();  
+  let f = dataInvGlobal.filter(i => String(i.namaBarang).toLowerCase().includes(s) || String(i.merek).toLowerCase().includes(s));  
+  const start = (currentPageInv - 1) * dataPerPage;  
+  const pag = f.slice(start, start + dataPerPage);  
+  const tb = document.getElementById('tbody-inv');  
+  tb.innerHTML = '';  
+  
+  if (pag.length === 0) {
+    tb.innerHTML = '<tr><td colspan="6" class="text-center">Kosong</td></tr>';
+  } else {
+    let ht = '';
+    pag.forEach(i => {
+      // PERBAIKAN: Normalisasi status agar tahan spasi ("Di Gudang" atau "Digudang")
+      let statusBersih = String(i.status || '').replace(/\s+/g, '').toLowerCase();
+      let isTersedia = (statusBersih === 'digudang');
+
+      let bs = isTersedia 
+        ? '<span class="badge bg-warning text-white" style="background-color: #d97706 !important;">Di Gudang</span>' 
+        : '<span class="badge bg-warning text-dark">Dipinjam</span>';  
+      
+      let btn = isTersedia 
+        ? `<button class="btn btn-sm btn-primary" onclick="editInventory('${i.id}')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="deleteInventory('${i.id}')"><i class="fas fa-trash"></i></button>` 
+        : `<button class="btn btn-sm btn-secondary" disabled title="Sedang dipinjam"><i class="fas fa-lock"></i></button>`;  
+      
+      // --- TAMPILKAN JENIS PEMANFAATAN & TARIF SEWA ---
+      let jenisPemanfaatan = i.jenisPemanfaatan || 'Gratis';
+      let badgePemanfaatan = (jenisPemanfaatan === 'Disewakan') 
+          ? `<span class="badge bg-primary mb-1">Disewakan</span>` 
+          : `<span class="badge bg-secondary mb-1">Tidak Disewakan</span>`;
+
+      let infoSewa = (jenisPemanfaatan === 'Disewakan') 
+          ? `<small class="text-danger fw-bold d-block">Tarif: ${formatRupiah(i.hargaSewa || 0)}</small>` 
+          : `<small class="text-success fw-bold d-block">Gratis</small>`;
+
+      ht += `<tr>
+          <td><strong>${i.namaBarang}</strong><br><small class="text-muted">${i.merek}</small></td>
+          <td><small>${i.tglBeli || '-'}</small><br><b class="text-secondary">${formatRupiah(i.hargaBeli || 0)}</b></td>
+          <td>
+              ${i.kondisi}<br>
+              ${badgePemanfaatan}
+              ${infoSewa}
+          </td>
+          <td>${i.keterangan || '-'}</td>
+          <td>${bs}</td>
+          <td>${btn}</td>
+      </tr>`;
+    });
+    tb.innerHTML = ht;
+  }  
+  
+  document.getElementById('inv-info').innerText = `Menampilkan ${start+1} - ${start+pag.length} dari ${f.length}`;  
+  document.getElementById('inv-pagination').innerHTML = `${currentPageInv > 1 ? `<button class="btn btn-sm btn-outline-secondary" onclick="currentPageInv--; renderTableInventory()">Prev</button>` : ''}${currentPageInv < Math.ceil(f.length / dataPerPage) ? `<button class="btn btn-sm btn-outline-secondary" onclick="currentPageInv++; renderTableInventory()">Next</button>` : ''}`;  
+}
               
               function openModalInventory() { 
               document.getElementById('formInventory').reset(); 
@@ -14589,54 +14599,90 @@ function openModalEditSatpam(id) {
   });
 }
               
-              function openModalPersonelSatpam() {
-              Swal.fire({
-                  title: 'Tambah Personel Satpam',
-                  html: `
-                      <div class="text-start g-3">
-                          <label class="form-label small fw-bold">Nama Lengkap*</label>
-                          <input type="text" id="swal_stp_nama" class="form-control mb-2" placeholder="Nama satpam...">
-                          <label class="form-label small fw-bold">No WhatsApp*</label>
-                          <input type="number" id="swal_stp_wa" class="form-control mb-2" placeholder="08xxxxxxxx">
-                          <label class="form-label small fw-bold">Asal Perusahaan / Vendor</label>
-                          <input type="text" id="swal_stp_vendor" class="form-control mb-2" placeholder="Cth: PT. Garda Security / Mandiri">
-                          <label class="form-label small fw-bold">Shift Default</label>
-                          <select id="swal_stp_shift" class="form-select">
-                              <option value="Pagi">Shift Pagi</option>
-                              <option value="Siang">Shift Siang</option>
-                              <option value="Malam">Shift Malam</option>
-                          </select>
-                      </div>
-                  `,
-                  showCancelButton: true,
-                  confirmButtonColor: '#dc3545',
-                  confirmButtonText: 'Simpan Personel',
-                  cancelButtonText: 'Batal',
-                  preConfirm: () => {
-                      let nama = document.getElementById('swal_stp_nama').value;
-                      let noWa = document.getElementById('swal_stp_wa').value;
-                      let perusahaan = document.getElementById('swal_stp_vendor').value;
-                      let shiftDefault = document.getElementById('swal_stp_shift').value;
-                      if (!nama || !noWa) {
-                          Swal.showValidationMessage('Nama dan No WhatsApp wajib diisi!');
-                      }
-                      return { nama, noWa, perusahaan, shiftDefault };
-                  }
-              }).then((result) => {
-                  if (result.isConfirmed) {
-                      showLoading();
-                      google.script.run.withSuccessHandler(res => {
-                          hideLoading();
-                          if(res && res.success) {
-                              Swal.fire('Berhasil', res.message, 'success');
-                              loadDataPersonelSatpam();
-                          } else {
-                              Swal.fire('Gagal', res.message, 'error');
-                          }
-                      }).saveSatpamData(localStorage.getItem('sigas_token'), result.value);
-                  }
-              });
-              }
+function openModalPersonelSatpam() {
+  Swal.fire({
+    title: 'Tambah Personel Satpam',
+    html: `
+      <div class="text-start g-3">
+          <label class="form-label small fw-bold">Nama Lengkap*</label>
+          <input type="text" id="swal_stp_nama" class="form-control mb-2" placeholder="Nama satpam...">
+          
+          <label class="form-label small fw-bold">No WhatsApp*</label>
+          <input type="number" id="swal_stp_wa" class="form-control mb-2" placeholder="08xxxxxxxx">
+          
+          <label class="form-label small fw-bold">Asal Perusahaan / Vendor</label>
+          <input type="text" id="swal_stp_vendor" class="form-control mb-2" placeholder="Cth: PT. Garda Security / Mandiri">
+          
+          <!-- Pilihan Skema / Pola Shift -->
+          <label class="form-label small fw-bold">Sistem / Pola Shift*</label>
+          <select id="swal_stp_pola" class="form-select mb-2">
+              <option value="3" selected>Sistem 3 Shift (8 Jam)</option>
+              <option value="2">Sistem 2 Shift (12 Jam)</option>
+          </select>
+
+          <!-- Pilihan Shift Default Dinamis -->
+          <label class="form-label small fw-bold">Shift Default*</label>
+          <select id="swal_stp_shift" class="form-select">
+              <option value="Pagi">Shift Pagi (07:00 - 15:00)</option>
+              <option value="Siang">Shift Siang (15:00 - 23:00)</option>
+              <option value="Malam">Shift Malam (23:00 - 07:00)</option>
+          </select>
+      </div>
+    `,
+    didOpen: () => {
+      // Event listener agar opsi jam shift berganti otomatis saat pola shift diubah
+      const selectPola = document.getElementById('swal_stp_pola');
+      const selectShift = document.getElementById('swal_stp_shift');
+      
+      selectPola.addEventListener('change', function() {
+        if (this.value === '2') {
+          // Pilihan jika memilih 2 Shift (12 Jam)
+          selectShift.innerHTML = `
+            <option value="Pagi (12 Jam)">Shift Pagi (08:00 - 20:00)</option>
+            <option value="Malam (12 Jam)">Shift Malam (20:00 - 08:00)</option>
+          `;
+        } else {
+          // Pilihan jika memilih 3 Shift (8 Jam)
+          selectShift.innerHTML = `
+            <option value="Pagi">Shift Pagi (07:00 - 15:00)</option>
+            <option value="Siang">Shift Siang (15:00 - 23:00)</option>
+            <option value="Malam">Shift Malam (23:00 - 07:00)</option>
+          `;
+        }
+      });
+    },
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    confirmButtonText: 'Simpan Personel',
+    cancelButtonText: 'Batal',
+    preConfirm: () => {
+      let nama = document.getElementById('swal_stp_nama').value.trim();
+      let noWa = document.getElementById('swal_stp_wa').value.trim();
+      let perusahaan = document.getElementById('swal_stp_vendor').value.trim();
+      let polaShift = document.getElementById('swal_stp_pola').value; // '2' atau '3'
+      let shiftDefault = document.getElementById('swal_stp_shift').value;
+
+      if (!nama || !noWa) {
+        Swal.showValidationMessage('Nama dan No WhatsApp wajib diisi!');
+        return false;
+      }
+      return { nama, noWa, perusahaan, polaShift, shiftDefault };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      showLoading();
+      google.script.run.withSuccessHandler(res => {
+        hideLoading();
+        if(res && res.success) {
+          Swal.fire('Berhasil', res.message, 'success');
+          loadDataPersonelSatpam();
+        } else {
+          Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
+        }
+      }).saveSatpamData(localStorage.getItem('sigas_token'), result.value);
+    }
+  });
+}
               
               function deletePersonelSatpam(id) {
               Swal.fire({title: 'Hapus Personel?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545'}).then(r => {
@@ -14662,98 +14708,175 @@ function openModalEditSatpam(id) {
               }).getJadwalSatpam(localStorage.getItem('sigas_token'));
               }
               
-              function renderTableJadwalSatpam() {
-              let s = document.getElementById('search-satpam-jadwal').value.toLowerCase();
-              let f = dataJadwalSatpamGlobal.filter(j => j.nama.toLowerCase().includes(s) || j.tanggal.includes(s) || j.shift.toLowerCase().includes(s));
-              let tb = document.getElementById('tbody-satpam-jadwal');
-              tb.innerHTML = '';
+function renderTableJadwalSatpam() {
+  const tbody = document.getElementById('tbody-jadwal-satpam'); // sesuaikan dengan ID tbody tabel jadwal Anda
+  if (!tbody) return;
+
+  if (!dataJadwalSatpamGlobal || dataJadwalSatpamGlobal.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Belum ada jadwal satpam.</td></tr>';
+    return;
+  }
+
+  let html = '';
+  dataJadwalSatpamGlobal.forEach(j => {
+    // Pengambilan data aman (mendukung Objek maupun Array mentah)
+    let tgl = Array.isArray(j) ? (j[1] || '-') : (j.tanggal || '-');
+    let shiftTeks = Array.isArray(j) ? (j[2] || '-') : (typeof j.shift === 'string' ? j.shift : '-');
+    let nama = Array.isArray(j) ? (j[4] || '-') : (j.nama || j.namaSatpam || '-');
+    let ket = Array.isArray(j) ? (j[5] || '-') : (j.keterangan || '-');
+    let idJadwal = Array.isArray(j) ? j[0] : j.id;
+
+    html += `
+      <tr>
+        <td><b>${tgl}</b></td>
+        <td><span class="badge bg-warning text-dark px-2 py-1">${shiftTeks}</span></td>
+        <td><strong>${nama}</strong></td>
+        <td>${ket}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteJadwalSatpam('${idJadwal}')" title="Hapus Jadwal">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
               
-              if(f.length === 0) {
-                  tb.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Belum ada jadwal harian / rolling</td></tr>';
-                  return;
-              }
-              
-              f.forEach(j => {
-                  tb.innerHTML += `
-                      <tr>
-                          <td><b>${j.tanggal}</b></td>
-                          <td><span class="badge bg-warning text-dark">${j.shift}</span></td>
-                          <td><b>${j.nama}</b></td>
-                          <td><small>${j.keterangan}</small></td>
-                          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteJadwalSatpam('${j.id}')"><i class="fas fa-trash"></i></button></td>
-                      </tr>`;
-              });
-              }
-              
-              function openModalJadwalSatpam() {
-              // Ambil data personel dulu untuk pilihan dropdown
-              showLoading();
-              google.script.run.withSuccessHandler(res => {
-                  hideLoading();
-                  if(res && res.success) {
-                      let listPersonel = res.data.filter(p => p.status === 'Aktif');
-                      if(listPersonel.length === 0) {
-                          return Swal.fire('Kosong', 'Harap tambahkan data personel satpam terlebih dahulu sebelum membuat jadwal!', 'warning');
-                      }
-                      
-                      let optionsHtml = listPersonel.map(p => `<option value="${p.id}|${p.nama}">${p.nama} (${p.perusahaan})</option>`).join('');
-              
-                      Swal.fire({
-                          title: 'Atur Jadwal / Rolling Satpam',
-                          html: `
-                              <div class="text-start g-3">
-                                  <label class="form-label small fw-bold">Tanggal Jaga*</label>
-                                  <input type="date" id="swal_jdw_tgl" class="form-control mb-2">
-                                  <label class="form-label small fw-bold">Shift*</label>
-                                  <select id="swal_jdw_shift" class="form-select mb-2">
-                                      <option value="Pagi (07:00 - 15:00)">Pagi (07:00 - 15:00)</option>
-                                      <option value="Siang (15:00 - 23:00)">Siang (15:00 - 23:00)</option>
-                                      <option value="Malam (23:00 - 07:00)">Malam (23:00 - 07:00)</option>
-                                  </select>
-                                  <label class="form-label small fw-bold">Pilih Personel*</label>
-                                  <select id="swal_jdw_personel" class="form-select mb-2">
-                                      ${optionsHtml}
-                                  </select>
-                                  <label class="form-label small fw-bold">Keterangan (Opsional)</label>
-                                  <input type="text" id="swal_jdw_ket" class="form-control" placeholder="Cth: Cadangan / Pos Gerbang Utama">
-                              </div>
-                          `,
-                          showCancelButton: true,
-                          confirmButtonColor: '#198754',
-                          confirmButtonText: 'Simpan Jadwal',
-                          cancelButtonText: 'Batal',
-                          didOpen: () => {
-                              document.getElementById('swal_jdw_tgl').valueAsDate = new Date();
-                          },
-                          preConfirm: () => {
-                              let tanggal = document.getElementById('swal_jdw_tgl').value;
-                              let shift = document.getElementById('swal_jdw_shift').value;
-                              let rawPersonel = document.getElementById('swal_jdw_personel').value;
-                              let keterangan = document.getElementById('swal_jdw_ket').value;
-                              
-                              if (!tanggal || !rawPersonel) {
-                                  Swal.showValidationMessage('Tanggal dan Personel wajib diisi!');
-                              }
-                              let splitP = rawPersonel.split('|');
-                              return { tanggal, shift, idSatpam: splitP[0], nama: splitP[1], keterangan };
-                          }
-                      }).then((result) => {
-                          if (result.isConfirmed) {
-                              showLoading();
-                              google.script.run.withSuccessHandler(res => {
-                                  hideLoading();
-                                  if(res && res.success) {
-                                      Swal.fire('Berhasil', res.message, 'success');
-                                      loadDataJadwalSatpam();
-                                  } else {
-                                      Swal.fire('Gagal', res.message, 'error');
-                                  }
-                              }).saveJadwalSatpam(localStorage.getItem('sigas_token'), result.value);
-                          }
-                      });
-                  }
-              }).getSatpamData(localStorage.getItem('sigas_token'));
-              }
+function openModalJadwalSatpam() {
+  showLoading();
+  google.script.run.withSuccessHandler(res => {
+    hideLoading();
+    if (!res || !res.success) {
+      return Swal.fire('Gagal', res ? res.message : 'Gagal mengambil data satpam', 'error');
+    }
+
+    let listPersonel = res.data.filter(p => p.status === 'Aktif');
+    if (listPersonel.length === 0) {
+      return Swal.fire('Kosong', 'Harap tambahkan data personel satpam aktif terlebih dahulu sebelum membuat jadwal!', 'warning');
+    }
+
+    let badgeSatpamHtml = listPersonel.map(p => 
+      `<span class="badge bg-light text-dark border me-1 mb-1"><i class="fas fa-user-shield me-1 text-primary"></i>${p.nama}</span>`
+    ).join('');
+
+    let today = new Date().toISOString().split('T')[0];
+
+    Swal.fire({
+      title: 'Rolling Jadwal Satpam Otomatis',
+      html: `
+        <div class="text-start g-3">
+            <div class="alert alert-info py-2 px-3 small mb-2">
+              <i class="fas fa-sync-alt me-1"></i> Nama personel & shift akan di-rolling bergilir otomatis sesuai periode yang dipilih.
+            </div>
+
+            <!-- Personel Aktif yang Terlibat -->
+            <label class="form-label small fw-bold">Personel Satpam Aktif (${listPersonel.length} orang):</label>
+            <div class="p-2 border rounded bg-light mb-3">
+              ${badgeSatpamHtml}
+            </div>
+
+            <!-- Pilihan Periode: Mingguan atau Bulanan -->
+            <label class="form-label small fw-bold">Periode Penjadwalan*</label>
+            <select id="swal_jdw_periode" class="form-select mb-2">
+                <option value="minggu" selected>Per Minggu (7 Hari)</option>
+                <option value="bulan">Per Bulan (1 Bulan Penuh)</option>
+            </select>
+
+            <!-- Tanggal Awal Rolling -->
+            <label class="form-label small fw-bold">Tanggal Mulai Rolling*</label>
+            <input type="date" id="swal_jdw_tgl_mulai" class="form-control mb-2" value="${today}">
+
+            <!-- Pilihan Pola Shift -->
+            <label class="form-label small fw-bold">Pola Shift Kerja*</label>
+            <select id="swal_jdw_pola" class="form-select mb-2">
+                <option value="3" selected>Sistem 3 Shift (Pagi, Siang, Malam - 8 Jam)</option>
+                <option value="2">Sistem 2 Shift (Pagi & Malam - 12 Jam)</option>
+            </select>
+
+            <!-- Keterangan / Pos Jaga -->
+            <label class="form-label small fw-bold">Lokasi / Pos Penugasan</label>
+            <input type="text" id="swal_jdw_ket" class="form-control" value="Pos Gerbang Utama" placeholder="Cth: Pos Gerbang Utama / Pos 2">
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonColor: '#198754',
+      confirmButtonText: '<i class="fas fa-magic me-1"></i> Generate Jadwal',
+      cancelButtonText: 'Batal',
+      preConfirm: () => {
+        let periode = document.getElementById('swal_jdw_periode').value;
+        let tglMulaiStr = document.getElementById('swal_jdw_tgl_mulai').value;
+        let polaShift = document.getElementById('swal_jdw_pola').value;
+        let keterangan = document.getElementById('swal_jdw_ket').value.trim() || 'Pos Gerbang Utama';
+
+        if (!tglMulaiStr) {
+          Swal.showValidationMessage('Tanggal mulai wajib diisi!');
+          return false;
+        }
+
+        // Tentukan daftar jam shift
+        let shifts = (polaShift === '2')
+          ? ['Pagi (08:00 - 20:00)', 'Malam (20:00 - 08:00)']
+          : ['Pagi (07:00 - 15:00)', 'Siang (15:00 - 23:00)', 'Malam (23:00 - 07:00)'];
+
+        let parts = tglMulaiStr.split('-');
+        let startDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+
+        // Hitung total hari: 7 hari untuk mingguan, atau jumlah hari kalender untuk bulanan
+        let totalHari = 7;
+        if (periode === 'bulan') {
+          let y = startDate.getFullYear();
+          let m = startDate.getMonth();
+          totalHari = new Date(y, m + 1, 0).getDate();
+        }
+
+        let jadwalRolling = [];
+        let totalSatpam = listPersonel.length;
+
+        // Susun perputaran shift bergilir harian
+        for (let hariKe = 0; hariKe < totalHari; hariKe++) {
+          let loopDate = new Date(startDate);
+          loopDate.setDate(startDate.getDate() + hariKe);
+
+          let yyyy = loopDate.getFullYear();
+          let mm = String(loopDate.getMonth() + 1).padStart(2, '0');
+          let dd = String(loopDate.getDate()).padStart(2, '0');
+          let tglFormat = `${yyyy}-${mm}-${dd}`;
+
+          shifts.forEach((shf, sIdx) => {
+            let satpamIndex = (hariKe + sIdx) % totalSatpam;
+            let petugas = listPersonel[satpamIndex];
+
+            jadwalRolling.push({
+              tanggal: tglFormat,
+              shift: shf,
+              idSatpam: petugas.id,
+              nama: petugas.nama,
+              keterangan: keterangan
+            });
+          });
+        }
+
+        return jadwalRolling;
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        showLoading();
+        google.script.run.withSuccessHandler(res => {
+          hideLoading();
+          if (res && res.success) {
+            Swal.fire('Berhasil', res.message, 'success');
+            loadDataJadwalSatpam();
+          } else {
+            Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan jadwal', 'error');
+          }
+        }).saveJadwalSatpam(localStorage.getItem('sigas_token'), result.value);
+      }
+    });
+
+  }).getSatpamData(localStorage.getItem('sigas_token'));
+}
               
               function deleteJadwalSatpam(id) {
               Swal.fire({title: 'Hapus Jadwal?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545'}).then(r => {
@@ -14766,6 +14889,7 @@ function openModalEditSatpam(id) {
                   }
               });
               }
+			  
               // --- MONITORING PEMUDIK / RUMAH KOSONG UNTUK SATPAM ---
               function loadDataPemudikSatpam() {
               showLoading();
