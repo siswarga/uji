@@ -8855,26 +8855,66 @@ if (canvasUsia) {
             }
           
             // Render Tabel Kegiatan
-            const tk = document.getElementById('pub-tb-kegiatan'); 
-            if (tk) {
-              tk.innerHTML = '';
-              if (adaKegiatan) {
-                listKegiatan.forEach(k => {
-                  let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
-                  tk.innerHTML += `<tr>
-                      <td style="width: 35%;">
-                          <b>${k.tgl}</b><br>
-                          <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
-                      </td>
-                      <td>
-                          <b>${k.nama}</b><br>
-                          <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
-                          ${btnDonasi}
-                      </td>
-                  </tr>`;
-                });
-              }
-            }
+const tk = document.getElementById('pub-tb-kegiatan'); 
+if (tk) {
+  tk.innerHTML = '';
+  if (adaKegiatan && Array.isArray(listKegiatan)) {
+
+    // Helper untuk mengubah string tanggal (DD/MM/YYYY atau YYYY-MM-DD) & jam ke nilai waktu (timestamp)
+    function ambilWaktuKegiatan(item) {
+      let tglStr = String(item.tgl || item.tanggal || '').trim();
+      let waktuStr = String(item.waktu || item.jam || '00:00').trim();
+
+      let y = 0, m = 0, d = 0;
+      if (tglStr.includes('/')) {
+        let parts = tglStr.split('/');
+        d = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10) - 1;
+        y = parseInt(parts[2], 10);
+      } else if (tglStr.includes('-')) {
+        let parts = tglStr.split('-');
+        if (parts[0].length === 4) {
+          y = parseInt(parts[0], 10);
+          m = parseInt(parts[1], 10) - 1;
+          d = parseInt(parts[2], 10);
+        } else {
+          d = parseInt(parts[0], 10);
+          m = parseInt(parts[1], 10) - 1;
+          y = parseInt(parts[2], 10);
+        }
+      }
+
+      let jam = 0, menit = 0;
+      let jamClean = waktuStr.split('-')[0].trim();
+      if (jamClean.includes(':')) {
+        let jamParts = jamClean.split(':');
+        jam = parseInt(jamParts[0], 10) || 0;
+        menit = parseInt(jamParts[1], 10) || 0;
+      }
+
+      return new Date(y, m, d, jam, menit).getTime() || 0;
+    }
+
+    // Urutkan dari jadwal terdekat ke jadwal paling jauh (Ascending)
+    listKegiatan.sort((a, b) => ambilWaktuKegiatan(a) - ambilWaktuKegiatan(b));
+
+    // Render baris kegiatan ke tabel
+    listKegiatan.forEach(k => {
+      let btnDonasi = (k.openDonasi === 'Ya') ? `<button class="btn btn-sm btn-warning mt-2 w-100 fw-bold shadow-sm" style="font-size: 0.75rem;" onclick="showHalamanDonasi('${k.id}')"><i class="fas fa-hand-holding-heart me-1"></i> Partisipasi Donasi</button>` : '';
+      tk.innerHTML += `<tr>
+          <td style="width: 35%;">
+              <b>${k.tgl}</b><br>
+              <small class="text-primary fw-bold"><i class="far fa-clock me-1"></i>${k.waktu} WIB</small>
+          </td>
+          <td>
+              <b>${k.nama}</b><br>
+              <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>${k.lokasi}</small>
+              ${btnDonasi}
+          </td>
+      </tr>`;
+    });
+  }
+}
             
             loadPublicVoting();
             
