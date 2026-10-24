@@ -7029,13 +7029,18 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
     const urlWa = `https://wa.me/${nomor}?text=${encodeURIComponent(pesan)}`;
     window.open(urlWa, '_blank');
   }
+  
+// FUNGSI PROTEKSI (CDP Serialization Benchmark)
 
 (function() {
   'use strict';
 
-  // 1. Bypass Pengembang (?dev=hfd)
-  if (window.location.search.includes('dev=hfd')) return;
+  // 1. BYPASS DEVELOPER: Buka URL dengan ?dev=hfd untuk mematikan proteksi saat mengedit
+  if (window.location.search.includes('dev=hfd')) {
+    return;
+  }
 
+  // Fungsi pengosong halaman seketika
   function tendang() {
     try {
       window.stop();
@@ -7046,50 +7051,70 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
     }
   }
 
-  // 2. Deteksi Dimensi Sensitif (Docked DevTools Samping / Bawah)
+  // 2. DETEKSI DIMENSI DENGAN AMBANG LEBIH SENSITIF (DOCKED SAMPING/BAWAH)
   function periksaDimensi() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (!isMobile) {
-      const ambangLebar = window.outerWidth - window.innerWidth > 100;
-      const ambangTinggi = window.outerHeight - window.innerHeight > 100;
-      if (ambangLebar || ambangTinggi) {
+      const selisihLebar = window.outerWidth - window.innerWidth;
+      const selisihTinggi = window.outerHeight - window.innerHeight;
+
+      // Ambang batas diturunkan ke 80px agar tata letak Brave tertangkap
+      if (selisihLebar > 80 || selisihTinggi > 80) {
         tendang();
       }
     }
   }
   window.addEventListener('resize', periksaDimensi);
-  setInterval(periksaDimensi, 200);
+  setInterval(periksaDimensi, 150);
 
-  // 3. Deteksi Konsol Chromium via Console.Table & Object Getter
-  // Efektif menangkal DevTools yang dibuka lewat menu (undocked maupun docked)
-  let devtoolsTerbuka = false;
-  const elemenUji = new Image();
-  Object.defineProperty(elemenUji, 'id', {
+  // 3. DETEKSI SERIALISASI PROTOKOL DEVTOOLS (UNTUK BRAVE & JENDELA TERPISAH)
+  // Brave Shields menolak getter trap, tetapi mesin V8 tetap dipaksa melakukan serialisasi
+  // data besar ke Chrome DevTools Protocol (CDP) saat panel konsol terbuka.
+  let baseline = 0;
+  function hitungBaseline() {
+    const start = performance.now();
+    for (let i = 0; i < 200; i++) {}
+    baseline = performance.now() - start;
+  }
+  hitungBaseline();
+
+  function deteksiBebanDevTools() {
+    const dataUji = new Array(300).fill('sigas_security_check');
+    const waktuMulai = performance.now();
+    
+    console.log(dataUji);
+    console.clear();
+    
+    const waktuSelesai = performance.now() - waktuMulai;
+
+    // Saat DevTools tertutup: eksekusi < 0.3 ms
+    // Saat DevTools terbuka di Brave: serialisasi melonjak > 6 ms
+    if (waktuSelesai > 6.0 && waktuSelesai > (baseline * 10)) {
+      tendang();
+    }
+  }
+  setInterval(deteksiBebanDevTools, 400);
+
+  // 4. PERANGKAP GANDA ENGINE NON-BRAVE (CHROME, EDGE, FIREFOX, OPERA)
+  const perangkapObjek = {
+    [Symbol.toPrimitive]() {
+      tendang();
+      return '';
+    }
+  };
+  const elemenPerangkap = new Image();
+  Object.defineProperty(elemenPerangkap, 'id', {
     get: function() {
-      devtoolsTerbuka = true;
       tendang();
     }
   });
 
-  const polaRegex = /./;
-  polaRegex.toString = function() {
-    devtoolsTerbuka = true;
-    tendang();
-    return '';
-  };
-
-  // Uji konsol secara berulang dengan output minimal
   setInterval(function() {
-    devtoolsTerbuka = false;
-    console.log(elemenUji);
-    console.table([polaRegex]);
+    console.log(perangkapObjek, elemenPerangkap);
     console.clear();
-    if (devtoolsTerbuka) {
-      tendang();
-    }
-  }, 300);
+  }, 350);
 
-  // 4. Blokir Shortcut DevTools & Inspeksi
+  // 5. BLOKIR PINTASAN KEYBOARD (F12, CTRL+SHIFT+I/J/C, CTRL+U, CTRL+S)
   window.addEventListener('keydown', function(e) {
     const isCtrlOrCmd = e.ctrlKey || e.metaKey;
     const isShift = e.shiftKey;
@@ -7100,32 +7125,41 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
       tendang();
       return false;
     }
+
     if (isCtrlOrCmd && ['u', 'U'].includes(e.key)) {
       e.preventDefault();
       tendang();
       return false;
     }
+
     if (isCtrlOrCmd && isShift && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
       e.preventDefault();
       tendang();
       return false;
     }
+
     if (isCtrlOrCmd && isAlt && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
       e.preventDefault();
       tendang();
       return false;
     }
+
     if (isCtrlOrCmd && ['s', 'S', 'p', 'P'].includes(e.key)) {
       e.preventDefault();
       return false;
     }
-    if (e.key === 'F5' || (isCtrlOrCmd && (e.key === 'r' || e.key === 'R'))) {
+
+    if (
+      e.key === 'F5' ||
+      e.keyCode === 116 ||
+      (isCtrlOrCmd && (e.key === 'r' || e.key === 'R' || e.keyCode === 82))
+    ) {
       e.preventDefault();
       return false;
     }
   }, true);
 
-  // 5. Blokir Klik Kanan & Seleksi Konten
+  // 6. BLOKIR KLIK KANAN DAN DRAG ELEMEN
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
@@ -7133,7 +7167,9 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
 
   document.addEventListener('dragstart', function(e) {
     e.preventDefault();
+    return false;
   }, true);
+
 })();
 
 
