@@ -7175,6 +7175,7 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
 
 })();
 
+// AKHIR PROTEKSI DEV TOOLS
 
 function setDynamicManifest(namaApp, themeColor) {
   const dynamicManifest = {
@@ -12720,112 +12721,150 @@ function terapkanJadwalCadangan() {
                 }
               }
               
-      // =====================================================
-      // SCRIPT SMART SHARE WA (GATEWAY OTOMATIS ATAU MANUAL)
-      // =====================================================
-      function shareWaPengajian(id) {
-        // 1. Cari data pengajian
-        const p = dataMasjidGlobal.pengajian.find(x => x.id === id);
-        if (!p) {
-          return Swal.fire('Error', 'Data pengajian tidak ditemukan', 'error');
-        }
-      
-        // 2. Rangkai teks caption
-        let namaApp = typeof appSettings !== 'undefined' && appSettings['nama_aplikasi'] ? appSettings['nama_aplikasi'] : 'SI-GAS';
-        let text = `*INFORMASI KAJIAN ISLAM / PENGAJIAN*\n\n` +
-                   `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
-                   `Diinformasikan kepada seluruh warga, insya Allah akan diselenggarakan kajian Islam:\n\n` +
-                   `*Tema:* ${p.tema}\n` +
-                   `*Pemateri:* ${p.pemateri}\n` +
-                   `*Tanggal:* ${p.tanggal}\n` +
-                   `*Waktu:* ${p.jam} WIB\n` +
-                   `*Lokasi:* ${p.lokasi}\n\n` +
-                   `👉 *Silakan buka Aplikasi Portal Warga (${namaApp}) di HP Anda untuk informasi selengkapnya.*\n\n` +
-                   `Demikian undangan ini disampaikan. Terima kasih. 🙏\n\n` +
-                   `_Pesan otomatis dari Aplikasi ${namaApp}_`;
-      
-        // =====================================================
-        // CEK PENGATURAN WA GATEWAY (Mode Latar Belakang)
-        // =====================================================
-        let rawMode = appSettings['wa_mode_otomatis'] || '';
-        let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
-        
-        // Deteksi berbagai kemungkinan nama kunci JID grup di appSettings
-        let noGrupTujuan = appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'] || '6287834250249-1630667600@g.us'; 
-      
-        // JIKA SAKLAR GATEWAY AKTIF & NOMOR GRUP ADA
-        if (isGatewayAktif && noGrupTujuan) {
-          
-          // Tampilkan loading
-          Swal.fire({
-            title: 'Mengirim Pesan...',
-            text: 'Pesan kajian sedang dikirim ke Grup WhatsApp warga di latar belakang.',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-          });
-      
-          // Panggil fungsi pengirim pesan Gateway di code.gs
-          google.script.run
-            .withSuccessHandler(function(res) {
-              if(res && res.success) {
-                 Swal.fire('Berhasil!', 'Pesan kajian telah terkirim otomatis ke Grup WhatsApp.', 'success');
-              } else {
-                 Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
-              }
-            })
-            .withFailureHandler(function(err) {
-              Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
-            })
-            .sendWhatsAppMessage(noGrupTujuan, text, p.gambar_url);
-            
-          return; // Hentikan proses agar tidak buka WA manual
-        }
-      
-        // =====================================================
-        // JIKA SAKLAR MATI (ATAU GRUP KOSONG): JALANKAN MODE MANUAL
-        // =====================================================
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        let waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
-      
-        const eksekusiShareManual = (blob) => {
-          // MODE HP
-          if (isMobile && navigator.canShare) {
-            let shareData = { title: p.tema, text: text };
-            if (blob) {
-              let file = new File([blob], "Pamflet_Kajian.jpg", { type: blob.type });
-              if (navigator.canShare({ files: [file] })) shareData.files = [file];
-            }
-            navigator.share(shareData).catch(()=>{});
-          } 
-          // MODE LAPTOP/PC
-          else {
-            if (blob) {
-              try {
-                const item = new ClipboardItem({ [blob.type]: blob });
-                navigator.clipboard.write([item]).then(() => {
-                  window.open(waUrl, '_blank');
-                }).catch(err => {
-                   window.open(waUrl, '_blank');
-                });
-              } catch(e) {
-                window.open(waUrl, '_blank');
-              }
-            } else {
-              window.open(waUrl, '_blank');
-            }
-          }
-        };
-      
-        if (p.gambar_url && p.gambar_url.trim() !== '') {
-          fetch(p.gambar_url)
-            .then(res => res.blob())
-            .then(blob => eksekusiShareManual(blob))
-            .catch(err => eksekusiShareManual(null));
+// =====================================================
+// SCRIPT SMART SHARE WA (GATEWAY OTOMATIS ATAU MANUAL)
+// =====================================================
+async function shareWaPengajian(id) {
+  // 1. Cari data pengajian
+  const p = dataMasjidGlobal.pengajian.find(x => x.id === id);
+  if (!p) {
+    return Swal.fire('Error', 'Data pengajian tidak ditemukan', 'error');
+  }
+
+  // Deteksi data pamflet dari berbagai kemungkinan nama properti di sheet
+  const mediaGambar = p.gambar_url || p.pamflet || p.brosur || p.gambar || p.foto || p.file || '';
+
+  // 2. Rangkai teks caption
+  let namaApp = typeof appSettings !== 'undefined' && appSettings['nama_aplikasi'] ? appSettings['nama_aplikasi'] : 'SI-GAS';
+  let text = `*INFORMASI KAJIAN ISLAM / PENGAJIAN*\n\n` +
+             `Assalamualaikum Warahmatullahi Wabarakatuh,\n\n` +
+             `Diinformasikan kepada seluruh warga, insya Allah akan diselenggarakan kajian Islam:\n\n` +
+             `*Tema:* ${p.tema}\n` +
+             `*Pemateri:* ${p.pemateri}\n` +
+             `*Tanggal:* ${p.tanggal}\n` +
+             `*Waktu:* ${p.jam} WIB\n` +
+             `*Lokasi:* ${p.lokasi}\n\n` +
+             `👉 *Silakan buka Aplikasi Portal Warga (${namaApp}) di HP Anda untuk informasi selengkapnya.*\n\n` +
+             `Demikian undangan ini disampaikan. Terima kasih. 🙏\n\n` +
+             `_Pesan otomatis dari Aplikasi ${namaApp}_`;
+
+  // =====================================================
+  // CEK PENGATURAN WA GATEWAY (Mode Latar Belakang)
+  // =====================================================
+  let rawMode = appSettings['wa_mode_otomatis'] || '';
+  let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || String(rawMode).toLowerCase().trim() === 'true' || rawMode === true || rawMode === 'Ya'; 
+  let noGrupTujuan = appSettings['wa_group_jid'] || appSettings['whatsapp_group_jid'] || appSettings['grup_jid'] || '6287834250249-1630667600@g.us'; 
+
+  // JIKA SAKLAR GATEWAY AKTIF & NOMOR GRUP ADA
+  if (isGatewayAktif && noGrupTujuan) {
+    Swal.fire({
+      title: 'Mengirim Pesan...',
+      text: 'Pesan dan pamflet sedang dikirim ke Grup WhatsApp warga.',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res && res.success) {
+          Swal.fire('Berhasil!', 'Pesan kajian telah terkirim otomatis ke Grup WhatsApp.', 'success');
         } else {
-          eksekusiShareManual(null);
+          Swal.fire('Gagal', res ? res.message : 'Respons server kosong', 'error');
         }
+      })
+      .withFailureHandler(function(err) {
+        Swal.fire('Error', "Koneksi ke server gagal: " + err, 'error');
+      })
+      .sendWhatsAppMessage(noGrupTujuan, text, mediaGambar);
+      
+    return;
+  }
+
+  // =====================================================
+  // JIKA SAKLAR MATI: JALANKAN MODE MANUAL
+  // =====================================================
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  let waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+
+  // Helper untuk mengubah data URI (Base64) atau Link URL menjadi Blob
+  async function ambilBlobGambar(src) {
+    if (!src || src.trim() === '') return null;
+    try {
+      if (src.startsWith('data:')) {
+        const parts = src.split(';base64,');
+        const contentType = parts[0].split(':')[1] || 'image/jpeg';
+        const raw = window.atob(parts[1]);
+        const uInt8Array = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; ++i) {
+          uInt8Array[i] = raw.charCodeAt(i);
+        }
+        return new Blob([uInt8Array], { type: contentType });
+      } else {
+        const res = await fetch(src);
+        return await res.blob();
       }
-              
+    } catch (e) {
+      console.warn("Gagal konversi gambar ke Blob:", e);
+      return null;
+    }
+  }
+
+  // Helper konversi ke PNG agar diizinkan masuk ke Clipboard laptop/PC
+  async function ubahKePng(blob) {
+    return new Promise((resolve) => {
+      if (!blob || blob.type === 'image/png') return resolve(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(resolve, 'image/png');
+      };
+      img.onerror = () => resolve(blob);
+      img.src = URL.createObjectURL(blob);
+    });
+  }
+
+  const blobGambar = await ambilBlobGambar(mediaGambar);
+
+  // 1. Eksekusi di HP (Gunakan Web Share API Native)
+  if (isMobile && navigator.canShare) {
+    let shareData = { title: p.tema, text: text };
+    if (blobGambar) {
+      let ext = blobGambar.type.includes('png') ? 'png' : 'jpg';
+      let file = new File([blobGambar], `Pamflet_Kajian.${ext}`, { type: blobGambar.type });
+      if (navigator.canShare({ files: [file] })) {
+        shareData.files = [file];
+      }
+    }
+    navigator.share(shareData).catch(() => {});
+  } 
+  // 2. Eksekusi di Laptop / PC
+  else {
+    if (blobGambar) {
+      try {
+        const pngBlob = await ubahKePng(blobGambar);
+        const item = new ClipboardItem({ 'image/png': pngBlob });
+        await navigator.clipboard.write([item]);
+        
+        Swal.fire({
+          icon: 'info',
+          title: 'Pamflet Tersalin!',
+          text: 'Gambar pamflet sudah disalin. Cukup tekan Ctrl + V pada kolom chat WhatsApp Web untuk menempelkan gambar.',
+          confirmButtonText: 'Buka WhatsApp Web'
+        }).then(() => {
+          window.open(waUrl, '_blank');
+        });
+      } catch (err) {
+        window.open(waUrl, '_blank');
+      }
+    } else {
+      window.open(waUrl, '_blank');
+    }
+  }
+}
               
               function openModalMuadzin() { document.getElementById('formMuadzin').reset(); document.getElementById('mdz_tgl').valueAsDate=new Date(); new bootstrap.Modal(document.getElementById('modalMuadzin')).show(); }
               
