@@ -7033,13 +7033,9 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
 (function() {
   'use strict';
 
-  // 1. BYPASS MODE DEVELOPER
-  // Akses URL dengan parameter ?dev=hfd agar Anda tetap bisa mengedit
-  if (window.location.search.includes('dev=hfd')) {
-    return;
-  }
+  // 1. Bypass Pengembang (?dev=hfd)
+  if (window.location.search.includes('dev=hfd')) return;
 
-  // Fungsi Pemusnah: Kosongkan halaman seketika tanpa jeda
   function tendang() {
     try {
       window.stop();
@@ -7050,97 +7046,86 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
     }
   }
 
-  // 2. DETEKSI DOK DEVTOOLS (SAMPING ATAU BAWAH) TANPA DEBUGGER
+  // 2. Deteksi Dimensi Sensitif (Docked DevTools Samping / Bawah)
   function periksaDimensi() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (!isMobile) {
-      const bedaLebar = window.outerWidth - window.innerWidth;
-      const bedaTinggi = window.outerHeight - window.innerHeight;
-
-      // Jika panel DevTools menempel di kanan/kiri/bawah (> 160px)
-      if (bedaLebar > 160 || bedaTinggi > 160) {
+      const ambangLebar = window.outerWidth - window.innerWidth > 100;
+      const ambangTinggi = window.outerHeight - window.innerHeight > 100;
+      if (ambangLebar || ambangTinggi) {
         tendang();
       }
     }
   }
   window.addEventListener('resize', periksaDimensi);
-  setInterval(periksaDimensi, 150);
+  setInterval(periksaDimensi, 200);
 
-  // 3. DETEKSI INSTAN VIA REGEXP GETTER (BEKERJA SAAT DEVTOOLS DIBUKA DARI MENU)
-  // Browser Chromium membaca fungsi .toString() pada objek regex saat panel konsol terbuka
-  const perangkapConsole = /./;
-  perangkapConsole.toString = function() {
-    tendang();
-    return '';
-  };
-
-  // 4. DETEKSI PENGALAMAN RENDERING KONSOL
-  const elemenPerangkap = new Image();
-  Object.defineProperty(elemenPerangkap, 'id', {
+  // 3. Deteksi Konsol Chromium via Console.Table & Object Getter
+  // Efektif menangkal DevTools yang dibuka lewat menu (undocked maupun docked)
+  let devtoolsTerbuka = false;
+  const elemenUji = new Image();
+  Object.defineProperty(elemenUji, 'id', {
     get: function() {
+      devtoolsTerbuka = true;
       tendang();
     }
   });
 
-  setInterval(function() {
-    console.log('%c', perangkapConsole);
-    console.dir(elemenPerangkap);
-    console.clear();
-  }, 250);
+  const polaRegex = /./;
+  polaRegex.toString = function() {
+    devtoolsTerbuka = true;
+    tendang();
+    return '';
+  };
 
-  // 5. BLOKIR SHORTCUT TOMBOL (F12, CTRL+SHIFT+I/J/C, CTRL+U, CTRL+S)
+  // Uji konsol secara berulang dengan output minimal
+  setInterval(function() {
+    devtoolsTerbuka = false;
+    console.log(elemenUji);
+    console.table([polaRegex]);
+    console.clear();
+    if (devtoolsTerbuka) {
+      tendang();
+    }
+  }, 300);
+
+  // 4. Blokir Shortcut DevTools & Inspeksi
   window.addEventListener('keydown', function(e) {
     const isCtrlOrCmd = e.ctrlKey || e.metaKey;
     const isShift = e.shiftKey;
     const isAlt = e.altKey;
 
-    // F12
     if (e.key === 'F12' || e.keyCode === 123) {
       e.preventDefault();
       tendang();
       return false;
     }
-
-    // Ctrl + U
     if (isCtrlOrCmd && ['u', 'U'].includes(e.key)) {
       e.preventDefault();
       tendang();
       return false;
     }
-
-    // Inspect (Ctrl+Shift+I / J / C)
     if (isCtrlOrCmd && isShift && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
       e.preventDefault();
       tendang();
       return false;
     }
-
-    // Mac (Cmd+Opt+I / J / C)
     if (isCtrlOrCmd && isAlt && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
       e.preventDefault();
       tendang();
       return false;
     }
-
-    // Blokir Simpan & Cetak
     if (isCtrlOrCmd && ['s', 'S', 'p', 'P'].includes(e.key)) {
       e.preventDefault();
       return false;
     }
-
-    // Blokir Refresh (F5 / Ctrl+R)
-    if (
-      e.key === 'F5' ||
-      e.keyCode === 116 ||
-      (isCtrlOrCmd && (e.key === 'r' || e.key === 'R' || e.keyCode === 82))
-    ) {
+    if (e.key === 'F5' || (isCtrlOrCmd && (e.key === 'r' || e.key === 'R'))) {
       e.preventDefault();
-      e.stopPropagation();
       return false;
     }
   }, true);
 
-  // 6. BLOKIR KLIK KANAN DAN DRAG
+  // 5. Blokir Klik Kanan & Seleksi Konten
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
@@ -7149,8 +7134,8 @@ console.log("🚀 God Mode Proxy V3 (Form Fix) Terpasang!");
   document.addEventListener('dragstart', function(e) {
     e.preventDefault();
   }, true);
-
 })();
+
 
 function setDynamicManifest(namaApp, themeColor) {
   const dynamicManifest = {
