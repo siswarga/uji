@@ -14709,22 +14709,39 @@ function openModalPersonelSatpam() {
               }
               
 function renderTableJadwalSatpam() {
-  const tbody = document.getElementById('tbody-jadwal-satpam'); // sesuaikan dengan ID tbody tabel jadwal Anda
-  if (!tbody) return;
+  // Mencari elemen tbody berdasarkan berbagai kemungkinan ID yang umum digunakan
+  const tbody = document.getElementById('tbody-jadwal-satpam') 
+             || document.getElementById('tbody-satpam-jadwal')
+             || document.getElementById('tbody-jadwal')
+             || document.getElementById('tb-jadwal-satpam')
+             || document.getElementById('tbody-jdw-satpam')
+             || document.querySelector('#tab-jadwal tbody')
+             || document.querySelector('.tab-pane.active table tbody');
+
+  if (!tbody) {
+    console.error("Elemen tbody tabel jadwal satpam tidak ditemukan di HTML!");
+    return;
+  }
 
   if (!dataJadwalSatpamGlobal || dataJadwalSatpamGlobal.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Belum ada jadwal satpam.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Belum ada jadwal satpam.</td></tr>';
     return;
   }
 
   let html = '';
   dataJadwalSatpamGlobal.forEach(j => {
-    // Pengambilan data aman (mendukung Objek maupun Array mentah)
+    // Mendukung data baik dalam bentuk Objek maupun Array mentah spreadsheet
     let tgl = Array.isArray(j) ? (j[1] || '-') : (j.tanggal || '-');
     let shiftTeks = Array.isArray(j) ? (j[2] || '-') : (typeof j.shift === 'string' ? j.shift : '-');
     let nama = Array.isArray(j) ? (j[4] || '-') : (j.nama || j.namaSatpam || '-');
     let ket = Array.isArray(j) ? (j[5] || '-') : (j.keterangan || '-');
     let idJadwal = Array.isArray(j) ? j[0] : j.id;
+
+    // Format tampilan tanggal jika masih berupa YYYY-MM-DD
+    if (typeof tgl === 'string' && tgl.includes('-')) {
+      let parts = tgl.split('T')[0].split('-');
+      if (parts.length === 3) tgl = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
 
     html += `
       <tr>
