@@ -549,7 +549,7 @@
             <div>
               <span class="badge bg-white text-success mb-3 px-3 py-1 rounded-pill fw-bold">Selamat Datang</span>
               <h2 class="fw-bold mb-2">Assalamualaikum! 👋</h2>
-              <p class="opacity-9 mb-4">Portal transparansi, Iuran, Ronda, dan Administrasi Warga berbasis digital yang cepat, transparan, dan mudah diakses.</p>
+              <p class="opacity-9 mb-4">Portal layanan dan transparansi warga berbasis digital yang cepat, transparan, dan mudah diakses, mengintegrasikan administrasi kependudukan, iuran, jadwal ronda, KTA digital, etalase UMKM lingkungan, arsip dokumentasi kegiatan, pojok baca e-book, hingga tombol panik (SOS) dalam satu sistem.</p>
             </div>
             <div class="p-3 bg-white bg-opacity-10 rounded-3 border border-white border-opacity-25">
               <small class="d-block text-uppercase fw-bold tracking-wide opacity-75 mb-1"><i class="fas fa-quote-left me-1"></i> Motto Lingkungan</small>
@@ -3746,7 +3746,7 @@
                       <i class="fas fa-network-wired text-primary me-2" style="width: 16px;"></i>Backend : <strong class="text-dark">siswarga.merpati-itclinic.workers.dev</strong>
                     </div>
                     <div class="col-sm-12 text-secondary mb-1">
-                      <i class="fas fa-database text-success me-2" style="width: 16px;"></i>Database : <strong class="text-dark">Supabase Cloud / Google Workspace Engine</strong>
+                      <i class="fas fa-database text-success me-2" style="width: 16px;"></i>Database : <strong class="text-dark">Supabase Cloud</strong>
                     </div>
                     <div class="col-sm-12 text-secondary">
                       <i class="fas fa-building text-warning me-2" style="width: 16px;"></i>Developer : <strong class="text-dark">Hafidza Niaga Indonesia</strong>
@@ -6736,7 +6736,9 @@
           <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 border-white-50">
             <div>
               <h6 class="fw-bold mb-0 text-uppercase tracking-wider">KARTU WARGA DIGITAL</h6>
-              <small style="font-size: 0.7rem; opacity: 0.85;">SISTEM KEPENDUDUKAN KETAWA</small>
+				<small style="font-size: 0.7rem; opacity: 0.85;">
+				SISTEM KEPENDUDUKAN <span id="kta-header-komplek" class="text-uppercase">GRAND ASSALAM</span>
+			</small>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
@@ -6746,12 +6748,11 @@
             <div class="col-8">
               <span class="badge bg-warning text-dark mb-1" id="kta-status-hunian">Aktif</span>
               <h5 class="fw-bold mb-1 text-truncate" id="kta-nama">Nama Warga</h5>
-              <div class="small mb-1"><i class="fas fa-home me-1"></i> <span id="kta-alamat">Blok C-31</span></div>
-              <!-- DIGANTI: ID dihapus, diganti No. WhatsApp -->
+              <div class="small mb-1"><i class="fas fa-home me-1"></i> <span id="kta-alamat">Alamat</span></div>
               <div class="small"><i class="fab fa-whatsapp me-1 text-white"></i> <span id="kta-wa">08xxxxxxxxxx</span></div>
             </div>
             
-            <!-- QR Code (Tetap membawa kode unik untuk verifikasi scan satpam) -->
+            <!-- QR Code -->
             <div class="col-4 text-center">
               <div class="p-1 bg-white rounded-3 shadow-sm d-inline-block">
                 <img id="kta-qrcode" src="" alt="QR Code" style="width: 85px; height: 85px; display: block;">
@@ -6759,10 +6760,10 @@
             </div>
           </div>
 
-          <!-- Footer Kartu: DIGANTI DENGAN NAMA KOMPLEK -->
+          <!-- Footer Kartu -->
           <div class="d-flex justify-content-between align-items-center pt-2 border-top border-white-50" style="font-size: 0.72rem; opacity: 0.9;">
-            <span id="kta-komplek" class="fw-semibold"><i class="fas fa-map-marker-alt me-1"></i> Grand Assalam</span>
-            <span id="kta-tgl-terbit">Valid • 2026</span>
+            <span id="kta-komplek" class="fw-semibold"><i class="fas fa-map-marker-alt me-1"></i> Nama Komplek</span>
+            <span id="kta-tgl-terbit">Registered Since • 2026</span>
           </div>
 
         </div>
@@ -19180,7 +19181,7 @@ function bunyikanNotifikasiDanAdzan(namaSholat) {
 
 /**
  * Membuka Kartu Tanda Warga Digital lengkap dengan generate QR Code
- * @param {Object} warga - Objek data warga (nama, alamat/blok, kodeUnik, status)
+ * @param {Object} warga - Objek data warga
  */
 function tampilkanKtaDigital(warga) {
   if (!warga) return;
@@ -19191,19 +19192,47 @@ function tampilkanKtaDigital(warga) {
   const status = warga.statusWarga || 'Aktif';
   const noWa = warga.noWa || '-';
 
-  // Ambil nama komplek dari database/elemen header domisili
-  const elDomisili = document.getElementById('pub-app-domisili');
-  const namaKomplek = warga.namaKomplek || (elDomisili ? elDomisili.innerText.trim() : 'Grand Assalam');
+  // 1. Ambil nama komplek dari setting atau header
+  let settings = {};
+  try {
+    settings = (typeof appSettings !== 'undefined' && appSettings) ? appSettings : (JSON.parse(localStorage.getItem('sigas_app_settings')) || {});
+  } catch (e) {}
 
-  // Tampilkan data ke kartu
+  const elDomisili = document.getElementById('pub-app-domisili');
+  const namaKomplek = warga.namaKomplek || settings.nama_komplek || (elDomisili ? elDomisili.innerText.trim() : 'Grand Assalam');
+
+  // 2. AMBIL TAHUN DARI KOLOM V (Created At)
+  let tahunTerdaftar = new Date().getFullYear(); // fallback default tahun ini
+  let rawCreated = warga.createdAt || warga.created_at || '';
+
+  if (rawCreated) {
+    // Mengekstrak 4 digit tahun (misal: 2026) dari format Date maupun string "DD/MM/YYYY HH:mm:ss"
+    let matchTahun = String(rawCreated).match(/\b(20\d{2})\b/);
+    if (matchTahun) {
+      tahunTerdaftar = matchTahun[1];
+    } else {
+      let d = new Date(rawCreated);
+      if (!isNaN(d.getFullYear())) tahunTerdaftar = d.getFullYear();
+    }
+  }
+
+  // 3. Tampilkan data identitas ke kartu
   document.getElementById('kta-nama').innerText = nama;
   document.getElementById('kta-alamat').innerText = alamat;
   document.getElementById('kta-status-hunian').innerText = status;
   document.getElementById('kta-wa').innerText = noWa;
   document.getElementById('kta-komplek').innerHTML = `<i class="fas fa-map-marker-alt me-1 text-warning"></i> ${namaKomplek}`;
-  document.getElementById('kta-tgl-terbit').innerText = 'Valid • ' + new Date().getFullYear();
+  
+  // Tampilkan tahun dari Kolom V
+  document.getElementById('kta-tgl-terbit').innerText = 'Registered Since • ' + tahunTerdaftar;
 
-  // QR Code tetap menggunakan kode unik agar satpam tetap bisa memverifikasi saat discan
+  // Header kartu nama komplek
+  const elHeaderKomplek = document.getElementById('kta-header-komplek');
+  if (elHeaderKomplek) {
+    elHeaderKomplek.innerText = namaKomplek.toUpperCase();
+  }
+
+  // 4. Generate QR Code
   const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(kode);
   document.getElementById('kta-qrcode').src = qrUrl;
 
