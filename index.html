@@ -19189,10 +19189,10 @@ function tampilkanKtaDigital(warga) {
   const kode = (warga.kodeUnik || warga.kode || '').toUpperCase();
   const nama = warga.nama || warga.namaWarga || 'Warga';
   const alamat = warga.alamat || '-';
-  const status = warga.statusWarga || 'Aktif';
+  const statusHunian = warga.statusWarga || warga.statusTinggal || 'Warga Tetap';
   const noWa = warga.noWa || '-';
 
-  // 1. Ambil nama komplek dari setting atau header
+  // 1. Ambil nama komplek
   let settings = {};
   try {
     settings = (typeof appSettings !== 'undefined' && appSettings) ? appSettings : (JSON.parse(localStorage.getItem('sigas_app_settings')) || {});
@@ -19201,38 +19201,34 @@ function tampilkanKtaDigital(warga) {
   const elDomisili = document.getElementById('pub-app-domisili');
   const namaKomplek = warga.namaKomplek || settings.nama_komplek || (elDomisili ? elDomisili.innerText.trim() : 'Grand Assalam');
 
-  // 2. AMBIL TAHUN DARI KOLOM V (Created At)
-  let tahunTerdaftar = new Date().getFullYear(); // fallback default tahun ini
-  let rawCreated = warga.createdAt || warga.created_at || '';
+  // 2. Tahun Terdaftar dari Kolom V
+  let tahunTerdaftar = warga.tahunDaftar || new Date().getFullYear();
 
-  if (rawCreated) {
-    // Mengekstrak 4 digit tahun (misal: 2026) dari format Date maupun string "DD/MM/YYYY HH:mm:ss"
-    let matchTahun = String(rawCreated).match(/\b(20\d{2})\b/);
-    if (matchTahun) {
-      tahunTerdaftar = matchTahun[1];
-    } else {
-      let d = new Date(rawCreated);
-      if (!isNaN(d.getFullYear())) tahunTerdaftar = d.getFullYear();
-    }
-  }
-
-  // 3. Tampilkan data identitas ke kartu
+  // 3. Render ke Kartu KTA
   document.getElementById('kta-nama').innerText = nama;
   document.getElementById('kta-alamat').innerText = alamat;
-  document.getElementById('kta-status-hunian').innerText = status;
   document.getElementById('kta-wa').innerText = noWa;
   document.getElementById('kta-komplek').innerHTML = `<i class="fas fa-map-marker-alt me-1 text-warning"></i> ${namaKomplek}`;
-  
-  // Tampilkan tahun dari Kolom V
   document.getElementById('kta-tgl-terbit').innerText = 'Registered Since • ' + tahunTerdaftar;
 
-  // Header kartu nama komplek
+  // Header Subjudul Komplek
   const elHeaderKomplek = document.getElementById('kta-header-komplek');
   if (elHeaderKomplek) {
     elHeaderKomplek.innerText = namaKomplek.toUpperCase();
   }
 
-  // 4. Generate QR Code
+  // 4. Update Badge Status Hunian (Warga Tetap / Warga Kontrak)
+  const elBadgeStatus = document.getElementById('kta-status-hunian');
+  if (elBadgeStatus) {
+    elBadgeStatus.innerText = statusHunian;
+    if (statusHunian.toLowerCase().includes('kontrak')) {
+      elBadgeStatus.className = 'badge bg-warning text-dark mb-1'; // Warna kuning untuk kontrak
+    } else {
+      elBadgeStatus.className = 'badge bg-light text-dark mb-1';   // Warna cerah/putih untuk warga tetap
+    }
+  }
+
+  // 5. Generate QR Code
   const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(kode);
   document.getElementById('kta-qrcode').src = qrUrl;
 
