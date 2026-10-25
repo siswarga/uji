@@ -10243,6 +10243,32 @@ function generateRonda(e) {
       document.getElementById('ronda_durasi').value
     );
 }
+
+// Menampilkan/menyembunyikan daftar hari ronda
+function togglePolaRonda() {
+  const el = document.getElementById('seting_pola_ronda');
+  const box = document.getElementById('box-hari-ronda-mingguan');
+  if (el && box) {
+    box.style.display = (el.value === 'mingguan') ? 'block' : 'none';
+  }
+}
+
+// Panggil fungsi ini di dalam fungsi pemuat nilai pengaturan (misal: populateSettings)
+function setNilaiRondaSetting(settings) {
+  if (!settings) return;
+
+  // Set nilai dropdown pola ronda
+  if (settings['pola_ronda']) {
+    document.getElementById('seting_pola_ronda').value = settings['pola_ronda'];
+  }
+  togglePolaRonda();
+
+  // Set centang hari ronda mingguan
+  const savedDays = String(settings['hari_ronda_mingguan'] || '6').split(',');
+  document.querySelectorAll('.check-hari-ronda').forEach(cb => {
+    cb.checked = savedDays.includes(cb.value);
+  });
+}
               
 function loadDataBlacklist() {
   if (typeof showLoading === 'function') showLoading();
