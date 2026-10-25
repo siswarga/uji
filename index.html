@@ -9899,18 +9899,32 @@ function updateStatusServer(tanggal) {
     }).updateNotifRondaTerkirim(token, tanggal);
   }
               
-              function openModalEditRonda(id) {
-                 const p = window.dataRondaGlobal.find(x => x.id === id); if(!p) return;
-                 document.getElementById('edit_ronda_id').value = p.id;
-                 document.getElementById('edit_ronda_mulai').value = p.jamMulai;
-                 document.getElementById('edit_ronda_selesai').value = p.jamSelesai;
-                 document.getElementById('edit_ronda_status').value = p.status;
-                 const sel = document.getElementById('edit_ronda_petugas'); sel.innerHTML = '<option value="">Loading...</option>';
-                 google.script.run.withSuccessHandler(res => {
-                    if(res.success) { sel.innerHTML = ''; res.data.forEach(w => { let selAttr = w.nama === p.namaPetugas ? 'selected' : ''; sel.innerHTML += `<option value="${w.nama}" ${selAttr}>${w.nama}</option>`; }); }
-                 }).getListNamaWarga('PUBLIC');
-                 new bootstrap.Modal(document.getElementById('modalEditRonda')).show();
-              }
+function openModalEditRonda(id) {
+  const p = window.dataRondaGlobal.find(x => x.id === id); 
+  if (!p) return;
+
+  document.getElementById('edit_ronda_id').value = p.id;
+  document.getElementById('edit_ronda_mulai').value = p.jamMulai;
+  document.getElementById('edit_ronda_selesai').value = p.jamSelesai;
+  document.getElementById('edit_ronda_status').value = p.status;
+  
+  const sel = document.getElementById('edit_ronda_petugas'); 
+  sel.innerHTML = '<option value="">Memuat daftar Kepala Keluarga...</option>';
+
+  google.script.run.withSuccessHandler(res => {
+    if (res.success) { 
+      sel.innerHTML = ''; 
+      res.data.forEach(w => { 
+        let selAttr = (w.nama === p.namaPetugas) ? 'selected' : ''; 
+        sel.innerHTML += `<option value="${w.nama}" ${selAttr}>${w.nama}</option>`; 
+      }); 
+    } else {
+      sel.innerHTML = '<option value="">Gagal memuat data warga</option>';
+    }
+  }).getListWargaRonda(); // <-- Memanggil filter khusus Kepala Keluarga & non-blacklist
+
+  new bootstrap.Modal(document.getElementById('modalEditRonda')).show();
+}
               
               function saveEditRonda(e) {
                  e.preventDefault(); const id = document.getElementById('edit_ronda_id').value;
