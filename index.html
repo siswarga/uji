@@ -7353,9 +7353,18 @@ function setDynamicManifest(namaApp, themeColor) {
     if (timerBackground) clearInterval(timerBackground);
 
     timerBackground = setInterval(function() {
-      // Hanya jalankan background polling jika tab sedang aktif dibuka
-      if (document.visibilityState === 'visible') {
-        jalankanSinkronisasiMenuAktif('Polling Rutin Latar Belakang');
+      // 1. Cek ketersediaan token admin
+      const token = localStorage.getItem('sigas_token');
+
+      // 2. Cek apakah panel admin sedang benar-benar terbuka (bukan portal publik)
+      const appLayout = document.getElementById('app-layout');
+      const isAdminActive = appLayout && window.getComputedStyle(appLayout).display !== 'none';
+
+      // Polling HANYA berjalan jika tab aktif, token valid, dan panel admin sedang terbuka
+      if (document.visibilityState === 'visible' && token && isAdminActive) {
+        if (typeof jalankanSinkronisasiMenuAktif === 'function') {
+          jalankanSinkronisasiMenuAktif('Polling Rutin Latar Belakang');
+        }
       }
     }, KONFIGURASI_SYNC.intervalBackgroundMs);
   }
@@ -10029,7 +10038,68 @@ function updateStatusServer(tanggal) {
               
               function openModalGenerateRonda(){ document.getElementById('formGenerateRonda').reset(); document.getElementById('ronda_jam_mulai').value=appSettings['jam_ronda_mulai']||'21:00'; document.getElementById('ronda_jam_selesai').value=appSettings['jam_ronda_selesai']||'01:00'; new bootstrap.Modal(document.getElementById('modalGenerateRonda')).show(); }
               
-			  function generateRonda(e){ e.preventDefault(); const b=document.getElementById('btn-save-ronda'); b.disabled=true; Swal.fire({title:'Mengkalkulasi...',html:'AI sedang menghitung rotasi pembagian petugas...',allowOutsideClick:false,didOpen:()=>{Swal.showLoading();}}); google.script.run.withSuccessHandler(res=>{b.disabled=false;if(res.success){bootstrap.Modal.getInstance(document.getElementById('modalGenerateRonda')).hide();Swal.fire('Berhasil',res.message,'success');loadDataRonda();}else Swal.fire('Ditolak',res.message,'error');}).withFailureHandler(err=>{b.disabled=false;Swal.fire('Error',String(err),'error');}).generateJadwalRonda(localStorage.getItem('sigas_token'), document.getElementById('ronda_tgl').value, document.getElementById('ronda_jam_mulai').value, document.getElementById('ronda_jam_selesai').value, null, document.getElementById('ronda_durasi').value); }
+function generateRonda(e) {
+  e.preventDefault();
+  const b = document.getElementById('btn-save-ronda');
+  b.disabled = true;
+
+  Swal.fire({
+    title: 'Mengkalkulasi...',
+    html: 'AI sedang menghitung rotasi pembagian petugas...',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  google.script.run
+    .withSuccessHandler(res => {
+      b.disabled = false;
+      if (res && res.success) {
+        // Tutup modal form generate
+        const modalEl = document.getElementById('modalGenerateRonda');
+        const modalInst = bootstrap.Modal.getInstance(modalEl);
+        if (modalInst) modalInst.hide();
+
+        // Simpan pesan teks ke variabel sementara
+        window.lastPesanRondaWA = res.pesanWa || '';
+
+        // Tampilkan pop-up konfirmasi kirim ke Grup WhatsApp
+        Swal.fire({
+          icon: 'success',
+          title: 'Jadwal Berhasil Dibuat!',
+          text: res.message,
+          showCancelButton: true,
+          confirmButtonText: '<i class="fab fa-whatsapp me-1"></i> Bagikan ke Grup WA',
+          cancelButtonText: 'Tutup',
+          confirmButtonColor: '#25D366',
+          cancelButtonColor: '#6c757d'
+        }).then((result) => {
+          if (result.isConfirmed && res.pesanWa) {
+            const urlWa = `https://api.whatsapp.com/send?text=${encodeURIComponent(res.pesanWa)}`;
+            window.open(urlWa, '_blank');
+          }
+        });
+
+        // Muat ulang tabel jadwal ronda
+        if (typeof loadDataRonda === 'function') loadDataRonda();
+      } else {
+        Swal.fire('Ditolak', res ? res.message : 'Terjadi kesalahan sistem.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      b.disabled = false;
+      Swal.fire('Error', String(err), 'error');
+    })
+    .generateJadwalRonda(
+      localStorage.getItem('sigas_token'),
+      document.getElementById('ronda_tgl').value,
+      document.getElementById('ronda_jam_mulai').value,
+      document.getElementById('ronda_jam_selesai').value,
+      null,
+      document.getElementById('ronda_durasi').value
+    );
+}
               
 function loadDataBlacklist() {
   if (typeof showLoading === 'function') showLoading();
