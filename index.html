@@ -3409,74 +3409,82 @@
              <!-- 2. TAB NOTIFIKASI WA & WA GATEWAY -->
 <div class="tab-pane fade" id="pane-notifikasi" role="tabpanel">
 
-  <!-- KARTU 1: KONFIGURASI POLA JADWAL RONDA -->
-  <div class="card shadow-sm border-0 mb-4 rounded-3">
-    <div class="card-body p-4">
-      <form onsubmit="saveSettingBagian(event, { 
-        'pola_ronda': document.getElementById('seting_pola_ronda').value, 
-        'hari_ronda_mingguan': Array.from(document.querySelectorAll('.check-hari-ronda:checked')).map(cb => cb.value).join(',') 
-      }, this)">
-        
-        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
-          <i class="fas fa-shield-alt text-success me-2"></i>Konfigurasi Jadwal Ronda Lingkungan
-        </h5>
-        
-        <div class="row g-3 mb-4">
-          <!-- Pilihan Pola Ronda -->
-          <div class="col-md-6">
-            <label class="form-label fw-bold small text-dark">Pola Penjadwalan</label>
-            <select id="seting_pola_ronda" class="form-select shadow-sm bg-white" onchange="togglePolaRonda()">
-              <option value="harian">Setiap Hari (Harian)</option>
-              <option value="mingguan">Mingguan (Hari Tertentu)</option>
-            </select>
-            <div class="form-text text-muted" style="font-size: 11px;">Pilih apakah ronda bergilir setiap malam atau hanya hari tertentu.</div>
-          </div>
+ <!-- KARTU: KONFIGURASI POLA JADWAL RONDA -->
+<div class="card shadow-sm border-0 mb-4 rounded-3">
+  <div class="card-body p-4">
+    <form id="formPolaRonda" onsubmit="simpanKonfigurasiRonda(event, this)">
+      
+      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+        <i class="fas fa-shield-alt text-success me-2"></i>Konfigurasi Jadwal Ronda Lingkungan
+      </h5>
 
-          <!-- Pilihan Hari Ronda Mingguan -->
-          <div class="col-12" id="box-hari-ronda-mingguan" style="display: none;">
-            <label class="form-label fw-bold small text-dark mb-2">Pilihan Hari Ronda Mingguan</label>
-            <div class="p-3 bg-light rounded-3 border">
-              <div class="d-flex flex-wrap gap-3">
-                <div class="form-check">
-                  <input class="form-check-input check-hari-ronda" type="checkbox" value="1" id="hr-senin">
-                  <label class="form-check-label small fw-semibold" for="hr-senin">Senin</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input check-hari-ronda" type="checkbox" value="2" id="hr-selasa">
-                  <label class="form-check-label small fw-semibold" for="hr-selasa">Selasa</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input check-hari-ronda" type="checkbox" value="3" id="hr-rabu">
-                  <label class="form-check-label small fw-semibold" for="hr-rabu">Rabu</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input check-hari-ronda" type="checkbox" value="4" id="hr-kamis">
-                  <label class="form-check-label small fw-semibold" for="hr-kamis">Kamis</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input check-hari-ronda" type="checkbox" value="5" id="hr-jumat">
-                  <label class="form-check-label small fw-semibold" for="hr-jumat">Jumat</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input check-hari-ronda" type="checkbox" value="6" id="hr-sabtu" checked>
-                  <label class="form-check-label small fw-semibold text-primary" for="hr-sabtu">Sabtu (Malam Minggu)</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input check-hari-ronda" type="checkbox" value="0" id="hr-minggu">
-                  <label class="form-check-label small fw-semibold" for="hr-minggu">Minggu</label>
-                </div>
-              </div>
-              <div class="form-text text-muted mt-2" style="font-size: 11px;">Centang satu atau beberapa hari pelaksanaan tugas ronda.</div>
-            </div>
+      <!-- BADGE STATUS AKTIF (Menampilkan setting yang tersimpan di sheet) -->
+      <div class="alert alert-light border shadow-sm py-2 px-3 mb-3 d-flex align-items-center rounded-3">
+        <i class="fas fa-info-circle text-primary me-3 fs-4"></i>
+        <div>
+          <small class="text-muted d-block" style="font-size: 11px;">PENGATURAN RONDA AKTIF SAAT INI:</small>
+          <div id="status-ronda-terpasang" class="fw-bold text-dark mt-1">
+            <span class="spinner-border spinner-border-sm me-1 text-secondary"></span> Memuat pengaturan...
           </div>
         </div>
+      </div>
+      
+      <div class="row g-3 mb-4">
+        <!-- Pilihan Pola Ronda -->
+        <div class="col-md-6">
+          <label class="form-label fw-bold small text-dark">Ubah Pola Penjadwalan</label>
+          <select id="seting_pola_ronda" class="form-select shadow-sm bg-white" onchange="togglePolaRonda()">
+            <option value="harian">Setiap Hari (Harian)</option>
+            <option value="mingguan">Mingguan (Hari Tertentu)</option>
+          </select>
+          <div class="form-text text-muted" style="font-size: 11px;">Pilih apakah ronda bergilir setiap malam atau hanya malam tertentu.</div>
+        </div>
 
-        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">
-          <i class="fas fa-save me-2"></i> Simpan Pola Ronda
-        </button>
-      </form>
-    </div>
+        <!-- Pilihan Hari Ronda Mingguan -->
+        <div class="col-12" id="box-hari-ronda-mingguan" style="display: none;">
+          <label class="form-label fw-bold small text-dark mb-2">Pilihan Hari Ronda Mingguan</label>
+          <div class="p-3 bg-light rounded-3 border">
+            <div class="d-flex flex-wrap gap-3">
+              <div class="form-check">
+                <input class="form-check-input check-hari-ronda" type="checkbox" value="1" id="hr-senin">
+                <label class="form-check-label small fw-semibold" for="hr-senin">Senin</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input check-hari-ronda" type="checkbox" value="2" id="hr-selasa">
+                <label class="form-check-label small fw-semibold" for="hr-selasa">Selasa</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input check-hari-ronda" type="checkbox" value="3" id="hr-rabu">
+                <label class="form-check-label small fw-semibold" for="hr-rabu">Rabu</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input check-hari-ronda" type="checkbox" value="4" id="hr-kamis">
+                <label class="form-check-label small fw-semibold" for="hr-kamis">Kamis</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input check-hari-ronda" type="checkbox" value="5" id="hr-jumat">
+                <label class="form-check-label small fw-semibold" for="hr-jumat">Jumat</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input check-hari-ronda" type="checkbox" value="6" id="hr-sabtu" checked>
+                <label class="form-check-label small fw-semibold text-primary" for="hr-sabtu">Sabtu (Malam Minggu)</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input check-hari-ronda" type="checkbox" value="0" id="hr-minggu">
+                <label class="form-check-label small fw-semibold" for="hr-minggu">Minggu</label>
+              </div>
+            </div>
+            <div class="form-text text-muted mt-2" style="font-size: 11px;">Centang satu atau beberapa hari pelaksanaan tugas ronda.</div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">
+        <i class="fas fa-save me-2"></i> Simpan Pola Ronda
+      </button>
+    </form>
   </div>
+</div>
 
   <!-- KARTU 2: JADWAL OTOMATIS NOTIFIKASI WHATSAPP -->
   <div class="card shadow-sm border-0 mb-4 rounded-3">
