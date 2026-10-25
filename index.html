@@ -10038,6 +10038,64 @@ function updateStatusServer(tanggal) {
               
               function openModalGenerateRonda(){ document.getElementById('formGenerateRonda').reset(); document.getElementById('ronda_jam_mulai').value=appSettings['jam_ronda_mulai']||'21:00'; document.getElementById('ronda_jam_selesai').value=appSettings['jam_ronda_selesai']||'01:00'; new bootstrap.Modal(document.getElementById('modalGenerateRonda')).show(); }
               
+function shareJadwalRondaKeGrup(pesanWa) {
+  try {
+    const text = pesanWa || window.lastPesanRondaWA;
+    if (!text) {
+      return Swal.fire('Informasi', 'Tidak ada data jadwal ronda yang dapat dibagikan.', 'info');
+    }
+
+    // 1. Cek Status Saklar & JID Grup WhatsApp
+    let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
+    let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || 
+                         String(rawMode).toLowerCase().trim() === 'true' || 
+                         rawMode === true || 
+                         rawMode === 'ya';
+
+    let noGrupTujuan = (typeof appSettings !== 'undefined' && (
+      appSettings['wa_group_jid'] || 
+      appSettings['whatsapp_group_jid'] || 
+      appSettings['grup_jid']
+    )) || '';
+
+    // 2. KONDISI 1: SAKLAR ON & GRUP TERSEDIA -> KIRIM OTOMATIS VIA GATEWAY
+    if (isGatewayAktif && noGrupTujuan) {
+      Swal.fire({
+        title: 'Mengirim Jadwal...',
+        text: 'Jadwal ronda sedang dikirim otomatis ke Grup WhatsApp...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res && res.success) {
+            Swal.fire('Berhasil!', 'Jadwal ronda berhasil terkirim otomatis ke Grup WhatsApp.', 'success');
+          } else {
+            Swal.fire('Gagal Gateway', res ? res.message : 'Respons server kosong', 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          Swal.fire('Error', 'Koneksi ke gateway gagal: ' + err, 'error');
+        })
+        .sendWhatsAppMessage(noGrupTujuan, text, null);
+      return;
+    }
+
+    // 3. KONDISI 2: SAKLAR OFF -> BUKA WHATSAPP MANUAL
+    let waUrl = "https://wa.me/?text=" + encodeURIComponent(text);
+    let tempLink = document.createElement('a');
+    tempLink.href = waUrl;
+    tempLink.target = '_blank';
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+
+  } catch (e) {
+    Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
+  }
+}
+
 function generateRonda(e) {
   e.preventDefault();
   const b = document.getElementById('btn-save-ronda');
@@ -10045,44 +10103,52 @@ function generateRonda(e) {
 
   Swal.fire({
     title: 'Mengkalkulasi...',
-    html: 'AI sedang menghitung rotasi pembagian petugas...',
+    html: 'Sistem sedang menyusun pembagian jadwal petugas...',
     allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
+    didOpen: () => { Swal.showLoading(); }
   });
 
   google.script.run
     .withSuccessHandler(res => {
       b.disabled = false;
       if (res && res.success) {
-        // Tutup modal form generate
+        // Tutup modal form
         const modalEl = document.getElementById('modalGenerateRonda');
         const modalInst = bootstrap.Modal.getInstance(modalEl);
         if (modalInst) modalInst.hide();
 
-        // Simpan pesan teks ke variabel sementara
+        // Simpan teks jadwal ke variabel global
         window.lastPesanRondaWA = res.pesanWa || '';
 
-        // Tampilkan pop-up konfirmasi kirim ke Grup WhatsApp
-        Swal.fire({
-          icon: 'success',
-          title: 'Jadwal Berhasil Dibuat!',
-          text: res.message,
-          showCancelButton: true,
-          confirmButtonText: '<i class="fab fa-whatsapp me-1"></i> Bagikan ke Grup WA',
-          cancelButtonText: 'Tutup',
-          confirmButtonColor: '#25D366',
-          cancelButtonColor: '#6c757d'
-        }).then((result) => {
-          if (result.isConfirmed && res.pesanWa) {
-            const urlWa = `https://api.whatsapp.com/send?text=${encodeURIComponent(res.pesanWa)}`;
-            window.open(urlWa, '_blank');
-          }
-        });
-
-        // Muat ulang tabel jadwal ronda
+        // Muat ulang tabel jadwal di dashboard
         if (typeof loadDataRonda === 'function') loadDataRonda();
+
+        // Cek status saklar gateway
+        let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
+        let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || 
+                             String(rawMode).toLowerCase().trim() === 'true' || 
+                             rawMode === true || 
+                             rawMode === 'ya';
+
+        if (isGatewayAktif) {
+          // JIKA SAKLAR ON: Langsung eksekusi kirim ke grup tanpa perlu klik manual lagi
+          shareJadwalRondaKeGrup(res.pesanWa);
+        } else {
+          // JIKA SAKLAR OFF: Tampilkan popup konfirmasi untuk share manual
+          Swal.fire({
+            icon: 'success',
+            title: 'Jadwal Berhasil Dibuat!',
+            text: res.message,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fab fa-whatsapp me-1"></i> Buka WhatsApp',
+            cancelButtonText: 'Selesai',
+            confirmButtonColor: '#25D366'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              shareJadwalRondaKeGrup(res.pesanWa);
+            }
+          });
+        }
       } else {
         Swal.fire('Ditolak', res ? res.message : 'Terjadi kesalahan sistem.', 'error');
       }
