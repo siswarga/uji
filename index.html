@@ -3406,133 +3406,210 @@
                 </div>
               </div>
 
-              <!-- 2. TAB NOTIFIKASI WA & WA GATEWAY -->
-              <div class="tab-pane fade" id="pane-notifikasi" role="tabpanel">
-                <div class="card shadow-sm border-0 mb-4">
-                  <div class="card-body p-4">
-                    <form onsubmit="saveSettingBagian(event, { 
-                      'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value, 
-                      'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value, 
-                      'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value, 
-                      'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value,
-                      'kop_reminder_date': document.getElementById('set_kop_reminder_date').value,
-                      'kop_reminder_time': document.getElementById('set_kop_reminder_time').value
-                    }, this)">
-                      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="fas fa-clock text-warning me-2"></i>Jadwal Otomatis Notifikasi WhatsApp</h5>
-                      <div class="row g-3 mb-4">
-                        <div class="col-12">
-                          <hr class="my-2">
-                        </div>
-                        <h6 class="fw-bold text-success m-0"><i class="fas fa-shield-alt me-2"></i>Pengingat Otomatis Jadwal Ronda</h6>
-                        <div class="col-md-6">
-                          <label class="form-label fw-bold small text-dark">Jam Pengiriman Pengingat Ronda</label>
-                          <input type="time" class="form-control shadow-sm bg-white" id="set_ronda_reminder_time">
-                        </div>
-                        <div class="col-md-6">
-                          <label class="form-label fw-bold small text-dark">Ketentuan Waktu Pengingat Ronda</label>
-                          <select class="form-select shadow-sm bg-white" id="set_ronda_reminder_mode">
-                            <option value="H_HARI_H">Hari H (Sore/Malam saat bertugas)</option>
-                            <option value="H_MIN_1">H-1 (Sehari sebelum bertugas)</option>
-                            <option value="SETIAP_HARI">Setiap Hari</option>
-                          </select>
-                        </div>
+             <!-- 2. TAB NOTIFIKASI WA & WA GATEWAY -->
+<div class="tab-pane fade" id="pane-notifikasi" role="tabpanel">
 
-                        <div class="col-12">
-                          <hr class="my-2">
-                        </div>
-                        <h6 class="fw-bold text-success m-0"><i class="fas fa-file-invoice-dollar me-2"></i>Pengingat Otomatis Tunggakan Iuran Warga</h6>
-                        <div class="col-md-6">
-                          <label class="form-label fw-bold small text-dark">Tanggal Pengingat Tunggakan (1 - 31)</label>
-                          <input type="number" min="1" max="31" class="form-control shadow-sm bg-white" id="set_arrears_reminder_date" placeholder="Contoh: 5">
-                        </div>
-                        <div class="col-md-6">
-                          <label class="form-label fw-bold small text-dark">Jam Pengiriman Pengingat Tunggakan</label>
-                          <input type="time" class="form-control shadow-sm bg-white" id="set_arrears_reminder_time">
-                        </div>
+  <!-- KARTU 1: KONFIGURASI POLA JADWAL RONDA -->
+  <div class="card shadow-sm border-0 mb-4 rounded-3">
+    <div class="card-body p-4">
+      <form onsubmit="saveSettingBagian(event, { 
+        'pola_ronda': document.getElementById('seting_pola_ronda').value, 
+        'hari_ronda_mingguan': Array.from(document.querySelectorAll('.check-hari-ronda:checked')).map(cb => cb.value).join(',') 
+      }, this)">
+        
+        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+          <i class="fas fa-shield-alt text-success me-2"></i>Konfigurasi Jadwal Ronda Lingkungan
+        </h5>
+        
+        <div class="row g-3 mb-4">
+          <!-- Pilihan Pola Ronda -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Pola Penjadwalan</label>
+            <select id="seting_pola_ronda" class="form-select shadow-sm bg-white" onchange="togglePolaRonda()">
+              <option value="harian">Setiap Hari (Harian)</option>
+              <option value="mingguan">Mingguan (Hari Tertentu)</option>
+            </select>
+            <div class="form-text text-muted" style="font-size: 11px;">Pilih apakah ronda bergilir setiap malam atau hanya hari tertentu.</div>
+          </div>
 
-                        <!-- PENGINGAT OTOMATIS KOPERASI -->
-                        <div class="col-12">
-                          <hr class="my-2">
-                        </div>
-                        <h6 class="fw-bold text-success m-0"><i class="fas fa-hand-holding-usd me-2"></i>Pengingat Otomatis Angsuran Koperasi</h6>
-                        <div class="col-md-6">
-                          <label class="form-label fw-bold small text-dark">Tanggal Pengingat Koperasi (1 - 31)</label>
-                          <input type="number" min="1" max="31" class="form-control shadow-sm bg-white" id="set_kop_reminder_date" placeholder="Contoh: 10">
-                        </div>
-                        <div class="col-md-6">
-                          <label class="form-label fw-bold small text-dark">Jam Pengiriman Pengingat Koperasi</label>
-                          <input type="time" class="form-control shadow-sm bg-white" id="set_kop_reminder_time">
-                        </div>
-                      </div>
-
-                      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">
-                        <i class="fas fa-save me-2"></i> Simpan Jadwal Notifikasi
-                      </button>
-                    </form>
-                  </div>
+          <!-- Pilihan Hari Ronda Mingguan -->
+          <div class="col-12" id="box-hari-ronda-mingguan" style="display: none;">
+            <label class="form-label fw-bold small text-dark mb-2">Pilihan Hari Ronda Mingguan</label>
+            <div class="p-3 bg-light rounded-3 border">
+              <div class="d-flex flex-wrap gap-3">
+                <div class="form-check">
+                  <input class="form-check-input check-hari-ronda" type="checkbox" value="1" id="hr-senin">
+                  <label class="form-check-label small fw-semibold" for="hr-senin">Senin</label>
                 </div>
-
-                <!-- Konfigurasi WA Gateway -->
-                <div class="card shadow-sm border-0">
-                  <div class="card-body p-4">
-                    <form onsubmit="saveApiConfig(event)">
-                      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
-                        <i class="fab fa-whatsapp text-success me-2"></i>Konfigurasi WhatsApp Gateway (Railway & Fonnte)
-                      </h5>
-                      <div class="row g-3 mb-4">
-                        <!-- URL Gateway Railway -->
-                        <div class="col-md-12">
-                          <label class="form-label small text-muted">URL WhatsApp Gateway (Railway)</label>
-                          <input type="text" class="form-control bg-light" id="api_wa_url" placeholder="https://wa-gw-production.up.railway.app">
-                        </div>
-
-                        <!-- JID Grup Warga (Broadcast Pengumuman) -->
-                        <div class="col-md-6">
-                          <label class="form-label small text-muted fw-bold">WhatsApp Group JID Warga (Broadcast)</label>
-                          <input type="text" class="form-control bg-light" id="set_wa_group_jid" placeholder="120363xxxxxx@g.us">
-                          <div class="form-text text-muted" style="font-size: 11px;">Untuk siaran pengumuman warga umum.</div>
-                        </div>
-
-                        <!-- JID Grup Pengurus (Notifikasi Internal) -->
-                        <div class="col-md-6">
-                          <label class="form-label small text-muted fw-bold text-success">WhatsApp Group JID Pengurus (Notifikasi)</label>
-                          <input type="text" class="form-control bg-light" id="set_wa_group_pengurus_jid" placeholder="120363xxxxxx@g.us">
-                          <div class="form-text text-muted" style="font-size: 11px;">Notifikasi pinjam aset, keluhan, & permohonan.</div>
-                        </div>
-
-                        <div class="col-md-6">
-                          <label class="form-label small text-muted">Endpoint URL Fonnte (Opsional)</label>
-                          <input type="text" class="form-control bg-light" id="api_wa_url_fonnte">
-                        </div>
-
-                        <div class="col-md-6">
-                          <label class="form-label small text-muted">API Token Fonnte / Pihak Ketiga</label>
-                          <input type="password" class="form-control bg-light" id="api_wa_token">
-                        </div>
-
-                        <!-- Kotak Status & Scan QR Railway -->
-                        <div class="col-md-12">
-                          <div class="p-3 bg-white rounded border shadow-sm text-center mt-2">
-                            <div class="d-flex align-items-center justify-content-center mb-2">
-                              <i class="fab fa-whatsapp text-success fs-4 me-2"></i>
-                              <span class="fw-bold text-dark">Status & Perangkat WhatsApp Gateway</span>
-                            </div>
-                            <p class="text-muted small mb-3">Hubungkan nomor WhatsApp pengirim untuk notifikasi otomatis. Klik tombol di bawah untuk scan QR Code.</p>
-                            <a href="https://wa-gw-production.up.railway.app/qr" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm">
-                              <i class="fas fa-qrcode me-2"></i> Buka Halaman Scan QR WhatsApp
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-
-                      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm" id="btn-save-api">
-                        <i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway
-                      </button>
-                    </form>
-                  </div>
+                <div class="form-check">
+                  <input class="form-check-input check-hari-ronda" type="checkbox" value="2" id="hr-selasa">
+                  <label class="form-check-label small fw-semibold" for="hr-selasa">Selasa</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input check-hari-ronda" type="checkbox" value="3" id="hr-rabu">
+                  <label class="form-check-label small fw-semibold" for="hr-rabu">Rabu</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input check-hari-ronda" type="checkbox" value="4" id="hr-kamis">
+                  <label class="form-check-label small fw-semibold" for="hr-kamis">Kamis</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input check-hari-ronda" type="checkbox" value="5" id="hr-jumat">
+                  <label class="form-check-label small fw-semibold" for="hr-jumat">Jumat</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input check-hari-ronda" type="checkbox" value="6" id="hr-sabtu" checked>
+                  <label class="form-check-label small fw-semibold text-primary" for="hr-sabtu">Sabtu (Malam Minggu)</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input check-hari-ronda" type="checkbox" value="0" id="hr-minggu">
+                  <label class="form-check-label small fw-semibold" for="hr-minggu">Minggu</label>
                 </div>
               </div>
+              <div class="form-text text-muted mt-2" style="font-size: 11px;">Centang satu atau beberapa hari pelaksanaan tugas ronda.</div>
+            </div>
+          </div>
+        </div>
 
+        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">
+          <i class="fas fa-save me-2"></i> Simpan Pola Ronda
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- KARTU 2: JADWAL OTOMATIS NOTIFIKASI WHATSAPP -->
+  <div class="card shadow-sm border-0 mb-4 rounded-3">
+    <div class="card-body p-4">
+      <form onsubmit="saveSettingBagian(event, { 
+        'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value, 
+        'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value, 
+        'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value, 
+        'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value,
+        'kop_reminder_date': document.getElementById('set_kop_reminder_date').value,
+        'kop_reminder_time': document.getElementById('set_kop_reminder_time').value
+      }, this)">
+        
+        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+          <i class="fas fa-clock text-warning me-2"></i>Jadwal Otomatis Notifikasi WhatsApp
+        </h5>
+        
+        <div class="row g-3 mb-4">
+          <!-- Pengingat Ronda -->
+          <div class="col-12">
+            <h6 class="fw-bold text-success m-0"><i class="fas fa-shield-alt me-2"></i>Pengingat Otomatis Jadwal Ronda</h6>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Jam Pengiriman Pengingat Ronda</label>
+            <input type="time" class="form-control shadow-sm bg-white" id="set_ronda_reminder_time">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Ketentuan Waktu Pengingat Ronda</label>
+            <select class="form-select shadow-sm bg-white" id="set_ronda_reminder_mode">
+              <option value="H_HARI_H">Hari H (Sore/Malam saat bertugas)</option>
+              <option value="H_MIN_1">H-1 (Sehari sebelum bertugas)</option>
+              <option value="SETIAP_HARI">Setiap Hari</option>
+            </select>
+          </div>
+
+          <!-- Pengingat Iuran -->
+          <div class="col-12"><hr class="my-2"></div>
+          <div class="col-12">
+            <h6 class="fw-bold text-success m-0"><i class="fas fa-file-invoice-dollar me-2"></i>Pengingat Otomatis Tunggakan Iuran Warga</h6>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Tanggal Pengingat Tunggakan (1 - 31)</label>
+            <input type="number" min="1" max="31" class="form-control shadow-sm bg-white" id="set_arrears_reminder_date" placeholder="Contoh: 5">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Jam Pengiriman Pengingat Tunggakan</label>
+            <input type="time" class="form-control shadow-sm bg-white" id="set_arrears_reminder_time">
+          </div>
+
+          <!-- Pengingat Koperasi -->
+          <div class="col-12"><hr class="my-2"></div>
+          <div class="col-12">
+            <h6 class="fw-bold text-success m-0"><i class="fas fa-hand-holding-usd me-2"></i>Pengingat Otomatis Angsuran Koperasi</h6>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Tanggal Pengingat Koperasi (1 - 31)</label>
+            <input type="number" min="1" max="31" class="form-control shadow-sm bg-white" id="set_kop_reminder_date" placeholder="Contoh: 10">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Jam Pengiriman Pengingat Koperasi</label>
+            <input type="time" class="form-control shadow-sm bg-white" id="set_kop_reminder_time">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm">
+          <i class="fas fa-save me-2"></i> Simpan Jadwal Notifikasi
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- KARTU 3: KONFIGURASI WHATSAPP GATEWAY -->
+  <div class="card shadow-sm border-0 mb-4 rounded-3">
+    <div class="card-body p-4">
+      <form onsubmit="saveApiConfig(event)">
+        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+          <i class="fab fa-whatsapp text-success me-2"></i>Konfigurasi WhatsApp Gateway (Railway & Fonnte)
+        </h5>
+        
+        <div class="row g-3 mb-4">
+          <!-- URL Gateway Railway -->
+          <div class="col-md-12">
+            <label class="form-label small text-muted">URL WhatsApp Gateway (Railway)</label>
+            <input type="text" class="form-control bg-light" id="api_wa_url" placeholder="https://wa-gw-production.up.railway.app">
+          </div>
+
+          <!-- JID Grup Warga -->
+          <div class="col-md-6">
+            <label class="form-label small text-muted fw-bold">WhatsApp Group JID Warga (Broadcast)</label>
+            <input type="text" class="form-control bg-light" id="set_wa_group_jid" placeholder="120363xxxxxx@g.us">
+            <div class="form-text text-muted" style="font-size: 11px;">Untuk siaran pengumuman warga umum.</div>
+          </div>
+
+          <!-- JID Grup Pengurus -->
+          <div class="col-md-6">
+            <label class="form-label small text-muted fw-bold text-success">WhatsApp Group JID Pengurus (Notifikasi)</label>
+            <input type="text" class="form-control bg-light" id="set_wa_group_pengurus_jid" placeholder="120363xxxxxx@g.us">
+            <div class="form-text text-muted" style="font-size: 11px;">Notifikasi pinjam aset, keluhan, & permohonan.</div>
+          </div>
+
+          <!-- Fonnte -->
+          <div class="col-md-6">
+            <label class="form-label small text-muted">Endpoint URL Fonnte (Opsional)</label>
+            <input type="text" class="form-control bg-light" id="api_wa_url_fonnte">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-muted">API Token Fonnte / Pihak Ketiga</label>
+            <input type="password" class="form-control bg-light" id="api_wa_token">
+          </div>
+
+          <!-- Kotak Status & Scan QR Railway -->
+          <div class="col-md-12">
+            <div class="p-3 bg-white rounded border shadow-sm text-center mt-2">
+              <div class="d-flex align-items-center justify-content-center mb-2">
+                <i class="fab fa-whatsapp text-success fs-4 me-2"></i>
+                <span class="fw-bold text-dark">Status & Perangkat WhatsApp Gateway</span>
+              </div>
+              <p class="text-muted small mb-3">Hubungkan nomor WhatsApp pengirim untuk notifikasi otomatis. Klik tombol di bawah untuk scan QR Code.</p>
+              <a href="https://wa-gw-production.up.railway.app/qr" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm">
+                <i class="fas fa-qrcode me-2"></i> Buka Halaman Scan QR WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm" id="btn-save-api">
+          <i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
               <!-- 3. TAB PENGUMUMAN -->
               <div class="tab-pane fade" id="pane-pengumuman" role="tabpanel">
                 <div class="card shadow-sm border-0">
@@ -19716,6 +19793,51 @@ function filterEbook() {
   });
 
   tampilkanBuku(hasilFilter);
+}
+
+// Toggle visibilitas checkbox hari ketika pola ronda diganti
+function togglePolaRonda() {
+  const pola = document.getElementById('seting_pola_ronda').value;
+  const boxHari = document.getElementById('box-hari-ronda-mingguan');
+  if (boxHari) {
+    boxHari.style.display = (pola === 'mingguan') ? 'block' : 'none';
+  }
+}
+
+// 1. Masukkan ke dalam fungsi pemuat nilai pengaturan (misal: loadAppSettings / initSettings)
+function populateRondaSettings(settings) {
+  if (!settings) return;
+
+  const polaEl = document.getElementById('seting_pola_ronda');
+  if (polaEl && settings['pola_ronda']) {
+    polaEl.value = settings['pola_ronda'];
+  }
+  togglePolaRonda();
+
+  // Muat hari yang tersimpan (tersimpan dalam format teks koma, misal: "5,6")
+  const savedHari = String(settings['hari_ronda_mingguan'] || '6').split(',');
+  document.querySelectorAll('.check-hari-ronda').forEach(cb => {
+    cb.checked = savedHari.includes(cb.value);
+  });
+}
+
+// 2. Masukkan ke dalam payload objek simpan pengaturan (saat tombol Simpan Pengaturan diklik)
+function getRondaSettingsPayload() {
+  const pola = document.getElementById('seting_pola_ronda').value;
+  let hariList = [];
+  
+  if (pola === 'mingguan') {
+    document.querySelectorAll('.check-hari-ronda:checked').forEach(cb => {
+      hariList.push(cb.value);
+    });
+    // Default jika admin tidak mencentang sama sekali: Sabtu (6)
+    if (hariList.length === 0) hariList.push('6');
+  }
+
+  return {
+    pola_ronda: pola,
+    hari_ronda_mingguan: hariList.join(',')
+  };
 }
     </script>
 
