@@ -9540,35 +9540,71 @@ function loadKKDropdown() {
                 }).saveTransaksiKasWarga(localStorage.getItem('sigas_token'), p); 
               }
               
-          	function openModalListTunggakan() {
-            const tb = document.getElementById('tbody-list-tunggakan');
-            tb.innerHTML = '';
-            if(dataListTunggakanGlobal.length === 0) {
-              tb.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Seluruh KK sudah lunas bayar iuran bulan ini!</td></tr>';
-            } else {
-              dataListTunggakanGlobal.forEach((item, index) => {
-                let namaKK = typeof item === 'object' ? item.nama : item;
-                let waKK = typeof item === 'object' && item.wa ? item.wa : '-';
-                
-                let formatWa = '-';
-                let btnWa = '';
-                
-                if (waKK !== '-' && waKK !== '') {
-                  // Cukup panggil index-nya saja di onclick agar 100% aman dari error kutip/karakter khusus
-                  btnWa = `<button onclick="kirimPengingatOtomatis(${index})" class="btn btn-sm btn-success ms-2 py-0" style="font-size: 0.75rem;"><i class="fab fa-whatsapp"></i> Ingatkan</button>`;
-                  formatWa = String(waKK);
-                }
-          
-                tb.innerHTML += `<tr>
-                  <td>${index + 1}</td>
-                  <td class="fw-bold text-danger">${namaKK}</td>
-                  <td>${formatWa}</td>
-                  <td><span class="badge bg-warning text-dark">Belum Bayar</span> ${btnWa}</td>
-                 </tr>`;
-              });
-            }
-            new bootstrap.Modal(document.getElementById('modalListTunggakan')).show();
-          }
+function openModalListTunggakan() {
+  const tb = document.getElementById('tbody-list-tunggakan');
+  tb.innerHTML = '';
+
+  if (!dataListTunggakanGlobal || dataListTunggakanGlobal.length === 0) {
+    tb.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Seluruh KK sudah lunas bayar iuran bulan ini!</td></tr>';
+    new bootstrap.Modal(document.getElementById('modalListTunggakan')).show();
+    return;
+  }
+
+  // 1. FILTER ANTI-DUPLIKAT (Ambil 1 per nama KK & prioritaskan yang punya nomor WA)
+  const mapKKUnik = new Map();
+
+  dataListTunggakanGlobal.forEach(item => {
+    let namaKK = typeof item === 'object' ? String(item.nama || '').trim() : String(item || '').trim();
+    let waKK = typeof item === 'object' && item.wa ? String(item.wa).trim() : '-';
+    let keyNama = namaKK.toLowerCase();
+
+    if (!keyNama) return;
+
+    if (!mapKKUnik.has(keyNama)) {
+      mapKKUnik.set(keyNama, item);
+    } else {
+      // Jika data yang tersimpan belum ada nomor WA, timpa dengan data yang punya nomor WA
+      let existing = mapKKUnik.get(keyNama);
+      let existingWa = typeof existing === 'object' && existing.wa ? String(existing.wa).trim() : '-';
+      if ((existingWa === '-' || existingWa === '') && (waKK !== '-' && waKK !== '')) {
+        mapKKUnik.set(keyNama, item);
+      }
+    }
+  });
+
+  // Perbarui array global agar sinkron dengan tombol kirimPengingatOtomatis(index)
+  dataListTunggakanGlobal = Array.from(mapKKUnik.values());
+
+  // 2. URUTKAN SECARA ALFABETIS (A - Z)
+  dataListTunggakanGlobal.sort((a, b) => {
+    let namaA = typeof a === 'object' ? String(a.nama || '') : String(a || '');
+    let namaB = typeof b === 'object' ? String(b.nama || '') : String(b || '');
+    return namaA.localeCompare(namaB, 'id', { sensitivity: 'base' });
+  });
+
+  // 3. TAMPILKAN KE TABEL MODAL
+  dataListTunggakanGlobal.forEach((item, index) => {
+    let namaKK = typeof item === 'object' ? item.nama : item;
+    let waKK = typeof item === 'object' && item.wa ? item.wa : '-';
+
+    let formatWa = '-';
+    let btnWa = '';
+
+    if (waKK !== '-' && waKK !== '') {
+      btnWa = `<button onclick="kirimPengingatOtomatis(${index})" class="btn btn-sm btn-success ms-2 py-0" style="font-size: 0.75rem;"><i class="fab fa-whatsapp"></i> Ingatkan</button>`;
+      formatWa = String(waKK);
+    }
+
+    tb.innerHTML += `<tr>
+      <td>${index + 1}</td>
+      <td class="fw-bold text-danger">${namaKK}</td>
+      <td>${formatWa}</td>
+      <td><span class="badge bg-warning text-dark">Belum Bayar</span> ${btnWa}</td>
+    </tr>`;
+  });
+
+  new bootstrap.Modal(document.getElementById('modalListTunggakan')).show();
+}
           
       // Fungsi pengirim yang mengambil data langsung dari array global berdasarkan index
         function kirimPengingatOtomatis(index) {
@@ -10419,27 +10455,32 @@ function openModalBlacklist() {
     if (res && res.success && Array.isArray(res.data)) {
       sel.innerHTML = '<option value="">-- Pilih KK --</option>';
 
-      // 1. Saring data unik berdasarkan No KK atau Nama
-      const seenKey = new Set();
+      // 1. Saring hanya nama Kepala Keluarga yang unik
+      const seenNama = new Set();
       const listKKUnik = [];
 
       res.data.forEach(item => {
-        // Kunci unik: utamakan noKK, jika kosong gunakan nama
-        const key = String(item.noKK || item.nama || '').trim().toLowerCase();
         const nama = String(item.nama || '').trim();
+        const role = String(item.statusKeluarga || item.peran || '').toLowerCase().trim();
 
-        if (key && !seenKey.has(key) && nama && nama !== '-') {
-          seenKey.add(key);
+        // Lewati jika bukan Kepala Keluarga (jika backend mengirimkan properti statusKeluarga)
+        if (role && role !== 'kepala keluarga') return;
+
+        // Gunakan nama huruf kecil sebagai kunci unik mutlak
+        const keyNama = nama.toLowerCase();
+
+        if (nama && nama !== '-' && !seenNama.has(keyNama)) {
+          seenNama.add(keyNama);
           listKKUnik.push(item);
         }
       });
 
-      // 2. Urutkan nama Kepala Keluarga secara alfabetis (A - Z)
+      // 2. Urutkan secara alfabetis (A - Z)
       listKKUnik.sort((a, b) => String(a.nama).localeCompare(String(b.nama)));
 
-      // 3. Tampilkan ke pilihan dropdown
+      // 3. Tampilkan ke dropdown
       listKKUnik.forEach(item => {
-        sel.innerHTML += `<option value="${item.noKK}">${item.nama}</option>`;
+        sel.innerHTML += `<option value="${item.nama}" data-nokk="${item.noKK || ''}" data-id="${item.idWarga || ''}">Bpk. ${item.nama}</option>`;
       });
     } else {
       sel.innerHTML = '<option value="">-- Gagal memuat data --</option>';
@@ -15743,71 +15784,112 @@ window.applyAppThemeColor = function(colorVal) {
                   }, 10000);
               }
               });
-              // Fungsi untuk memuat dan merender Matriks Rekap Iuran
-              function loadMatriksIuran() {
-                let tahunSelect = document.getElementById('filterTahunRekap');
-                let currentYear = new Date().getFullYear();
-                
-                // Jika dropdown tahun masih kosong, isi opsi tahun (5 tahun ke belakang s.d. tahun ini)
-                if (tahunSelect.options.length === 0) {
-              for (let y = currentYear; y >= currentYear - 4; y--) {
-                let opt = document.createElement('option');
-                opt.value = y;
-                opt.innerHTML = y;
-                if (y === currentYear) opt.selected = true;
-                tahunSelect.appendChild(opt);
-              }
-                }
-                
-                let selectedTahun = tahunSelect.value || currentYear;
-                let token = localStorage.getItem('si_gas_token');
-              
-                google.script.run.withSuccessHandler(res => {
-              if (res && res.success) {
-                let thead = document.querySelector('#tabelMatriksIuran thead');
-                let tbody = document.querySelector('#tabelMatriksIuran tbody');
-                
-                // 1. Buat Header Tabel
-                let headerHTML = `<tr>
-                  <th class="align-middle" style="width: 5%;">No</th>
-                  <th class="align-middle text-start" style="width: 25%;">Kepala Keluarga / KK</th>`;
-                
-                res.bulanList.forEach(bln => {
-                  headerHTML += `<th class="align-middle" style="width: 5%;">${bln.substring(0, 3)}</th>`;
-                });
-                headerHTML += `</tr>`;
-                thead.innerHTML = headerHTML;
-                
-                // 2. Buat Baris Data Warga & Status Bulannya
-                if (res.data.length === 0) {
-                  tbody.innerHTML = `<tr><td colspan="15" class="text-muted py-3">Tidak ada data warga aktif untuk ditampilkan.</td></tr>`;
-                  return;
-                }
-                
-                let rowsHTML = '';
-                res.data.forEach((warga, index) => {
-                  rowsHTML += `<tr>
-                    <td>${index + 1}</td>
-                    <td class="text-start fw-bold text-truncate" style="max-width: 200px;" title="${warga.namaKK}">${warga.namaKK}</td>`;
-                  
-                  res.bulanList.forEach(bln => {
-                    let isLunas = warga.bulanLunas[bln];
-                    if (isLunas) {
-                      rowsHTML += `<td><span class="badge bg-success" title="Lunas"><i class="fas fa-check"></i></span></td>`;
-                    } else {
-                      rowsHTML += `<td><span class="badge bg-secondary opacity-50" title="Belum Bayar">-</span></td>`;
-                    }
-                  });
-                  
-                  rowsHTML += `</tr>`;
-                });
-                
-                tbody.innerHTML = rowsHTML;
-              } else {
-                Swal.fire('Gagal', res.message || 'Gagal memuat rekap matriks iuran.', 'error');
-              }
-                }).getRekapIuranWarga(token, selectedTahun);
-              }
+
+// Fungsi untuk memuat dan merender Matriks Rekap Iuran
+function loadMatriksIuran() {
+  const tahunSelect = document.getElementById('filterTahunRekap');
+  const currentYear = new Date().getFullYear();
+  const tbody = document.querySelector('#tabelMatriksIuran tbody');
+  const thead = document.querySelector('#tabelMatriksIuran thead');
+  
+  // Deteksi tombol Muat Ulang
+  const btnRefresh = document.getElementById('btnRefreshMatriks') || 
+                     document.querySelector("button[onclick*='loadMatriksIuran']");
+
+  // 1. Inisialisasi dropdown tahun jika masih kosong
+  if (tahunSelect && tahunSelect.options.length === 0) {
+    for (let y = currentYear; y >= currentYear - 4; y--) {
+      let opt = document.createElement('option');
+      opt.value = y;
+      opt.innerHTML = y;
+      if (y === currentYear) opt.selected = true;
+      tahunSelect.appendChild(opt);
+    }
+  }
+
+  const selectedTahun = (tahunSelect && tahunSelect.value) ? tahunSelect.value : currentYear;
+
+  // 2. Koreksi Token (Gunakan sigas_token agar sinkron dengan auth sesi)
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('si_gas_token') || '';
+
+  // 3. Tampilkan status loading visual saat refresh ditekan
+  if (btnRefresh) {
+    btnRefresh.disabled = true;
+    btnRefresh.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memuat...';
+  }
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="15" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin me-2 text-primary"></i>Memuat matriks iuran tahun ${selectedTahun}...</td></tr>`;
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+      // Kembalikan status tombol refresh
+      if (btnRefresh) {
+        btnRefresh.disabled = false;
+        btnRefresh.innerHTML = 'Muat Ulang';
+      }
+
+      if (res && res.success) {
+        // 4. Render Header Tabel
+        let headerHTML = `<tr>
+          <th class="align-middle" style="width: 5%;">No</th>
+          <th class="align-middle text-start" style="width: 25%;">Kepala Keluarga / KK</th>`;
+        
+        res.bulanList.forEach(bln => {
+          headerHTML += `<th class="align-middle" style="width: 5%;">${bln.substring(0, 3)}</th>`;
+        });
+        headerHTML += `</tr>`;
+        if (thead) thead.innerHTML = headerHTML;
+
+        // Validasi data kosong
+        if (!res.data || res.data.length === 0) {
+          if (tbody) tbody.innerHTML = `<tr><td colspan="15" class="text-muted py-3">Tidak ada data warga aktif untuk ditampilkan.</td></tr>`;
+          return;
+        }
+
+        // 5. URUTKAN NAMA KEPALA KELUARGA (A - Z)
+        res.data.sort((a, b) => {
+          let namaA = String(a.namaKK || a.nama || '').trim();
+          let namaB = String(b.namaKK || b.nama || '').trim();
+          return namaA.localeCompare(namaB, 'id', { sensitivity: 'base' });
+        });
+
+        // 6. Render Baris Data
+        let rowsHTML = '';
+        res.data.forEach((warga, index) => {
+          rowsHTML += `<tr>
+            <td>${index + 1}</td>
+            <td class="text-start fw-bold text-truncate" style="max-width: 200px;" title="${warga.namaKK}">${warga.namaKK}</td>`;
+
+          res.bulanList.forEach(bln => {
+            let isLunas = warga.bulanLunas && warga.bulanLunas[bln];
+            if (isLunas) {
+              rowsHTML += `<td><span class="badge bg-success" title="Lunas"><i class="fas fa-check"></i></span></td>`;
+            } else {
+              rowsHTML += `<td><span class="badge bg-secondary opacity-50" title="Belum Bayar">-</span></td>`;
+            }
+          });
+
+          rowsHTML += `</tr>`;
+        });
+
+        if (tbody) tbody.innerHTML = rowsHTML;
+
+      } else {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="15" class="text-danger py-3">Gagal memuat data matriks.</td></tr>`;
+        Swal.fire('Gagal', (res && res.message) ? res.message : 'Gagal memuat rekap matriks iuran.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (btnRefresh) {
+        btnRefresh.disabled = false;
+        btnRefresh.innerHTML = 'Muat Ulang';
+      }
+      if (tbody) tbody.innerHTML = `<tr><td colspan="15" class="text-danger py-3">Terjadi kesalahan koneksi server.</td></tr>`;
+      Swal.fire('Error', String(err), 'error');
+    })
+    .getRekapIuranWarga(token, selectedTahun);
+}
               
               // =====================================================
               // SCRIPT POSYANDU & PKK
