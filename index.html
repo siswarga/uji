@@ -10123,19 +10123,20 @@ function updateStatusServer(tanggal) {
               
               function openModalGenerateRonda(){ document.getElementById('formGenerateRonda').reset(); document.getElementById('ronda_jam_mulai').value=appSettings['jam_ronda_mulai']||'21:00'; document.getElementById('ronda_jam_selesai').value=appSettings['jam_ronda_selesai']||'01:00'; new bootstrap.Modal(document.getElementById('modalGenerateRonda')).show(); }
               
-function shareJadwalRondaKeGrup(pesanWa) {
+function shareJadwalRondaKeGrup(dataPesan) {
   try {
-    const text = pesanWa || window.lastPesanRondaWA;
-    if (!text) {
-      return Swal.fire('Informasi', 'Tidak ada data jadwal ronda yang dapat dibagikan.', 'info');
+    // Terima baik format array 4 pesan maupun teks tunggal
+    let daftarPesan = Array.isArray(dataPesan) ? dataPesan : (window.lastDaftarPesanRonda || [dataPesan || window.lastPesanRondaWA]);
+    daftarPesan = daftarPesan.filter(Boolean);
+
+    if (daftarPesan.length === 0) {
+      return Swal.fire('Informasi', 'Tidak ada data jadwal yang dapat dibagikan.', 'info');
     }
 
-    // 1. Cek Status Saklar & JID Grup WhatsApp
     let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
     let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || 
                          String(rawMode).toLowerCase().trim() === 'true' || 
-                         rawMode === true || 
-                         rawMode === 'ya';
+                         rawMode === true || rawMode === 'ya';
 
     let noGrupTujuan = (typeof appSettings !== 'undefined' && (
       appSettings['wa_group_jid'] || 
@@ -10143,38 +10144,40 @@ function shareJadwalRondaKeGrup(pesanWa) {
       appSettings['grup_jid']
     )) || '';
 
-    // 2. KONDISI 1: SAKLAR ON & GRUP TERSEDIA -> KIRIM OTOMATIS VIA GATEWAY
+    // MODE 1: SAKLAR GATEWAY ON -> KIRIM 4 PESAN SECARA BERTAHAP
     if (isGatewayAktif && noGrupTujuan) {
       Swal.fire({
         title: 'Mengirim Jadwal...',
-        text: 'Jadwal ronda sedang dikirim otomatis ke Grup WhatsApp...',
+        html: `Mengirim ${daftarPesan.length} pesan jadwal ronda ke Grup WhatsApp...`,
         allowOutsideClick: false,
         didOpen: () => { Swal.showLoading(); }
       });
 
-      google.script.run
-        .withSuccessHandler(function(res) {
-          if (res && res.success) {
-            Swal.fire('Berhasil!', 'Jadwal ronda berhasil terkirim otomatis ke Grup WhatsApp.', 'success');
-          } else {
-            Swal.fire('Gagal Gateway', res ? res.message : 'Respons server kosong', 'error');
-          }
-        })
-        .withFailureHandler(function(err) {
-          Swal.fire('Error', 'Koneksi ke gateway gagal: ' + err, 'error');
-        })
-        .sendWhatsAppMessage(noGrupTujuan, text, null);
+      let berhasil = 0;
+      let kirimBerurutan = (index) => {
+        if (index >= daftarPesan.length) {
+          return Swal.fire('Berhasil!', `Seluruh jadwal (${daftarPesan.length} minggu) telah terkirim ke grup.`, 'success');
+        }
+
+        google.script.run
+          .withSuccessHandler(res => {
+            berhasil++;
+            // Beri jeda 1,5 detik sebelum mengirim pesan berikutnya
+            setTimeout(() => { kirimBerurutan(index + 1); }, 1500);
+          })
+          .withFailureHandler(err => {
+            kirimBerurutan(index + 1);
+          })
+          .sendWhatsAppMessage(noGrupTujuan, daftarPesan[index], null);
+      };
+
+      kirimBerurutan(0);
       return;
     }
 
-    // 3. KONDISI 2: SAKLAR OFF -> BUKA WHATSAPP MANUAL
-    let waUrl = "https://wa.me/?text=" + encodeURIComponent(text);
-    let tempLink = document.createElement('a');
-    tempLink.href = waUrl;
-    tempLink.target = '_blank';
-    document.body.appendChild(tempLink);
-    tempLink.click();
-    document.body.removeChild(tempLink);
+    // MODE 2: SAKLAR GATEWAY OFF (MANUAL WA LINK) -> BUKA MINGGU PERTAMA
+    let waUrl = "https://wa.me/?text=" + encodeURIComponent(daftarPesan[0]);
+    window.open(waUrl, '_blank');
 
   } catch (e) {
     Swal.fire('Error', 'Terjadi kesalahan: ' + e.message, 'error');
@@ -10202,13 +10205,17 @@ function generateRonda(e) {
         const modalInst = bootstrap.Modal.getInstance(modalEl);
         if (modalInst) modalInst.hide();
 
-        // Simpan teks jadwal ke variabel global
+        // 1. Simpan array 4 pesan & pesan tunggal ke variabel global
+        window.lastDaftarPesanRonda = res.daftarPesanWa || [];
         window.lastPesanRondaWA = res.pesanWa || '';
 
         // Muat ulang tabel jadwal di dashboard
         if (typeof loadDataRonda === 'function') loadDataRonda();
 
-        // Cek status saklar gateway
+        // Siapkan data pesan (prioritaskan array 4 pesan mingguan)
+        const pesanTarget = (res.daftarPesanWa && res.daftarPesanWa.length > 0) ? res.daftarPesanWa : res.pesanWa;
+
+        // 2. Cek status saklar gateway
         let rawMode = (typeof appSettings !== 'undefined' && appSettings['wa_mode_otomatis']) || '';
         let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'aktif' || 
                              String(rawMode).toLowerCase().trim() === 'true' || 
@@ -10216,10 +10223,10 @@ function generateRonda(e) {
                              rawMode === 'ya';
 
         if (isGatewayAktif) {
-          // JIKA SAKLAR ON: Langsung eksekusi kirim ke grup tanpa perlu klik manual lagi
-          shareJadwalRondaKeGrup(res.pesanWa);
+          // JIKA SAKLAR ON: Kirim berurutan 4 pesan via gateway
+          shareJadwalRondaKeGrup(pesanTarget);
         } else {
-          // JIKA SAKLAR OFF: Tampilkan popup konfirmasi untuk share manual
+          // JIKA SAKLAR OFF: Konfirmasi sebelum membuka WhatsApp
           Swal.fire({
             icon: 'success',
             title: 'Jadwal Berhasil Dibuat!',
@@ -10230,7 +10237,7 @@ function generateRonda(e) {
             confirmButtonColor: '#25D366'
           }).then((result) => {
             if (result.isConfirmed) {
-              shareJadwalRondaKeGrup(res.pesanWa);
+              shareJadwalRondaKeGrup(pesanTarget);
             }
           });
         }
@@ -10252,13 +10259,81 @@ function generateRonda(e) {
     );
 }
 
-// Menampilkan/menyembunyikan daftar hari ronda
+// Menampilkan/menyembunyikan kotak checkbox hari
 function togglePolaRonda() {
   const el = document.getElementById('seting_pola_ronda');
   const box = document.getElementById('box-hari-ronda-mingguan');
   if (el && box) {
     box.style.display = (el.value === 'mingguan') ? 'block' : 'none';
   }
+}
+
+// Menampilkan data pengaturan dari sheet 'seting' ke form & badge status
+function updateStatusPolaRondaUI(settings) {
+  if (!settings) return;
+
+  const pola = (settings['pola_ronda'] || 'harian').toString().toLowerCase().trim();
+  const rawHari = String(settings['hari_ronda_mingguan'] || '6');
+  const arrHari = rawHari.split(',').map(s => s.trim());
+
+  // 1. Pasang nilai dropdown pola
+  const elPola = document.getElementById('seting_pola_ronda');
+  if (elPola) elPola.value = (pola === 'mingguan') ? 'mingguan' : 'harian';
+  togglePolaRonda();
+
+  // 2. Centang checkbox hari yang aktif
+  document.querySelectorAll('.check-hari-ronda').forEach(cb => {
+    cb.checked = arrHari.includes(cb.value);
+  });
+
+  // 3. Tampilkan teks status badge yang mudah dibaca
+  const namaHariMap = { '0': 'Minggu', '1': 'Senin', '2': 'Selasa', '3': 'Rabu', '4': 'Kamis', '5': 'Jumat', '6': 'Sabtu' };
+  const elStatus = document.getElementById('status-ronda-terpasang');
+  
+  if (elStatus) {
+    if (pola === 'mingguan') {
+      let daftarNama = arrHari.map(h => namaHariMap[h] || h).filter(Boolean).join(', ');
+      elStatus.innerHTML = `
+        <span class="badge bg-warning text-dark me-2 px-2 py-1"><i class="fas fa-calendar-week me-1"></i> MINGGUAN</span> 
+        Ronda hanya berjalan pada hari: <b class="text-primary">${daftarNama || 'Sabtu'}</b>
+      `;
+    } else {
+      elStatus.innerHTML = `
+        <span class="badge bg-success me-2 px-2 py-1"><i class="fas fa-calendar-day me-1"></i> HARIAN</span> 
+        Ronda bergilir <b class="text-success">setiap malam</b> tanpa jeda hari.
+      `;
+    }
+  }
+}
+
+// Simpan kedua kunci (pola_ronda & hari_ronda_mingguan) sekaligus ke sheet seting
+function simpanKonfigurasiRonda(event, formEl) {
+  event.preventDefault();
+
+  const pola = document.getElementById('seting_pola_ronda').value;
+  let hariDipilih = [];
+
+  if (pola === 'mingguan') {
+    document.querySelectorAll('.check-hari-ronda:checked').forEach(cb => {
+      hariDipilih.push(cb.value);
+    });
+    if (hariDipilih.length === 0) hariDipilih.push('6'); // Default hari Sabtu
+  }
+
+  const payload = {
+    'pola_ronda': pola,
+    'hari_ronda_mingguan': hariDipilih.join(',')
+  };
+
+  // Simpan via saveSettingBagian yang sudah ada di sistem Anda
+  saveSettingBagian(event, payload, formEl);
+
+  // Perbarui tampilan badge lokal seketika
+  if (typeof appSettings !== 'undefined') {
+    appSettings['pola_ronda'] = pola;
+    appSettings['hari_ronda_mingguan'] = hariDipilih.join(',');
+  }
+  updateStatusPolaRondaUI(payload);
 }
 
 // Panggil fungsi ini di dalam fungsi pemuat nilai pengaturan (misal: populateSettings)
@@ -16538,10 +16613,37 @@ function terapkanPengaturanKeElemen(settings) {
     elDisplayNamaApp.innerText = `${appName} (${moto})`;
   }
 
-  // Ganti semua teks ber-class "app-name-text" pada paragraf deskripsi
   document.querySelectorAll('.app-name-text').forEach(el => {
     el.innerText = appName;
   });
+
+  // 11. Sinkronisasi Konfigurasi Jadwal Ronda (Pola & Hari Mingguan)
+  const elPola = document.getElementById('seting_pola_ronda');
+  const boxHari = document.getElementById('box-hari-ronda-mingguan');
+  const pola = (settings['pola_ronda'] || 'harian').toString().toLowerCase().trim();
+
+  if (elPola) {
+    elPola.value = (pola === 'mingguan') ? 'mingguan' : 'harian';
+    if (boxHari) {
+      boxHari.style.display = (pola === 'mingguan') ? 'block' : 'none';
+    }
+  }
+
+  const savedHari = String(settings['hari_ronda_mingguan'] || '6').split(',').map(s => s.trim());
+  document.querySelectorAll('.check-hari-ronda').forEach(cb => {
+    cb.checked = savedHari.includes(cb.value);
+  });
+
+  const elStatusRonda = document.getElementById('status-ronda-terpasang');
+  if (elStatusRonda) {
+    const namaHariMap = { '0': 'Minggu', '1': 'Senin', '2': 'Selasa', '3': 'Rabu', '4': 'Kamis', '5': 'Jumat', '6': 'Sabtu' };
+    if (pola === 'mingguan') {
+      let daftar = savedHari.map(h => namaHariMap[h] || h).filter(Boolean).join(', ');
+      elStatusRonda.innerHTML = `<span class="badge bg-warning text-dark me-2">MINGGUAN</span> Ronda aktif hari: <b class="text-primary">${daftar || 'Sabtu'}</b>`;
+    } else {
+      elStatusRonda.innerHTML = `<span class="badge bg-success me-2">HARIAN</span> Ronda bergilir <b class="text-success">setiap malam</b>.`;
+    }
+  }
 }
 
 // =====================================================
@@ -16698,6 +16800,7 @@ function saveIdentitasAplikasi(e) {
     })
     .updateAppSettingsBulk(token, p);
 }
+
 // ============================================================================
 // 4. PENYELARAS FUNGSI LAMA
 // ============================================================================
