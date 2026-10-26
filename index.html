@@ -7785,83 +7785,57 @@ function submitRegPengurus(event) {
     })
     .registerPengurusMandiri(payload);
 }
-                 
-                 // Fungsi helper untuk menerapkan status aktif/nonaktif tombol Daftar Warga
-              function applyPengaturanPendaftaranWarga() {
-                let menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
-                if (menuDaftarWarga) {
-              let statusFitur = String(appSettings['fitur_pendaftaran_mandiri'] || 'Aktif').trim().toLowerCase();
-              if (statusFitur === 'nonaktif') {
-                menuDaftarWarga.style.display = 'none';
-              } else {
-                menuDaftarWarga.style.display = 'block';
-              }
-                }
-              }
-                 
-                 let deferredPrompt = null;
-              
-              // Menangkap event instalasi PWA dari browser
-              window.addEventListener('beforeinstallprompt', (e) => {
-                // Cegah banner bawaan browser muncul otomatis
-                e.preventDefault();
-                // Simpan event agar bisa dipicu lewat tombol kustom
-                deferredPrompt = e;
-                
-                // Tampilkan tombol Install PWA di portal warga
-                let installCard = document.getElementById('card-menu-install-pwa');
-                if (installCard) {
-              installCard.style.display = 'block';
-                }
-              });
-              
-              // Sinkronisasi nilai color picker dengan text box HEX
-              document.addEventListener('DOMContentLoaded', () => {
-              let colorInput = document.getElementById('set_warna_aplikasi');
-              let colorText = document.getElementById('set_warna_aplikasi_text');
-              if (colorInput && colorText) {
-                  colorInput.addEventListener('input', (e) => {
-                      colorText.value = e.target.value.toUpperCase();
-                  });
-              }
-              });
-              
-// 1. Variabel penampung event instalasi
+
+// ============================================================================
+// 1. PENGATURAN PENDAFTARAN WARGA MANDIRI
+// ============================================================================
+function applyPengaturanPendaftaranWarga() {
+  const menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
+  if (!menuDaftarWarga) return;
+
+  // Ambil settings dari window/global secara aman
+  const settings = (typeof appSettings !== 'undefined') ? appSettings : (window.appSettings || {});
+  const statusFitur = String(settings['fitur_pendaftaran_mandiri'] || 'Aktif').trim().toLowerCase();
+
+  menuDaftarWarga.style.display = (statusFitur === 'nonaktif') ? 'none' : 'block';
+}
+
+// ============================================================================
+// 2. LOGIKA PWA & INSTALL SHORTCUT
+// ============================================================================
 let deferredPrompt = null;
 
-// 2. Tangkap event dari browser saat web siap di-install
+// Menangkap event instalasi PWA dari browser
 window.addEventListener('beforeinstallprompt', (e) => {
-  // Cegah browser menampilkan mini-infobar default
   e.preventDefault();
-  // Simpan event ke variabel penampung
   deferredPrompt = e;
 
-  // Munculkan kartu/tombol install yang tadinya tersembunyi
   const installCard = document.getElementById('card-menu-install-pwa');
   if (installCard) {
-    installCard.style.display = 'block'; // atau 'flex' sesuai layout
+    installCard.style.display = 'block';
   }
 });
 
-// 3. Fungsi yang dijalankan saat tombol "Install Aplikasi" diklik
+// Fungsi yang dijalankan saat tombol "Install Aplikasi" diklik
 function triggerInstallPWA() {
   if (!deferredPrompt) {
-    Swal.fire({
-      icon: 'info',
-      title: 'Info',
-      text: 'Aplikasi sudah terpasang, atau buka menu titik tiga di kanan atas browser lalu pilih "Tambahkan ke Layar Utama".'
-    });
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Info',
+        text: 'Aplikasi sudah terpasang, atau buka menu titik tiga di browser lalu pilih "Tambahkan ke Layar Utama".'
+      });
+    } else {
+      alert('Aplikasi sudah terpasang atau perangkat belum mendukung pemasangan otomatis.');
+    }
     return;
   }
 
-  // Tampilkan prompt instalasi asli dari browser
   deferredPrompt.prompt();
-
-  // Tunggu respon pilihan pengguna
   deferredPrompt.userChoice.then((choiceResult) => {
     if (choiceResult.outcome === 'accepted') {
       console.log('Pengguna menyetujui instalasi PWA');
-      let installCard = document.getElementById('card-menu-install-pwa');
+      const installCard = document.getElementById('card-menu-install-pwa');
       if (installCard) installCard.style.display = 'none';
     } else {
       console.log('Pengguna membatalkan instalasi PWA');
@@ -7870,100 +7844,156 @@ function triggerInstallPWA() {
   });
 }
 
-// 4. Deteksi jika aplikasi sukses terpasang ke layar utama
-window.addEventListener('appinstalled', (evt) => {
+// Sembunyikan tombol otomatis jika aplikasi sukses terpasang
+window.addEventListener('appinstalled', () => {
   console.log('SI-GAS berhasil di-install ke perangkat!');
-  let installCard = document.getElementById('card-menu-install-pwa');
+  const installCard = document.getElementById('card-menu-install-pwa');
   if (installCard) installCard.style.display = 'none';
   deferredPrompt = null;
 });
-                 
-                function loadDataCctv() {
-                showLoading();
-                // Mengambil data dari appSettings yang sudah tersimpan
-                google.script.run.withSuccessHandler(res => {
-              hideLoading();
-              if(res && res.success) {
-                let settings = res.data || {};
-                let container = document.getElementById('container-grid-cctv');
-                container.innerHTML = '';
-              
-                let cctvList = [
-                  { nama: settings['cctv_1_nama'] || 'CCTV Titik 1 (Gerbang Utama)', url: settings['cctv_1_url'] || '' },
-                  { nama: settings['cctv_2_nama'] || 'CCTV Titik 2 (Area Warga)', url: settings['cctv_2_url'] || '' }
-                ];
-              
-                let hasActiveCctv = false;
-                cctvList.forEach((cam, idx) => {
-                  if(cam.url) {
-                    hasActiveCctv = true;
-                    // Cek apakah berupa tag iframe atau url biasa
-                    let contentRender = cam.url.trim().startsWith('<iframe') 
-                      ? cam.url.replace('<iframe', '<iframe class="w-100 h-100 rounded-3 border-0"') 
-                      : `<iframe src="${cam.url}" class="w-100 h-100 rounded-3 border-0" allowfullscreen></iframe>`;
-              
-                    container.innerHTML += `
-                      <div class="col-lg-6 col-md-12">
-                        <div class="card card-custom shadow-sm border-0 h-100">
-                          <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-video me-2"></i>${cam.nama}</span>
-                            <span class="badge bg-danger animate-pulse">● LIVE</span>
-                          </div>
-                          <div class="card-body p-2" style="height: 320px; background: #000; border-radius: 0 0 16px 16px;">
-                            ${contentRender}
-                          </div>
-                        </div>
-                      </div>`;
-                  }
-                });
-              
-                if(!hasActiveCctv) {
-                  container.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                      <div class="alert alert-warning d-inline-block p-4">
-                        <i class="fas fa-exclamation-triangle fa-2x mb-2 text-warning"></i>
-                        <h5>Belum Ada CCTV yang Aktif</h5>
-                        <p class="text-muted small mb-0">Pengurus belum mengatur URL atau link streaming CCTV pada menu Pengaturan Sistem.</p>
-                      </div>
-                    </div>`;
-                }
-              }
-                }).getAppSettings();
-              }
-              
-                // Membuka Halaman Pendaftaran Warga
-              function showHalamanPendaftaran() {
-                 document.getElementById('formPendaftaranWarga').reset();
-                 document.getElementById('div_reg_tglMasuk').classList.add('d-none');
-                 document.getElementById('halaman-pendaftaran-warga').style.display = 'block';
-              }
-              
-              function toggleRegKontrak() {
-                 let st = document.getElementById('reg_statusTinggal').value;
-                 let divM = document.getElementById('div_reg_tglMasuk');
-                 if(st === 'Kontrak') divM.classList.remove('d-none');
-                 else divM.classList.add('d-none');
-              }
-              
-              function toggleRegAlamatSama() {
-                 let chk = document.getElementById('check_reg_alamat_sama');
-                 let ktp = document.getElementById('reg_alamatKtp');
-                 let tinggal = document.getElementById('reg_alamatTinggal');
-                 if(chk.checked) {
-                tinggal.value = ktp.value;
-                tinggal.readOnly = true;
-                tinggal.classList.add('bg-light');
-                 } else {
-                tinggal.readOnly = false;
-                 }
-              }
-              
-              function syncRegAlamat() {
-                 let chk = document.getElementById('check_reg_alamat_sama');
-                 if(chk.checked) {
-                document.getElementById('reg_alamatTinggal').value = document.getElementById('reg_alamatKtp').value;
-                 }
-              }
+
+// ============================================================================
+// 3. COLOR PICKER SYNC
+// ============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const colorInput = document.getElementById('set_warna_aplikasi');
+  const colorText = document.getElementById('set_warna_aplikasi_text');
+  if (colorInput && colorText) {
+    colorInput.addEventListener('input', (e) => {
+      colorText.value = e.target.value.toUpperCase();
+    });
+  }
+});
+
+// ============================================================================
+// 4. MONITORING CCTV (KOMPATIBEL GITHUB & APPS SCRIPT)
+// ============================================================================
+function renderCctvGrid(settings) {
+  const container = document.getElementById('container-grid-cctv');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const cctvList = [
+    { nama: settings['cctv_1_nama'] || 'CCTV Titik 1 (Gerbang Utama)', url: settings['cctv_1_url'] || '' },
+    { nama: settings['cctv_2_nama'] || 'CCTV Titik 2 (Area Warga)', url: settings['cctv_2_url'] || '' }
+  ];
+
+  let hasActiveCctv = false;
+  cctvList.forEach((cam) => {
+    if (cam.url && cam.url.trim() !== '') {
+      hasActiveCctv = true;
+      const contentRender = cam.url.trim().startsWith('<iframe')
+        ? cam.url.replace('<iframe', '<iframe class="w-100 h-100 rounded-3 border-0"')
+        : `<iframe src="${cam.url}" class="w-100 h-100 rounded-3 border-0" allowfullscreen></iframe>`;
+
+      container.innerHTML += `
+        <div class="col-lg-6 col-md-12 mb-3">
+          <div class="card card-custom shadow-sm border-0 h-100">
+            <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-video me-2"></i>${cam.nama}</span>
+              <span class="badge bg-danger animate-pulse">● LIVE</span>
+            </div>
+            <div class="card-body p-2" style="height: 320px; background: #000; border-radius: 0 0 16px 16px;">
+              ${contentRender}
+            </div>
+          </div>
+        </div>`;
+    }
+  });
+
+  if (!hasActiveCctv) {
+    container.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <div class="alert alert-warning d-inline-block p-4">
+          <i class="fas fa-exclamation-triangle fa-2x mb-2 text-warning"></i>
+          <h5>Belum Ada CCTV yang Aktif</h5>
+          <p class="text-muted small mb-0">Pengurus belum mengatur URL streaming CCTV pada menu Pengaturan Sistem.</p>
+        </div>
+      </div>`;
+  }
+}
+
+function loadDataCctv() {
+  if (typeof showLoading === 'function') showLoading();
+
+  // 1. Cek jika berjalan di Google Apps Script murni
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(res => {
+        if (typeof hideLoading === 'function') hideLoading();
+        if (res && res.success) renderCctvGrid(res.data || {});
+      })
+      .withFailureHandler(() => {
+        if (typeof hideLoading === 'function') hideLoading();
+      })
+      .getAppSettings();
+    return;
+  }
+
+  // 2. Jika di GitHub (membaca dari window.appSettings atau localStorage)
+  let localSettings = window.appSettings;
+  if (!localSettings) {
+    try {
+      localSettings = JSON.parse(localStorage.getItem('sigas_app_settings') || '{}');
+    } catch (e) {
+      localSettings = {};
+    }
+  }
+
+  if (typeof hideLoading === 'function') hideLoading();
+  renderCctvGrid(localSettings);
+}
+
+// ============================================================================
+// 5. HELPER FORMULIR PENDAFTARAN WARGA
+// ============================================================================
+function showHalamanPendaftaran() {
+  const form = document.getElementById('formPendaftaranWarga');
+  if (form) form.reset();
+
+  const divMasuk = document.getElementById('div_reg_tglMasuk');
+  if (divMasuk) divMasuk.classList.add('d-none');
+
+  const halDaftar = document.getElementById('halaman-pendaftaran-warga');
+  if (halDaftar) halDaftar.style.display = 'block';
+}
+
+function toggleRegKontrak() {
+  const selectStatus = document.getElementById('reg_statusTinggal');
+  const divMasuk = document.getElementById('div_reg_tglMasuk');
+  if (!selectStatus || !divMasuk) return;
+
+  if (selectStatus.value === 'Kontrak') {
+    divMasuk.classList.remove('d-none');
+  } else {
+    divMasuk.classList.add('d-none');
+  }
+}
+
+function toggleRegAlamatSama() {
+  const chk = document.getElementById('check_reg_alamat_sama');
+  const ktp = document.getElementById('reg_alamatKtp');
+  const tinggal = document.getElementById('reg_alamatTinggal');
+  if (!chk || !ktp || !tinggal) return;
+
+  if (chk.checked) {
+    tinggal.value = ktp.value;
+    tinggal.readOnly = true;
+    tinggal.classList.add('bg-light');
+  } else {
+    tinggal.readOnly = false;
+    tinggal.classList.remove('bg-light');
+  }
+}
+
+function syncRegAlamat() {
+  const chk = document.getElementById('check_reg_alamat_sama');
+  const ktp = document.getElementById('reg_alamatKtp');
+  const tinggal = document.getElementById('reg_alamatTinggal');
+  if (chk && chk.checked && ktp && tinggal) {
+    tinggal.value = ktp.value;
+  }
+}
               
 // =====================================================
 // SIMPAN / UPDATE DATA WARGA OLEH ADMIN (ANTI DUPLIKAT KODE UNIK)
