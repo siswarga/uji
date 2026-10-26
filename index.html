@@ -5380,42 +5380,46 @@
   </div>
 
   <!-- MODAL REGISTRASI MANDIRI PENGURUS -->
-  <div class="modal fade" id="modalRegPengurus" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <form id="formRegPengurus" class="modal-content" onsubmit="submitRegPengurus(event)">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title fw-bold"><i class="fas fa-user-shield me-2"></i>Pendaftaran Mandiri Pengurus</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalRegPengurus" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form id="formRegPengurus" class="modal-content" onsubmit="submitRegPengurus(event)">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold"><i class="fas fa-user-shield me-2"></i>Pendaftaran Mandiri Pengurus</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info py-2 small">
+          <i class="fas fa-info-circle me-1"></i> Akun Anda akan berstatus <b>Pending</b> setelah terdaftar dan memerlukan persetujuan Superadmin sebelum dapat digunakan untuk login.
         </div>
-        <div class="modal-body">
-          <div class="alert alert-info py-2 small">
-            <i class="fas fa-info-circle me-1"></i> Akun Anda akan berstatus <b>Pending</b> setelah terdaftar dan memerlukan persetujuan Superadmin sebelum dapat digunakan untuk login.
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Nama Lengkap*</label>
+            <input type="text" class="form-control" id="reg_pgr_nama" placeholder="Nama & gelar..." required>
           </div>
-          <div class="row g-3">
-            <div class="col-md-12">
-              <label class="form-label small fw-bold">Nama Lengkap*</label>
-              <input type="text" class="form-control" id="reg_pgr_nama" placeholder="Nama & gelar..." required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Username Login*</label>
-              <input type="text" class="form-control" id="reg_pgr_username" placeholder="Tanpa spasi..." required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Password*</label>
-              <input type="password" class="form-control" id="reg_pgr_password" placeholder="Password..." required>
-            </div>
-            <div class="col-md-12">
-              <label class="form-label small fw-bold">Peran / Jabatan yang Dilamar*</label>
-              <input type="text" class="form-control" id="reg_pgr_role" placeholder="Cth: Seksi Keamanan / Humas / Anggota" required>
-            </div>
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Nomor WhatsApp Aktif*</label>
+            <input type="tel" class="form-control" id="reg_pgr_wa" placeholder="Cth: 081234567890" pattern="[0-9]{10,15}" title="Masukkan 10-15 digit nomor WA" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Username Login*</label>
+            <input type="text" class="form-control" id="reg_pgr_username" placeholder="Tanpa spasi..." required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Password*</label>
+            <input type="password" class="form-control" id="reg_pgr_password" placeholder="Password..." required>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Peran / Jabatan yang Dilamar*</label>
+            <input type="text" class="form-control" id="reg_pgr_role" placeholder="Cth: Seksi Keamanan / Humas / Anggota" required>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="btn-submit-reg-pgr">Kirim Pendaftaran Pengurus</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="btn-submit-reg-pgr">Kirim Pendaftaran Pengurus</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- MODAL EDIT JADWAL RONDA -->
   <div class="modal fade" id="modalEditRonda" tabindex="-1" aria-hidden="true">
@@ -7727,36 +7731,40 @@ resetIdleTimer();
                 }, 1000); // Berjalan setiap 1 detik khusus untuk jam masjid
               }
                  
-                 function submitRegPengurus(e) {
-                e.preventDefault();
-                const btn = document.getElementById('btn-submit-reg-pgr');
-                
-                const p = {
-              nama: document.getElementById('reg_pgr_nama').value,
-              username: document.getElementById('reg_pgr_username').value,
-              password: document.getElementById('reg_pgr_password').value,
-              role: document.getElementById('reg_pgr_role').value
-                };
-              
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Pendaftaran...';
-              
-                google.script.run.withSuccessHandler(res => {
-              btn.disabled = false;
-              btn.innerHTML = 'Kirim Pendaftaran Pengurus';
-              if(res && res.success) {
-                 Swal.fire('Berhasil!', res.message, 'success');
-                 bootstrap.Modal.getInstance(document.getElementById('modalRegPengurus')).hide();
-                 document.getElementById('formRegPengurus').reset();
-              } else {
-                 Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
-              }
-                }).withFailureHandler(err => {
-              btn.disabled = false;
-              btn.innerHTML = 'Kirim Pendaftaran Pengurus';
-              Swal.fire('Error Koneksi', err.message, 'error');
-                }).registerPengurusMandiri(p);
-              }
+function submitRegPengurus(event) {
+  event.preventDefault();
+  
+  const payload = {
+    nama: document.getElementById('reg_pgr_nama').value.trim(),
+    noWa: document.getElementById('reg_pgr_wa').value.trim(),
+    username: document.getElementById('reg_pgr_username').value.trim(),
+    password: document.getElementById('reg_pgr_password').value,
+    role: document.getElementById('reg_pgr_role').value.trim()
+  };
+
+  const btn = document.getElementById('btn-submit-reg-pgr');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      btn.disabled = false;
+      btn.innerHTML = 'Kirim Pendaftaran Pengurus';
+      if (res.success) {
+        Swal.fire('Berhasil!', res.message, 'success');
+        document.getElementById('formRegPengurus').reset();
+        bootstrap.Modal.getInstance(document.getElementById('modalRegPengurus')).hide();
+      } else {
+        Swal.fire('Gagal', res.message, 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      btn.disabled = false;
+      btn.innerHTML = 'Kirim Pendaftaran Pengurus';
+      Swal.fire('Error', err.message, 'error');
+    })
+    .registerPengurusMandiri(payload);
+}
                  
                  // Fungsi helper untuk menerapkan status aktif/nonaktif tombol Daftar Warga
               function applyPengaturanPendaftaranWarga() {
