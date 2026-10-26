@@ -455,15 +455,15 @@
       <div class="col-12 d-flex align-items-center justify-content-between flex-wrap gap-2">
 
         <!-- KIRI: Brand / Logo -->
-        <div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" style="cursor: pointer;">
-          <div id="pub-logo-container" class="bg-success text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center overflow-hidden" style="width: 48px; height: 48px;">
-            <i class="fas fa-leaf fa-lg" id="pub-logo-icon"></i>
-          </div>
-          <div>
-            <h4 class="fw-bold mb-0 text-success" id="pub-app-name">SI-GAS</h4>
-            <small class="text-muted" id="pub-app-domisili"><i class="fas fa-map-marker-alt text-danger me-1"></i> Grand Assalam</small>
-          </div>
-        </div>
+<div class="app-brand-box d-flex align-items-center gap-3" ondblclick="triggerAdminLogin()" style="cursor: pointer;">
+  <div id="pub-logo-container" class="d-flex align-items-center justify-content-center overflow-hidden" style="width: 48px; height: 48px; background: transparent !important; box-shadow: none !important;">
+    <i class="fas fa-leaf fa-lg text-success" id="pub-logo-icon"></i>
+  </div>
+  <div>
+    <h4 class="fw-bold mb-0 text-success" id="pub-app-name">SI-GAS</h4>
+    <small class="text-muted" id="pub-app-domisili"><i class="fas fa-map-marker-alt text-danger me-1"></i> Grand Assalam</small>
+  </div>
+</div>
 
        <!-- KANAN: Kelompok Tombol Aksi & Badge Status -->
 <div class="d-flex align-items-center gap-2 gap-md-3">
@@ -7779,10 +7779,6 @@ function submitRegPengurus(event) {
                 }
               }
                  
-                 
-                 
-                 
-                 
                  let deferredPrompt = null;
               
               // Menangkap event instalasi PWA dari browser
@@ -7839,11 +7835,6 @@ function submitRegPengurus(event) {
                 let installCard = document.getElementById('card-menu-install-pwa');
                 if (installCard) installCard.style.display = 'none';
               });
-                 
-                 
-                 
-                 
-                 
                  
                 function loadDataCctv() {
                 showLoading();
@@ -8312,8 +8303,6 @@ function submitPendaftaranWarga(e) {
               .submitQrisPayment(payload);
           }
           	
-
-              
               function showLoading() { document.getElementById('loading-overlay').style.display='flex'; } 
               function hideLoading() { document.getElementById('loading-overlay').style.display='none'; } 
               function formatRupiah(angka) { return 'Rp'+new Intl.NumberFormat('id-ID').format(angka); }
