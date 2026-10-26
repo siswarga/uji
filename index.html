@@ -17007,94 +17007,85 @@ function simpanPengaturanSuperadmin(e) {
           
 function triggerPanicButtonAction() {
   Swal.fire({
-    width: '380px',
-    padding: '1.25rem',
-    title: `
-      <div class="d-flex align-items-center justify-content-center gap-2 pt-1">
-        <span class="badge bg-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
-          <i class="fas fa-bell text-white small"></i>
-        </span>
-        <span class="fs-5 fw-bold text-dark mb-0">Sinyal Darurat (SOS)</span>
-      </div>
-    `,
+    width: '320px',
+    padding: '1.1rem',
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Kirim SOS',
+    cancelButtonText: 'Batal',
+    buttonsStyling: false,
+    customClass: {
+      popup: 'rounded-4 shadow border-0',
+      htmlContainer: 'm-0 p-0 text-start',
+      actions: 'm-0 mt-2 p-0 gap-2 w-100 justify-content-center',
+      confirmButton: 'btn btn-danger btn-sm px-3 py-1 fw-bold rounded-pill flex-fill shadow-sm',
+      cancelButton: 'btn btn-light btn-sm px-3 py-1 text-secondary border rounded-pill flex-fill'
+    },
     html: `
-      <div class="text-start px-1" style="overflow-x: hidden;">
-        <p class="text-muted text-center small mb-3" style="font-size: 0.78rem;">
-          Pilih jenis keadaan darurat dan masukkan ID warga Anda.
-        </p>
+      <div>
+        <!-- Header Ringkas -->
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-2 pb-1 border-bottom">
+          <i class="fas fa-bell text-danger fs-5"></i>
+          <span class="fw-bold text-dark fs-6">Sinyal Darurat (SOS)</span>
+        </div>
 
-        <!-- Pilihan Kategori Kedaruratan (Compact Tile Cards) -->
-        <label class="form-label fw-bold text-dark mb-2" style="font-size: 0.8rem;">Pilih Jenis Kedaruratan:</label>
-        <div class="d-flex flex-column gap-2 mb-3">
+        <!-- Pilihan Kategori Ringkas (Single Line) -->
+        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">KATEGORI KEDARURATAN:</label>
+        <div class="d-flex flex-column gap-1 mb-2">
           
-          <label class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50" style="cursor: pointer; transition: all 0.2s;">
-            <div class="d-flex align-items-center gap-2">
-              <span class="rounded-2 text-primary bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                <i class="fas fa-shield-alt small"></i>
-              </span>
-              <div>
-                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Keamanan</div>
-                <div class="text-muted" style="font-size: 0.68rem;">Pencurian, keributan, ancaman</div>
-              </div>
-            </div>
+          <label class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2 border bg-light m-0" style="cursor: pointer; font-size: 0.8rem;">
+            <span class="fw-semibold text-dark">
+              <i class="fas fa-shield-alt text-primary me-2"></i>Keamanan
+            </span>
             <input type="radio" name="swal-sos-kategori" value="Keamanan" class="form-check-input m-0" checked>
           </label>
 
-          <label class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50" style="cursor: pointer; transition: all 0.2s;">
-            <div class="d-flex align-items-center gap-2">
-              <span class="rounded-2 text-danger bg-danger bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                <i class="fas fa-fire-extinguisher small"></i>
-              </span>
-              <div>
-                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Kebakaran</div>
-                <div class="text-muted" style="font-size: 0.68rem;">Titik api, tabung gas, korsleting</div>
-              </div>
-            </div>
+          <label class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2 border bg-light m-0" style="cursor: pointer; font-size: 0.8rem;">
+            <span class="fw-semibold text-dark">
+              <i class="fas fa-fire-extinguisher text-danger me-2"></i>Kebakaran
+            </span>
             <input type="radio" name="swal-sos-kategori" value="Kebakaran" class="form-check-input m-0">
           </label>
 
-          <label class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50" style="cursor: pointer; transition: all 0.2s;">
-            <div class="d-flex align-items-center gap-2">
-              <span class="rounded-2 text-secondary bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                <i class="fas fa-exclamation-circle small"></i>
-              </span>
-              <div>
-                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Lainnya</div>
-                <div class="text-muted" style="font-size: 0.68rem;">Bantuan medis darurat, darurat warga</div>
-              </div>
-            </div>
+          <label class="d-flex align-items-center justify-content-between px-2 py-1 rounded-2 border bg-light m-0" style="cursor: pointer; font-size: 0.8rem;">
+            <span class="fw-semibold text-dark">
+              <i class="fas fa-exclamation-circle text-secondary me-2"></i>Lainnya (Medis/Bantuan)
+            </span>
             <input type="radio" name="swal-sos-kategori" value="Lainnya" class="form-check-input m-0">
           </label>
 
         </div>
 
-        <!-- Input ID Warga -->
-        <label class="form-label fw-bold text-dark mb-1" style="font-size: 0.8rem;">Kode Unik / ID Warga:</label>
-        <div class="input-group input-group-sm">
-          <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-id-card"></i></span>
-          <input id="swal-input-kode" type="text" class="form-control form-control-sm border-start-0 text-uppercase fw-bold text-dark" placeholder="Contoh: WRG-000001">
+        <!-- Input Kode Warga -->
+        <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">KODE UNIK / ID WARGA:</label>
+        <div class="input-group input-group-sm mb-1">
+          <span class="input-group-text bg-light text-muted border-end-0 py-1"><i class="fas fa-id-card"></i></span>
+          <input 
+            id="swal-input-kode" 
+            type="text" 
+            maxlength="10"
+            autocomplete="off"
+            autocapitalize="characters"
+            oninput="this.value = this.value.toUpperCase()"
+            placeholder="CONTOH: WRG001" 
+            class="form-control form-control-sm border-start-0 text-uppercase fw-bold text-dark py-1"
+            style="letter-spacing: 1px;">
         </div>
       </div>
     `,
-    showCancelButton: true,
-    confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Kirim Sinyal SOS',
-    cancelButtonText: 'Batal',
-    buttonsStyling: false,
-    customClass: {
-      popup: 'rounded-4 border-0 shadow-lg',
-      confirmButton: 'btn btn-danger btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm',
-      cancelButton: 'btn btn-light btn-sm rounded-pill px-3 py-2 fw-semibold text-secondary ms-2 border'
+    didOpen: () => {
+      const input = document.getElementById('swal-input-kode');
+      if (input) input.focus();
     },
     preConfirm: () => {
       const kode = document.getElementById('swal-input-kode').value.trim();
       const selectedRadio = document.querySelector('input[name="swal-sos-kategori"]:checked');
       
       if (!kode) {
-        Swal.showValidationMessage('Kode Unik / ID Warga wajib diisi!');
+        Swal.showValidationMessage('ID Warga wajib diisi!');
         return false;
       }
       if (!selectedRadio) {
-        Swal.showValidationMessage('Pilih salah satu jenis kedaruratan!');
+        Swal.showValidationMessage('Pilih salah satu kategori!');
         return false;
       }
       return { 
@@ -17108,7 +17099,7 @@ function triggerPanicButtonAction() {
       
       Swal.fire({
         title: 'Mengirim Sinyal SOS...',
-        html: `Menghubungi grup warga, satpam, dan instansi terkait (${jenis})...`,
+        html: `Menghubungi grup warga, satpam, dan pihak terkait (${jenis})...`,
         allowOutsideClick: false,
         didOpen: () => { Swal.showLoading(); }
       });
@@ -17911,29 +17902,68 @@ function kirimAbsenRonda() {
         });
       }
       
-      // 1. Pemilihan Foto & Permintaan Kode Unik
+      // 1. Pemilihan Foto & Permintaan Kode Unik (Maks 6 Karakter & Otomatis Kapital)
       window.prosesPilihFoto = function(input) {
         if (!input.files || input.files.length === 0) return;
         const fileList = Array.from(input.files);
       
         Swal.fire({
-          title: 'Verifikasi Pengunggah',
-          html: `
-            <p class="small text-muted mb-3">Terpilih <b>${fileList.length} foto</b>.<br>Silakan masukkan Kode Unik Warga :</p>
-            <input type="password" id="swal-kode-warga" class="swal2-input" placeholder="Kode Unik Warga..." style="margin: 0.5em auto;">
-          `,
+          width: '320px',
+          padding: '1.1rem',
           showCancelButton: true,
-          confirmButtonText: '<i class="fas fa-cloud-upload-alt me-1"></i> Verifikasi & Unggah',
-          confirmButtonColor: '#198754',
+          confirmButtonText: '<i class="fas fa-cloud-upload-alt me-1"></i> Unggah',
           cancelButtonText: 'Batal',
+          buttonsStyling: false,
+          customClass: {
+            popup: 'rounded-4 shadow border-0',
+            htmlContainer: 'm-0 p-0 text-center',
+            actions: 'm-0 mt-3 p-0 gap-2 w-100 justify-content-center',
+            confirmButton: 'btn btn-success btn-sm px-3 py-1 fw-bold rounded-pill flex-fill shadow-sm',
+            cancelButton: 'btn btn-light btn-sm px-3 py-1 text-secondary border rounded-pill flex-fill'
+          },
+          html: `
+            <div class="text-center">
+              <!-- Header Ramping -->
+              <div class="d-flex align-items-center justify-content-center gap-2 mb-2 pb-1 border-bottom">
+                <i class="fas fa-camera text-success fs-5"></i>
+                <span class="fw-bold text-dark fs-6">Verifikasi Pengunggah</span>
+              </div>
+
+              <p class="text-muted mb-2" style="font-size: 0.75rem;">
+                Terpilih <b class="text-success">${fileList.length} foto</b>.<br>Masukkan Kode Unik Warga:
+              </p>
+
+              <!-- Input Ramping, Maksimal 6 Karakter & Otomatis Kapital -->
+              <div class="input-group input-group-sm mb-1">
+                <span class="input-group-text bg-light text-muted border-end-0 py-1"><i class="fas fa-key"></i></span>
+                <input 
+                  type="text" 
+                  id="swal-kode-warga" 
+                  maxlength="6"
+                  placeholder="WRG001" 
+                  autocomplete="off"
+                  autocapitalize="characters"
+                  oninput="this.value = this.value.toUpperCase()"
+                  class="form-control form-control-sm border-start-0 text-center fw-bold shadow-none"
+                  style="letter-spacing: 2px; font-size: 1rem; height: 38px; border-radius: 0 8px 8px 0; border: 1.5px solid #198754; text-transform: uppercase;">
+              </div>
+              <small class="text-muted" style="font-size: 0.68rem;">Maksimal 6 karakter (otomatis kapital)</small>
+            </div>
+          `,
           didOpen: () => {
             const el = document.getElementById('swal-kode-warga');
             if (el) el.focus();
           },
           preConfirm: () => {
-            const kode = document.getElementById('swal-kode-warga').value.trim();
+            const el = document.getElementById('swal-kode-warga');
+            const kode = (el ? el.value : '').trim().toUpperCase();
+
             if (!kode) {
               Swal.showValidationMessage('Kode unik warga wajib diisi!');
+              return false;
+            }
+            if (kode.length > 6) {
+              Swal.showValidationMessage('Kode unik maksimal 6 karakter!');
               return false;
             }
             return kode;
@@ -17965,7 +17995,6 @@ function kirimAbsenRonda() {
                   sukses++;
                   namaWarga = hasil.uploader;
                 } else {
-                  // JIKA KODE SALAH, PROSES LANGSUNG BERHENTI DENGAN PERINGATAN MERAH
                   input.value = '';
                   Swal.fire('Verifikasi Ditolak', hasil ? hasil.message : 'Kode unik warga salah.', 'error');
                   return;
@@ -19867,33 +19896,88 @@ function tampilkanKtaDigital(warga) {
 }
 
 function bukaKartuSaya() {
-  // Minta warga memasukkan Kode Unik atau NIK mereka
   Swal.fire({
-    title: 'Kartu Tanda Warga',
-    text: 'Masukkan Kode Unik Warga Anda (Contoh: WRG001):',
-    input: 'text',
-    inputPlaceholder: 'Kode Unik Warga...',
+    width: '300px',
+    padding: '1.2rem',
     showCancelButton: true,
     confirmButtonText: 'Buka Kartu',
-    confirmButtonColor: '#198754',
-    cancelButtonText: 'Batal'
+    cancelButtonText: 'Batal',
+    buttonsStyling: false,
+    customClass: {
+      popup: 'rounded-4 shadow border-0',
+      htmlContainer: 'm-0 p-0',
+      actions: 'm-0 mt-3 p-0 gap-2 w-100 justify-content-center',
+      confirmButton: 'btn btn-success btn-sm px-3 py-1 fw-bold rounded-pill flex-fill',
+      cancelButton: 'btn btn-light btn-sm px-3 py-1 text-secondary border rounded-pill flex-fill'
+    },
+    html: `
+      <div class="text-center">
+        <!-- Header Rapat -->
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+          <i class="fas fa-id-card text-success fs-5"></i>
+          <span class="fw-bold text-dark fs-6">Kartu Warga Digital</span>
+        </div>
+
+        <p class="text-muted mb-2" style="font-size: 0.75rem;">
+          Masukkan Kode Unik Warga Anda:
+        </p>
+
+        <!-- Input Box Ringkas -->
+        <input 
+          id="swal-input-kode-kta" 
+          type="text" 
+          maxlength="6"
+          placeholder="WRG001"
+          autocapitalize="characters"
+          autocomplete="off"
+          oninput="this.value = this.value.toUpperCase()"
+          class="form-control text-center fw-bold shadow-none"
+          style="letter-spacing: 3px; font-size: 1.15rem; height: 38px; border-radius: 10px; border: 1.5px solid #198754; text-transform: uppercase;">
+
+        <div class="text-muted mt-1" style="font-size: 0.68rem;">
+          <i class="fas fa-info-circle text-success me-1"></i>Maksimal 6 karakter
+        </div>
+      </div>
+    `,
+    didOpen: () => {
+      const inputEl = document.getElementById('swal-input-kode-kta');
+      if (inputEl) inputEl.focus();
+    },
+    preConfirm: () => {
+      const inputEl = document.getElementById('swal-input-kode-kta');
+      const val = (inputEl ? inputEl.value : '').trim().toUpperCase();
+
+      if (!val) {
+        Swal.showValidationMessage('Kode Unik wajib diisi!');
+        return false;
+      }
+      if (val.length > 6) {
+        Swal.showValidationMessage('Maksimal 6 karakter!');
+        return false;
+      }
+      return val;
+    }
   }).then((result) => {
     if (result.isConfirmed && result.value) {
-      const kodeInput = result.value.trim().toUpperCase();
-      showLoading();
+      const kodeInput = result.value;
+      if (typeof showLoading === 'function') showLoading();
 
-      // Cari data warga berdasarkan kode yang diinput
       google.script.run
         .withSuccessHandler((res) => {
-          hideLoading();
+          if (typeof hideLoading === 'function') hideLoading();
           if (res && res.success && res.data) {
             tampilkanKtaDigital(res.data);
           } else {
-            Swal.fire('Tidak Ditemukan', 'Kode Unik Warga tidak terdaftar dalam database!', 'error');
+            Swal.fire({
+              icon: 'error',
+              title: 'Tidak Ditemukan',
+              text: 'Kode Unik Warga tidak terdaftar dalam database!',
+              customClass: { popup: 'rounded-4' }
+            });
           }
         })
         .withFailureHandler((err) => {
-          hideLoading();
+          if (typeof hideLoading === 'function') hideLoading();
           Swal.fire('Error', 'Gagal memuat data: ' + err, 'error');
         })
         .cariDataWargaByKode(kodeInput);
