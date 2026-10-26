@@ -17,16 +17,36 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
 
-  <!-- PWA & MOBILE CONFIGURATION -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SI-GAS">
-  <meta name="theme-color" content="#198754">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3067/3067423.png">
+  <!-- PWA & MOBILE CONFIGURATION (DINAMIS DARI SHEET SETING) -->
+<? 
+  var appName = (typeof appSettings !== 'undefined' && appSettings.nama_aplikasi) ? appSettings.nama_aplikasi : 'SI-GAS';
+  var appColor = (typeof appSettings !== 'undefined' && appSettings.warna_aplikasi) ? appSettings.warna_aplikasi : '#198754';
+  var appLogo = (typeof appSettings !== 'undefined' && appSettings.logo) ? appSettings.logo : 'https://cdn-icons-png.flaticon.com/512/3067/3067423.png';
+?>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="<?= appName ?>">
+<meta name="theme-color" content="<?= appColor ?>">
 
+<!-- Ikon Pintasan Layar Utama (Homescreen Icon) -->
+<link rel="icon" href="<?= appLogo ?>" type="image/png">
+<link rel="apple-touch-icon" href="<?= appLogo ?>">
+
+<!-- Web App Manifest Dinamis (Data URI) -->
+<link rel="manifest" href='data:application/manifest+json,<?= encodeURIComponent(JSON.stringify({
+  name: appName,
+  short_name: appName,
+  start_url: ".",
+  display: "standalone",
+  background_color: "#ffffff",
+  theme_color: appColor,
+  icons: [
+    { src: appLogo, sizes: "192x192", type: "image/png" },
+    { src: appLogo, sizes: "512x512", type: "image/png" }
+  ]
+})) ?>'>
   
-
   <style>
 	html, body {
     overscroll-behavior-y: none;
@@ -7806,35 +7826,57 @@ function submitRegPengurus(event) {
               }
               });
               
-              // Fungsi yang dijalankan saat tombol "Install Aplikasi" diklik
-              function triggerInstallPWA() {
-                if (!deferredPrompt) {
-              Swal.fire('Info', 'Aplikasi sudah terpasang atau perangkat Anda membukanya melalui mode yang belum mendukung.', 'info');
-              return;
-                }
-                
-                // Tampilkan prompt instalasi asli dari browser
-                deferredPrompt.prompt();
-                
-                // Tunggu respon pilihan pengguna
-                deferredPrompt.userChoice.then((choiceResult) => {
-              if (choiceResult.outcome === 'accepted') {
-                console.log('Pengguna menyetujui instalasi PWA');
-                let installCard = document.getElementById('card-menu-install-pwa');
-                if (installCard) installCard.style.display = 'none';
-              } else {
-                console.log('Pengguna membatalkan instalasi PWA');
-              }
-              deferredPrompt = null;
-                });
-              }
-              
-              // Deteksi jika aplikasi sukses terpasang
-              window.addEventListener('appinstalled', (evt) => {
-                console.log('SI-GAS berhasil di-install ke perangkat!');
-                let installCard = document.getElementById('card-menu-install-pwa');
-                if (installCard) installCard.style.display = 'none';
-              });
+// 1. Variabel penampung event instalasi
+let deferredPrompt = null;
+
+// 2. Tangkap event dari browser saat web siap di-install
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Cegah browser menampilkan mini-infobar default
+  e.preventDefault();
+  // Simpan event ke variabel penampung
+  deferredPrompt = e;
+
+  // Munculkan kartu/tombol install yang tadinya tersembunyi
+  const installCard = document.getElementById('card-menu-install-pwa');
+  if (installCard) {
+    installCard.style.display = 'block'; // atau 'flex' sesuai layout
+  }
+});
+
+// 3. Fungsi yang dijalankan saat tombol "Install Aplikasi" diklik
+function triggerInstallPWA() {
+  if (!deferredPrompt) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Info',
+      text: 'Aplikasi sudah terpasang, atau buka menu titik tiga di kanan atas browser lalu pilih "Tambahkan ke Layar Utama".'
+    });
+    return;
+  }
+
+  // Tampilkan prompt instalasi asli dari browser
+  deferredPrompt.prompt();
+
+  // Tunggu respon pilihan pengguna
+  deferredPrompt.userChoice.then((choiceResult) => {
+    if (choiceResult.outcome === 'accepted') {
+      console.log('Pengguna menyetujui instalasi PWA');
+      let installCard = document.getElementById('card-menu-install-pwa');
+      if (installCard) installCard.style.display = 'none';
+    } else {
+      console.log('Pengguna membatalkan instalasi PWA');
+    }
+    deferredPrompt = null;
+  });
+}
+
+// 4. Deteksi jika aplikasi sukses terpasang ke layar utama
+window.addEventListener('appinstalled', (evt) => {
+  console.log('SI-GAS berhasil di-install ke perangkat!');
+  let installCard = document.getElementById('card-menu-install-pwa');
+  if (installCard) installCard.style.display = 'none';
+  deferredPrompt = null;
+});
                  
                 function loadDataCctv() {
                 showLoading();
@@ -20069,6 +20111,52 @@ function getRondaSettingsPayload() {
     hari_ronda_mingguan: hariList.join(',')
   };
 }
+
+// Fungsi untuk merakit PWA secara dinamis dari data sheet seting
+function setupDynamicPWA(settings) {
+  if (!settings) return;
+
+  const appName = settings.nama_aplikasi || 'SI-GAS';
+  const appColor = settings.warna_aplikasi || '#198754';
+  const appLogo = settings.logo || 'https://cdn-icons-png.flaticon.com/512/3067/3067423.png';
+
+  // 1. Update Judul Tab & Meta Ponsel
+  document.title = appName;
+  
+  const metaTitle = document.getElementById('pwa-meta-title');
+  if (metaTitle) metaTitle.setAttribute('content', appName);
+
+  const metaColor = document.getElementById('pwa-theme-color');
+  if (metaColor) metaColor.setAttribute('content', appColor);
+
+  // 2. Update Favicon & Ikon Apple
+  const pwaIcon = document.getElementById('pwa-icon');
+  if (pwaIcon) pwaIcon.href = appLogo;
+
+  const appleIcon = document.getElementById('pwa-apple-icon');
+  if (appleIcon) appleIcon.href = appLogo;
+
+  // 3. Generate File Manifest PWA secara Otomatis (Blob)
+  const manifestData = {
+    name: appName,
+    short_name: appName,
+    start_url: window.location.href.split('?')[0],
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: appColor,
+    icons: [
+      { src: appLogo, sizes: "192x192", type: "image/png" },
+      { src: appLogo, sizes: "512x512", type: "image/png" }
+    ]
+  };
+
+  const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+  const manifestUrl = URL.createObjectURL(blob);
+  
+  const manifestLink = document.getElementById('pwa-manifest');
+  if (manifestLink) manifestLink.href = manifestUrl;
+}
+
     </script>
 
 <!-- Audio Player Adzan Global -->
