@@ -3576,67 +3576,73 @@
     </div>
   </div>
 
-  <!-- KARTU 3: KONFIGURASI WHATSAPP GATEWAY -->
-  <div class="card shadow-sm border-0 mb-4 rounded-3">
-    <div class="card-body p-4">
-      <form onsubmit="saveApiConfig(event)">
-        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
-          <i class="fab fa-whatsapp text-success me-2"></i>Konfigurasi WhatsApp Gateway (Railway & Fonnte)
-        </h5>
-        
-        <div class="row g-3 mb-4">
-          <!-- URL Gateway Railway -->
-          <div class="col-md-12">
-            <label class="form-label small text-muted">URL WhatsApp Gateway (Railway)</label>
-            <input type="text" class="form-control bg-light" id="api_wa_url" placeholder="https://wa-gw-production.up.railway.app">
-          </div>
-
-          <!-- JID Grup Warga -->
-          <div class="col-md-6">
-            <label class="form-label small text-muted fw-bold">WhatsApp Group JID Warga (Broadcast)</label>
-            <input type="text" class="form-control bg-light" id="set_wa_group_jid" placeholder="120363xxxxxx@g.us">
-            <div class="form-text text-muted" style="font-size: 11px;">Untuk siaran pengumuman warga umum.</div>
-          </div>
-
-          <!-- JID Grup Pengurus -->
-          <div class="col-md-6">
-            <label class="form-label small text-muted fw-bold text-success">WhatsApp Group JID Pengurus (Notifikasi)</label>
-            <input type="text" class="form-control bg-light" id="set_wa_group_pengurus_jid" placeholder="120363xxxxxx@g.us">
-            <div class="form-text text-muted" style="font-size: 11px;">Notifikasi pinjam aset, keluhan, & permohonan.</div>
-          </div>
-
-          <!-- Fonnte -->
-          <div class="col-md-6">
-            <label class="form-label small text-muted">Endpoint URL Fonnte (Opsional)</label>
-            <input type="text" class="form-control bg-light" id="api_wa_url_fonnte">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small text-muted">API Token Fonnte / Pihak Ketiga</label>
-            <input type="password" class="form-control bg-light" id="api_wa_token">
-          </div>
-
-          <!-- Kotak Status & Scan QR Railway -->
-          <div class="col-md-12">
-            <div class="p-3 bg-white rounded border shadow-sm text-center mt-2">
-              <div class="d-flex align-items-center justify-content-center mb-2">
-                <i class="fab fa-whatsapp text-success fs-4 me-2"></i>
-                <span class="fw-bold text-dark">Status & Perangkat WhatsApp Gateway</span>
-              </div>
-              <p class="text-muted small mb-3">Hubungkan nomor WhatsApp pengirim untuk notifikasi otomatis. Klik tombol di bawah untuk scan QR Code.</p>
-              <a href="https://wa-gw-production.up.railway.app/qr" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm">
-                <i class="fas fa-qrcode me-2"></i> Buka Halaman Scan QR WhatsApp
-              </a>
-            </div>
-          </div>
+  <!-- KARTU 3: KONFIGURASI WHATSAPP GATEWAY & KONTAK DARURAT -->
+<div class="card shadow-sm border-0 mb-4 rounded-3">
+  <div class="card-body p-4">
+    <form onsubmit="saveApiConfig(event)">
+      <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+        <i class="fab fa-whatsapp text-success me-2"></i>Konfigurasi WhatsApp Gateway (Railway) & Kontak Darurat
+      </h5>
+      
+      <div class="row g-3 mb-4">
+        <!-- URL Gateway Railway -->
+        <div class="col-md-12">
+          <label class="form-label small text-muted">URL WhatsApp Gateway (Railway)</label>
+          <input type="text" class="form-control bg-light" id="api_wa_url" placeholder="https://wa-gw-production.up.railway.app">
         </div>
 
-        <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm" id="btn-save-api">
-          <i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway
-        </button>
-      </form>
-    </div>
-  </div>
+        <!-- JID Grup Warga -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold">WhatsApp Group JID Warga (Broadcast)</label>
+          <input type="text" class="form-control bg-light" id="set_wa_group_jid" placeholder="120363xxxxxx@g.us">
+          <div class="form-text text-muted" style="font-size: 11px;">Untuk siaran pengumuman warga umum.</div>
+        </div>
 
+        <!-- JID Grup Pengurus -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold text-success">WhatsApp Group JID Pengurus (Notifikasi)</label>
+          <input type="text" class="form-control bg-light" id="set_wa_group_pengurus_jid" placeholder="120363xxxxxx@g.us">
+          <div class="form-text text-muted" style="font-size: 11px;">Notifikasi pinjam aset, keluhan, & permohonan.</div>
+        </div>
+
+        <!-- Nomor WhatsApp Kepolisian -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold text-primary">
+            <i class="fas fa-shield-alt me-1"></i>Nomor WhatsApp Kepolisian / Polsek Terdekat
+          </label>
+          <input type="tel" class="form-control bg-light" id="set_wa_polisi" placeholder="Cth: 081234567890">
+          <div class="form-text text-muted" style="font-size: 11px;">Kontak darurat polisi jika tombol SOS dipicu.</div>
+        </div>
+
+        <!-- Nomor WhatsApp Pemadam Kebakaran -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold text-danger">
+            <i class="fas fa-fire-extinguisher me-1"></i>Nomor WhatsApp Pemadam Kebakaran (Damkar)
+          </label>
+          <input type="tel" class="form-control bg-light" id="set_wa_damkar" placeholder="Cth: 081234567890">
+          <div class="form-text text-muted" style="font-size: 11px;">Kontak darurat pos Damkar area domisili.</div>
+        </div>
+
+        <!-- Kotak Status & Scan QR Railway -->
+        <div class="col-md-12">
+          <div class="p-3 bg-white rounded border shadow-sm text-center mt-2">
+            <div class="d-flex align-items-center justify-content-center mb-2">
+              <i class="fab fa-whatsapp text-success fs-4 me-2"></i>
+              <span class="fw-bold text-dark">Status & Perangkat WhatsApp Gateway</span>
+            </div>
+            <p class="text-muted small mb-3">Hubungkan nomor WhatsApp pengirim untuk notifikasi otomatis. Klik tombol di bawah untuk scan QR Code.</p>
+            <a href="https://wa-gw-production.up.railway.app/qr" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm">
+              <i class="fas fa-qrcode me-2"></i> Buka Halaman Scan QR WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm" id="btn-save-api">
+        <i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway
+      </button>
+    </form>
+  </div>
 </div>
               <!-- 3. TAB PENGUMUMAN -->
               <div class="tab-pane fade" id="pane-pengumuman" role="tabpanel">
@@ -11613,56 +11619,62 @@ function loadDataPengaturan() {
     .getAppSettings(localStorage.getItem('sigas_token')); // Kirim token ke backend
 }
       
-      function saveApiConfig(event) {
-        event.preventDefault();
-      
-        const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
-        const btnSave = document.getElementById('btn-save-api');
-      
-        // Pastikan input grup pengurus ikut diambil nilainya
-        const payload = {
-          api_wa_url: document.getElementById('api_wa_url') ? document.getElementById('api_wa_url').value.trim() : '',
-          wa_group_jid: document.getElementById('set_wa_group_jid') ? document.getElementById('set_wa_group_jid').value.trim() : '',
-          wa_group_pengurus_jid: document.getElementById('set_wa_group_pengurus_jid') ? document.getElementById('set_wa_group_pengurus_jid').value.trim() : '',
-          api_wa_url_fonnte: document.getElementById('api_wa_url_fonnte') ? document.getElementById('api_wa_url_fonnte').value.trim() : '',
-          api_wa_token: document.getElementById('api_wa_token') ? document.getElementById('api_wa_token').value.trim() : ''
-        };
-      
-        if (btnSave) {
-          btnSave.disabled = true;
-          btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
-        }
-      
-        google.script.run
-          .withSuccessHandler(res => {
-            if (btnSave) {
-              btnSave.disabled = false;
-              btnSave.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway';
-            }
-            if (res && res.success) {
-              Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Konfigurasi WhatsApp Gateway berhasil disimpan.',
-                timer: 1500,
-                showConfirmButton: false
-              });
-              if (typeof appSettings !== 'undefined') {
-                Object.assign(appSettings, payload);
-              }
-            } else {
-              Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan.', 'error');
-            }
-          })
-          .withFailureHandler(err => {
-            if (btnSave) {
-              btnSave.disabled = false;
-              btnSave.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway';
-            }
-            Swal.fire('Error Server', 'Koneksi gagal: ' + err, 'error');
-          })
-          .updateAppSettingsBulk(token, payload);
+function saveApiConfig(event) {
+  event.preventDefault();
+
+  const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
+  const btnSave = document.getElementById('btn-save-api');
+
+  // Payload konfigurasi baru tanpa Fonnte + Kontak Darurat Polisi & Damkar
+  const payload = {
+    api_wa_url: document.getElementById('api_wa_url') ? document.getElementById('api_wa_url').value.trim() : '',
+    wa_group_jid: document.getElementById('set_wa_group_jid') ? document.getElementById('set_wa_group_jid').value.trim() : '',
+    wa_group_pengurus_jid: document.getElementById('set_wa_group_pengurus_jid') ? document.getElementById('set_wa_group_pengurus_jid').value.trim() : '',
+    wa_polisi: document.getElementById('set_wa_polisi') ? document.getElementById('set_wa_polisi').value.trim() : '',
+    wa_damkar: document.getElementById('set_wa_damkar') ? document.getElementById('set_wa_damkar').value.trim() : ''
+  };
+
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+  }
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway';
       }
+
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Konfigurasi WhatsApp Gateway & Kontak Darurat berhasil disimpan.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        // Sinkronisasi memori lokal aplikasi
+        if (typeof appSettings !== 'undefined') {
+          Object.assign(appSettings, payload);
+          try {
+            localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
+          } catch (e) {}
+        }
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      if (btnSave) {
+        btnSave.disabled = false;
+        btnSave.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Konfigurasi WA Gateway';
+      }
+      Swal.fire('Error Server', 'Koneksi gagal: ' + err, 'error');
+    })
+    .updateAppSettingsBulk(token, payload);
+}
               
              // --- FUNGSI LOAD & SAVE SUPERADMIN ---
       function loadDataSuperadmin() {
@@ -11742,7 +11754,8 @@ function loadDataPengaturan() {
               }
                   
               function openModalPengurus() { document.getElementById('formPengurus').reset(); document.getElementById('pgr_id').value=''; document.getElementById('modalPengurusTitle').innerText='Tambah Pengurus'; new bootstrap.Modal(document.getElementById('modalPengurus')).show(); }
-              function editPengurus(id) { const p=dataPengurusGlobal.find(x=>x.id===id); if(p){document.getElementById('pgr_id').value=p.id; document.getElementById('pgr_urut').value=p.urutan; document.getElementById('pgr_jabatan').value=p.jabatan; document.getElementById('pgr_nama').value=p.nama; document.getElementById('pgr_wa').value=p.noWa; document.getElementById('pgr_status').value=p.status; document.getElementById('modalPengurusTitle').innerText='Edit Pengurus'; new bootstrap.Modal(document.getElementById('modalPengurus')).show();} }
+              
+			  function editPengurus(id) { const p=dataPengurusGlobal.find(x=>x.id===id); if(p){document.getElementById('pgr_id').value=p.id; document.getElementById('pgr_urut').value=p.urutan; document.getElementById('pgr_jabatan').value=p.jabatan; document.getElementById('pgr_nama').value=p.nama; document.getElementById('pgr_wa').value=p.noWa; document.getElementById('pgr_status').value=p.status; document.getElementById('modalPengurusTitle').innerText='Edit Pengurus'; new bootstrap.Modal(document.getElementById('modalPengurus')).show();} }
               
                  // =====================================================
               // MANAJEMEN STRUKTUR PENGURUS (DIPERBAIKI)
@@ -16690,6 +16703,12 @@ function terapkanPengaturanKeElemen(settings) {
   const namaKomplek = settings['nama_komplek'] || 'Komplek Warga';
   const moto = settings['moto'] || 'Harmonis, Religius dan Gotong Royong';
 
+  // Helper pengisi nilai input jika elemen tersedia di halaman
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val || '';
+  };
+
   // 1. Warna Tema Aplikasi
   if (settings['warna_aplikasi'] && typeof applyAppThemeColor === 'function') {
     applyAppThemeColor(settings['warna_aplikasi']);
@@ -16721,11 +16740,15 @@ function terapkanPengaturanKeElemen(settings) {
     menuLaporMudik.style.display = settings['fitur_lapor_mudik'] === 'Aktif' ? 'block' : 'none';
   }
 
-  // 5. Backend URL (Panel Pengaturan)
-  const elBackendUrl = document.getElementById('set_backend_url');
-  if (elBackendUrl) {
-    elBackendUrl.value = settings['backend_url'] || '';
-  }
+  // 5. Backend URL & Form Identitas (Panel Pengaturan)
+  setVal('set_backend_url', settings['backend_url']);
+  setVal('set_nama_aplikasi', settings['nama_aplikasi']);
+  setVal('set_nama_komplek', settings['nama_komplek']);
+  setVal('set_domisili', settings['domisili']);
+  setVal('set_moto', settings['moto']);
+  setVal('set_alamat', settings['alamat']);
+  setVal('set_warna_aplikasi', settings['warna_aplikasi']);
+  setVal('set_warna_aplikasi_text', settings['warna_aplikasi']);
 
   // 6. Running Text Dinamis
   const runningTextEl = document.getElementById('pub-running-text-content');
@@ -16809,6 +16832,13 @@ function terapkanPengaturanKeElemen(settings) {
       elStatusRonda.innerHTML = `<span class="badge bg-success me-2">HARIAN</span> Ronda bergilir <b class="text-success">setiap malam</b>.`;
     }
   }
+
+  // 12. Sinkronisasi Form WhatsApp Gateway & Kontak Darurat (Polisi & Damkar)
+  setVal('api_wa_url', settings['api_wa_url']);
+  setVal('set_wa_group_jid', settings['wa_group_jid']);
+  setVal('set_wa_group_pengurus_jid', settings['wa_group_pengurus_jid']);
+  setVal('set_wa_polisi', settings['wa_polisi']);
+  setVal('set_wa_damkar', settings['wa_damkar']);
 }
 
 // =====================================================
@@ -16974,47 +17004,129 @@ function simpanPengaturanSuperadmin(e) {
   return saveIdentitasAplikasi(e);
 }
           
-          function triggerPanicButtonAction() {
-            Swal.fire({
-              title: '🚨 DARURAT (SOS)',
-              html: `
-                <p class="text-muted small mb-3">Masukkan <b>Kode Unik / ID Warga</b> Anda :</p>
-                <input id="swal-input-kode" class="swal2-input my-2" placeholder="Contoh: WRG-000001" style="font-size: 14px; text-transform: uppercase;">
-              `,
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#dc3545',
-              cancelButtonColor: '#6c757d',
-              confirmButtonText: 'Kirim Sinyal SOS!',
-              cancelButtonText: 'Batal',
-              preConfirm: () => {
-                const kode = document.getElementById('swal-input-kode').value.trim();
-                if (!kode) {
-                  Swal.showValidationMessage('Kode Unik / ID Warga wajib diisi!');
-                }
-                return kode;
-              }
-            }).then((result) => {
-              if (result.isConfirmed) {
-                const kodeUnik = result.value;
-                
-                Swal.fire({
-                  title: 'Mengirim Sinyal SOS...',
-                  text: 'Mohon tunggu sebentar...',
-                  allowOutsideClick: false,
-                  didOpen: () => { Swal.showLoading(); }
-                });
-                
-                google.script.run.withSuccessHandler(res => {
-                  if (res.success) {
-                    Swal.fire('Berhasil!', 'Sinyal darurat telah dikirim ke WhatsApp pengurus/grup.', 'success');
-                  } else {
-                    Swal.fire('Gagal', res.message, 'error');
-                  }
-                }).handlePanicButton(kodeUnik); // <--- Pastikan namanya handlePanicButton
-              }
-            });
+function triggerPanicButtonAction() {
+  Swal.fire({
+    width: '380px',
+    padding: '1.25rem',
+    title: `
+      <div class="d-flex align-items-center justify-content-center gap-2 pt-1">
+        <span class="badge bg-danger rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+          <i class="fas fa-bell text-white small"></i>
+        </span>
+        <span class="fs-5 fw-bold text-dark mb-0">Sinyal Darurat (SOS)</span>
+      </div>
+    `,
+    html: `
+      <div class="text-start px-1" style="overflow-x: hidden;">
+        <p class="text-muted text-center small mb-3" style="font-size: 0.78rem;">
+          Pilih jenis keadaan darurat dan masukkan ID warga Anda.
+        </p>
+
+        <!-- Pilihan Kategori Kedaruratan (Compact Tile Cards) -->
+        <label class="form-label fw-bold text-dark mb-2" style="font-size: 0.8rem;">Pilih Jenis Kedaruratan:</label>
+        <div class="d-flex flex-column gap-2 mb-3">
+          
+          <label class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50" style="cursor: pointer; transition: all 0.2s;">
+            <div class="d-flex align-items-center gap-2">
+              <span class="rounded-2 text-primary bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                <i class="fas fa-shield-alt small"></i>
+              </span>
+              <div>
+                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Keamanan</div>
+                <div class="text-muted" style="font-size: 0.68rem;">Pencurian, keributan, ancaman</div>
+              </div>
+            </div>
+            <input type="radio" name="swal-sos-kategori" value="Keamanan" class="form-check-input m-0" checked>
+          </label>
+
+          <label class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50" style="cursor: pointer; transition: all 0.2s;">
+            <div class="d-flex align-items-center gap-2">
+              <span class="rounded-2 text-danger bg-danger bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                <i class="fas fa-fire-extinguisher small"></i>
+              </span>
+              <div>
+                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Kebakaran</div>
+                <div class="text-muted" style="font-size: 0.68rem;">Titik api, tabung gas, korsleting</div>
+              </div>
+            </div>
+            <input type="radio" name="swal-sos-kategori" value="Kebakaran" class="form-check-input m-0">
+          </label>
+
+          <label class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light bg-opacity-50" style="cursor: pointer; transition: all 0.2s;">
+            <div class="d-flex align-items-center gap-2">
+              <span class="rounded-2 text-secondary bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                <i class="fas fa-exclamation-circle small"></i>
+              </span>
+              <div>
+                <div class="fw-bold text-dark" style="font-size: 0.82rem;">Lainnya</div>
+                <div class="text-muted" style="font-size: 0.68rem;">Bantuan medis darurat, darurat warga</div>
+              </div>
+            </div>
+            <input type="radio" name="swal-sos-kategori" value="Lainnya" class="form-check-input m-0">
+          </label>
+
+        </div>
+
+        <!-- Input ID Warga -->
+        <label class="form-label fw-bold text-dark mb-1" style="font-size: 0.8rem;">Kode Unik / ID Warga:</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-id-card"></i></span>
+          <input id="swal-input-kode" type="text" class="form-control form-control-sm border-start-0 text-uppercase fw-bold text-dark" placeholder="Contoh: WRG-000001">
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Kirim Sinyal SOS',
+    cancelButtonText: 'Batal',
+    buttonsStyling: false,
+    customClass: {
+      popup: 'rounded-4 border-0 shadow-lg',
+      confirmButton: 'btn btn-danger btn-sm rounded-pill px-3 py-2 fw-bold shadow-sm',
+      cancelButton: 'btn btn-light btn-sm rounded-pill px-3 py-2 fw-semibold text-secondary ms-2 border'
+    },
+    preConfirm: () => {
+      const kode = document.getElementById('swal-input-kode').value.trim();
+      const selectedRadio = document.querySelector('input[name="swal-sos-kategori"]:checked');
+      
+      if (!kode) {
+        Swal.showValidationMessage('Kode Unik / ID Warga wajib diisi!');
+        return false;
+      }
+      if (!selectedRadio) {
+        Swal.showValidationMessage('Pilih salah satu jenis kedaruratan!');
+        return false;
+      }
+      return { 
+        kode: kode.toUpperCase(), 
+        jenis: selectedRadio.value 
+      };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const { kode, jenis } = result.value;
+      
+      Swal.fire({
+        title: 'Mengirim Sinyal SOS...',
+        html: `Menghubungi grup warga, satpam, dan instansi terkait (${jenis})...`,
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+      
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            Swal.fire('Berhasil Terkirim!', res.message, 'success');
+          } else {
+            Swal.fire('Gagal Mengirim', res.message, 'error');
           }
+        })
+        .withFailureHandler(err => {
+          Swal.fire('Error Server', err.message || err, 'error');
+        })
+        .handlePanicButton(kode, jenis);
+    }
+  });
+}
           
           function renderTableKopAnggota() {
             let tb = document.getElementById('tbody-kop-anggota');
