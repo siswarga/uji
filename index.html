@@ -11400,34 +11400,43 @@ function switchTabPengaduan(kategori) {
 function savePengaduanData(e) {
   if (e && e.preventDefault) e.preventDefault();
 
-  const kodeInput = document.getElementById('adu_kode_warga').value.trim();
+  // 1. Ambil input kode warga
+  const elKode = document.getElementById('adu_kode_warga') || document.querySelector('input[placeholder*="WRG"]');
+  const kodeInput = elKode ? elKode.value.trim() : '';
+
   if (!kodeInput) {
     Swal.fire('Perhatian', 'Kode Unik Warga wajib diisi!', 'warning');
     return;
   }
 
-  // Cek tab aktif: Keluhan atau Bantuan
-  const tabKeluhanAktif = document.getElementById('pane-keluhan').classList.contains('show') || 
-                          document.getElementById('pane-keluhan').classList.contains('active');
-  
-  const kategori = tabKeluhanAktif ? 'Keluhan' : 'Bantuan';
+  // 2. Deteksi tab aktif (Keluhan vs Bantuan)
+  const tabKeluhan = document.getElementById('pane-keluhan');
+  const isKeluhan = tabKeluhan && (tabKeluhan.classList.contains('show') || tabKeluhan.classList.contains('active'));
+  const kategori = isKeluhan ? 'Keluhan' : 'Bantuan';
+
   let deskripsi = '';
   let anonim = 'Tidak';
   let targetBantuan = '';
-  let waktuBantuan = '';
+  let waktuBantuan = 'Segera';
 
   if (kategori === 'Keluhan') {
-    deskripsi = document.getElementById('adu_deskripsi_keluhan').value.trim();
+    const elDesk = document.getElementById('adu_deskripsi_keluhan') || document.querySelector('textarea[placeholder*="fasilitas"]');
+    deskripsi = elDesk ? elDesk.value.trim() : '';
     const chkAnonim = document.getElementById('adu_anonim');
     if (chkAnonim && chkAnonim.checked) anonim = 'Ya';
   } else {
-    targetBantuan = document.getElementById('adu_target_bantuan').value;
-    waktuBantuan = document.getElementById('adu_waktu_bantuan') ? document.getElementById('adu_waktu_bantuan').value : 'Segera';
-    deskripsi = document.getElementById('adu_deskripsi_bantuan').value.trim();
+    const elTarget = document.getElementById('adu_target_bantuan') || document.querySelector('select');
+    targetBantuan = elTarget ? elTarget.value : 'Petugas Keamanan / Satpam';
+    
+    const elWaktu = document.getElementById('adu_waktu_bantuan');
+    if (elWaktu) waktuBantuan = elWaktu.value;
+
+    const elDesk = document.getElementById('adu_deskripsi_bantuan') || document.querySelector('textarea');
+    deskripsi = elDesk ? elDesk.value.trim() : '';
   }
 
   if (!deskripsi) {
-    Swal.fire('Perhatian', 'Isi keluhan/kebutuhan bantuan tidak boleh kosong!', 'warning');
+    Swal.fire('Perhatian', 'Detail keluhan atau bantuan wajib diisi!', 'warning');
     return;
   }
 
@@ -11449,22 +11458,41 @@ function savePengaduanData(e) {
 
   google.script.run
     .withSuccessHandler(res => {
-      if (res && res.success) {
-        document.getElementById('formPengaduan').reset();
-        bootstrap.Modal.getInstance(document.getElementById('modalPengaduan')).hide();
-        Swal.fire({
-          icon: 'success',
-          title: 'Berhasil Terkirim!',
-          text: res.message
-        });
-      } else {
-        Swal.fire('Verifikasi Gagal', res ? res.message : 'Kode unik tidak terdaftar dalam database!', 'error');
+      try {
+        if (res && res.success) {
+          // Reset form secara aman tanpa menyebabkan crash jika form/modal tidak bernama formPengaduan
+          const forms = document.querySelectorAll('#modalPengaduan form, form#formPengaduan');
+          forms.forEach(f => f.reset());
+
+          // Tutup modal secara aman
+          const modalEl = document.getElementById('modalPengaduan') || document.querySelector('.modal.show');
+          if (modalEl && window.bootstrap && bootstrap.Modal) {
+            const inst = bootstrap.Modal.getInstance(modalEl);
+            if (inst) inst.hide();
+          }
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Terkirim!',
+            text: res.message || 'Laporan berhasil disampaikan.'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Verifikasi Gagal',
+            text: res ? res.message : 'Kode unik tidak terdaftar dalam database!'
+          });
+        }
+      } catch (errCb) {
+        console.error("Error pada callback frontend:", errCb);
+        Swal.fire('Selesai', 'Data terproses, silakan tutup formulir.', 'info');
       }
     })
     .withFailureHandler(err => {
+      console.error("Error Google Apps Script:", err);
       Swal.fire('Error Server', String(err), 'error');
     })
-    .savePengaduan(null, payload);
+    .savePengaduan(localStorage.getItem('sigas_token') || '', payload);
 }
               
 			  function openModalProsesPengaduan(id){ const p=dataPengaduanGlobal.find(x=>x.id===id); if(p){document.getElementById('proses_adu_id').value=p.id; document.getElementById('proses_adu_nama_asli').innerText=p.namaAsli; document.getElementById('proses_adu_wa').innerHTML=formatWA(p.noWa); document.getElementById('proses_adu_deskripsi').innerText=p.deskripsi; document.getElementById('proses_adu_status').value=p.status; document.getElementById('proses_adu_respon').value=p.respon!=='-'?p.respon:''; new bootstrap.Modal(document.getElementById('modalProsesPengaduan')).show();} }
