@@ -6477,7 +6477,7 @@
  <!-- MODAL PEMINJAMAN & PENGEMBALIAN ASET -->
 <div class="modal fade" id="modalPeminjaman" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
-    <form id="formPeminjaman" class="modal-content rounded-4 border-0 shadow" onsubmit="handleFormAsetSubmit(event)">
+    <form id="formPeminjaman" class="modal-content rounded-4 border-0 shadow" novalidate>
       
       <!-- Header Modal -->
       <div class="modal-header bg-primary text-white py-2 px-3 border-0" id="headerModalAset">
@@ -6614,11 +6614,11 @@
 
       <!-- Footer Tombol Modal -->
       <div class="modal-footer p-2 border-0 bg-light rounded-bottom-4">
-        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm" id="btn-submit-aset">
-          <i class="fas fa-paper-plane me-1"></i> Ajukan Peminjaman
-        </button>
-      </div>
-    </form>
+    <button type="button" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm" id="btn-submit-aset" onclick="handleFormAsetSubmit(event)">
+      <i class="fas fa-paper-plane me-1"></i> Ajukan Peminjaman
+    </button>
+  </div>
+</form>
   </div>
 </div>
 
@@ -11398,16 +11398,19 @@ function switchTabPengaduan(kategori) {
 }
 
 function savePengaduanData(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
 
-  const kategori = document.getElementById('adu_kategori').value;
-  const kodeWarga = document.getElementById('adu_kode_warga').value.trim().toUpperCase();
-  
-  if (!kodeWarga) {
+  const kodeInput = document.getElementById('adu_kode_warga').value.trim();
+  if (!kodeInput) {
     Swal.fire('Perhatian', 'Kode Unik Warga wajib diisi!', 'warning');
     return;
   }
 
+  // Cek tab aktif: Keluhan atau Bantuan
+  const tabKeluhanAktif = document.getElementById('pane-keluhan').classList.contains('show') || 
+                          document.getElementById('pane-keluhan').classList.contains('active');
+  
+  const kategori = tabKeluhanAktif ? 'Keluhan' : 'Bantuan';
   let deskripsi = '';
   let anonim = 'Tidak';
   let targetBantuan = '';
@@ -11415,27 +11418,31 @@ function savePengaduanData(e) {
 
   if (kategori === 'Keluhan') {
     deskripsi = document.getElementById('adu_deskripsi_keluhan').value.trim();
-    if (document.getElementById('adu_anonim').checked) {
-      anonim = 'Ya';
-    }
+    const chkAnonim = document.getElementById('adu_anonim');
+    if (chkAnonim && chkAnonim.checked) anonim = 'Ya';
   } else {
-    targetBantuan = document.getElementById('adu_target_bantuan').value; // 'Satpam', 'Kebersihan', atau 'Warga'
-    waktuBantuan = document.getElementById('adu_waktu_bantuan').value;
+    targetBantuan = document.getElementById('adu_target_bantuan').value;
+    waktuBantuan = document.getElementById('adu_waktu_bantuan') ? document.getElementById('adu_waktu_bantuan').value : 'Segera';
     deskripsi = document.getElementById('adu_deskripsi_bantuan').value.trim();
+  }
+
+  if (!deskripsi) {
+    Swal.fire('Perhatian', 'Isi keluhan/kebutuhan bantuan tidak boleh kosong!', 'warning');
+    return;
   }
 
   const payload = {
     kategori: kategori,
+    kodeWarga: kodeInput,
     targetBantuan: targetBantuan,
     waktuBantuan: waktuBantuan,
-    kodeWarga: kodeWarga,
     anonim: anonim,
     deskripsi: deskripsi
   };
 
   Swal.fire({
     title: 'Memproses...',
-    text: 'Memverifikasi kode & mengirim permohonan...',
+    text: 'Memverifikasi kode & mengirim laporan...',
     allowOutsideClick: false,
     didOpen: () => Swal.showLoading()
   });
@@ -11445,21 +11452,19 @@ function savePengaduanData(e) {
       if (res && res.success) {
         document.getElementById('formPengaduan').reset();
         bootstrap.Modal.getInstance(document.getElementById('modalPengaduan')).hide();
-        
         Swal.fire({
           icon: 'success',
           title: 'Berhasil Terkirim!',
-          text: res.message || 'Laporan/Bantuan berhasil diteruskan.',
-          customClass: { popup: 'rounded-4' }
+          text: res.message
         });
       } else {
-        Swal.fire('Verifikasi Gagal', res ? res.message : 'Kode Unik Warga tidak terdaftar!', 'error');
+        Swal.fire('Verifikasi Gagal', res ? res.message : 'Kode unik tidak terdaftar dalam database!', 'error');
       }
     })
     .withFailureHandler(err => {
       Swal.fire('Error Server', String(err), 'error');
     })
-    .simpanPengaduanWarga(payload);
+    .savePengaduan(null, payload);
 }
               
 			  function openModalProsesPengaduan(id){ const p=dataPengaduanGlobal.find(x=>x.id===id); if(p){document.getElementById('proses_adu_id').value=p.id; document.getElementById('proses_adu_nama_asli').innerText=p.namaAsli; document.getElementById('proses_adu_wa').innerHTML=formatWA(p.noWa); document.getElementById('proses_adu_deskripsi').innerText=p.deskripsi; document.getElementById('proses_adu_status').value=p.status; document.getElementById('proses_adu_respon').value=p.respon!=='-'?p.respon:''; new bootstrap.Modal(document.getElementById('modalProsesPengaduan')).show();} }
@@ -11918,51 +11923,82 @@ function tampilkanRincianKembali() {
 
 // 5. Submit Handler (Memisahkan Submit Pinjam dan Kembali)
 function handleFormAsetSubmit(e) {
-  e.preventDefault();
-  const mode = document.getElementById('aset_mode_aktif').value;
+  if (e && e.preventDefault) e.preventDefault();
 
+  const mode = document.getElementById('aset_mode_aktif') ? document.getElementById('aset_mode_aktif').value : 'Pinjam';
+
+  // JIKA SEDANG DI TAB PINJAM
   if (mode === 'Pinjam') {
-    // Jalankan fungsi simpan peminjaman lama Anda
-    if (typeof savePeminjamanData === 'function') {
-      savePeminjamanData(e);
-    }
-  } else {
-    // Jalankan Pengembalian
-    const idTransaksi = document.getElementById('kembali_id_transaksi').value;
-    if (!idTransaksi) {
-      Swal.fire('Perhatian', 'Pilih barang yang ingin dikembalikan!', 'warning');
+    const barangId = document.getElementById('pinjam_barang').value;
+    const tglPinjam = document.getElementById('pinjam_tglMulai').value;
+    const tglKembali = document.getElementById('pinjam_tglKembali').value;
+    const wa = document.getElementById('pinjam_wa').value;
+
+    if (!barangId || !tglPinjam || !tglKembali || !wa) {
+      Swal.fire('Perhatian', 'Mohon lengkapi semua kolom peminjaman!', 'warning');
       return;
     }
 
-    const payloadKembali = {
-      idTransaksi: idTransaksi,
-      namaPeminjam: document.getElementById('kembali_nama_input').value.trim(),
-      kondisi: document.getElementById('kembali_kondisi').value,
-      catatan: document.getElementById('kembali_catatan').value.trim()
-    };
-
-    Swal.fire({
-      title: 'Memproses...',
-      text: 'Menyimpan konfirmasi pengembalian barang...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
-
-    google.script.run
-      .withSuccessHandler(res => {
-        if (res && res.success) {
-          document.getElementById('formPeminjaman').reset();
-          bootstrap.Modal.getInstance(document.getElementById('modalPeminjaman')).hide();
-          Swal.fire('Selesai', res.message || 'Barang telah berhasil dikembalikan!', 'success');
-        } else {
-          Swal.fire('Gagal', res ? res.message : 'Gagal memproses pengembalian.', 'error');
-        }
-      })
-      .withFailureHandler(err => {
-        Swal.fire('Error Server', String(err), 'error');
-      })
-      .simpanPengembalianAset(payloadKembali);
+    if (typeof savePeminjamanData === 'function') {
+      savePeminjamanData(e);
+    }
+    return;
   }
+
+  // JIKA SEDANG DI TAB PENGEMBALIAN
+  const idTransaksi = document.getElementById('kembali_id_transaksi').value;
+  const namaPeminjam = document.getElementById('kembali_nama_input').value.trim();
+  const kondisi = document.getElementById('kembali_kondisi').value;
+  const catatan = document.getElementById('kembali_catatan').value.trim();
+
+  if (!idTransaksi) {
+    Swal.fire('Perhatian', 'Silakan pilih barang yang ingin dikembalikan dari daftar!', 'warning');
+    return;
+  }
+
+  Swal.fire({
+    title: 'Memproses...',
+    text: 'Menyimpan konfirmasi pengembalian barang...',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  const payloadKembali = {
+    idTransaksi: idTransaksi,
+    namaPeminjam: namaPeminjam,
+    kondisi: kondisi,
+    catatan: catatan
+  };
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res && res.success) {
+        document.getElementById('formPeminjaman').reset();
+        
+        const modalEl = document.getElementById('modalPeminjaman');
+        if (modalEl && typeof bootstrap !== 'undefined') {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        }
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: res.message || 'Barang telah berhasil dikembalikan ke gudang.',
+          customClass: { popup: 'rounded-4' }
+        });
+
+        // Muat ulang data tabel jika di halaman admin
+        if (typeof loadDataPeminjaman === 'function') loadDataPeminjaman();
+        if (typeof loadDataAset === 'function') loadDataAset();
+      } else {
+        Swal.fire('Gagal', res ? res.message : 'Gagal memproses pengembalian.', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      Swal.fire('Error Server', String(err), 'error');
+    })
+    .simpanPengembalianAset(payloadKembali);
 }
           
 function loadDataPengaturan() {  
@@ -12063,13 +12099,21 @@ function saveApiConfig(event) {
   const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
   const btnSave = document.getElementById('btn-save-api');
 
-  // Payload konfigurasi baru tanpa Fonnte + Kontak Darurat Polisi & Damkar
+  // Helper aman pembaca nilai elemen
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  };
+
+  // Payload konfigurasi lengkap dengan Kontak Darurat, Petugas Kebersihan & Medis
   const payload = {
-    api_wa_url: document.getElementById('api_wa_url') ? document.getElementById('api_wa_url').value.trim() : '',
-    wa_group_jid: document.getElementById('set_wa_group_jid') ? document.getElementById('set_wa_group_jid').value.trim() : '',
-    wa_group_pengurus_jid: document.getElementById('set_wa_group_pengurus_jid') ? document.getElementById('set_wa_group_pengurus_jid').value.trim() : '',
-    wa_polisi: document.getElementById('set_wa_polisi') ? document.getElementById('set_wa_polisi').value.trim() : '',
-    wa_damkar: document.getElementById('set_wa_damkar') ? document.getElementById('set_wa_damkar').value.trim() : ''
+    api_wa_url: getVal('api_wa_url'),
+    wa_group_jid: getVal('set_wa_group_jid'),
+    wa_group_pengurus_jid: getVal('set_wa_group_pengurus_jid'),
+    wa_polisi: getVal('set_wa_polisi'),
+    wa_damkar: getVal('set_wa_damkar'),
+    wa_kebersihan: getVal('set_wa_kebersihan'), // Ditambahkan
+    wa_medis: getVal('set_wa_medis')             // Ditambahkan
   };
 
   if (btnSave) {
@@ -12096,10 +12140,14 @@ function saveApiConfig(event) {
         // Sinkronisasi memori lokal aplikasi
         if (typeof appSettings !== 'undefined') {
           Object.assign(appSettings, payload);
-          try {
-            localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
-          } catch (e) {}
         }
+        
+        try {
+          let currentCache = JSON.parse(localStorage.getItem('sigas_app_settings') || '{}');
+          Object.assign(currentCache, payload);
+          localStorage.setItem('sigas_app_settings', JSON.stringify(currentCache));
+        } catch (e) {}
+
       } else {
         Swal.fire('Gagal', res ? res.message : 'Gagal menyimpan pengaturan.', 'error');
       }
