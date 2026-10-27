@@ -7182,24 +7182,33 @@
             <!-- Grid Daftar Berita -->
             <div id="gridArtikelKoran" class="row g-3"></div>
 
-            <!-- Lembar Baca Artikel di Halaman yang Sama -->
+           <!-- Lembar Baca Artikel di Halaman yang Sama -->
             <div id="detailArtikelContainer" class="d-none bg-white p-4 rounded-3 border">
-              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mb-3" onclick="tutupDetailArtikel()">
-                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Berita
-              </button>
-              
-              <div class="d-block mb-2">
-                <span id="detailTanggalBerita" class="badge bg-danger-subtle text-danger"></span>
-              </div>
-              <h4 id="detailJudulBerita" class="fw-bold text-dark mb-3"></h4>
-              
-              <div class="text-center mb-3">
-                <img id="detailGambarBerita" src="" alt="Foto Berita" class="img-fluid rounded-3 shadow-sm" style="max-height: 350px; width: 100%; object-fit: cover;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="tutupDetailArtikel()">
+                  <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Berita
+                </button>
+                <span id="detailSumberBerita" class="badge bg-secondary-subtle text-secondary px-3 py-1"></span>
               </div>
               
-              <div id="detailIsiBerita" class="text-secondary" style="font-size: 0.95rem; line-height: 1.7; white-space: pre-line;"></div>
+              <span id="detailTanggalBerita" class="badge bg-danger-subtle text-danger mb-2"></span>
+              <h4 id="detailJudulBerita" class="fw-bold text-dark mb-3" style="line-height: 1.4;"></h4>
+              
+              <div class="text-center mb-4">
+                <img id="detailGambarBerita" src="" alt="Foto Berita" class="img-fluid rounded-3 shadow-sm w-100" style="max-height: 380px; object-fit: cover;">
+              </div>
+              
+              <!-- Teks Lengkap Artikel -->
+              <div id="detailIsiBerita" class="text-dark mb-4 fs-6" style="line-height: 1.8; text-align: justify;"></div>
+
+              <!-- Bar Navigasi Lanjutan -->
+              <div class="p-3 bg-light rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 border">
+                <span class="small text-muted">Ingin membaca laporan investigasi atau komentar lengkapnya?</span>
+                <a id="detailLinkAsli" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                  Buka Halaman Redaksi Asli <i class="fas fa-external-link-alt ms-1"></i>
+                </a>
+              </div>
             </div>
-          </div>
         </div>
 
       </div>
@@ -20915,13 +20924,20 @@ function kembaliKeKatalog() {
   if (boxBerita) boxBerita.classList.add('d-none');
 }
 
-// Mengambil artikel dari server Apps Script ke tampilan reader
+// Variabel penyimpan daftar berita aktif di memori
+window.koleksiArtikelAktif = [];
+
 function muatIsiKoranDigital(sumber) {
   const loading = document.getElementById('loadingReaderBerita');
   const grid = document.getElementById('gridArtikelKoran');
+  const detail = document.getElementById('detailArtikelContainer');
 
   if (loading) loading.classList.remove('d-none');
-  if (grid) grid.innerHTML = '';
+  if (grid) {
+    grid.innerHTML = '';
+    grid.classList.remove('d-none');
+  }
+  if (detail) detail.classList.add('d-none');
 
   google.script.run
     .withSuccessHandler(res => {
@@ -20933,7 +20949,10 @@ function muatIsiKoranDigital(sumber) {
         return;
       }
 
-      res.data.forEach(art => {
+      window.koleksiArtikelAktif = res.data;
+
+      res.data.forEach((art, idx) => {
+        // Tag <a> target="_blank" diganti dengan <button onclick="bukaDetailArtikel(...)">
         grid.innerHTML += `
           <div class="col-12 col-md-6 col-lg-4">
             <div class="card h-100 border shadow-none rounded-3 overflow-hidden bg-white">
@@ -20950,9 +20969,9 @@ function muatIsiKoranDigital(sumber) {
                     ${art.ringkasan}
                   </p>
                 </div>
-                <a href="${art.link}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary rounded-pill w-100 py-1 fw-bold" style="font-size: 0.72rem;">
-                  Baca Selengkapnya <i class="fas fa-external-link-alt ms-1"></i>
-                </a>
+                <button type="button" onclick="bukaDetailArtikel(${idx})" class="btn btn-sm btn-outline-primary rounded-pill w-100 py-1 fw-bold" style="font-size: 0.72rem;">
+                  <i class="fas fa-book-open me-1"></i> Baca di Sini
+                </button>
               </div>
             </div>
           </div>
@@ -20964,6 +20983,37 @@ function muatIsiKoranDigital(sumber) {
       if (grid) grid.innerHTML = '<div class="col-12 text-center text-danger py-5">Terjadi gangguan koneksi saat mengambil berita.</div>';
     })
     .ambilBeritaRss(sumber);
+}
+
+function bukaDetailArtikel(index) {
+  const art = window.koleksiArtikelAktif[index];
+  if (!art) return;
+
+  const grid = document.getElementById('gridArtikelKoran');
+  const detail = document.getElementById('detailArtikelContainer');
+
+  document.getElementById('detailSumberBerita').textContent = 'Koran ' + (art.sumber || 'Nasional');
+  document.getElementById('detailTanggalBerita').textContent = art.tanggal;
+  document.getElementById('detailJudulBerita').textContent = art.judul;
+  document.getElementById('detailGambarBerita').src = art.gambar;
+  
+  // Tampilkan naskah teks lengkap tanpa batas karakter
+  document.getElementById('detailIsiBerita').textContent = art.isi;
+  
+  // Pasang link asli ke tombol rujukan
+  const linkBtn = document.getElementById('detailLinkAsli');
+  if (linkBtn) linkBtn.href = art.link;
+
+  grid.classList.add('d-none');
+  detail.classList.remove('d-none');
+  document.getElementById('readerBeritaContainer').scrollTop = 0;
+}
+
+// Kembali ke daftar kartu berita di modal yang sama
+function tutupDetailArtikel() {
+  document.getElementById('gridArtikelKoran').classList.remove('d-none');
+  document.getElementById('detailArtikelContainer').classList.add('d-none');
+  document.getElementById('readerBeritaContainer').scrollTop = 0;
 }
 
 function filterEbook() {
