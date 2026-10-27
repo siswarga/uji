@@ -658,7 +658,7 @@
                     <a href="javascript:void(0)" onclick="openModalPengaduan()" class="btn-action-icon h-100 w-100">
                       <i class="fas fa-bullhorn text-danger"></i>
                       <div class="text-start">
-                        <div class="fw-bold" style="font-size: 0.85rem;">Lapor Keluhan</div>
+                        <div class="fw-bold" style="font-size: 0.85rem;">Layanan Warga</div>
                         <small class="text-muted" style="font-size: 0.65rem;">Pengaduan Masalah</small>
                       </div>
                     </a>
@@ -3623,6 +3623,24 @@
           <div class="form-text text-muted" style="font-size: 11px;">Kontak darurat pos Damkar area domisili.</div>
         </div>
 
+        <!-- Nomor WhatsApp Petugas Kebersihan -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold text-warning text-dark">
+            <i class="fas fa-broom me-1 text-warning"></i>Nomor WhatsApp Petugas Kebersihan
+          </label>
+          <input type="tel" class="form-control bg-light" id="set_wa_kebersihan" placeholder="Cth: 081234567890">
+          <div class="form-text text-muted" style="font-size: 11px;">Menerima pesan bantuan angkut sampah & penanganan selokan.</div>
+        </div>
+
+        <!-- Nomor WhatsApp Tenaga Medis / Ambulans -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted fw-bold text-info text-dark">
+            <i class="fas fa-ambulance me-1 text-danger"></i>Nomor WhatsApp Tenaga Medis / Ambulans
+          </label>
+          <input type="tel" class="form-control bg-light" id="set_wa_medis" placeholder="Cth: 081234567890">
+          <div class="form-text text-muted" style="font-size: 11px;">Kontak darurat medis/nakes lokal atau pengemudi ambulans.</div>
+        </div>
+
         <!-- Kotak Status & Scan QR Railway -->
         <div class="col-md-12">
           <div class="p-3 bg-white rounded border shadow-sm text-center mt-2">
@@ -3644,7 +3662,7 @@
     </form>
   </div>
 </div>
-</div>           
+</div>
 		   <!-- 3. TAB PENGUMUMAN -->
               <div class="tab-pane fade" id="pane-pengumuman" role="tabpanel">
                 <div class="card shadow-sm border-0">
@@ -6188,38 +6206,114 @@
     </div>
   </div>
 
-  <!-- MODAL PENGADUAN -->
-  <div class="modal fade" id="modalPengaduan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <form id="formPengaduan" class="modal-content" onsubmit="savePengaduanData(event)">
-        <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title fw-bold">Lapor Keluhan Warga</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- MODAL LAYANAN SUARA WARGA (RINGKAS DENGAN KODE UNIK) -->
+<div class="modal fade" id="modalPengaduan" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 360px;">
+    <form id="formPengaduan" class="modal-content rounded-4 border-0 shadow" onsubmit="savePengaduanData(event)">
+      
+      <!-- Header Modal -->
+      <div class="modal-header bg-danger text-white py-2 px-3 border-0" id="headerModalPengaduan">
+        <h6 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0" style="font-size: 0.92rem;">
+          <i class="fas fa-bullhorn"></i> Layanan Suara Warga
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-3">
+        <!-- Tab Navigasi (Pills) -->
+        <ul class="nav nav-pills nav-fill bg-light p-1 rounded-pill mb-3 border" id="pengaduanTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill py-1 fw-bold small" id="tab-keluhan" data-bs-toggle="pill" data-bs-target="#pane-keluhan" type="button" role="tab" onclick="switchTabPengaduan('Keluhan')">
+              <i class="fas fa-exclamation-circle me-1"></i> Keluhan
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill py-1 fw-bold small text-secondary" id="tab-bantuan" data-bs-toggle="pill" data-bs-target="#pane-bantuan" type="button" role="tab" onclick="switchTabPengaduan('Bantuan')">
+              <i class="fas fa-hands-helping me-1"></i> Bantuan
+            </button>
+          </li>
+        </ul>
+
+        <input type="hidden" id="adu_kategori" value="Keluhan">
+
+        <!-- Input Kode Unik Warga (Pengganti Nama & No HP) -->
+        <div class="mb-3">
+          <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">KODE UNIK / ID WARGA:*</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light text-muted border-end-0 py-1"><i class="fas fa-id-card"></i></span>
+            <input 
+              type="text" 
+              id="adu_kode_warga" 
+              maxlength="6"
+              placeholder="CONTOH: WRG001" 
+              autocomplete="off"
+              autocapitalize="characters"
+              oninput="this.value = this.value.toUpperCase()"
+              class="form-control form-control-sm border-start-0 text-uppercase fw-bold text-dark py-1 shadow-none"
+              style="letter-spacing: 2px;"
+              required>
+          </div>
+          <small class="text-muted d-block mt-1" style="font-size: 0.68rem;">
+            <i class="fas fa-info-circle text-success me-1"></i>Nama & No. WA otomatis terbaca dari sistem
+          </small>
         </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label small fw-bold">Nama Anda*</label>
-            <input type="text" class="form-control" id="adu_nama" required>
+
+        <!-- Konten Tab -->
+        <div class="tab-content">
+          
+          <!-- TAB 1: KELUHAN -->
+          <div class="tab-pane fade show active" id="pane-keluhan" role="tabpanel">
+            <div class="mb-2 form-check">
+              <input class="form-check-input" type="checkbox" id="adu_anonim" value="Ya">
+              <label class="form-check-label text-danger fw-semibold small" for="adu_anonim" style="font-size: 0.75rem;">
+                Kirim sebagai Anonim (Rahasiakan Nama)
+              </label>
+            </div>
+            <div class="mb-1">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">ISI KELUHAN / GANGGUAN:*</label>
+              <textarea class="form-control form-control-sm rounded-2" id="adu_deskripsi_keluhan" rows="3" placeholder="Jelaskan fasilitas rusak, sampah, ketertiban lingkungan..." required></textarea>
+            </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label small fw-bold">No WhatsApp Aktif*</label>
-            <input type="number" class="form-control" id="adu_wa" required>
+
+          <!-- TAB 2: BANTUAN -->
+			<div class="tab-pane fade" id="pane-bantuan" role="tabpanel">
+				<div class="mb-2">
+				<label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">PERLUKAN BANTUAN DARI:</label>
+				<select class="form-select form-select-sm rounded-2 fw-semibold text-dark" id="adu_target_bantuan">
+				<option value="Medis">🩺 Tenaga Medis / Nakes</option>
+				<option value="Satpam">👮 Petugas Keamanan / Satpam</option>
+				<option value="Kebersihan">🧹 Petugas Kebersihan</option>
+				<option value="Warga"selected>🤝 Warga / Relawan</option>
+				</select>
+			</div>
+
+            <div class="mb-2">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">WAKTU DIBUTUHKAN:</label>
+              <select class="form-select form-select-sm rounded-2 text-dark" id="adu_waktu_bantuan">
+                <option value="Sekarang / Mendesak">⚡ Sekarang / Mendesak</option>
+                <option value="Hari ini">Hari Ini (Fleksibel)</option>
+                <option value="Besok / Terjadwal">Besok / Waktu Tertentu</option>
+              </select>
+            </div>
+
+            <div class="mb-1">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">DETAIL PERMOHONAN:*</label>
+              <textarea class="form-control form-control-sm rounded-2" id="adu_deskripsi_bantuan" rows="2" placeholder="Apa yang bisa dibantu ? ...."></textarea>
+            </div>
           </div>
-          <div class="mb-3 form-check">
-            <input class="form-check-input" type="checkbox" id="adu_anonim" value="Ya">
-            <label class="form-check-label text-danger fw-bold small">Kirim sebagai Anonim</label>
-          </div>
-          <div class="mb-3">
-            <label class="form-label small fw-bold">Isi Keluhan / Masalah*</label>
-            <textarea class="form-control" id="adu_deskripsi" rows="3" required></textarea>
-          </div>
+
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-danger w-100 py-2 fw-bold">Kirim Laporan</button>
-        </div>
-      </form>
-    </div>
+      </div>
+
+      <!-- Footer Tombol -->
+      <div class="modal-footer p-2 border-0 bg-light rounded-bottom-4">
+        <button type="submit" class="btn btn-danger w-100 py-2 fw-bold rounded-pill shadow-sm" id="btn-submit-pengaduan">
+          <i class="fas fa-paper-plane me-1"></i> Kirim Laporan Keluhan
+        </button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- MODAL PROSES PENGADUAN -->
   <div class="modal fade" id="modalProsesPengaduan" tabindex="-1" aria-hidden="true">
@@ -11176,9 +11270,115 @@ function saveBlacklistData(e) {
                 document.getElementById('pengaduan-pagination').innerHTML = `${currentPagePengaduan > 1 ? `<button class="btn btn-sm btn-outline-secondary" onclick="currentPagePengaduan--; renderTablePengaduan()">Prev</button>` : ''}${currentPagePengaduan < Math.ceil(f.length / dataPerPage) ? `<button class="btn btn-sm btn-outline-secondary" onclick="currentPagePengaduan++; renderTablePengaduan()">Next</button>` : ''}`;  
               }
               
-              	function openModalPengaduan(){ document.getElementById('formPengaduan').reset(); new bootstrap.Modal(document.getElementById('modalPengaduan')).show(); }
+function openModalPengaduan() {
+  const form = document.getElementById('formPengaduan');
+  if (form) form.reset();
+
+  // 1. Kembalikan tab aktif secara visual ke "Keluhan"
+  const tabKeluhan = document.getElementById('tab-keluhan');
+  if (tabKeluhan && typeof bootstrap !== 'undefined') {
+    bootstrap.Tab.getOrCreateInstance(tabKeluhan).show();
+  }
+
+  // 2. Kembalikan warna header, validasi input, dan tombol ke status "Keluhan"
+  if (typeof switchTabPengaduan === 'function') {
+    switchTabPengaduan('Keluhan');
+  }
+
+  // 3. Tampilkan modal secara aman tanpa tumpukan instance baru
+  const modalEl = document.getElementById('modalPengaduan');
+  if (modalEl) {
+    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+}
               
-              	function savePengaduanData(e){ e.preventDefault(); const p={nama:document.getElementById('adu_nama').value, noWa:document.getElementById('adu_wa').value, anonim:document.getElementById('adu_anonim').checked?'Ya':'Tidak', deskripsi:document.getElementById('adu_deskripsi').value}; google.script.run.withSuccessHandler(res=>{bootstrap.Modal.getInstance(document.getElementById('modalPengaduan')).hide();Swal.fire('Terkirim!',res.message,'success');loadPublicData();}).savePengaduan('PUBLIC', p); }
+// Mengatur tombol & validasi sesuai tab yang dipilih
+function switchTabPengaduan(kategori) {
+  document.getElementById('adu_kategori').value = kategori;
+  
+  const isKeluhan = (kategori === 'Keluhan');
+  const btnSubmit = document.getElementById('btn-submit-pengaduan');
+  const headerModal = document.getElementById('headerModalPengaduan');
+  
+  document.getElementById('adu_deskripsi_keluhan').required = isKeluhan;
+  document.getElementById('adu_deskripsi_bantuan').required = !isKeluhan;
+
+  if (isKeluhan) {
+    headerModal.className = 'modal-header bg-danger text-white py-2 px-3 border-0';
+    btnSubmit.className = 'btn btn-danger w-100 py-2 fw-bold rounded-pill shadow-sm';
+    btnSubmit.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Kirim Laporan Keluhan';
+  } else {
+    headerModal.className = 'modal-header bg-primary text-white py-2 px-3 border-0';
+    btnSubmit.className = 'btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm';
+    btnSubmit.innerHTML = '<i class="fas fa-hands-helping me-1"></i> Ajukan Permohonan Bantuan';
+  }
+}
+
+function savePengaduanData(e) {
+  e.preventDefault();
+
+  const kategori = document.getElementById('adu_kategori').value;
+  const kodeWarga = document.getElementById('adu_kode_warga').value.trim().toUpperCase();
+  
+  if (!kodeWarga) {
+    Swal.fire('Perhatian', 'Kode Unik Warga wajib diisi!', 'warning');
+    return;
+  }
+
+  let deskripsi = '';
+  let anonim = 'Tidak';
+  let targetBantuan = '';
+  let waktuBantuan = '';
+
+  if (kategori === 'Keluhan') {
+    deskripsi = document.getElementById('adu_deskripsi_keluhan').value.trim();
+    if (document.getElementById('adu_anonim').checked) {
+      anonim = 'Ya';
+    }
+  } else {
+    targetBantuan = document.getElementById('adu_target_bantuan').value; // 'Satpam', 'Kebersihan', atau 'Warga'
+    waktuBantuan = document.getElementById('adu_waktu_bantuan').value;
+    deskripsi = document.getElementById('adu_deskripsi_bantuan').value.trim();
+  }
+
+  const payload = {
+    kategori: kategori,
+    targetBantuan: targetBantuan,
+    waktuBantuan: waktuBantuan,
+    kodeWarga: kodeWarga,
+    anonim: anonim,
+    deskripsi: deskripsi
+  };
+
+  Swal.fire({
+    title: 'Memproses...',
+    text: 'Memverifikasi kode & mengirim permohonan...',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res && res.success) {
+        document.getElementById('formPengaduan').reset();
+        bootstrap.Modal.getInstance(document.getElementById('modalPengaduan')).hide();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Terkirim!',
+          text: res.message || 'Laporan/Bantuan berhasil diteruskan.',
+          customClass: { popup: 'rounded-4' }
+        });
+      } else {
+        Swal.fire('Verifikasi Gagal', res ? res.message : 'Kode Unik Warga tidak terdaftar!', 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      Swal.fire('Error Server', String(err), 'error');
+    })
+    .simpanPengaduanWarga(payload);
+}
               
 			  function openModalProsesPengaduan(id){ const p=dataPengaduanGlobal.find(x=>x.id===id); if(p){document.getElementById('proses_adu_id').value=p.id; document.getElementById('proses_adu_nama_asli').innerText=p.namaAsli; document.getElementById('proses_adu_wa').innerHTML=formatWA(p.noWa); document.getElementById('proses_adu_deskripsi').innerText=p.deskripsi; document.getElementById('proses_adu_status').value=p.status; document.getElementById('proses_adu_respon').value=p.respon!=='-'?p.respon:''; new bootstrap.Modal(document.getElementById('modalProsesPengaduan')).show();} }
              
