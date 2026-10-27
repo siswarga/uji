@@ -7152,7 +7152,7 @@
           </div>
         </div>
 
-        <!-- ================= TAMPILAN 2: PENAMPIL BACAAN (READER) ================= -->
+       <!-- ================= TAMPILAN 2: PENAMPIL BACAAN (READER) ================= -->
         <div id="ebookViewReader" class="d-none flex-column flex-grow-1 h-100">
           <!-- Toolbar Atas Reader -->
           <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
@@ -7167,9 +7167,18 @@
             </span>
           </div>
 
-          <!-- Frame Pembaca Dokumen -->
-          <div class="w-100 flex-grow-1 position-relative rounded-3 overflow-hidden border bg-dark" style="height: 70vh;">
+          <!-- 1. Frame Pembaca Dokumen (Untuk Ebook PDF biasa) -->
+          <div id="boxFrameEbook" class="w-100 flex-grow-1 position-relative rounded-3 overflow-hidden border bg-dark" style="height: 70vh;">
             <iframe id="frameBacaEbook" src="about:blank" class="w-100 h-100 border-0" allow="autoplay" allowfullscreen></iframe>
+          </div>
+
+          <!-- 2. Kontainer Koran Digital (Khusus Kategori Berita RSS) -->
+          <div id="readerBeritaContainer" class="d-none flex-grow-1 p-3 overflow-auto bg-light rounded-3 border" style="height: 70vh;">
+            <div id="loadingReaderBerita" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="text-muted small mt-2">Menyusun artikel berita terkini...</p>
+            </div>
+            <div id="gridArtikelKoran" class="row g-3"></div>
           </div>
         </div>
 
@@ -7177,7 +7186,6 @@
     </div>
   </div>
 </div>
-
 <!-- ================================================================= -->
 <!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
 <!-- ================================================================= -->
@@ -20640,7 +20648,64 @@ function tutupScannerKTA() {
   }
 }
 
+// Panggil otomatis saat web pertama kali dibuka
+document.addEventListener('DOMContentLoaded', () => {
+  muatBeritaWarga('antara');
+});
 
+function muatBeritaWarga(sumber) {
+  const container = document.getElementById('gridBeritaWarga');
+  const loader = document.getElementById('loadingBerita');
+  
+  if (!container || !loader) return;
+
+  container.classList.add('d-none');
+  loader.classList.remove('d-none');
+
+  google.script.run
+    .withSuccessHandler(res => {
+      loader.classList.add('d-none');
+      container.classList.remove('d-none');
+      container.innerHTML = '';
+
+      if (!res || !res.success || res.data.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center text-muted py-3 small">Gagal memuat feed berita saat ini.</div>';
+        return;
+      }
+
+      res.data.forEach(item => {
+        container.innerHTML += `
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card h-100 border shadow-none rounded-3 overflow-hidden bg-light">
+              <img src="${item.gambar}" alt="Foto Berita" class="w-100" style="height: 120px; object-fit: cover;">
+              <div class="card-body p-2 d-flex flex-column justify-content-between">
+                <div>
+                  <small class="text-muted d-block mb-1" style="font-size: 0.68rem;">
+                    <i class="far fa-clock me-1"></i>${item.tanggal}
+                  </small>
+                  <h6 class="fw-bold text-dark mb-1" style="font-size: 0.8rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    ${item.judul}
+                  </h6>
+                  <p class="text-muted mb-2" style="font-size: 0.72rem; line-height: 1.25;">
+                    ${item.ringkasan}
+                  </p>
+                </div>
+                <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark rounded-pill w-100 py-1" style="font-size: 0.7rem;">
+                  Baca Sumber Asli <i class="fas fa-external-link-alt ms-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    })
+    .withFailureHandler(err => {
+      loader.classList.add('d-none');
+      container.classList.remove('d-none');
+      container.innerHTML = '<div class="col-12 text-center text-danger py-3 small">Terjadi kesalahan koneksi server.</div>';
+    })
+    .ambilBeritaRss(sumber);
+}
 
 window.kumpulanBuku = window.kumpulanBuku || [];
 let ebookModalInstance = null;
@@ -20724,12 +20789,16 @@ function tampilkanBuku(list) {
 
   list.forEach((item, index) => {
     const cover = item.cover_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
+    const isBerita = String(item.kategori || '').toLowerCase().includes('berita');
+    const labelTombol = isBerita ? '<i class="fas fa-external-link-alt me-1"></i> Buka Portal' : '<i class="fas fa-book-reader me-1"></i> Baca';
+    const btnClass = isBerita ? 'btn-outline-primary' : 'btn-outline-success';
+
     grid.innerHTML += `
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <div class="card h-100 border shadow-sm rounded-3 overflow-hidden">
           <div class="position-relative" style="height: 170px; background-color: #f1f5f9;">
             <img src="${cover}" alt="${item.judul}" class="w-100 h-100" style="object-fit: cover;">
-            <span class="badge bg-success position-absolute top-0 start-0 m-2 shadow-sm" style="font-size: 0.65rem;">
+            <span class="badge ${isBerita ? 'bg-primary' : 'bg-success'} position-absolute top-0 start-0 m-2 shadow-sm" style="font-size: 0.65rem;">
               ${item.kategori || 'Umum'}
             </span>
           </div>
@@ -20740,12 +20809,12 @@ function tampilkanBuku(list) {
                 ${item.judul}
               </h6>
               <p class="text-muted mb-0" style="font-size: 0.7rem;">
-                <i class="fas fa-pen-nib me-1 text-secondary"></i>${item.penulis || 'Anonim'}
+                <i class="fas fa-pen-nib me-1 text-secondary"></i>${item.penulis || 'Redaksi'}
               </p>
             </div>
             
-            <button type="button" onclick="bukaHalamanBaca('${index}')" class="btn btn-sm btn-outline-success w-100 rounded-pill fw-bold" style="font-size: 0.75rem;">
-              <i class="fas fa-book-reader me-1"></i> Baca
+            <button type="button" onclick="bukaMediaBaca('${index}')" class="btn btn-sm ${btnClass} w-100 rounded-pill fw-bold" style="font-size: 0.75rem;">
+              ${labelTombol}
             </button>
           </div>
         </div>
@@ -20754,43 +20823,67 @@ function tampilkanBuku(list) {
   });
 }
 
-// Menampilkan dokumen langsung di dalam modal tanpa membuka tab baru
+// Buka halaman baca dokumen atau koran berita
 function bukaHalamanBaca(indexBuku) {
   const buku = window.kumpulanBuku[indexBuku];
-  if (!buku || !buku.file_url) {
-    alert("Tautan file buku belum tersedia.");
+  if (!buku) {
+    alert("Data bacaan tidak ditemukan.");
     return;
   }
 
-  let finalUrl = buku.file_url.trim();
+  const viewKatalog = document.getElementById('ebookViewKatalog');
+  const viewReader = document.getElementById('ebookViewReader');
+  const boxEbook = document.getElementById('boxFrameEbook');
+  const frameEbook = document.getElementById('frameBacaEbook');
+  const boxBerita = document.getElementById('readerBeritaContainer');
+  const judulReader = document.getElementById('readerJudulBuku');
 
-  // Optimasi tautan dokumen agar tampil bersih di dalam iframe
-  if (finalUrl.includes('drive.google.com') && !finalUrl.includes('/preview')) {
-    finalUrl = finalUrl.replace(/\/view.*$/, '/preview');
+  // Tampilkan layar reader
+  if (viewKatalog) viewKatalog.classList.add('d-none');
+  if (viewReader) {
+    viewReader.classList.remove('d-none');
+    viewReader.classList.add('d-flex');
   }
 
-  // Tampilkan reader dan sembunyikan katalog
-  document.getElementById('ebookViewKatalog').classList.add('d-none');
-  document.getElementById('ebookViewReader').classList.remove('d-none');
-  document.getElementById('ebookViewReader').classList.add('d-flex');
-  
-  // Set judul dan muat dokumen ke iframe
-  document.getElementById('readerJudulBuku').textContent = buku.judul;
-  document.getElementById('frameBacaEbook').src = finalUrl;
+  if (judulReader) judulReader.textContent = buku.judul;
+
+  // Cek apakah item adalah kategori Berita
+  const isBerita = String(buku.kategori || '').toLowerCase().includes('berita');
+
+  if (isBerita) {
+    if (boxEbook) boxEbook.classList.add('d-none');
+    if (boxBerita) {
+      boxBerita.classList.remove('d-none');
+      muatIsiKoranDigital(buku.file_url || 'antara');
+    }
+  } else {
+    if (boxBerita) boxBerita.classList.add('d-none');
+    if (boxEbook) boxEbook.classList.remove('d-none');
+    
+    let finalUrl = (buku.file_url || '').trim();
+    if (finalUrl.includes('drive.google.com') && !finalUrl.includes('/preview')) {
+      finalUrl = finalUrl.replace(/\/view.*$/, '/preview');
+    }
+    if (frameEbook) frameEbook.src = finalUrl;
+  }
 }
 
-// Kembali ke daftar kartu buku
+// Tutup reader dan kembali ke katalog kartu buku
 function kembaliKeKatalog() {
   const viewKatalog = document.getElementById('ebookViewKatalog');
   const viewReader = document.getElementById('ebookViewReader');
-  const frame = document.getElementById('frameBacaEbook');
+  const boxEbook = document.getElementById('boxFrameEbook');
+  const frameEbook = document.getElementById('frameBacaEbook');
+  const boxBerita = document.getElementById('readerBeritaContainer');
 
   if (viewKatalog) viewKatalog.classList.remove('d-none');
   if (viewReader) {
     viewReader.classList.add('d-none');
     viewReader.classList.remove('d-flex');
   }
-  if (frame) frame.src = 'about:blank'; // Bersihkan memori iframe
+  if (boxEbook) boxEbook.classList.remove('d-none');
+  if (boxBerita) boxBerita.classList.add('d-none');
+  if (frameEbook) frameEbook.src = 'about:blank';
 }
 
 function filterEbook() {
