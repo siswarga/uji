@@ -15862,17 +15862,18 @@ function openModalJadwalSatpam() {
           let tglFormat = `${yyyy}-${mm}-${dd}`;
 
           shifts.forEach((shf, sIdx) => {
-            let satpamIndex = (hariKe + sIdx) % totalSatpam;
-            let petugas = listPersonel[satpamIndex];
+			let satpamIndex = (hariKe + sIdx) % totalSatpam;
+			let petugas = listPersonel[satpamIndex];
 
-            jadwalRolling.push({
-              tanggal: tglFormat,
-              shift: shf,
-              idSatpam: petugas.id,
-              nama: petugas.nama,
-              keterangan: keterangan
-            });
-          });
+			jadwalRolling.push({
+			tanggal: tglFormat,
+			shift: shf,
+			idSatpam: petugas.id,
+			nama: petugas.nama,
+			noWa: petugas.noWa || petugas.wa || petugas.telepon || petugas.hp || '', // Ambil nomor WA personel
+			keterangan: keterangan
+			});
+		});
         }
 
         return jadwalRolling;
