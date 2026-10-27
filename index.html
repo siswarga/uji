@@ -11616,30 +11616,46 @@ function openModalPermohonan() {
 
   google.script.run.withSuccessHandler(res => {
     if (res.success && Array.isArray(res.data)) {
-      listWargaPrmTemp = res.data;
+      window.listWargaPrmTemp = res.data;
       
       sn.innerHTML = '<option value="">-- Pilih Nama Warga --</option><option value="MANUAL" class="text-danger fw-bold">+ Input Manual (Bukan Warga)</option>';
 
-      // 1. Saring agar hanya nama unik yang masuk
       const namaTerdaftar = new Set();
       const listWargaUnik = [];
 
       res.data.forEach(w => {
-        const nama = String(w.nama || w.nama_lengkap || '').trim();
+        // Deteksi nama lengkap
+        const nama = String(w.nama || w.nama_lengkap || w['Nama Lengkap'] || '').trim();
         const namaKey = nama.toLowerCase();
 
         if (nama && !namaTerdaftar.has(namaKey) && nama !== '-') {
           namaTerdaftar.add(namaKey);
-          listWargaUnik.push(w);
+
+          // Deteksi no handphone dari berbagai variasi header kolom
+          const noWa = String(
+            w['No Handphone'] ||
+            w.no_handphone ||
+            w.no_hp ||
+            w.hp ||
+            w.no_wa ||
+            w.wa ||
+            w.telepon ||
+            ''
+          ).trim();
+
+          listWargaUnik.push({
+            nama: nama,
+            wa: (noWa === '-' || noWa === 'undefined') ? '' : noWa
+          });
         }
       });
 
-      // 2. Urutkan nama warga berdasarkan abjad (A-Z)
+      // Urutkan nama A-Z
       listWargaUnik.sort((a, b) => a.nama.localeCompare(b.nama));
 
-      // 3. Masukkan ke dropdown
+      // Simpan nomor WA langsung di data-wa setiap option
       listWargaUnik.forEach(w => {
-        sn.innerHTML += `<option value="${w.nama}">${w.nama}</option>`;
+        sn.innerHTML += `<option value="${w.nama}" data-wa="${w.wa}">${w.nama}</option>`;
       });
     }
   }).getListNamaWarga('PUBLIC');
@@ -11647,32 +11663,43 @@ function openModalPermohonan() {
   new bootstrap.Modal(document.getElementById('modalPermohonan')).show();
 }
 
-// Menangani perpindahan pilihan dropdown nama pemohon
-function handlePilihNamaWarga(namaDipilih) {
+function handlePilihNamaWarga(el) {
+  const sn = document.getElementById('prm_select_nama');
   const manualInput = document.getElementById('prm_nama_manual');
   const waInput = document.getElementById('prm_wa');
-  if (!manualInput || !waInput) return;
+  if (!sn || !waInput) return;
 
-  if (namaDipilih === 'MANUAL') {
-    manualInput.classList.remove('d-none');
-    manualInput.required = true;
-    manualInput.value = '';
+  const val = sn.value;
+
+  if (val === 'MANUAL') {
+    if (manualInput) {
+      manualInput.classList.remove('d-none');
+      manualInput.required = true;
+      manualInput.value = '';
+      manualInput.focus();
+    }
     waInput.value = '';
     waInput.readOnly = false;
-    manualInput.focus();
-  } else {
-    manualInput.classList.add('d-none');
-    manualInput.required = false;
-
-    // Cari data kontak warga dari array sementara
-    const list = window.listWargaPrmTemp || [];
-    const warga = list.find(w => (w.nama || w.nama_lengkap || '').trim().toLowerCase() === namaDipilih.toLowerCase());
-
-    if (warga) {
-      waInput.value = warga.wa || warga.no_wa || warga.telepon || warga.hp || warga.no_hp || '';
-    } else {
-      waInput.value = '';
+  } else if (!val) {
+    if (manualInput) {
+      manualInput.classList.add('d-none');
+      manualInput.required = false;
+      manualInput.value = '';
     }
+    waInput.value = '';
+    waInput.readOnly = true;
+  } else {
+    if (manualInput) {
+      manualInput.classList.add('d-none');
+      manualInput.required = false;
+      manualInput.value = '';
+    }
+
+    // Ambil langsung dari atribut data-wa milik opsi yang dipilih
+    const optTerpilih = sn.options[sn.selectedIndex];
+    const wa = optTerpilih ? (optTerpilih.getAttribute('data-wa') || '') : '';
+
+    waInput.value = wa;
     waInput.readOnly = true;
   }
 }
