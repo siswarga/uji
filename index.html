@@ -7097,7 +7097,7 @@
   </div>
 </div>
 
-<!-- Modal E-Book Warga (Terintegrasi dengan Pembaca Internal) -->
+<!-- Modal E-Book Warga (Terintegrasi dengan Pembaca Dokumen & Koran Digital) -->
 <div class="modal fade" id="modalEbookWarga" tabindex="-1" aria-labelledby="modalEbookLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" style="max-width: 95vw;">
     <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="min-height: 85vh;">
@@ -7152,7 +7152,7 @@
           </div>
         </div>
 
-       <!-- ================= TAMPILAN 2: PENAMPIL BACAAN (READER) ================= -->
+        <!-- ================= TAMPILAN 2: PENAMPIL BACAAN (READER) ================= -->
         <div id="ebookViewReader" class="d-none flex-column flex-grow-1 h-100">
           <!-- Toolbar Atas Reader -->
           <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
@@ -7167,7 +7167,7 @@
             </span>
           </div>
 
-          <!-- 1. Frame Pembaca Dokumen (Untuk Ebook PDF biasa) -->
+          <!-- 1. Frame Pembaca Dokumen (Untuk E-Book PDF biasa) -->
           <div id="boxFrameEbook" class="w-100 flex-grow-1 position-relative rounded-3 overflow-hidden border bg-dark" style="height: 70vh;">
             <iframe id="frameBacaEbook" src="about:blank" class="w-100 h-100 border-0" allow="autoplay" allowfullscreen></iframe>
           </div>
@@ -7178,7 +7178,27 @@
               <div class="spinner-border text-primary" role="status"></div>
               <p class="text-muted small mt-2">Menyusun artikel berita terkini...</p>
             </div>
+            
+            <!-- Grid Daftar Berita -->
             <div id="gridArtikelKoran" class="row g-3"></div>
+
+            <!-- Lembar Baca Artikel di Halaman yang Sama -->
+            <div id="detailArtikelContainer" class="d-none bg-white p-4 rounded-3 border">
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mb-3" onclick="tutupDetailArtikel()">
+                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Berita
+              </button>
+              
+              <div class="d-block mb-2">
+                <span id="detailTanggalBerita" class="badge bg-danger-subtle text-danger"></span>
+              </div>
+              <h4 id="detailJudulBerita" class="fw-bold text-dark mb-3"></h4>
+              
+              <div class="text-center mb-3">
+                <img id="detailGambarBerita" src="" alt="Foto Berita" class="img-fluid rounded-3 shadow-sm" style="max-height: 350px; width: 100%; object-fit: cover;">
+              </div>
+              
+              <div id="detailIsiBerita" class="text-secondary" style="font-size: 0.95rem; line-height: 1.7; white-space: pre-line;"></div>
+            </div>
           </div>
         </div>
 
@@ -7186,6 +7206,7 @@
     </div>
   </div>
 </div>
+
 <!-- ================================================================= -->
 <!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
 <!-- ================================================================= -->
