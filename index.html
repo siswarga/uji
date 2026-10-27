@@ -6339,43 +6339,90 @@
     </div>
   </div>
 
-  <!-- MODAL PERMOHONAN -->
-  <div class="modal fade" id="modalPermohonan" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <form id="formPermohonan" class="modal-content" onsubmit="savePermohonanData(event)">
-        <div class="modal-header bg-info text-dark">
-          <h5 class="modal-title fw-bold">Ajukan Permohonan Surat</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-12">
-              <label class="form-label">Nama Pemohon*</label>
-              <select class="form-select mb-2" id="prm_select_nama" onchange="handlePrmNama()" required>
-                <option value="">-- Memuat Database... --</option>
+ <!-- Modal Ajukan Permohonan Surat (Desain Seragam dengan Suara Warga) -->
+<div class="modal fade" id="modalPermohonan" tabindex="-1" aria-labelledby="modalPermohonanLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      
+      <!-- Header Modal -->
+      <div class="modal-header text-white px-4 py-3 border-0" style="background: linear-gradient(135deg, #00b4d8, #0077b6);">
+        <h6 class="modal-title fw-bold d-flex align-items-center mb-0" id="modalPermohonanLabel">
+          <i class="fas fa-file-signature me-2 fa-lg"></i> Ajukan Permohonan Surat
+        </h6>
+        <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Isi Form -->
+      <div class="modal-body p-4 bg-white">
+        <form id="formPermohonan" onsubmit="kirimPermohonanSurat(event)">
+          
+          <!-- 1. Nama Pemohon -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary small text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+              Nama Pemohon:*
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 text-muted rounded-start-3">
+                <i class="fas fa-user"></i>
+              </span>
+              <select id="prm_select_nama" class="form-select border-start-0 rounded-end-3" onchange="handlePilihNamaWarga(this.value)" required>
+                <option value="">-- Pilih Nama Warga --</option>
               </select>
-              <input type="text" class="form-control d-none" id="prm_nama_manual" placeholder="Ketik Nama Lengkap...">
             </div>
-            <div class="col-md-12">
-              <label class="form-label">No WhatsApp*</label>
-              <input type="number" class="form-control bg-light" id="prm_wa" required readonly>
+            
+            <!-- Input Manual Jika Bukan Warga -->
+            <input type="text" id="prm_nama_manual" class="form-control rounded-3 mt-2 d-none" placeholder="Ketik nama lengkap pemohon...">
+          </div>
+
+          <!-- 2. No WhatsApp -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary small text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+              No WhatsApp:*
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 text-muted rounded-start-3">
+                <i class="fab fa-whatsapp text-success"></i>
+              </span>
+              <input type="text" id="prm_wa" class="form-control border-start-0 rounded-end-3" placeholder="08xxxxxxxxxx" readonly required>
             </div>
-            <div class="col-md-12">
-              <label class="form-label">Jenis Permohonan*</label>
-              <select class="form-select" id="prm_jenis" required></select>
-            </div>
-            <div class="col-md-12">
-              <label class="form-label">Keperluan*</label>
-              <textarea class="form-control" id="prm_keterangan" rows="3" required></textarea>
+            <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+              <i class="fas fa-info-circle text-success me-1"></i> No. WA otomatis terbaca dari sistem
+            </small>
+          </div>
+
+          <!-- 3. Jenis Permohonan -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary small text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+              Jenis Permohonan:*
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 text-muted rounded-start-3">
+                <i class="fas fa-file-alt"></i>
+              </span>
+              <select id="prm_jenis" class="form-select border-start-0 rounded-end-3" required>
+                <!-- Opsi jenis permohonan diisi otomatis oleh JS -->
+              </select>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-info w-100 fw-bold">Kirim Permohonan</button>
-        </div>
-      </form>
+
+          <!-- 4. Keperluan -->
+          <div class="mb-4">
+            <label class="form-label fw-bold text-secondary small text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+              Keperluan / Keterangan:*
+            </label>
+            <textarea id="prm_keperluan" class="form-control rounded-3" rows="3" placeholder="Tuliskan tujuan keperluan pengajuan surat..." required></textarea>
+          </div>
+
+          <!-- Tombol Kirim Permohonan -->
+          <button type="submit" id="btnKirimPermohonan" class="btn text-white w-100 rounded-pill py-2 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" style="background-color: #00b4d8; transition: 0.2s;">
+            <i class="fas fa-paper-plane"></i> Kirim Permohonan
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
+</div>
 
   <!-- MODAL PROSES PERMOHONAN -->
   <div class="modal fade" id="modalProsesPermohonan" tabindex="-1" aria-hidden="true">
@@ -11598,6 +11645,36 @@ function openModalPermohonan() {
   }).getListNamaWarga('PUBLIC');
 
   new bootstrap.Modal(document.getElementById('modalPermohonan')).show();
+}
+
+// Menangani perpindahan pilihan dropdown nama pemohon
+function handlePilihNamaWarga(namaDipilih) {
+  const manualInput = document.getElementById('prm_nama_manual');
+  const waInput = document.getElementById('prm_wa');
+  if (!manualInput || !waInput) return;
+
+  if (namaDipilih === 'MANUAL') {
+    manualInput.classList.remove('d-none');
+    manualInput.required = true;
+    manualInput.value = '';
+    waInput.value = '';
+    waInput.readOnly = false;
+    manualInput.focus();
+  } else {
+    manualInput.classList.add('d-none');
+    manualInput.required = false;
+
+    // Cari data kontak warga dari array sementara
+    const list = window.listWargaPrmTemp || [];
+    const warga = list.find(w => (w.nama || w.nama_lengkap || '').trim().toLowerCase() === namaDipilih.toLowerCase());
+
+    if (warga) {
+      waInput.value = warga.wa || warga.no_wa || warga.telepon || warga.hp || warga.no_hp || '';
+    } else {
+      waInput.value = '';
+    }
+    waInput.readOnly = true;
+  }
 }
               
 			  function handlePrmNama(){ let v=document.getElementById('prm_select_nama').value; let wa=document.getElementById('prm_wa'); let man=document.getElementById('prm_nama_manual'); if(v==='MANUAL'){man.classList.remove('d-none'); man.required=true; wa.value=''; wa.readOnly=false;}else if(v!==''){man.classList.add('d-none'); man.required=false; let m=listWargaPrmTemp.find(w=>w.nama===v); if(m){wa.value=m.wa; wa.readOnly=true;}}else{man.classList.add('d-none'); man.required=false; wa.value=''; wa.readOnly=true;} }
@@ -20853,7 +20930,6 @@ function tampilkanBuku(list) {
   });
 }
 
-// Membuka e-book atau feed koran digital di mode baca
 function bukaHalamanBaca(indexBuku) {
   const sumberData = window.daftarBukuAktif || window.kumpulanBuku || [];
   const buku = sumberData[indexBuku];
@@ -20869,7 +20945,6 @@ function bukaHalamanBaca(indexBuku) {
   const boxBerita = document.getElementById('readerBeritaContainer');
   const judulReader = document.getElementById('readerJudulBuku');
 
-  // Berpindah ke layar reader
   if (viewKatalog) viewKatalog.classList.add('d-none');
   if (viewReader) {
     viewReader.classList.remove('d-none');
@@ -20878,18 +20953,24 @@ function bukaHalamanBaca(indexBuku) {
 
   if (judulReader) judulReader.textContent = buku.judul;
 
-  const isBerita = String(buku.kategori || '').toLowerCase().includes('berita');
+  // Daftar kode sumber portal berita
+  const kodeMedia = ['cnbc', 'cnn', 'antara', 'republika', 'detik', 'kompas', 'tempo', 'liputan6', 'sindonews', 'suara', 'merdeka', 'viva'];
+  const fileUrlStr = String(buku.file_url || '').toLowerCase().trim();
+  const katStr = String(buku.kategori || '').toLowerCase();
+
+  // Deteksi cerdas: cek kata kategori ATAU kesesuaian kode media di file_url
+  const isBerita = katStr.includes('berita') || kodeMedia.includes(fileUrlStr);
 
   if (isBerita) {
-    // Mode Berita: Sembunyikan frame PDF, tampilkan wadah berita
+    // Mode Koran Digital
     if (boxFrame) boxFrame.classList.add('d-none');
     if (frameEbook) frameEbook.classList.add('d-none');
     if (boxBerita) {
       boxBerita.classList.remove('d-none');
-      muatIsiKoranDigital(buku.file_url || 'antara');
+      muatIsiKoranDigital(fileUrlStr || 'cnn');
     }
   } else {
-    // Mode Dokumen PDF biasa
+    // Mode Dokumen PDF E-Book
     if (boxBerita) boxBerita.classList.add('d-none');
     if (boxFrame) boxFrame.classList.remove('d-none');
     if (frameEbook) {
@@ -20998,12 +21079,12 @@ function bukaDetailArtikel(index) {
   document.getElementById('detailJudulBerita').textContent = art.judul;
   document.getElementById('detailGambarBerita').src = art.gambar;
   
-  // Nampilin pembuka awal dulu sambil narik paragraf lengkap
+  // Tampilkan cuplikan pembuka
   isiEl.innerHTML = `
-    <p class="fw-semibold text-dark">${art.isi}</p>
-    <div id="loadingTeksLengkap" class="text-center py-4 text-muted small">
+    <p class="fw-semibold text-dark mb-3">${art.isi}</p>
+    <div id="loadingTeksLengkap" class="text-center py-3 text-muted small">
       <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-      Memuat seluruh paragraf berita...
+      Menyinkronkan isi lengkap artikel...
     </div>
   `;
   
@@ -21014,20 +21095,25 @@ function bukaDetailArtikel(index) {
   detail.classList.remove('d-none');
   document.getElementById('readerBeritaContainer').scrollTop = 0;
 
-  // Narik seluruh naskah dari web redaksi
+  // Tarik naskah penuh
   google.script.run
     .withSuccessHandler(res => {
       const loader = document.getElementById('loadingTeksLengkap');
-      if (loader) loader.remove();
-
       if (res && res.success && res.konten) {
+        if (loader) loader.remove();
         const paragraf = res.konten.split('\n\n');
         isiEl.innerHTML = paragraf.map(p => `<p class="mb-3 text-dark">${p}</p>`).join('');
+      } else {
+        if (loader) {
+          loader.innerHTML = '<span class="text-muted small fst-italic">Kutipan berita resmi di atas disajikan langsung dari jaringan redaksi.</span>';
+        }
       }
     })
     .withFailureHandler(() => {
       const loader = document.getElementById('loadingTeksLengkap');
-      if (loader) loader.remove();
+      if (loader) {
+        loader.innerHTML = '<span class="text-muted small fst-italic">Kutipan berita resmi di atas disajikan langsung dari jaringan redaksi.</span>';
+      }
     })
     .ambilIsiArtikelLengkap(art.link);
 }
