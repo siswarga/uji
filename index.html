@@ -20991,22 +20991,45 @@ function bukaDetailArtikel(index) {
 
   const grid = document.getElementById('gridArtikelKoran');
   const detail = document.getElementById('detailArtikelContainer');
+  const isiEl = document.getElementById('detailIsiBerita');
 
   document.getElementById('detailSumberBerita').textContent = 'Koran ' + (art.sumber || 'Nasional');
   document.getElementById('detailTanggalBerita').textContent = art.tanggal;
   document.getElementById('detailJudulBerita').textContent = art.judul;
   document.getElementById('detailGambarBerita').src = art.gambar;
   
-  // Tampilkan naskah teks lengkap tanpa batas karakter
-  document.getElementById('detailIsiBerita').textContent = art.isi;
+  // Nampilin pembuka awal dulu sambil narik paragraf lengkap
+  isiEl.innerHTML = `
+    <p class="fw-semibold text-dark">${art.isi}</p>
+    <div id="loadingTeksLengkap" class="text-center py-4 text-muted small">
+      <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+      Memuat seluruh paragraf berita...
+    </div>
+  `;
   
-  // Pasang link asli ke tombol rujukan
   const linkBtn = document.getElementById('detailLinkAsli');
   if (linkBtn) linkBtn.href = art.link;
 
   grid.classList.add('d-none');
   detail.classList.remove('d-none');
   document.getElementById('readerBeritaContainer').scrollTop = 0;
+
+  // Narik seluruh naskah dari web redaksi
+  google.script.run
+    .withSuccessHandler(res => {
+      const loader = document.getElementById('loadingTeksLengkap');
+      if (loader) loader.remove();
+
+      if (res && res.success && res.konten) {
+        const paragraf = res.konten.split('\n\n');
+        isiEl.innerHTML = paragraf.map(p => `<p class="mb-3 text-dark">${p}</p>`).join('');
+      }
+    })
+    .withFailureHandler(() => {
+      const loader = document.getElementById('loadingTeksLengkap');
+      if (loader) loader.remove();
+    })
+    .ambilIsiArtikelLengkap(art.link);
 }
 
 // Kembali ke daftar kartu berita di modal yang sama
