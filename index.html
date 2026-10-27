@@ -629,76 +629,64 @@
               </div>
             </div>
 
-            <!-- Tombol Aksi Cepat di Bagian Bawah Kartu Kanan -->
-            <div>
-              <div class="flex-fill mb-2" id="card-menu-install-pwa" style="display: none;">
-                <a href="javascript:void(0)" onclick="triggerInstallPWA()" class="btn-action-icon h-100 w-100 border-success bg-success bg-opacity-10">
-                  <i class="fas fa-download text-success"></i>
-                  <div class="text-start">
-                    <div class="fw-bold text-success" style="font-size: 0.9rem;">Install Aplikasi</div>
-                    <small class="text-muted" style="font-size: 0.7rem;">Simpan ke HP</small>
-                  </div>
-                </a>
-              </div>
+<!-- Tombol Aksi Cepat di Bagian Bawah Kartu Kanan (Ikon Atas, Teks Bawah) -->
+<div>
+  <!-- Tombol Install PWA -->
+  <div class="flex-fill mb-2" id="card-menu-install-pwa" style="display: none;">
+    <a href="javascript:void(0)" onclick="triggerInstallPWA()" class="btn-action-icon d-flex flex-column align-items-center justify-content-center text-center h-100 w-100 py-2 px-1 border-success bg-success bg-opacity-10 text-decoration-none">
+      <i class="fas fa-download text-success fs-5 mb-1"></i>
+      <span class="fw-bold text-success" style="font-size: 0.75rem; line-height: 1.2;">Install Aplikasi</span>
+    </a>
+  </div>
 
-              <div class="row g-2">
-                <div class="d-flex flex-column flex-md-row gap-2 w-100">
-                  <!-- 1. Pinjam Aset -->
-                  <div class="flex-fill">
-                    <a href="javascript:void(0)" onclick="openModalPeminjaman()" class="btn-action-icon h-100 w-100">
-                      <i class="fas fa-boxes text-success"></i>
-                      <div class="text-start">
-                        <div class="fw-bold" style="font-size: 0.85rem;">Pinjam Aset</div>
-                        <small class="text-muted" style="font-size: 0.65rem;">Fasilitas Warga</small>
-                      </div>
-                    </a>
-                  </div>
-                  <!-- 2. Lapor Keluhan -->
-                  <div class="flex-fill">
-                    <a href="javascript:void(0)" onclick="openModalPengaduan()" class="btn-action-icon h-100 w-100">
-                      <i class="fas fa-bullhorn text-danger"></i>
-                      <div class="text-start">
-                        <div class="fw-bold" style="font-size: 0.85rem;">Layanan Warga</div>
-                        <small class="text-muted" style="font-size: 0.65rem;">Pengaduan Masalah</small>
-                      </div>
-                    </a>
-                  </div>
-                  <!-- 3. Permohonan -->
-                  <div class="flex-fill">
-                    <a href="javascript:void(0)" onclick="openModalPermohonan()" class="btn-action-icon h-100 w-100">
-                      <i class="fas fa-file-signature text-primary"></i>
-                      <div class="text-start">
-                        <div class="fw-bold" style="font-size: 0.85rem;">Permohonan</div>
-                        <small class="text-muted" style="font-size: 0.65rem;">Surat Pengantar</small>
-                      </div>
-                    </a>
-                  </div>
-                  <!-- 4. Daftar Warga (Input Mandiri) -->
-                  <div class="flex-fill" id="card-menu-daftar-warga">
-                    <a href="javascript:void(0)" onclick="openModalPendaftaranCek()" class="btn-action-icon h-100 w-100">
-                      <i class="fas fa-user-plus text-success"></i>
-                      <div class="text-start">
-                        <div class="fw-bold" style="font-size: 0.85rem;">Daftar Warga</div>
-                        <small class="text-muted" style="font-size: 0.65rem;">Input Mandiri</small>
-                      </div>
-                    </a>
-                  </div>
-                  <!-- 5. Lapor Mudik -->
-                  <div class="flex-fill" id="card-menu-lapor-mudik" style="display: none;">
-                    <a href="javascript:void(0)" onclick="openModalPemudikPublik()" class="btn-action-icon h-100 w-100 border-warning bg-warning bg-opacity-10">
-                      <i class="fas fa-car-side text-warning"></i>
-                      <div class="text-start">
-                        <div class="fw-bold text-dark" style="font-size: 0.85rem;">Lapor Mudik</div>
-                        <small class="text-muted" style="font-size: 0.65rem;">Pantau Rumah</small>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="row g-2">
+    <div class="d-flex flex-column flex-md-row gap-2 w-100">
+      
+      <!-- 1. Pinjam Aset -->
+      <div class="flex-fill">
+        <a href="javascript:void(0)" onclick="openModalPeminjaman()" class="btn-action-icon d-flex flex-column align-items-center justify-content-center text-center h-100 w-100 py-2 px-1 text-decoration-none">
+          <i class="fas fa-boxes text-success fs-5 mb-1"></i>
+          <span class="fw-bold text-dark" style="font-size: 0.75rem; line-height: 1.2;">Pinjam Aset</span>
+        </a>
       </div>
+
+      <!-- 2. Layanan Warga -->
+      <div class="flex-fill">
+        <a href="javascript:void(0)" onclick="openModalPengaduan()" class="btn-action-icon d-flex flex-column align-items-center justify-content-center text-center h-100 w-100 py-2 px-1 text-decoration-none">
+          <i class="fas fa-bullhorn text-danger fs-5 mb-1"></i>
+          <span class="fw-bold text-dark" style="font-size: 0.75rem; line-height: 1.2;">Layanan Warga</span>
+        </a>
+      </div>
+
+      <!-- 3. Permohonan Surat -->
+      <div class="flex-fill">
+        <a href="javascript:void(0)" onclick="openModalPermohonan()" class="btn-action-icon d-flex flex-column align-items-center justify-content-center text-center h-100 w-100 py-2 px-1 text-decoration-none">
+          <i class="fas fa-file-signature text-primary fs-5 mb-1"></i>
+          <span class="fw-bold text-dark" style="font-size: 0.75rem; line-height: 1.2;">Permohonan</span>
+        </a>
+      </div>
+
+      <!-- 4. Daftar Warga (Input Mandiri) -->
+      <div class="flex-fill" id="card-menu-daftar-warga">
+        <a href="javascript:void(0)" onclick="openModalPendaftaranCek()" class="btn-action-icon d-flex flex-column align-items-center justify-content-center text-center h-100 w-100 py-2 px-1 text-decoration-none">
+          <i class="fas fa-user-plus text-success fs-5 mb-1"></i>
+          <span class="fw-bold text-dark" style="font-size: 0.75rem; line-height: 1.2;">Daftar Warga</span>
+        </a>
+      </div>
+
+      <!-- 5. Lapor Mudik -->
+      <div class="flex-fill" id="card-menu-lapor-mudik">
+        <a href="javascript:void(0)" onclick="openModalPemudikPublik()" class="btn-action-icon d-flex flex-column align-items-center justify-content-center text-center h-100 w-100 py-2 px-1 border-warning bg-warning bg-opacity-10 text-decoration-none">
+          <i class="fas fa-car-side text-warning fs-5 mb-1"></i>
+          <span class="fw-bold text-dark" style="font-size: 0.75rem; line-height: 1.2;">Lapor Mudik</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+ </div>
+  </div>
+</div>
 
       <!-- BARIS 4: Grafik Usia & Gender & Kas Organisasi -->
       <div class="row g-4 mb-4">
@@ -6486,59 +6474,153 @@
     </div>
   </div>
 
-  <!-- MODAL PEMINJAMAN -->
-  <div class="modal fade" id="modalPeminjaman" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <form id="formPeminjaman" class="modal-content" onsubmit="savePeminjamanData(event)">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title"><i class="fas fa-boxes me-2"></i>Form Peminjaman Aset</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-12">
-              <label class="form-label">Jenis Peminjam*</label>
-              <select class="form-select" id="pinjam_jenis" onchange="handlePinjamJenis()" required>
+ <!-- MODAL PEMINJAMAN & PENGEMBALIAN ASET -->
+<div class="modal fade" id="modalPeminjaman" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 440px;">
+    <form id="formPeminjaman" class="modal-content rounded-4 border-0 shadow" onsubmit="handleFormAsetSubmit(event)">
+      
+      <!-- Header Modal -->
+      <div class="modal-header bg-primary text-white py-2 px-3 border-0" id="headerModalAset">
+        <h6 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0" style="font-size: 0.95rem;">
+          <i class="fas fa-boxes"></i> Layanan Aset Lingkungan
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-3">
+        <!-- Tab Navigasi -->
+        <ul class="nav nav-pills nav-fill bg-light p-1 rounded-pill mb-3 border" id="peminjamanTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill py-1 fw-bold small" id="tab-pinjam" data-bs-toggle="pill" data-bs-target="#pane-pinjam" type="button" role="tab" onclick="switchTabAset('Pinjam')">
+              <i class="fas fa-hand-holding me-1"></i> Pinjam Aset
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill py-1 fw-bold small text-secondary" id="tab-kembali" data-bs-toggle="pill" data-bs-target="#pane-kembali" type="button" role="tab" onclick="switchTabAset('Kembali')">
+              <i class="fas fa-undo-alt me-1"></i> Pengembalian
+            </button>
+          </li>
+        </ul>
+
+        <input type="hidden" id="aset_mode_aktif" value="Pinjam">
+
+        <div class="tab-content">
+          
+          <!-- TAB 1: PINJAM ASET -->
+          <div class="tab-pane fade show active" id="pane-pinjam" role="tabpanel">
+            <div class="mb-2">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">JENIS PEMINJAM:*</label>
+              <select class="form-select form-select-sm rounded-2" id="pinjam_jenis" onchange="handlePinjamJenis()">
                 <option value="Warga">Warga Komplek</option>
                 <option value="Non Warga">Luar Komplek</option>
               </select>
             </div>
-            <div class="col-md-6" id="div_pinjam_warga">
-              <label class="form-label">Pilih Warga*</label>
-              <select class="form-select" id="pinjam_select_warga" onchange="handlePinjamWarga()">
-                <option value="">-- Memuat --</option>
+
+            <div class="mb-2" id="div_pinjam_warga">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">PILIH WARGA:*</label>
+              <select class="form-select form-select-sm rounded-2" id="pinjam_select_warga" onchange="handlePinjamWarga()">
+                <option value="">-- Memuat Data Warga --</option>
               </select>
             </div>
-            <div class="col-md-6 d-none" id="div_pinjam_namaLuar">
-              <label class="form-label">Nama Lengkap*</label>
-              <input type="text" class="form-control" id="pinjam_namaLuar">
+
+            <div class="mb-2 d-none" id="div_pinjam_namaLuar">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">NAMA LENGKAP:*</label>
+              <input type="text" class="form-control form-control-sm rounded-2" id="pinjam_namaLuar" placeholder="Nama peminjam luar">
             </div>
-            <div class="col-md-6">
-              <label class="form-label">No WhatsApp*</label>
-              <input type="number" class="form-control bg-light" id="pinjam_wa" required readonly>
+
+            <div class="mb-2">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">NO. WHATSAPP AKTIF:*</label>
+              <input type="number" class="form-control form-control-sm bg-light rounded-2" id="pinjam_wa" placeholder="08xxxxxxxxxx" required readonly>
             </div>
-            <div class="col-md-12">
-              <label class="form-label">Pilih Barang di Gudang*</label>
-              <select class="form-select" id="pinjam_barang" required>
+
+            <div class="mb-2">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">PILIH BARANG GUDANG:*</label>
+              <select class="form-select form-select-sm rounded-2" id="pinjam_barang" required>
                 <option value="">-- Memuat Barang --</option>
               </select>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Tgl Pinjam*</label>
-              <input type="date" class="form-control" id="pinjam_tglMulai" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Tgl Kembali*</label>
-              <input type="date" class="form-control" id="pinjam_tglKembali" required>
+
+            <div class="row g-2 mb-1">
+              <div class="col-6">
+                <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">TGL PINJAM:*</label>
+                <input type="date" class="form-control form-control-sm rounded-2" id="pinjam_tglMulai" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">TGL KEMBALI:*</label>
+                <input type="date" class="form-control form-control-sm rounded-2" id="pinjam_tglKembali" required>
+              </div>
             </div>
           </div>
+
+          <!-- TAB 2: PENGEMBALIAN ASET -->
+          <div class="tab-pane fade" id="pane-kembali" role="tabpanel">
+            <div class="mb-2">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">NAMA PEMINJAM / KODE WARGA:*</label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light text-muted border-end-0 py-1"><i class="fas fa-search"></i></span>
+                <input 
+                  type="text" 
+                  class="form-control form-control-sm border-start-0 py-1" 
+                  id="kembali_nama_input" 
+                  placeholder="Ketik nama atau kode warga..." 
+                  autocomplete="off"
+                  oninput="debounceCariPinjaman()">
+              </div>
+              <small class="text-muted d-block mt-1" style="font-size: 0.68rem;">Ketik nama, barang yang sedang dipinjam akan terbaca otomatis.</small>
+            </div>
+
+            <!-- Area Notifikasi Status Pencarian -->
+            <div id="kembali_status_pencarian" class="d-none my-2 p-2 rounded-2 text-center small"></div>
+
+            <!-- Dropdown Pilihan Barang yang Sedang Dipinjam -->
+            <div class="mb-2 d-none" id="box_daftar_pinjaman">
+              <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">BARANG YANG SEDANG DIPINJAM:*</label>
+              <select class="form-select form-select-sm rounded-2 fw-semibold text-dark border-success" id="kembali_id_transaksi" onchange="tampilkanRincianKembali()">
+                <option value="">-- Pilih Barang yang Dikembalikan --</option>
+              </select>
+            </div>
+
+            <!-- Rincian & Kondisi Pengembalian -->
+            <div id="box_detail_kembali" class="d-none">
+              <div class="p-2 bg-light rounded-2 border mb-2" style="font-size: 0.75rem;">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-muted">Tgl Peminjaman:</span>
+                  <span class="fw-bold text-dark" id="kembali_info_tglPinjam">-</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Target Kembali:</span>
+                  <span class="fw-bold text-danger" id="kembali_info_tglTarget">-</span>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">KONDISI BARANG:*</label>
+                <select class="form-select form-select-sm rounded-2 text-dark" id="kembali_kondisi">
+                  <option value="Baik / Lengkap">✅ Baik & Lengkap</option>
+                  <option value="Rusak Sebagian">⚠️ Rusak Sebagian</option>
+                  <option value="Hilang / Tidak Lengkap">❌ Hilang / Kurang</option>
+                </select>
+              </div>
+
+              <div class="mb-1">
+                <label class="form-label text-muted fw-bold mb-1" style="font-size: 0.72rem;">CATATAN PENGEMBALIAN:</label>
+                <textarea class="form-control form-control-sm rounded-2" id="kembali_catatan" rows="2" placeholder="Catatan kondisi fisik atau info serah terima (opsional)..."></textarea>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary w-100 fw-bold">Ajukan Peminjaman</button>
-        </div>
-      </form>
-    </div>
+      </div>
+
+      <!-- Footer Tombol Modal -->
+      <div class="modal-footer p-2 border-0 bg-light rounded-bottom-4">
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm" id="btn-submit-aset">
+          <i class="fas fa-paper-plane me-1"></i> Ajukan Peminjaman
+        </button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- MODAL PENGURUS -->
   <div class="modal fade" id="modalPengurus" tabindex="-1" aria-hidden="true">
@@ -11622,6 +11704,10 @@ function openModalPeminjaman() {
   const form = document.getElementById('formPeminjaman');
   if (form) form.reset();
 
+  // Reset tab kembali ke "Pinjam Aset" dengan pemicu klik native (aman, tidak bikin macet)
+  const btnTabPinjam = document.getElementById('tab-pinjam');
+  if (btnTabPinjam) btnTabPinjam.click();
+
   let selectJenis = document.getElementById('pinjam_jenis');
   if (selectJenis) selectJenis.value = 'Warga';
 
@@ -11727,6 +11813,157 @@ function openModalPeminjaman() {
                 // Jika sudah berupa string biasa (misal "19:00:00")
                 return String(val).substring(0, 5);
               }
+
+let timerCariPinjaman = null;
+let cacheDaftarPinjaman = [];
+
+// 1. Perpindahan Tab Pinjam vs Kembali
+function switchTabAset(mode) {
+  document.getElementById('aset_mode_aktif').value = mode;
+  const isPinjam = (mode === 'Pinjam');
+  
+  const headerModal = document.getElementById('headerModalAset');
+  const btnSubmit = document.getElementById('btn-submit-aset');
+
+  // Toggle required atribut agar form validasi tidak bentrok antar tab
+  document.getElementById('pinjam_barang').required = isPinjam;
+  document.getElementById('pinjam_tglMulai').required = isPinjam;
+  document.getElementById('pinjam_tglKembali').required = isPinjam;
+
+  if (isPinjam) {
+    headerModal.className = 'modal-header bg-primary text-white py-2 px-3 border-0';
+    btnSubmit.className = 'btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm';
+    btnSubmit.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Ajukan Peminjaman';
+  } else {
+    headerModal.className = 'modal-header bg-success text-white py-2 px-3 border-0';
+    btnSubmit.className = 'btn btn-success w-100 py-2 fw-bold rounded-pill shadow-sm';
+    btnSubmit.innerHTML = '<i class="fas fa-check-circle me-1"></i> Konfirmasi Pengembalian';
+  }
+}
+
+// 2. Debounce Pencarian Saat Nama Peminjam Diketik
+function debounceCariPinjaman() {
+  clearTimeout(timerCariPinjaman);
+  const inputNama = document.getElementById('kembali_nama_input').value.trim();
+  
+  if (inputNama.length < 2) {
+    document.getElementById('box_daftar_pinjaman').classList.add('d-none');
+    document.getElementById('box_detail_kembali').classList.add('d-none');
+    document.getElementById('kembali_status_pencarian').classList.add('d-none');
+    return;
+  }
+
+  timerCariPinjaman = setTimeout(() => {
+    cariPinjamanAktifWarga(inputNama);
+  }, 400);
+}
+
+// 3. Request ke Server Mencari Aset yang Sedang Dipinjam
+function cariPinjamanAktifWarga(namaWarga) {
+  const statusEl = document.getElementById('kembali_status_pencarian');
+  const boxDaftar = document.getElementById('box_daftar_pinjaman');
+  const selectBarang = document.getElementById('kembali_id_transaksi');
+  
+  statusEl.className = 'my-2 p-2 rounded-2 text-center small bg-light text-muted d-block';
+  statusEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Mencari data pinjaman...';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res && res.success && res.data && res.data.length > 0) {
+        cacheDaftarPinjaman = res.data;
+        statusEl.className = 'my-2 p-2 rounded-2 text-center small bg-success bg-opacity-10 text-success d-block fw-bold';
+        statusEl.innerHTML = `<i class="fas fa-check-circle me-1"></i> Ditemukan ${res.data.length} transaksi peminjaman aktif.`;
+
+        // Susun pilihan barang
+        selectBarang.innerHTML = '<option value="">-- Pilih Barang yang Dikembalikan --</option>' + 
+          res.data.map(item => `
+            <option value="${item.id}">
+              ${item.namaBarang} (Pinjam: ${item.tglPinjam})
+            </option>
+          `).join('');
+
+        boxDaftar.classList.remove('d-none');
+      } else {
+        cacheDaftarPinjaman = [];
+        boxDaftar.classList.add('d-none');
+        document.getElementById('box_detail_kembali').classList.add('d-none');
+        statusEl.className = 'my-2 p-2 rounded-2 text-center small bg-warning bg-opacity-10 text-dark d-block';
+        statusEl.innerHTML = '<i class="fas fa-info-circle text-warning me-1"></i> Tidak ada tanggungan pinjaman aset atas nama tersebut.';
+      }
+    })
+    .withFailureHandler(err => {
+      statusEl.className = 'my-2 p-2 rounded-2 text-center small bg-danger bg-opacity-10 text-danger d-block';
+      statusEl.innerHTML = 'Gagal membaca server: ' + err;
+    })
+    .getPinjamanAktifByWarga(namaWarga);
+}
+
+// 4. Tampilkan Detail Transaksi saat Barang Dipilih
+function tampilkanRincianKembali() {
+  const idTrans = document.getElementById('kembali_id_transaksi').value;
+  const boxDetail = document.getElementById('box_detail_kembali');
+
+  if (!idTrans) {
+    boxDetail.classList.add('d-none');
+    return;
+  }
+
+  const selected = cacheDaftarPinjaman.find(i => String(i.id) === String(idTrans));
+  if (selected) {
+    document.getElementById('kembali_info_tglPinjam').innerText = selected.tglPinjam || '-';
+    document.getElementById('kembali_info_tglTarget').innerText = selected.tglTargetKembali || '-';
+    boxDetail.classList.remove('d-none');
+  }
+}
+
+// 5. Submit Handler (Memisahkan Submit Pinjam dan Kembali)
+function handleFormAsetSubmit(e) {
+  e.preventDefault();
+  const mode = document.getElementById('aset_mode_aktif').value;
+
+  if (mode === 'Pinjam') {
+    // Jalankan fungsi simpan peminjaman lama Anda
+    if (typeof savePeminjamanData === 'function') {
+      savePeminjamanData(e);
+    }
+  } else {
+    // Jalankan Pengembalian
+    const idTransaksi = document.getElementById('kembali_id_transaksi').value;
+    if (!idTransaksi) {
+      Swal.fire('Perhatian', 'Pilih barang yang ingin dikembalikan!', 'warning');
+      return;
+    }
+
+    const payloadKembali = {
+      idTransaksi: idTransaksi,
+      namaPeminjam: document.getElementById('kembali_nama_input').value.trim(),
+      kondisi: document.getElementById('kembali_kondisi').value,
+      catatan: document.getElementById('kembali_catatan').value.trim()
+    };
+
+    Swal.fire({
+      title: 'Memproses...',
+      text: 'Menyimpan konfirmasi pengembalian barang...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    google.script.run
+      .withSuccessHandler(res => {
+        if (res && res.success) {
+          document.getElementById('formPeminjaman').reset();
+          bootstrap.Modal.getInstance(document.getElementById('modalPeminjaman')).hide();
+          Swal.fire('Selesai', res.message || 'Barang telah berhasil dikembalikan!', 'success');
+        } else {
+          Swal.fire('Gagal', res ? res.message : 'Gagal memproses pengembalian.', 'error');
+        }
+      })
+      .withFailureHandler(err => {
+        Swal.fire('Error Server', String(err), 'error');
+      })
+      .simpanPengembalianAset(payloadKembali);
+  }
+}
           
 function loadDataPengaturan() {  
   showLoading();  
@@ -17034,12 +17271,14 @@ function terapkanPengaturanKeElemen(settings) {
     }
   }
 
-  // 12. Sinkronisasi Form WhatsApp Gateway & Kontak Darurat (Polisi & Damkar)
+  // 12. Sinkronisasi Form WhatsApp Gateway & Kontak Darurat / Petugas
   setVal('api_wa_url', settings['api_wa_url']);
   setVal('set_wa_group_jid', settings['wa_group_jid']);
   setVal('set_wa_group_pengurus_jid', settings['wa_group_pengurus_jid']);
   setVal('set_wa_polisi', settings['wa_polisi']);
   setVal('set_wa_damkar', settings['wa_damkar']);
+  setVal('set_wa_kebersihan', settings['wa_kebersihan']);
+  setVal('set_wa_medis', settings['wa_medis']);
 }
 
 // =====================================================
