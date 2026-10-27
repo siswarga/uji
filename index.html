@@ -20776,6 +20776,7 @@ function tampilkanBuku(list) {
   const empty = document.getElementById('emptyEbook');
   if (!grid || !empty) return;
 
+  window.daftarBukuAktif = list; // Menyimpan daftar aktif agar indeks cocok saat difilter
   grid.innerHTML = '';
 
   if (list.length === 0) {
@@ -20790,15 +20791,14 @@ function tampilkanBuku(list) {
   list.forEach((item, index) => {
     const cover = item.cover_url || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400';
     const isBerita = String(item.kategori || '').toLowerCase().includes('berita');
-    const labelTombol = isBerita ? '<i class="fas fa-external-link-alt me-1"></i> Buka Portal' : '<i class="fas fa-book-reader me-1"></i> Baca';
-    const btnClass = isBerita ? 'btn-outline-primary' : 'btn-outline-success';
+    const badgeColor = isBerita ? 'bg-primary' : 'bg-success';
 
     grid.innerHTML += `
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
         <div class="card h-100 border shadow-sm rounded-3 overflow-hidden">
           <div class="position-relative" style="height: 170px; background-color: #f1f5f9;">
             <img src="${cover}" alt="${item.judul}" class="w-100 h-100" style="object-fit: cover;">
-            <span class="badge ${isBerita ? 'bg-primary' : 'bg-success'} position-absolute top-0 start-0 m-2 shadow-sm" style="font-size: 0.65rem;">
+            <span class="badge ${badgeColor} position-absolute top-0 start-0 m-2 shadow-sm" style="font-size: 0.65rem;">
               ${item.kategori || 'Umum'}
             </span>
           </div>
@@ -20813,8 +20813,8 @@ function tampilkanBuku(list) {
               </p>
             </div>
             
-            <button type="button" onclick="bukaMediaBaca('${index}')" class="btn btn-sm ${btnClass} w-100 rounded-pill fw-bold" style="font-size: 0.75rem;">
-              ${labelTombol}
+            <button type="button" onclick="bukaHalamanBaca('${index}')" class="btn btn-sm btn-outline-success w-100 rounded-pill fw-bold" style="font-size: 0.75rem;">
+              <i class="fas fa-book-reader me-1"></i> Baca
             </button>
           </div>
         </div>
@@ -20823,9 +20823,10 @@ function tampilkanBuku(list) {
   });
 }
 
-// Buka halaman baca dokumen atau koran berita
+// Membuka e-book atau feed koran digital di mode baca
 function bukaHalamanBaca(indexBuku) {
-  const buku = window.kumpulanBuku[indexBuku];
+  const sumberData = window.daftarBukuAktif || window.kumpulanBuku || [];
+  const buku = sumberData[indexBuku];
   if (!buku) {
     alert("Data bacaan tidak ditemukan.");
     return;
@@ -20833,12 +20834,12 @@ function bukaHalamanBaca(indexBuku) {
 
   const viewKatalog = document.getElementById('ebookViewKatalog');
   const viewReader = document.getElementById('ebookViewReader');
-  const boxEbook = document.getElementById('boxFrameEbook');
   const frameEbook = document.getElementById('frameBacaEbook');
+  const boxFrame = document.getElementById('boxFrameEbook');
   const boxBerita = document.getElementById('readerBeritaContainer');
   const judulReader = document.getElementById('readerJudulBuku');
 
-  // Tampilkan layar reader
+  // Berpindah ke layar reader
   if (viewKatalog) viewKatalog.classList.add('d-none');
   if (viewReader) {
     viewReader.classList.remove('d-none');
@@ -20847,32 +20848,36 @@ function bukaHalamanBaca(indexBuku) {
 
   if (judulReader) judulReader.textContent = buku.judul;
 
-  // Cek apakah item adalah kategori Berita
   const isBerita = String(buku.kategori || '').toLowerCase().includes('berita');
 
   if (isBerita) {
-    if (boxEbook) boxEbook.classList.add('d-none');
+    // Mode Berita: Sembunyikan frame PDF, tampilkan wadah berita
+    if (boxFrame) boxFrame.classList.add('d-none');
+    if (frameEbook) frameEbook.classList.add('d-none');
     if (boxBerita) {
       boxBerita.classList.remove('d-none');
       muatIsiKoranDigital(buku.file_url || 'antara');
     }
   } else {
+    // Mode Dokumen PDF biasa
     if (boxBerita) boxBerita.classList.add('d-none');
-    if (boxEbook) boxEbook.classList.remove('d-none');
-    
-    let finalUrl = (buku.file_url || '').trim();
-    if (finalUrl.includes('drive.google.com') && !finalUrl.includes('/preview')) {
-      finalUrl = finalUrl.replace(/\/view.*$/, '/preview');
+    if (boxFrame) boxFrame.classList.remove('d-none');
+    if (frameEbook) {
+      frameEbook.classList.remove('d-none');
+      let finalUrl = (buku.file_url || '').trim();
+      if (finalUrl.includes('drive.google.com') && !finalUrl.includes('/preview')) {
+        finalUrl = finalUrl.replace(/\/view.*$/, '/preview');
+      }
+      frameEbook.src = finalUrl;
     }
-    if (frameEbook) frameEbook.src = finalUrl;
   }
 }
 
-// Tutup reader dan kembali ke katalog kartu buku
+// Menutup pembaca dan kembali ke rak kartu buku
 function kembaliKeKatalog() {
   const viewKatalog = document.getElementById('ebookViewKatalog');
   const viewReader = document.getElementById('ebookViewReader');
-  const boxEbook = document.getElementById('boxFrameEbook');
+  const boxFrame = document.getElementById('boxFrameEbook');
   const frameEbook = document.getElementById('frameBacaEbook');
   const boxBerita = document.getElementById('readerBeritaContainer');
 
@@ -20881,9 +20886,63 @@ function kembaliKeKatalog() {
     viewReader.classList.add('d-none');
     viewReader.classList.remove('d-flex');
   }
-  if (boxEbook) boxEbook.classList.remove('d-none');
+  if (boxFrame) boxFrame.classList.remove('d-none');
+  if (frameEbook) {
+    frameEbook.classList.remove('d-none');
+    frameEbook.src = 'about:blank';
+  }
   if (boxBerita) boxBerita.classList.add('d-none');
-  if (frameEbook) frameEbook.src = 'about:blank';
+}
+
+// Mengambil artikel dari server Apps Script ke tampilan reader
+function muatIsiKoranDigital(sumber) {
+  const loading = document.getElementById('loadingReaderBerita');
+  const grid = document.getElementById('gridArtikelKoran');
+
+  if (loading) loading.classList.remove('d-none');
+  if (grid) grid.innerHTML = '';
+
+  google.script.run
+    .withSuccessHandler(res => {
+      if (loading) loading.classList.add('d-none');
+      if (!grid) return;
+
+      if (!res || !res.success || !res.data || res.data.length === 0) {
+        grid.innerHTML = '<div class="col-12 text-center text-muted py-5">Gagal memuat feed berita saat ini.</div>';
+        return;
+      }
+
+      res.data.forEach(art => {
+        grid.innerHTML += `
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 border shadow-none rounded-3 overflow-hidden bg-white">
+              <img src="${art.gambar}" class="w-100" style="height: 140px; object-fit: cover;" alt="Foto">
+              <div class="card-body p-3 d-flex flex-column justify-content-between">
+                <div>
+                  <small class="text-danger fw-bold d-block mb-1" style="font-size: 0.7rem;">
+                    <i class="far fa-clock me-1"></i>${art.tanggal}
+                  </small>
+                  <h6 class="fw-bold text-dark mb-2" style="font-size: 0.85rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    ${art.judul}
+                  </h6>
+                  <p class="text-muted small mb-3" style="font-size: 0.75rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                    ${art.ringkasan}
+                  </p>
+                </div>
+                <a href="${art.link}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary rounded-pill w-100 py-1 fw-bold" style="font-size: 0.72rem;">
+                  Baca Selengkapnya <i class="fas fa-external-link-alt ms-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    })
+    .withFailureHandler(() => {
+      if (loading) loading.classList.add('d-none');
+      if (grid) grid.innerHTML = '<div class="col-12 text-center text-danger py-5">Terjadi gangguan koneksi saat mengambil berita.</div>';
+    })
+    .ambilBeritaRss(sumber);
 }
 
 function filterEbook() {
