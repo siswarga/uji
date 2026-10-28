@@ -3506,13 +3506,13 @@
                  <div class="card shadow-sm border-0 mb-4 rounded-3">
                    <div class="card-body p-4">
                      <form onsubmit="saveSettingBagian(event, { 
-        'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value, 
-        'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value, 
-        'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value, 
-        'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value,
-        'kop_reminder_date': document.getElementById('set_kop_reminder_date').value,
-        'kop_reminder_time': document.getElementById('set_kop_reminder_time').value
-      }, this)">
+					'ronda_reminder_time': document.getElementById('set_ronda_reminder_time').value, 
+					'ronda_reminder_mode': document.getElementById('set_ronda_reminder_mode').value, 
+					'arrears_reminder_date': document.getElementById('set_arrears_reminder_date').value, 
+					'arrears_reminder_time': document.getElementById('set_arrears_reminder_time').value,
+					'kop_reminder_date': document.getElementById('set_kop_reminder_date').value,
+					'kop_reminder_time': document.getElementById('set_kop_reminder_time').value
+					}, this)">
 
                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
                          <i class="fas fa-clock text-warning me-2"></i>Jadwal Otomatis Notifikasi WhatsApp
@@ -18513,9 +18513,9 @@ function terapkanPengaturanKeElemen(settings) {
   setVal('set_wa_kebersihan', settings['wa_kebersihan']);
   setVal('set_wa_medis', settings['wa_medis']);
 
-  // 13. Sinkronisasi Pengaturan Vendor Kebersihan / Pengelola Sampah (BARU)
-  setVal('set_sampah_nama', settings['sampah_vendor_nama'] || 'Petugas Kebersihan Swakelola');
-  setVal('set_sampah_wa', settings['sampah_vendor_wa'] || settings['wa_kebersihan'] || '');
+  // 13. Sinkronisasi Pengaturan Vendor Kebersihan / Pengelola Sampah (SUDAH DIPISAH)
+  setVal('set_sampah_nama', settings['sampah_vendor_nama'] || 'Pengelola Sampah Swakelola');
+  setVal('set_sampah_wa', settings['sampah_vendor_wa'] || ''); // <-- HANYA BACA sampah_vendor_wa
   setVal('set_sampah_reminder_time', settings['sampah_reminder_time'] || '07:00');
   
   const defaultTemplateSampah = 'Halo {nama_vendor}, mengingatkan jadwal rutin penjemputan sampah warga di {nama_komplek} untuk hari ini ({hari}, {tanggal}). Mohon dapat diangkut sesuai kesepakatan bersama. Terima kasih!';
@@ -22498,7 +22498,52 @@ function buatKopSurat(opsi = {}) {
   `;
 }
 
+// SIMPAN PENGATURAN VENDOR KEBERSIHAN (TERPISAH DARI PETUGAS KEBERSIHAN INTERNAL)
+function simpanPengaturanSampah(e) {
+  e.preventDefault();
 
+  const hariChecked = [];
+  document.querySelectorAll('.check-hari-sampah:checked').forEach(cb => {
+    hariChecked.push(cb.value);
+  });
+
+  if (hariChecked.length === 0) {
+    return Swal.fire('Peringatan', 'Silakan pilih minimal 1 hari jadwal penjemputan sampah!', 'warning');
+  }
+
+  // Payload murni hanya mengelola setelan Vendor Pengangkut Sampah
+  const payload = {
+    'sampah_vendor_nama': document.getElementById('set_sampah_nama').value.trim(),
+    'sampah_vendor_wa': document.getElementById('set_sampah_wa').value.trim(), // Kunci database mandiri
+    'sampah_hari_angkut': hariChecked.join(','),
+    'sampah_reminder_time': document.getElementById('set_sampah_reminder_time').value,
+    'sampah_reminder_aktif': document.getElementById('set_sampah_aktif').checked ? 'Aktif' : 'Nonaktif',
+    'sampah_pesan_template': document.getElementById('set_sampah_pesan').value.trim()
+  };
+
+  const btn = document.getElementById('btn-save-sampah');
+  const txtAsli = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+
+  if (typeof saveSettingBagianDirect === 'function') {
+    saveSettingBagianDirect(payload, () => {
+      btn.disabled = false;
+      btn.innerHTML = txtAsli;
+    });
+  } else if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run.withSuccessHandler(res => {
+      btn.disabled = false;
+      btn.innerHTML = txtAsli;
+      Object.assign(appSettings, payload);
+      Swal.fire('Berhasil', 'Pengaturan Vendor Sampah berhasil disimpan!', 'success');
+    }).withFailureHandler(err => {
+      btn.disabled = false;
+      btn.innerHTML = txtAsli;
+      Swal.fire('Gagal', 'Terjadi kesalahan: ' + err.message, 'error');
+    }).simpanBanyakSetting(payload);
+  }
+}
     </script>
 
 <!-- Audio Player Adzan Global -->
