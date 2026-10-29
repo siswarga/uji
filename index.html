@@ -18812,6 +18812,73 @@ function triggerPanicButtonAction() {
     }
   });
 }
+
+// FUNGSI PEMICU TOMBOL PANIK / SOS DENGAN GPS DINAMIS
+function kirimSinyalSos(jenisDarurat) {
+  const kodeUnik = sessionUser?.kodeWarga || localStorage.getItem('kodeWarga') || 'WARGA';
+
+  Swal.fire({
+    title: `KIRIM SINYAL DARURAT?`,
+    text: `Anda akan membunyikan alarm dan mengirim notifikasi SOS [${jenisDarurat}] ke Satpam, Pengurus, dan Pihak Berwenang.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'YA, KIRIM SEKARANG!',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (!result.isConfirmed) return;
+
+    // Tampilkan loading pengiriman darurat
+    Swal.fire({
+      title: 'Mengirim Sinyal Darurat...',
+      text: 'Mendeteksi titik koordinat lokasi Anda...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // 1. Cek izin lokasi di perangkat (HP/Laptop)
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // A. JIKA LOKASI DIIZINKAN DI HP
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const linkMaps = `https://maps.google.com/?q=${lat},${lng}`;
+          
+          eksekusiBackendSos(kodeUnik, jenisDarurat, linkMaps);
+        },
+        (error) => {
+          // B. JIKA LOKASI DITOLAK ATAU GPS OFF (TETAP KIRIM)
+          console.warn('GPS tidak diizinkan atau dinonaktifkan:', error.message);
+          eksekusiBackendSos(kodeUnik, jenisDarurat, '');
+        },
+        { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 } // Batas tunggu deteksi GPS max 4 detik
+      );
+    } else {
+      // Browser tidak mendukung GPS
+      eksekusiBackendSos(kodeUnik, jenisDarurat, '');
+    }
+  });
+}
+
+// EKSEKUSI PANGGILAN GOOGLE APPS SCRIPT
+function eksekusiBackendSos(kodeUnik, jenisDarurat, linkMaps) {
+  google.script.run
+    .withSuccessHandler((res) => {
+      if (res && res.success) {
+        Swal.fire('Sinyal Terkirim!', res.message, 'success');
+      } else {
+        Swal.fire('Gagal Mengirim', res.message || 'Terjadi kesalahan sistem.', 'error');
+      }
+    })
+    .withFailureHandler((err) => {
+      Swal.fire('Kesalahan Sistem', err.message, 'error');
+    })
+    .handlePanicButton(kodeUnik, jenisDarurat, linkMaps);
+}
           
           function renderTableKopAnggota() {
             let tb = document.getElementById('tbody-kop-anggota');
