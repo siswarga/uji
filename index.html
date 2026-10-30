@@ -846,27 +846,49 @@
               </table>
             </div>
 
-            <!-- Box Absensi -->
-            <div class="card border-0 rounded-4 shadow-sm bg-light overflow-hidden mt-auto">
-              <div class="card-header bg-dark text-white py-2 px-3 fw-bold small d-flex align-items-center justify-content-between">
-                <span><i class="fas fa-user-check text-warning me-2"></i>Absensi Kehadiran Ronda</span>
-                <span class="badge bg-warning text-dark" style="font-size: 10px;">23.30 - 01.00 WIB</span>
-              </div>
-              <div class="card-body p-3">
-                <div class="mb-3">
-                  <label class="form-label text-muted small fw-semibold mb-1">Kode Unik Warga</label>
-                  <input type="password" class="form-control rounded-pill px-3 shadow-none border" id="rondaKodeWarga" placeholder="Masukkan Kode Unik / ID Warga Anda...">
-                  <div class="text-muted small mt-1" style="font-size: 11px;">
-                    <i class="fas fa-info-circle text-primary me-1"></i>Sistem akan memverifikasi jadwal tugas secara otomatis.
-                  </div>
-                </div>
-                <button class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="kirimAbsenRonda()">
-                  <i class="fas fa-check-circle me-1"></i> Kirim Absensi Ronda
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+<!-- Box Absensi -->
+<div class="card border-0 rounded-4 shadow-sm bg-light overflow-hidden mt-3">
+  <div class="card-header bg-dark text-white py-2 px-3 fw-bold small d-flex align-items-center justify-content-between">
+    <span><i class="fas fa-user-check text-warning me-2"></i>Absensi Kehadiran Ronda</span>
+    <span class="badge bg-warning text-dark" style="font-size: 10px;">23.30 - 01.00 WIB</span>
+  </div>
+  <div class="card-body p-3">
+    <div class="mb-3">
+      <label class="form-label text-muted small fw-semibold mb-1">Kode Unik Warga (Maks. 6 Karakter)</label>
+      
+      <!-- Wrapper Input Rounded Pill + Icon Mata -->
+      <div class="position-relative">
+        <input type="password" 
+               class="form-control rounded-pill ps-3 pe-5 shadow-none border fw-bold text-uppercase" 
+               id="rondaKodeWarga" 
+               maxlength="6" 
+               placeholder="••••••" 
+               autocomplete="off" 
+               oninput="this.value = this.value.toUpperCase()" 
+               style="letter-spacing: 3px; font-size: 1rem;">
+        
+        <button type="button" 
+                id="btn-eye-ronda" 
+                class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 py-0" 
+                onclick="toggleLihatKodeRonda()" 
+                style="z-index: 5; box-shadow: none;" 
+                title="Lihat / Sembunyikan Kode">
+          <i class="fas fa-eye" id="icon-eye-ronda"></i>
+        </button>
+      </div>
+
+      <div class="text-muted small mt-1" style="font-size: 11px;">
+        <i class="fas fa-info-circle text-primary me-1"></i>Maksimal 6 karakter. Sistem akan memverifikasi jadwal tugas secara otomatis.
+      </div>
+    </div>
+    
+    <button class="btn btn-success w-100 rounded-pill py-2 fw-bold shadow-sm" onclick="kirimAbsenRonda()">
+      <i class="fas fa-check-circle me-1"></i> Kirim Absensi Ronda
+    </button>
+  </div>
+</div>
+</div>
+</div>
 
         <!-- 2. Tambahkan id="kolom-pemberitahuan-kegiatan" di sini -->
         <div class="col-lg-6" id="kolom-pemberitahuan-kegiatan">
@@ -6812,78 +6834,98 @@
     </div>
   </div>
 
-  <!-- MODAL QRIS & PEMBAYARAN DIGITAL -->
-  <div class="modal fade" id="modalQrisBayar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <form id="formQrisBayar" class="modal-content" onsubmit="submitQrisBayar(event)">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title fw-bold" id="qrisModalTitle">Bayar via QRIS</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body text-center">
-          <input type="hidden" id="qris_tipe_tujuan" value=""> <!-- 'kas_warga' atau 'kas_masjid' -->
+ <!-- MODAL QRIS & PEMBAYARAN DIGITAL -->
+<div class="modal fade" id="modalQrisBayar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form id="formQrisBayar" class="modal-content" onsubmit="submitQrisBayar(event)">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold" id="qrisModalTitle">Bayar via QRIS</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <input type="hidden" id="qris_tipe_tujuan" value=""> <!-- 'kas_warga' atau 'kas_masjid' -->
 
-          <!-- Gambar QRIS -->
-          <div class="mb-3 p-2 bg-light rounded border d-inline-block">
-            <img id="qris_img_preview" src="" alt="QRIS Pembayaran" class="img-fluid rounded" style="max-height: 250px;">
-            <p class="small text-muted mt-2 mb-0 fw-bold" id="qris_nama_merchant">Scan QRIS menggunakan M-Banking / E-Wallet</p>
+        <!-- Gambar QRIS -->
+        <div class="mb-3 p-2 bg-light rounded border d-inline-block">
+          <img id="qris_img_preview" src="" alt="QRIS Pembayaran" class="img-fluid rounded" style="max-height: 250px;">
+          <p class="small text-muted mt-2 mb-0 fw-bold" id="qris_nama_merchant">Scan QRIS menggunakan M-Banking / E-Wallet</p>
+        </div>
+
+        <div class="row g-3 text-start">
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Kategori Pembayaran*</label>
+            <select class="form-select border-success" id="qris_kategori" onchange="toggleQrisFormKategori()" required>
+              <!-- Opsi akan dimuat otomatis via JavaScript -->
+            </select>
           </div>
 
-          <div class="row g-3 text-start">
-            <div class="col-md-12">
-              <label class="form-label small fw-bold">Kategori Pembayaran*</label>
-              <select class="form-select border-success" id="qris_kategori" onchange="toggleQrisFormKategori()" required>
-                <!-- Opsi akan dimuat otomatis via JavaScript -->
-              </select>
+          <!-- KODE UNIK DENGAN MASKING BINTANG & TOGGLE MATA -->
+          <div class="col-md-12 d-none" id="div_qris_kode_unik">
+            <label class="form-label small fw-bold text-primary">Masukkan Kode Unik Warga (6 Karakter)*</label>
+            <div class="input-group">
+              <input type="password" 
+                     class="form-control fw-bold text-primary text-uppercase" 
+                     id="qris_kode_unik" 
+                     placeholder="••••••" 
+                     maxlength="6" 
+                     autocomplete="off" 
+                     style="letter-spacing: 2px;"
+                     oninput="this.value = this.value.toUpperCase();">
+              
+              <button class="btn btn-outline-secondary" 
+                      type="button" 
+                      id="btn-eye-qris" 
+                      onclick="toggleLihatKodeQris()" 
+                      title="Lihat / Sembunyikan Kode">
+                <i class="fas fa-eye" id="icon-eye-qris"></i>
+              </button>
+              
+              <button class="btn btn-outline-primary fw-bold" 
+                      type="button" 
+                      onclick="cekKodeUnikQris()">
+                <i class="fas fa-search me-1"></i> Cek
+              </button>
             </div>
+            <small class="text-muted">Masukkan kode unik Kepala Keluarga untuk deteksi data otomatis.</small>
+          </div>
 
-            <!-- KODE UNIK (KHUSUS IURAN WARGA) -->
-            <div class="col-md-12 d-none" id="div_qris_kode_unik">
-              <label class="form-label small fw-bold text-primary">Masukkan Kode Unik Warga (6 Karakter)*</label>
-              <div class="input-group">
-                <input type="text" class="form-control fw-bold text-primary text-uppercase" id="qris_kode_unik" placeholder="Cth: A1B2C3" maxlength="6" oninput="this.value = this.value.toUpperCase();">
-                <button class="btn btn-outline-primary" type="button" onclick="cekKodeUnikQris()"><i class="fas fa-search"></i> Cek</button>
+          <!-- HASIL CEK KODE UNIK (NAMA & TUNGGAKAN BULAN) -->
+          <div class="col-md-12 d-none" id="div_qris_info_warga">
+            <div class="p-3 bg-light rounded border border-success">
+              <div class="mb-2">Nama Kepala Keluarga: <b id="qris_lbl_nama" class="text-success">-</b></div>
+              <label class="form-label fw-bold small">Pilih Bulan Iuran yang Ingin Dibayar:</label>
+              <div class="d-flex flex-wrap gap-2 p-2 border rounded bg-white" id="qris_checkbox_bulan">
+                <!-- Checkbox bulan tertunggak akan muncul di sini -->
               </div>
-              <small class="text-muted">Masukkan kode unik Kepala Keluarga untuk deteksi data otomatis.</small>
-            </div>
-
-            <!-- HASIL CEK KODE UNIK (NAMA & TUNGGAKAN BULAN) -->
-            <div class="col-md-12 d-none" id="div_qris_info_warga">
-              <div class="p-3 bg-light rounded border border-success">
-                <div class="mb-2">Nama Kepala Keluarga: <b id="qris_lbl_nama" class="text-success">-</b></div>
-                <label class="form-label fw-bold small">Pilih Bulan Iuran yang Ingin Dibayar:</label>
-                <div class="d-flex flex-wrap gap-2 p-2 border rounded bg-white" id="qris_checkbox_bulan">
-                  <!-- Checkbox bulan tertunggak akan muncul di sini -->
-                </div>
-              </div>
-            </div>
-
-            <!-- NAMA (UNTUK KATEGORI SELAIN IURAN WARGA) -->
-            <div class="col-md-12" id="div_qris_nama_umum">
-              <label class="form-label small fw-bold">Nama Warga / Donatur*</label>
-              <select class="form-select mb-2" id="qris_select_nama" onchange="handleQrisNama()">
-                <option value="">-- Memuat Data Warga --</option>
-              </select>
-              <input type="text" class="form-control d-none" id="qris_nama_manual" placeholder="Ketik nama Anda...">
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label small fw-bold">Nominal Pembayaran (Rp)*</label>
-              <input type="number" class="form-control fw-bold text-success" id="qris_nominal" min="1000" required>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label small fw-bold">Catatan / Keterangan (Opsional)</label>
-              <input type="text" class="form-control" id="qris_keterangan" placeholder="Cth: Pembayaran via QRIS">
             </div>
           </div>
+
+          <!-- NAMA (UNTUK KATEGORI SELAIN IURAN WARGA) -->
+          <div class="col-md-12" id="div_qris_nama_umum">
+            <label class="form-label small fw-bold">Nama Warga / Donatur*</label>
+            <select class="form-select mb-2" id="qris_select_nama" onchange="handleQrisNama()">
+              <option value="">-- Memuat Data Warga --</option>
+            </select>
+            <input type="text" class="form-control d-none" id="qris_nama_manual" placeholder="Ketik nama Anda...">
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Nominal Pembayaran (Rp)*</label>
+            <input type="number" class="form-control fw-bold text-success" id="qris_nominal" min="1000" required>
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label small fw-bold">Catatan / Keterangan (Opsional)</label>
+            <input type="text" class="form-control" id="qris_keterangan" placeholder="Cth: Pembayaran via QRIS">
+          </div>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="btn-kirim-qris">Konfirmasi & Kirim Pembayaran</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success w-100 fw-bold py-2" id="btn-kirim-qris">Konfirmasi & Kirim Pembayaran</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- MODAL DAFTAR KK MENUNGGAK -->
   <div class="modal fade" id="modalListTunggakan" tabindex="-1" aria-hidden="true">
@@ -15318,7 +15360,24 @@ function renderSatpamPemudik() {
           Swal.fire('Terjadi Kesalahan', err.message, 'error');
         }
       }
-              
+
+function toggleLihatKodeQris() {
+  const input = document.getElementById('qris_kode_unik');
+  const icon = document.getElementById('icon-eye-qris');
+
+  if (!input || !icon) return;
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash', 'text-success');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash', 'text-success');
+    icon.classList.add('fa-eye');
+  }
+}
+       
               function toggleQrisFormKategori() {
                 let katEl = document.getElementById('qris_kategori');
                 if (!katEl) return;
@@ -15476,21 +15535,37 @@ function loadPublicVoting() {
                 <div class="mb-3">
                   ${opsiHtml}
                 </div>
+                
+                <!-- Input Kode Unik Tersamar (Password) + Tombol Mata -->
                 <div class="mb-3">
                   <label class="form-label small fw-bold text-primary">
                     <i class="fas fa-key me-1"></i>Kode Unik Warga (6 Karakter)*
                   </label>
-                  <input type="text" 
-                    class="form-control form-control-sm bg-light fw-bold text-primary" 
-                    id="voter_identitas_${v.id}" 
-                    placeholder="Contoh: A1B2C3" 
-                    maxlength="6" 
-                    minlength="6" 
-                    style="text-transform: uppercase; letter-spacing: 2px;" 
-                    oninput="this.value = this.value.toUpperCase();" 
-                    required>
+                  
+                  <div class="position-relative">
+                    <input type="password" 
+                      class="form-control form-control-sm bg-light fw-bold text-primary pe-5" 
+                      id="voter_identitas_${v.id}" 
+                      placeholder="••••••" 
+                      maxlength="6" 
+                      minlength="6" 
+                      autocomplete="off"
+                      style="text-transform: uppercase; letter-spacing: 3px; height: 38px;" 
+                      oninput="this.value = this.value.toUpperCase();" 
+                      required>
+                    
+                    <button type="button" 
+                            class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 py-0" 
+                            onclick="toggleLihatKodeVote('${v.id}')" 
+                            style="z-index: 5; box-shadow: none;" 
+                            title="Lihat / Sembunyikan Kode">
+                      <i class="fas fa-eye" id="icon_eye_vote_${v.id}"></i>
+                    </button>
+                  </div>
+
                   <small class="text-muted" style="font-size: 0.72rem;">Gunakan 6 digit kode unik yang terdaftar pada data warga Anda.</small>
                 </div>
+
                 <button type="submit" class="btn btn-sm btn-primary fw-bold px-4" id="btn_vote_${v.id}">
                   <i class="fas fa-paper-plane me-1"></i> Kirim Suara / Pilihan Saya
                 </button>
@@ -15503,6 +15578,23 @@ function loadPublicVoting() {
       section.style.display = 'none';
     }
   }).getActiveVotingPublic();
+}
+
+function toggleLihatKodeVote(id) {
+  const input = document.getElementById(`voter_identitas_${id}`);
+  const icon = document.getElementById(`icon_eye_vote_${id}`);
+
+  if (!input || !icon) return;
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye', 'text-muted');
+    icon.classList.add('fa-eye-slash', 'text-primary');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash', 'text-primary');
+    icon.classList.add('fa-eye', 'text-muted');
+  }
 }
               
               function savePengajianAdmin(e) { 
@@ -19380,11 +19472,29 @@ function openModalKopPinjaman() {
                       }
                   });
               }
+
+function toggleLihatKodeRonda() {
+  const input = document.getElementById('rondaKodeWarga');
+  const icon = document.getElementById('icon-eye-ronda');
+
+  if (!input || !icon) return;
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye', 'text-muted');
+    icon.classList.add('fa-eye-slash', 'text-success');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash', 'text-success');
+    icon.classList.add('fa-eye', 'text-muted');
+  }
+}
       		
 function kirimAbsenRonda() {
-  let elKode = document.getElementById('rondaKodeWarga');
-  let kode = elKode ? elKode.value.trim() : '';
+  const elKode = document.getElementById('rondaKodeWarga');
+  const kode = elKode ? elKode.value.trim().toUpperCase() : '';
 
+  // 1. Validasi keberadaan kode
   if (!kode) {
     Swal.fire({
       icon: 'warning',
@@ -19395,7 +19505,18 @@ function kirimAbsenRonda() {
     return;
   }
 
-  // 1. Cek dukungan GPS di perangkat pengguna
+  // 2. Validasi pembatasan persis 6 karakter
+  if (kode.length !== 6) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Format Kode Tidak Sesuai',
+      text: 'Kode Unik Warga harus persis 6 karakter (Contoh: WRG001)!',
+      confirmButtonColor: '#198754'
+    });
+    return;
+  }
+
+  // 3. Cek dukungan GPS di perangkat pengguna
   if (!navigator.geolocation) {
     Swal.fire({
       icon: 'error',
@@ -19406,10 +19527,10 @@ function kirimAbsenRonda() {
     return;
   }
 
-  // 2. Tampilkan loading verifikasi lokasi
+  // 4. Tampilkan loading verifikasi lokasi
   showLoading();
 
-  // 3. Ambil koordinat GPS saat ini
+  // 5. Ambil koordinat GPS saat ini
   navigator.geolocation.getCurrentPosition(
     function(posisi) {
       const payloadAbsen = {
@@ -19419,7 +19540,7 @@ function kirimAbsenRonda() {
         akurasi: posisi.coords.accuracy
       };
 
-      // 4. Kirim data kode & koordinat GPS ke server
+      // 6. Kirim data kode & koordinat GPS ke server
       google.script.run
         .withSuccessHandler(res => {
           hideLoading();
@@ -19433,9 +19554,9 @@ function kirimAbsenRonda() {
             teksKeterangan = res.data.pesan;
           }
 
-          let isBerhasil = (res && res.status === "success") || 
-                           (res && res.data && res.data.status === "success") ||
-                           (res && res.success === true);
+          const isBerhasil = (res && res.status === "success") || 
+                            (res && res.data && res.data.status === "success") ||
+                            (res && res.success === true);
 
           if (isBerhasil) {
             Swal.fire({
@@ -19445,7 +19566,18 @@ function kirimAbsenRonda() {
               confirmButtonColor: '#198754'
             });
             
-            if (elKode) elKode.value = '';
+            if (elKode) {
+              elKode.value = '';
+              elKode.type = 'password';
+            }
+
+            // Kembalikan ikon mata ke mode tertutup jika sebelumnya dibuka
+            const iconEye = document.getElementById('icon-eye-ronda');
+            if (iconEye) {
+              iconEye.classList.remove('fa-eye-slash', 'text-success');
+              iconEye.classList.add('fa-eye');
+            }
+
             if (typeof loadRondaPublicData === 'function') loadRondaPublicData();
             if (typeof loadRondaAbsenData === 'function') loadRondaAbsenData();
             
@@ -19467,7 +19599,7 @@ function kirimAbsenRonda() {
             confirmButtonColor: '#dc3545'
           });
         })
-        .simpanAbsenRonda(payloadAbsen); // Mengirim objek berisi kodeWarga + koordinat GPS
+        .simpanAbsenRonda(payloadAbsen);
     },
     function(error) {
       hideLoading();
@@ -19662,118 +19794,147 @@ function kirimAbsenRonda() {
         });
       }
       
-      // 1. Pemilihan Foto & Permintaan Kode Unik (Maks 6 Karakter & Otomatis Kapital)
-      window.prosesPilihFoto = function(input) {
-        if (!input.files || input.files.length === 0) return;
-        const fileList = Array.from(input.files);
-      
-        Swal.fire({
-          width: '320px',
-          padding: '1.1rem',
-          showCancelButton: true,
-          confirmButtonText: '<i class="fas fa-cloud-upload-alt me-1"></i> Unggah',
-          cancelButtonText: 'Batal',
-          buttonsStyling: false,
-          customClass: {
-            popup: 'rounded-4 shadow border-0',
-            htmlContainer: 'm-0 p-0 text-center',
-            actions: 'm-0 mt-3 p-0 gap-2 w-100 justify-content-center',
-            confirmButton: 'btn btn-success btn-sm px-3 py-1 fw-bold rounded-pill flex-fill shadow-sm',
-            cancelButton: 'btn btn-light btn-sm px-3 py-1 text-secondary border rounded-pill flex-fill'
-          },
-          html: `
-            <div class="text-center">
-              <!-- Header Ramping -->
-              <div class="d-flex align-items-center justify-content-center gap-2 mb-2 pb-1 border-bottom">
-                <i class="fas fa-camera text-success fs-5"></i>
-                <span class="fw-bold text-dark fs-6">Verifikasi Pengunggah</span>
-              </div>
+// 1. Pemilihan Foto & Permintaan Kode Unik (Masking Titik/Bintang & Toggle Mata)
+window.prosesPilihFoto = function(input) {
+  if (!input.files || input.files.length === 0) return;
+  const fileList = Array.from(input.files);
 
-              <p class="text-muted mb-2" style="font-size: 0.75rem;">
-                Terpilih <b class="text-success">${fileList.length} foto</b>.<br>Masukkan Kode Unik Warga:
-              </p>
+  Swal.fire({
+    width: '320px',
+    padding: '1.1rem',
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-cloud-upload-alt me-1"></i> Unggah',
+    cancelButtonText: 'Batal',
+    buttonsStyling: false,
+    customClass: {
+      popup: 'rounded-4 shadow border-0',
+      htmlContainer: 'm-0 p-0 text-center',
+      actions: 'm-0 mt-3 p-0 gap-2 w-100 justify-content-center',
+      confirmButton: 'btn btn-success btn-sm px-3 py-1 fw-bold rounded-pill flex-fill shadow-sm',
+      cancelButton: 'btn btn-light btn-sm px-3 py-1 text-secondary border rounded-pill flex-fill'
+    },
+    html: `
+      <div class="text-center">
+        <!-- Header Ramping -->
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-2 pb-1 border-bottom">
+          <i class="fas fa-camera text-success fs-5"></i>
+          <span class="fw-bold text-dark fs-6">Verifikasi Pengunggah</span>
+        </div>
 
-              <!-- Input Ramping, Maksimal 6 Karakter & Otomatis Kapital -->
-              <div class="input-group input-group-sm mb-1">
-                <span class="input-group-text bg-light text-muted border-end-0 py-1"><i class="fas fa-key"></i></span>
-                <input 
-                  type="text" 
-                  id="swal-kode-warga" 
-                  maxlength="6"
-                  placeholder="WRG001" 
-                  autocomplete="off"
-                  autocapitalize="characters"
-                  oninput="this.value = this.value.toUpperCase()"
-                  class="form-control form-control-sm border-start-0 text-center fw-bold shadow-none"
-                  style="letter-spacing: 2px; font-size: 1rem; height: 38px; border-radius: 0 8px 8px 0; border: 1.5px solid #198754; text-transform: uppercase;">
-              </div>
-              <small class="text-muted" style="font-size: 0.68rem;">Maksimal 6 karakter (otomatis kapital)</small>
-            </div>
-          `,
-          didOpen: () => {
-            const el = document.getElementById('swal-kode-warga');
-            if (el) el.focus();
-          },
-          preConfirm: () => {
-            const el = document.getElementById('swal-kode-warga');
-            const kode = (el ? el.value : '').trim().toUpperCase();
+        <p class="text-muted mb-2" style="font-size: 0.75rem;">
+          Terpilih <b class="text-success">${fileList.length} foto</b>.<br>Masukkan Kode Unik Warga:
+        </p>
 
-            if (!kode) {
-              Swal.showValidationMessage('Kode unik warga wajib diisi!');
-              return false;
-            }
-            if (kode.length > 6) {
-              Swal.showValidationMessage('Kode unik maksimal 6 karakter!');
-              return false;
-            }
-            return kode;
+        <!-- Input Group: Ikon Kunci + Input Password + Tombol Mata -->
+        <div class="input-group input-group-sm mb-1">
+          <span class="input-group-text bg-light text-muted py-1" style="border: 1.5px solid #198754; border-right: none; border-radius: 8px 0 0 8px;">
+            <i class="fas fa-key"></i>
+          </span>
+          <input 
+            type="password" 
+            id="swal-kode-warga" 
+            maxlength="6"
+            placeholder="••••••" 
+            autocomplete="off"
+            autocapitalize="characters"
+            oninput="this.value = this.value.toUpperCase()"
+            class="form-control form-control-sm text-center fw-bold shadow-none"
+            style="letter-spacing: 3px; font-size: 1rem; height: 38px; border: 1.5px solid #198754; border-left: none; border-right: none; text-transform: uppercase;">
+          <button 
+            type="button" 
+            id="btn-toggle-eye-upload" 
+            class="btn btn-light text-muted shadow-none px-2" 
+            style="border: 1.5px solid #198754; border-left: none; border-radius: 0 8px 8px 0;"
+            title="Lihat / Sembunyikan Kode">
+            <i class="fas fa-eye" id="icon-toggle-eye-upload" style="font-size: 0.9rem;"></i>
+          </button>
+        </div>
+        <small class="text-muted" style="font-size: 0.68rem;">Maksimal 6 karakter (otomatis kapital)</small>
+      </div>
+    `,
+    didOpen: () => {
+      const el = document.getElementById('swal-kode-warga');
+      const btnEye = document.getElementById('btn-toggle-eye-upload');
+      const iconEye = document.getElementById('icon-toggle-eye-upload');
+
+      if (el) el.focus();
+
+      // Logika Toggle Klik Ikon Mata
+      if (btnEye && el && iconEye) {
+        btnEye.addEventListener('click', () => {
+          if (el.type === 'password') {
+            el.type = 'text';
+            iconEye.classList.remove('fa-eye', 'text-muted');
+            iconEye.classList.add('fa-eye-slash', 'text-success');
+          } else {
+            el.type = 'password';
+            iconEye.classList.remove('fa-eye-slash', 'text-success');
+            iconEye.classList.add('fa-eye', 'text-muted');
           }
-        }).then(async res => {
-          if (res.isConfirmed) {
-            const kodeWarga = res.value;
-            let sukses = 0;
-            let namaWarga = '';
-      
-            for (let i = 0; i < fileList.length; i++) {
-              Swal.fire({
-                title: 'Mengunggah Foto...',
-                html: `Sedang memproses foto ke-<b>${i + 1}</b> dari <b>${fileList.length}</b>...`,
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-              });
-      
-              try {
-                const base64Data = await kompresFoto(fileList[i]);
-                const hasil = await new Promise((resolve, reject) => {
-                  google.script.run
-                    .withSuccessHandler(resolve)
-                    .withFailureHandler(reject)
-                    .simpanFotoDokumentasi({ gambarBase64: base64Data, kodeWarga: kodeWarga });
-                });
-      
-                if (hasil && hasil.success) {
-                  sukses++;
-                  namaWarga = hasil.uploader;
-                } else {
-                  input.value = '';
-                  Swal.fire('Verifikasi Ditolak', hasil ? hasil.message : 'Kode unik warga salah.', 'error');
-                  return;
-                }
-              } catch (e) {
-                input.value = '';
-                Swal.fire('Error', 'Gagal memproses unggahan: ' + e, 'error');
-                return;
-              }
-            }
-      
-            input.value = '';
-            Swal.fire('Selesai', `Berhasil mengunggah ${sukses} foto atas nama <b>${namaWarga}</b>!`, 'success');
-            bukaGaleriFoto();
+          el.focus();
+        });
+      }
+    },
+    preConfirm: () => {
+      const el = document.getElementById('swal-kode-warga');
+      const kode = (el ? el.value : '').trim().toUpperCase();
+
+      if (!kode) {
+        Swal.showValidationMessage('Kode unik warga wajib diisi!');
+        return false;
+      }
+      if (kode.length > 6) {
+        Swal.showValidationMessage('Kode unik maksimal 6 karakter!');
+        return false;
+      }
+      return kode;
+    }
+  }).then(async res => {
+    if (res.isConfirmed) {
+      const kodeWarga = res.value;
+      let sukses = 0;
+      let namaWarga = '';
+
+      for (let i = 0; i < fileList.length; i++) {
+        Swal.fire({
+          title: 'Mengunggah Foto...',
+          html: `Sedang memproses foto ke-<b>${i + 1}</b> dari <b>${fileList.length}</b>...`,
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        try {
+          const base64Data = await kompresFoto(fileList[i]);
+          const hasil = await new Promise((resolve, reject) => {
+            google.script.run
+              .withSuccessHandler(resolve)
+              .withFailureHandler(reject)
+              .simpanFotoDokumentasi({ gambarBase64: base64Data, kodeWarga: kodeWarga });
+          });
+
+          if (hasil && hasil.success) {
+            sukses++;
+            namaWarga = hasil.uploader;
           } else {
             input.value = '';
+            Swal.fire('Verifikasi Ditolak', hasil ? hasil.message : 'Kode unik warga salah.', 'error');
+            return;
           }
-        });
-      };
+        } catch (e) {
+          input.value = '';
+          Swal.fire('Error', 'Gagal memproses unggahan: ' + e, 'error');
+          return;
+        }
+      }
+
+      input.value = '';
+      Swal.fire('Selesai', `Berhasil mengunggah ${sukses} foto atas nama <b>${namaWarga}</b>!`, 'success');
+      bukaGaleriFoto();
+    } else {
+      input.value = '';
+    }
+  });
+};
       
       window.bukaGaleriFoto = function() {
         const modalEl = document.getElementById('modalGaleriFoto');
@@ -21226,10 +21387,28 @@ function pesanProdukOtomatis(idProduk) {
         </button>
       </div>
 
-      <!-- 1. FORM KHUSUS WARGA (HANYA KODE UNIK) -->
+      <!-- 1. FORM KHUSUS WARGA (KODE UNIK + TOGGLE MATA) -->
       <div id="sec-form-warga" class="text-start">
         <label class="form-label small fw-bold mb-1">Kode Unik Warga (ID Warga)*</label>
-        <input type="text" id="order_kode_warga" class="form-control form-control-sm mb-1 text-uppercase" placeholder="Cth: WRG001" autocomplete="off">
+        
+        <div class="position-relative mb-1">
+          <input type="password" 
+                 id="order_kode_warga" 
+                 class="form-control form-control-sm fw-bold text-uppercase pe-5" 
+                 placeholder="Cth: WRG001" 
+                 maxlength="6"
+                 autocomplete="off"
+                 oninput="this.value = this.value.toUpperCase()">
+                 
+          <button type="button" 
+                  id="btn-toggle-eye-order"
+                  class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-2 py-0" 
+                  style="z-index: 5; box-shadow: none;"
+                  title="Lihat / Sembunyikan Kode">
+            <i class="fas fa-eye" id="icon-toggle-eye-order" style="font-size: 0.85rem;"></i>
+          </button>
+        </div>
+
         <small class="text-muted d-block mb-3" style="font-size: 11px;">
           <i class="fas fa-check-circle text-success me-1"></i>Nama, alamat rumah, & kontak Anda akan terisi otomatis dari database warga.
         </small>
@@ -21251,7 +21430,6 @@ function pesanProdukOtomatis(idProduk) {
 
       <!-- INPUT METODE PENGIRIMAN, JUMLAH & CATATAN -->
       <div class="text-start border-top pt-2">
-        <!-- Pilihan Antar / Ambil -->
         <div class="mb-2">
           <label class="form-label small fw-bold mb-1">Metode Pengiriman*</label>
           <select id="order_metode" class="form-select form-select-sm">
@@ -21279,7 +21457,26 @@ function pesanProdukOtomatis(idProduk) {
     focusConfirm: false,
     didOpen: () => {
       const inp = document.getElementById('order_kode_warga');
+      const btnEye = document.getElementById('btn-toggle-eye-order');
+      const iconEye = document.getElementById('icon-toggle-eye-order');
+
       if (inp) inp.focus();
+
+      // Listener klik untuk saklar mata lihat / sembunyikan password
+      if (btnEye && inp && iconEye) {
+        btnEye.addEventListener('click', () => {
+          if (inp.type === 'password') {
+            inp.type = 'text';
+            iconEye.classList.remove('fa-eye', 'text-muted');
+            iconEye.classList.add('fa-eye-slash', 'text-success');
+          } else {
+            inp.type = 'password';
+            iconEye.classList.remove('fa-eye-slash', 'text-success');
+            iconEye.classList.add('fa-eye', 'text-muted');
+          }
+          inp.focus();
+        });
+      }
 
       // Saklar sembunyikan alamat non-warga jika memilih ambil sendiri
       const selMetode = document.getElementById('order_metode');
@@ -21314,7 +21511,6 @@ function pesanProdukOtomatis(idProduk) {
           return false;
         }
 
-        // Alamat wajib hanya jika memilih Diantar ke Rumah
         if (metode === 'Diantar ke Rumah' && !alamat) {
           Swal.showValidationMessage('Alamat pengantaran wajib diisi!');
           return false;
@@ -21810,17 +22006,28 @@ function bukaKartuSaya() {
           Masukkan Kode Unik Warga Anda:
         </p>
 
-        <!-- Input Box Ringkas -->
-        <input 
-          id="swal-input-kode-kta" 
-          type="text" 
-          maxlength="6"
-          placeholder="WRG001"
-          autocapitalize="characters"
-          autocomplete="off"
-          oninput="this.value = this.value.toUpperCase()"
-          class="form-control text-center fw-bold shadow-none"
-          style="letter-spacing: 3px; font-size: 1.15rem; height: 38px; border-radius: 10px; border: 1.5px solid #198754; text-transform: uppercase;">
+        <!-- Wrapper Input Password + Icon Mata -->
+        <div class="position-relative">
+          <input 
+            id="swal-input-kode-kta" 
+            type="password" 
+            maxlength="6"
+            placeholder="••••••"
+            autocapitalize="characters"
+            autocomplete="off"
+            oninput="this.value = this.value.toUpperCase()"
+            class="form-control text-center fw-bold shadow-none"
+            style="letter-spacing: 4px; font-size: 1.15rem; height: 38px; border-radius: 10px; border: 1.5px solid #198754; text-transform: uppercase; padding-right: 36px; padding-left: 36px;">
+
+          <button 
+            type="button" 
+            id="btn-toggle-eye"
+            class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none p-0 me-2"
+            style="z-index: 5; box-shadow: none;"
+            title="Lihat / Sembunyikan Kode">
+            <i class="fas fa-eye" id="icon-toggle-eye" style="font-size: 0.95rem;"></i>
+          </button>
+        </div>
 
         <div class="text-muted mt-1" style="font-size: 0.68rem;">
           <i class="fas fa-info-circle text-success me-1"></i>Maksimal 6 karakter
@@ -21829,7 +22036,30 @@ function bukaKartuSaya() {
     `,
     didOpen: () => {
       const inputEl = document.getElementById('swal-input-kode-kta');
+      const toggleBtn = document.getElementById('btn-toggle-eye');
+      const iconEye = document.getElementById('icon-toggle-eye');
+
       if (inputEl) inputEl.focus();
+
+      // Logika Toggle Klik Ikon Mata
+      if (toggleBtn && inputEl && iconEye) {
+        toggleBtn.addEventListener('click', () => {
+          if (inputEl.type === 'password') {
+            inputEl.type = 'text';
+            iconEye.classList.remove('fa-eye');
+            iconEye.classList.add('fa-eye-slash');
+            iconEye.classList.add('text-success');
+            iconEye.classList.remove('text-muted');
+          } else {
+            inputEl.type = 'password';
+            iconEye.classList.remove('fa-eye-slash');
+            iconEye.classList.add('fa-eye');
+            iconEye.classList.remove('text-success');
+            iconEye.classList.add('text-muted');
+          }
+          inputEl.focus();
+        });
+      }
     },
     preConfirm: () => {
       const inputEl = document.getElementById('swal-input-kode-kta');
