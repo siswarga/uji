@@ -8406,7 +8406,7 @@ function syncRegAlamat() {
 }
               
 // =====================================================
-// SIMPAN / UPDATE DATA WARGA OLEH ADMIN (ANTI DUPLIKAT KODE UNIK)
+// SIMPAN / UPDATE DATA WARGA OLEH ADMIN (DENGAN NOTIFIKASI WA)
 // =====================================================
 function saveWargaData(e) {
   e.preventDefault();
@@ -8423,6 +8423,7 @@ function saveWargaData(e) {
   let kkVal   = document.getElementById('warga_kk') ? document.getElementById('warga_kk').value.trim() : '';
   let nikVal  = document.getElementById('warga_nik') ? document.getElementById('warga_nik').value.trim() : '';
   let blokVal = document.getElementById('warga_blok') ? document.getElementById('warga_blok').value.trim().toUpperCase() : '';
+  let hpVal   = document.getElementById('warga_hp') ? document.getElementById('warga_hp').value.replace(/[^0-9]/g, '') : '';
 
   // 2. Validasi Nomor KK: Lewati jika kolom tersembunyi
   if (!isKKSembunyi) {
@@ -8468,7 +8469,7 @@ function saveWargaData(e) {
   const b = document.getElementById('btn-save-warga');
   if (b) {
     b.disabled = true;
-    b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+    b.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
   }
 
   // 7. Susun Payload Data
@@ -8476,7 +8477,7 @@ function saveWargaData(e) {
     nama: document.getElementById('warga_nama')?.value.trim() || '',
     kk: kkVal,
     nik: nikVal,
-    noHp: document.getElementById('warga_hp')?.value.trim() || '',
+    noHp: hpVal,
     jk: document.getElementById('warga_jk')?.value || 'Laki-laki',
     golDarah: document.getElementById('warga_gol')?.value || '-',
     agama: document.getElementById('warga_agama')?.value || 'Islam',
@@ -8498,15 +8499,41 @@ function saveWargaData(e) {
 
   const token = localStorage.getItem('sigas_token') || localStorage.getItem('token') || '';
 
+  // Helper untuk reset modal & elemen mata
+  const resetFormModal = () => {
+    const modalEl = document.getElementById('modalWarga');
+    if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
+
+    const inputBlok = document.getElementById('warga_blok');
+    if (inputBlok) inputBlok.type = 'password';
+
+    const iconMata = document.getElementById('icon-eye-admin-warga');
+    if (iconMata) {
+      iconMata.classList.remove('fa-eye-slash', 'text-success');
+      iconMata.classList.add('fa-eye', 'text-muted');
+    }
+  };
+
   // 8. Kirim ke Server
   if (id === '') {
+    // Mode Tambah Warga Baru
     google.script.run
       .withSuccessHandler(r => {
         if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
         if (r && r.success) {
-          const modalEl = document.getElementById('modalWarga');
-          if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
-          Swal.fire({icon: 'success', title: 'Berhasil', showConfirmButton: false, timer: 1200});
+          resetFormModal();
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Disimpan!',
+            html: `
+              <p class="mb-2">${r.message}</p>
+              <div class="alert alert-success d-flex align-items-center justify-content-center py-2 px-3 small mb-0 rounded-3">
+                <i class="fab fa-whatsapp fs-5 text-success me-2"></i>
+                <span>Notifikasi & Kode Unik telah dikirim ke WhatsApp warga.</span>
+              </div>
+            `,
+            confirmButtonColor: '#198754'
+          });
           if (typeof loadDataWarga === 'function') loadDataWarga();
         } else {
           Swal.fire('Error', r ? r.message : 'Gagal menyimpan data', 'error');
@@ -8519,13 +8546,24 @@ function saveWargaData(e) {
       .saveWarga(token, p);
 
   } else {
+    // Mode Perbarui (Update) Data Warga
     google.script.run
       .withSuccessHandler(r => {
         if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
         if (r && r.success) {
-          const modalEl = document.getElementById('modalWarga');
-          if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
-          Swal.fire({icon: 'success', title: 'Berhasil Diperbarui', showConfirmButton: false, timer: 1200});
+          resetFormModal();
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Diperbarui!',
+            html: `
+              <p class="mb-2">${r.message}</p>
+              <div class="alert alert-info d-flex align-items-center justify-content-center py-2 px-3 small mb-0 rounded-3">
+                <i class="fab fa-whatsapp fs-5 text-primary me-2"></i>
+                <span>Rincian perubahan data telah diteruskan ke WhatsApp warga.</span>
+              </div>
+            `,
+            confirmButtonColor: '#198754'
+          });
           if (typeof loadDataWarga === 'function') loadDataWarga();
         } else {
           Swal.fire('Error', r ? r.message : 'Gagal memperbarui data', 'error');
@@ -8540,10 +8578,11 @@ function saveWargaData(e) {
 }
 
 // =====================================================
-// PENDAFTARAN MANDIRI (DENGAN CEK KODE UNIK KEMBAR)
+// PENDAFTARAN MANDIRI (DENGAN NOTIFIKASI WA & RESET FORM)
 // =====================================================
 function submitPendaftaranWarga(e) {
   e.preventDefault();
+  const formEl = e.target;
   const btn = document.getElementById('btn-submit-pendaftaran');
 
   const divNik = document.getElementById('div_reg_nik');
@@ -8555,7 +8594,19 @@ function submitPendaftaranWarga(e) {
   let valKK   = document.getElementById('reg_kk') ? document.getElementById('reg_kk').value.trim() : '';
   let valNIK  = document.getElementById('reg_nik') ? document.getElementById('reg_nik').value.trim() : '';
   let valBlok = (document.getElementById('reg_blok')?.value.trim() || '').toUpperCase();
+  let valHp   = (document.getElementById('reg_hp')?.value.trim() || '').replace(/[^0-9]/g, '');
 
+  // 1. Validasi Nomor WhatsApp (Wajib untuk menerima Kode Unik & Rincian)
+  if (!valHp || valHp.length < 10) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Nomor WhatsApp Tidak Valid',
+      text: 'Nomor WhatsApp wajib diisi minimal 10 digit angka untuk menerima konfirmasi pendaftaran & Kode Unik Anda.',
+      confirmButtonColor: '#198754'
+    });
+  }
+
+  // 2. Validasi Nomor KK
   if (!isKKSembunyi) {
     if (valKK.length !== 16 || !/^\d+$/.test(valKK)) {
       return Swal.fire('Peringatan', 'Nomor KK harus persis 16 digit angka!', 'warning');
@@ -8564,6 +8615,7 @@ function submitPendaftaranWarga(e) {
     valKK = '-';
   }
 
+  // 3. Validasi NIK
   if (!isNikSembunyi) {
     if (valNIK.length !== 16 || !/^\d+$/.test(valNIK)) {
       return Swal.fire('Peringatan', 'NIK harus persis 16 digit angka!', 'warning');
@@ -8572,15 +8624,16 @@ function submitPendaftaranWarga(e) {
     valNIK = '-';
   }
 
+  // 4. Validasi Kode Unik Warga
   if (valBlok.length !== 6) {
-    return Swal.fire('Peringatan', 'Kode Unik harus persis 6 karakter!', 'warning');
+    return Swal.fire('Peringatan', 'Kode Unik Warga harus persis 6 karakter!', 'warning');
   }
 
   const p = {
     nama: document.getElementById('reg_nama')?.value.trim() || '',
     kk: valKK,
     nik: valNIK,
-    noHp: document.getElementById('reg_hp')?.value.trim() || '',
+    noHp: valHp,
     jk: document.getElementById('reg_jk')?.value || 'Laki-laki',
     golDarah: document.getElementById('reg_gol')?.value || '-',
     agama: document.getElementById('reg_agama')?.value || 'Islam',
@@ -8598,16 +8651,41 @@ function submitPendaftaranWarga(e) {
   };
 
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Data...';
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan & Mengirim Notifikasi...';
 
   google.script.run
     .withSuccessHandler(res => {
       btn.disabled = false;
       btn.innerHTML = 'Kirim & Simpan Data Warga';
+
       if (res && res.success) {
-        Swal.fire('Terima Kasih!', res.message, 'success');
-        document.getElementById('halaman-pendaftaran-warga').style.display = 'none';
-        if (typeof loadPublicData === 'function') loadPublicData();
+        Swal.fire({
+          icon: 'success',
+          title: 'Pendaftaran Berhasil!',
+          html: `
+            <p class="mb-3">${res.message}</p>
+            <div class="alert alert-success d-flex align-items-center justify-content-center py-2 px-3 small mb-0 rounded-3">
+              <i class="fab fa-whatsapp fs-5 text-success me-2"></i>
+              <span>Rincian data & <b>Kode Unik Warga</b> telah dikirimkan ke WhatsApp Anda.</span>
+            </div>
+          `,
+          confirmButtonText: 'Selesai',
+          confirmButtonColor: '#198754'
+        }).then(() => {
+          // Bersihkan form
+          if (formEl && typeof formEl.reset === 'function') formEl.reset();
+          
+          // Kosongkan penampung base64 foto jika ada
+          const fotoKkInp = document.getElementById('reg_foto_kk_base64');
+          const fotoKtpInp = document.getElementById('reg_foto_ktp_base64');
+          if (fotoKkInp) fotoKkInp.value = '';
+          if (fotoKtpInp) fotoKtpInp.value = '';
+
+          // Tutup container pendaftaran & refresh data publik
+          const halDaftar = document.getElementById('halaman-pendaftaran-warga');
+          if (halDaftar) halDaftar.style.display = 'none';
+          if (typeof loadPublicData === 'function') loadPublicData();
+        });
       } else {
         Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem', 'error');
       }
@@ -8618,7 +8696,7 @@ function submitPendaftaranWarga(e) {
       Swal.fire('Error Koneksi', err.message || String(err), 'error');
     })
     .saveWargaMandiri(p);
-}        
+}
               	let listWargaQrisTemp = [];
               
            // ====================================================================
