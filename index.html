@@ -912,51 +912,72 @@
 
       </div>
 
-       <!-- BARIS 7: KOTAK E-VOTING PUBLIK -->
-      <div class="row g-4 mb-4 mt-4" id="section-public-voting" style="display: none;">
-        <div class="col-12">
-          <div class="card card-custom p-4">
-            <div class="d-flex align-items-center mb-3">
-              <h5 class="fw-bold text-primary mb-0"><i class="fas fa-poll me-2"></i>E-Voting & Polling Warga</h5>
-            </div>
-            <div id="container-public-voting-list">
-              <!-- Diisi otomatis via JavaScript -->
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- BARIS 7: E-VOTING WARGA (ATAS) & BURSA LOKER (BAWAH) -->
+<div class="row g-4 mb-4 mt-2" id="baris-voting-dan-loker">
 
-        <!-- KOLOM KANAN: BURSA LOWONGAN KERJA (OTOMATIS FULL-WIDTH JIKA E-VOTING KOSONG) -->
-<div class="col-12 col-lg-6 transition-all" id="section-public-loker">
-  <div class="card card-custom p-4 h-100 border-0 shadow-sm rounded-4 bg-white d-flex flex-column" style="min-height: 380px;">
-    
-    <!-- Header Kartu Loker -->
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
-      <div class="d-flex align-items-center">
+  <!-- 1. KARTU E-VOTING & POLLING WARGA (ATAS - 100% FULL WIDTH) -->
+  <div class="col-12" id="section-public-voting" style="display: none;">
+    <div class="card card-custom p-4 border-0 shadow-sm rounded-4 bg-white">
+      
+      <!-- Header E-Voting -->
+      <div class="d-flex align-items-center mb-3">
         <div class="rounded-3 d-flex align-items-center justify-content-center me-2" 
-             style="width: 38px; height: 38px; min-width: 38px; background-color: #e8f5e9 !important; color: #198754 !important;">
-          <i class="fas fa-briefcase fa-lg"></i>
+             style="width: 38px; height: 38px; min-width: 38px; background-color: #e3f2fd !important; color: #0d6efd !important;">
+          <i class="fas fa-poll fa-lg"></i>
         </div>
         <div>
-          <h5 class="fw-bold text-success mb-0" style="font-size: 1.15rem;">Bursa Lowongan Kerja</h5>
-          <small class="text-muted" style="font-size: 11px;">Peluang Karir & Info Kerja Terkini (Online)</small>
+          <h5 class="fw-bold text-primary mb-0" style="font-size: 1.15rem;">E-Voting & Polling Warga</h5>
+          <small class="text-muted" style="font-size: 11px;">Aspirasi & Pemilihan Lingkungan</small>
         </div>
       </div>
-      <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="muatDataLokerOnline(true)" title="Segarkan Info">
-        <i class="fas fa-sync-alt me-1"></i>Segarkan
-      </button>
-    </div>
 
-    <!-- Wadah Isi Lowongan Kerja (Memiliki batas tinggi aman agar tidak gepeng saat sendirian) -->
-    <div id="wadahListLoker" class="overflow-auto pe-1 flex-grow-1" style="min-height: 280px; max-height: 520px;">
-      <div class="text-center py-5 text-muted">
-        <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
-        <span class="small fw-semibold">Menghubungkan ke info lowongan kerja...</span>
+      <!-- Wadah Form Voting Publik -->
+      <div id="container-public-voting-list">
+        <!-- Form voting dimuat dinamis oleh JavaScript -->
       </div>
+
     </div>
+  </div>
+
+  <!-- 2. KARTU BURSA LOWONGAN KERJA (BAWAH - 100% FULL WIDTH) -->
+  <div class="col-12" id="section-public-loker">
+    <div class="card card-custom p-4 border-0 shadow-sm rounded-4 bg-white">
+      
+      <!-- Header Bursa Loker -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center">
+          <div class="rounded-3 d-flex align-items-center justify-content-center me-2" 
+               style="width: 38px; height: 38px; min-width: 38px; background-color: #e8f5e9 !important; color: #198754 !important;">
+            <i class="fas fa-briefcase fa-lg"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold text-success mb-0" style="font-size: 1.15rem;">Bursa Lowongan Kerja</h5>
+            <small class="text-muted" style="font-size: 11px;">Peluang Karir & Info Kerja Terkini (Online)</small>
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="muatDataLokerOnline(true)" title="Segarkan Info">
+          <i class="fas fa-sync-alt me-1"></i>Segarkan
+        </button>
+      </div>
+
+      <!-- Wadah Daftar Loker (Tinggi Mandiri & Scroll Rapi) -->
+      <div id="wadahListLoker" class="overflow-auto pe-1" style="max-height: 480px;">
+        <div class="text-center py-5 text-muted">
+          <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+          <span class="small fw-semibold">Menghubungkan ke info lowongan kerja...</span>
+        </div>
+      </div>
+		<!-- Catatan Keamanan / Peringatan Anti-Penipuan -->
+<div class="alert alert-warning border-0 rounded-3 p-2 mt-3 mb-0 d-flex align-items-center" style="font-size: 11px;">
+  <i class="fas fa-shield-alt text-warning fa-lg me-2 flex-shrink-0"></i>
+  <div>
+    <strong>Himbauan Keamanan:</strong> Seluruh proses rekrutmen kerja resmi <b>TIDAK DIPUNGUT BIAYA</b> apapun. Jangan pernah mengirimkan uang atau data perbankan rahasia ke pihak manapun.
+  </div>
 </div>
     </div>
-	</div>
+  </div>
+
+</div>
  
 
 
@@ -9459,23 +9480,41 @@ function aktifkanTabPermohonan() {
             }).withFailureHandler(() => { hideLoading(); }).getDashboardData(localStorage.getItem('sigas_token')); 
           }
           
-          /**
-           * 7. Pembaruan Logout: BERSIHKAN PENYIMPANAN MENU
-           */
-          function handleLogout() { 
-            Swal.fire({title:'Logout dari Sistem?', icon:'warning', showCancelButton:true, confirmButtonColor:'#dc3545', confirmButtonText:'Ya, Keluar'}).then(r => {
-              if(r.isConfirmed) {
-                showLoading(); 
-                google.script.run.withSuccessHandler(() => {
-                  localStorage.removeItem('sigas_token'); 
-                  localStorage.removeItem('sigas_active_menu'); // Bersihkan riwayat menu
-                  currentUser = null; 
-                  showPublicDashboard(); 
-                  hideLoading();
-                }).logout(localStorage.getItem('sigas_token'));
-              }
-            }); 
-          }
+function handleLogout() { 
+  Swal.fire({
+    title: 'Logout dari Sistem?', 
+    text: 'Sesi Anda akan diakhiri dan halaman akan dimuat ulang.',
+    icon: 'warning', 
+    showCancelButton: true, 
+    confirmButtonColor: '#dc3545', 
+    confirmButtonText: 'Ya, Keluar',
+    cancelButtonText: 'Batal'
+  }).then(r => {
+    if (r.isConfirmed) {
+      showLoading(); 
+      const token = localStorage.getItem('sigas_token');
+
+      // Fungsi pembersih sesi & pemuat ulang halaman
+      const prosesBersihDanReload = () => {
+        localStorage.removeItem('sigas_token'); 
+        localStorage.removeItem('sigas_active_menu'); // Bersihkan riwayat menu
+        currentUser = null; 
+        
+        // Muat ulang halaman secara penuh agar seluruh data dan tampilan ter-refresh bersih
+        window.location.reload();
+      };
+
+      google.script.run
+        .withSuccessHandler(prosesBersihDanReload)
+        .withFailureHandler(err => {
+          console.warn("Logout server error/timeout, tetap membersihkan sesi lokal:", err);
+          // Tetap hapus token dan refresh meski backend merespons lambat/gagal
+          prosesBersihDanReload();
+        })
+        .logout(token);
+    }
+  }); 
+}
           	
               	// FUNGSI UNTUK MEMUNCULKAN / MENYEMBUNYIKAN SIDEBAR DI HP
               function toggleSidebar() {
@@ -23091,17 +23130,18 @@ function bukaModalLokerWarga() {
 }
 
 // ============================================================================
-// MODUL BURSA LOWONGAN KERJA DASHBOARD WARGA
+// FUNGSI MEMUAT & MERENDER BURSA LOWONGAN KERJA (LOKAL, NASIONAL, INTERNASIONAL)
 // ============================================================================
-
-/**
- * Mengambil data bursa loker dari backend Google Apps Script
- */
 function muatDataLokerOnline(isForceReload) {
   const wadah = document.getElementById('wadahListLoker');
   if (!wadah) return;
 
-  // 1. Tampilkan animasi loading saat memuat
+  // 1. Animasi putar pada tombol Segarkan jika sedang ditekan
+  const btnRefresh = document.querySelector("button[onclick*='muatDataLokerOnline']");
+  const iconRefresh = btnRefresh ? btnRefresh.querySelector('i') : null;
+  if (iconRefresh) iconRefresh.classList.add('fa-spin');
+
+  // 2. Tampilkan status loading di dalam kartu
   wadah.innerHTML = `
     <div class="text-center py-5 text-muted">
       <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
@@ -23109,9 +23149,10 @@ function muatDataLokerOnline(isForceReload) {
     </div>
   `;
 
-  // 2. Tembak backend Google Apps Script
+  // 3. Panggil backend Google Apps Script
   google.script.run
     .withSuccessHandler(function(res) {
+      if (iconRefresh) iconRefresh.classList.remove('fa-spin');
       console.log("🔍 Respon Bursa Loker:", res);
 
       if (!res || !res.success || !res.data || !Array.isArray(res.data) || res.data.length === 0) {
@@ -23124,50 +23165,75 @@ function muatDataLokerOnline(isForceReload) {
         return;
       }
 
-      // 3. Render kartu daftar loker
+      // 4. Render kartu daftar lowongan
       let html = '';
       res.data.forEach(item => {
+        const tipeStr = String(item.tipe || 'Full Time');
+
+        // Penentuan gaya badge dan ikon berdasarkan skala wilayah
+        let badgeClass = 'bg-success-subtle text-success border-success-subtle';
+        let ikonLingkup = '<i class="fas fa-map-marker-alt me-1"></i>';
+
+        if (tipeStr.includes('Internasional')) {
+          badgeClass = 'bg-primary-subtle text-primary border-primary-subtle';
+          ikonLingkup = '<i class="fas fa-globe me-1"></i>';
+        } else if (tipeStr.includes('Nasional')) {
+          badgeClass = 'bg-warning-subtle text-dark border-warning-subtle';
+          ikonLingkup = '<i class="fas fa-flag me-1"></i>';
+        }
+
+        // Teks tombol lamar (WhatsApp atau Portal Resmi)
+        const isWa = String(item.url || '').includes('wa.me');
+        const teksTombol = isWa ? 'Hubungi via WhatsApp' : 'Lihat Detail & Lamar';
+        const ikonTombol = isWa ? 'fab fa-whatsapp' : 'fas fa-external-link-alt';
+
         html += `
           <div class="border rounded-4 p-3 mb-3 bg-light bg-opacity-50 shadow-sm" style="transition: all 0.2s ease;">
             <div class="d-flex justify-content-between align-items-start mb-2">
-              <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill" style="font-size: 11px;">
-                ${item.tipe || 'Full Time'}
+              <span class="badge ${badgeClass} border rounded-pill px-2 py-1 fw-semibold" style="font-size: 11px;">
+                ${ikonLingkup}${tipeStr}
               </span>
               <small class="text-muted" style="font-size: 11px;">
                 <i class="far fa-clock me-1"></i>${item.tgl || 'Baru'}
               </small>
             </div>
 
-            <h6 class="fw-bold text-dark mb-1" style="font-size: 14px;">${item.posisi}</h6>
+            <h6 class="fw-bold text-dark mb-1" style="font-size: 14px;">${item.posisi || 'Lowongan Kerja'}</h6>
             
             <div class="small text-success fw-semibold mb-1">
-              <i class="fas fa-building me-1"></i>${item.perusahaan}
+              <i class="fas fa-building me-1"></i>${item.perusahaan || 'Mitra Usaha'}
             </div>
 
             <div class="small text-muted mb-2" style="font-size: 11px;">
-              <i class="fas fa-map-marker-alt text-danger me-1"></i>${item.lokasi}
+              <i class="fas fa-map-pin text-danger me-1"></i>${item.lokasi || 'Indonesia'}
             </div>
 
             <p class="text-secondary small mb-3" style="font-size: 12px; line-height: 1.4;">
               ${item.ringkasan || '-'}
             </p>
 
-            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill w-100 fw-semibold" style="font-size: 12px;">
-              Lihat Detail & Lamar <i class="fas fa-external-link-alt ms-1"></i>
+            <a href="${item.url || '#'}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-pill w-100 fw-semibold" style="font-size: 12px;">
+              ${teksTombol} <i class="${ikonTombol} ms-1"></i>
             </a>
           </div>
         `;
       });
 
       wadah.innerHTML = html;
+
+      // 5. Sinkronkan visibilitas dan tata letak
+      if (typeof sesuaikanLebarLokerOtomatis === 'function') {
+        sesuaikanLebarLokerOtomatis();
+      }
     })
     .withFailureHandler(function(err) {
+      if (iconRefresh) iconRefresh.classList.remove('fa-spin');
       console.error("❌ Gagal memuat loker:", err);
       wadah.innerHTML = `
         <div class="text-center py-4 text-danger small">
           <i class="fas fa-exclamation-triangle me-1"></i> Gagal memuat lowongan: ${err.message || err}<br>
-          <button class="btn btn-sm btn-outline-danger mt-2 rounded-pill" onclick="muatDataLokerOnline(true)">
-            Coba Lagi
+          <button class="btn btn-sm btn-outline-danger mt-2 rounded-pill px-3" onclick="muatDataLokerOnline(true)">
+            <i class="fas fa-sync-alt me-1"></i> Coba Lagi
           </button>
         </div>
       `;
@@ -23175,46 +23241,9 @@ function muatDataLokerOnline(isForceReload) {
     .getLowonganKerjaOnline(isForceReload || false);
 }
 
-// 4. OTOMATIS JALANKAN SAAT HALAMAN SELESAI DIMUAT
+// 6. Jalankan otomatis saat aplikasi siap
 document.addEventListener('DOMContentLoaded', function() {
   muatDataLokerOnline(false);
-});
-
-// ============================================================================
-// LOGIKA RESPONSIF: BURSA LOKER MENYESUAIKAN E-VOTING
-// ============================================================================
-function sesuaikanLebarLokerOtomatis() {
-  const voteCol = document.getElementById('section-public-voting');
-  const lokerCol = document.getElementById('section-public-loker');
-  
-  if (!lokerCol) return;
-
-  // Cek apakah kolom E-Voting tersembunyi (kosong)
-  const isVotingHidden = !voteCol || 
-                         voteCol.style.display === 'none' || 
-                         voteCol.classList.contains('d-none') || 
-                         window.getComputedStyle(voteCol).display === 'none';
-
-  if (isVotingHidden) {
-    // E-Voting kosong: Lebarkan kartu Loker ke 100% (Full Width)
-    lokerCol.classList.remove('col-lg-6');
-    lokerCol.classList.add('col-12');
-  } else {
-    // E-Voting aktif: Kembalikan berdampingan 50% - 50%
-    lokerCol.classList.remove('col-12');
-    lokerCol.classList.add('col-lg-6');
-  }
-}
-
-// Pantau perubahan status E-Voting secara real-time
-document.addEventListener('DOMContentLoaded', function() {
-  sesuaikanLebarLokerOtomatis();
-
-  const voteEl = document.getElementById('section-public-voting');
-  if (voteEl) {
-    const observer = new MutationObserver(sesuaikanLebarLokerOtomatis);
-    observer.observe(voteEl, { attributes: true, attributeFilter: ['style', 'class'] });
-  }
 });
 
 </script>
