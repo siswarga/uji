@@ -961,9 +961,11 @@
         <span class="small fw-semibold">Menghubungkan ke info lowongan kerja...</span>
       </div>
     </div>
-
-  </div>
 </div>
+    </div>
+	</div>
+ 
+
 
       <!-- FOOTER -->
       <footer class="text-center text-muted small mt-5 mb-4">
@@ -4324,7 +4326,29 @@
                       </div>
 
                       <hr class="my-4 text-muted opacity-25">
+						
+						<!-- SUB-BAGIAN 2 (BARU): KARTU MODUL DASHBOARD WARGA -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <span class="fw-bold small text-secondary text-uppercase tracking-wider">
+        <i class="fas fa-th-large text-success me-1"></i> Modul Kartu Beranda Warga
+      </span>
+      <small class="text-muted d-none d-sm-inline">Tampilkan / sembunyikan modul kartu di beranda publik</small>
+    </div>
 
+    <div class="row g-3 mb-4">
+      <!-- Toggle Bursa Lowongan Kerja -->
+      <div class="col-12 col-md-6">
+        <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="small fw-bold"><i class="fas fa-briefcase text-success me-1"></i> Bursa Lowongan Kerja</span>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input" type="checkbox" id="seting-show-loker" checked>
+            </div>
+          </div>
+          <small class="text-muted" style="font-size: 0.72rem;">Aktifkan tampilan kartu lowongan kerja online di dashboard warga</small>
+        </div>
+      </div>
+						
                       <!-- SUB-BAGIAN 3: PENGATURAN KOLOM IDENTITAS REGISTRASI -->
                       <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="fw-bold small text-secondary text-uppercase tracking-wider">
@@ -4359,28 +4383,6 @@
                             <small class="text-muted" style="font-size: 0.72rem;">Wajibkan kolom No KK</small>
                           </div>
                         </div>
-						
-						<!-- SUB-BAGIAN 2 (BARU): KARTU MODUL DASHBOARD WARGA -->
-						<div class="d-flex align-items-center justify-content-between mb-3">
-							<span class="fw-bold small text-secondary text-uppercase tracking-wider">
-							<i class="fas fa-th-large text-success me-1"></i> Modul Kartu Beranda Warga
-							</span>
-							<small class="text-muted d-none d-sm-inline">Tampilkan / sembunyikan modul kartu di beranda publik</small>
-						</div>
-
-						<div class="row g-3 mb-4">
-						<!-- Toggle Bursa Lowongan Kerja -->
-						<div class="col-12 col-md-6">
-							<div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
-								<div class="d-flex align-items-center justify-content-between mb-2">
-								<span class="small fw-bold"><i class="fas fa-briefcase text-success me-1"></i> Bursa Lowongan Kerja</span>
-							<div class="form-check form-switch m-0">
-							<input class="form-check-input" type="checkbox" id="seting-show-loker" checked>
-							</div>
-							</div>
-							<small class="text-muted" style="font-size: 0.72rem;">Aktifkan tampilan kartu lowongan kerja online di dashboard warga</small>
-						</div>
-						</div>
 
                         <!-- Switch Upload KTP -->
                         <div class="col-6 col-md-3">
@@ -4410,7 +4412,7 @@
                       </div>
                     </div>
                   </div>
-					
+
                   <!-- SATU TOMBOL SIMPAN UTAMA -->
                   <div class="d-flex justify-content-end mb-4">
                     <button type="submit" class="btn btn-danger btn-lg px-4 py-2 rounded-pill fw-bold shadow" id="btn-save-identitas">
@@ -18632,7 +18634,7 @@ function simpanPengaturan(e) {
 }
           
 // =====================================================
-// HELPER: TERAPKAN PENGATURAN KE ELEMEN HTML (LENGKAP & AMAN)
+// HELPER: TERAPKAN PENGATURAN KE ELEMEN HTML
 // =====================================================
 function terapkanPengaturanKeElemen(settings) {
   if (!settings || typeof settings !== 'object') return;
@@ -18641,7 +18643,6 @@ function terapkanPengaturanKeElemen(settings) {
   const namaKomplek = settings['nama_komplek'] || 'Komplek Warga';
   const moto = settings['moto'] || 'Harmonis, Religius dan Gotong Royong';
 
-  // Helper pengisi nilai input jika elemen tersedia di halaman
   const setVal = (id, val) => {
     const el = document.getElementById(id);
     if (el) el.value = val || '';
@@ -18669,16 +18670,18 @@ function terapkanPengaturanKeElemen(settings) {
   }
 
   // 4. Pengaturan Menu Warga
+  const statusDaftarWarga = settings['fitur_pendaftaran_mandiri'] || settings['pendaftaran_mandiri'];
   const menuDaftarWarga = document.getElementById('card-menu-daftar-warga');
   if (menuDaftarWarga) {
-    menuDaftarWarga.style.display = settings['fitur_pendaftaran_mandiri'] === 'Nonaktif' ? 'none' : 'block';
+    menuDaftarWarga.style.display = statusDaftarWarga === 'Nonaktif' ? 'none' : 'block';
   }
+  const statusLaporMudik = settings['fitur_lapor_mudik'] || settings['lapor_mudik'];
   const menuLaporMudik = document.getElementById('card-menu-lapor-mudik');
   if (menuLaporMudik) {
-    menuLaporMudik.style.display = settings['fitur_lapor_mudik'] === 'Aktif' ? 'block' : 'none';
+    menuLaporMudik.style.display = statusLaporMudik === 'Aktif' ? 'block' : 'none';
   }
 
-  // 5. Backend URL & Form Identitas (Panel Pengaturan)
+  // 5. Backend URL & Form Identitas
   setVal('set_backend_url', settings['backend_url']);
   setVal('set_nama_aplikasi', settings['nama_aplikasi']);
   setVal('set_nama_komplek', settings['nama_komplek']);
@@ -18688,7 +18691,7 @@ function terapkanPengaturanKeElemen(settings) {
   setVal('set_warna_aplikasi', settings['warna_aplikasi']);
   setVal('set_warna_aplikasi_text', settings['warna_aplikasi']);
 
-  // 6. Running Text Dinamis
+  // 6. Running Text
   const runningTextEl = document.getElementById('pub-running-text-content');
   if (runningTextEl) {
     let rawText = settings['running_text'] || 'Selamat Datang di Portal Resmi $namaapp$. Jaga kerukunan, ketertiban, dan kebersihan lingkungan kita bersama!';
@@ -18705,7 +18708,7 @@ function terapkanPengaturanKeElemen(settings) {
     }
   }
 
-  // 8. Sinkronisasi Checkbox Form Admin (Membaca format 'ya' / 'tidak')
+  // 8. Sinkronisasi Checkbox Header
   const syncSwitch = (idSwitch, settingKey) => {
     const el = document.getElementById(idSwitch);
     if (el && settings[settingKey] !== undefined) {
@@ -18719,7 +18722,7 @@ function terapkanPengaturanKeElemen(settings) {
   syncSwitch('seting-show-sos', 'show_sos');
   syncSwitch('seting-show-ebook', 'show_ebook');
 
-  // 9. Sembunyikan / Tampilkan Tombol Header di Portal Warga
+  // 9. Tombol Header Portal
   const aturTombolHeader = (idTombol, settingKey) => {
     const el = document.getElementById(idTombol);
     if (el) {
@@ -18733,7 +18736,65 @@ function terapkanPengaturanKeElemen(settings) {
   aturTombolHeader('btn-header-sos', 'show_sos');
   aturTombolHeader('btn-header-ebook', 'show_ebook');
 
-  // 10. Sinkronisasi Tab "Tentang Aplikasi"
+  // =========================================================================
+  // 10. VISIBILITAS BURSA LOKER (KEBAL TERHADAP 'tidak', 'false', ATAU 'FALSE')
+  // =========================================================================
+  const valLokerRaw = String(settings['show_loker'] || '').toLowerCase().trim();
+  const isLokerAktif = valLokerRaw !== 'tidak' && valLokerRaw !== 'false';
+
+  // Set saklar di panel admin sesuai data sheet
+  const swLoker = document.getElementById('seting-show-loker');
+  if (swLoker) swLoker.checked = isLokerAktif;
+
+  // Tampilkan atau sembunyikan kartu loker di beranda
+  const colLoker = document.getElementById('section-public-loker');
+  if (colLoker) {
+    colLoker.style.display = isLokerAktif ? '' : 'none';
+  }
+
+  // Jalankan penyesuaian tata letak otomatis bersama E-Voting
+  if (typeof sesuaikanLebarLokerOtomatis === 'function') {
+    sesuaikanLebarLokerOtomatis();
+  }
+
+  // 11. Sinkronisasi Formulir Mandiri
+  const swDaftarWarga = document.getElementById('set_pendaftaran_mandiri');
+  if (swDaftarWarga && statusDaftarWarga !== undefined) {
+    swDaftarWarga.checked = statusDaftarWarga !== 'Nonaktif';
+  }
+
+  const swLaporMudik = document.getElementById('set_lapor_mudik');
+  if (swLaporMudik && statusLaporMudik !== undefined) {
+    swLaporMudik.checked = statusLaporMudik === 'Aktif';
+  }
+
+  const statusDaftarPgr = settings['fitur_pendaftaran_pengurus'] || settings['pendaftaran_pengurus'];
+  const swDaftarPgr = document.getElementById('set_pendaftaran_pengurus');
+  if (swDaftarPgr && statusDaftarPgr !== undefined) {
+    swDaftarPgr.checked = statusDaftarPgr !== 'Nonaktif';
+  }
+
+  // 12. Kolom Identitas Registrasi Warga
+  syncSwitch('seting-show-reg-nik', 'show_reg_nik');
+  syncSwitch('seting-show-reg-kk', 'show_reg_kk');
+  syncSwitch('seting-show-reg-foto-ktp', 'show_reg_foto_ktp');
+  syncSwitch('seting-show-reg-foto-kk', 'show_reg_foto_kk');
+
+  const aturFieldReg = (idDiv, idInput, settingKey) => {
+    const divEl = document.getElementById(idDiv);
+    const inputEl = document.getElementById(idInput);
+    const aktif = settings[settingKey] !== 'tidak';
+
+    if (divEl) divEl.style.display = aktif ? '' : 'none';
+    if (inputEl) inputEl.required = aktif;
+  };
+
+  aturFieldReg('div_reg_nik', 'reg_nik', 'show_reg_nik');
+  aturFieldReg('div_reg_kk', 'reg_kk', 'show_reg_kk');
+  aturFieldReg('div_reg_foto_ktp', null, 'show_reg_foto_ktp');
+  aturFieldReg('div_reg_foto_kk', null, 'show_reg_foto_kk');
+
+  // 13. Tentang Aplikasi
   const elDisplayNamaApp = document.getElementById('display-nama-app');
   if (elDisplayNamaApp) {
     elDisplayNamaApp.innerText = `${appName} (${moto})`;
@@ -18743,7 +18804,7 @@ function terapkanPengaturanKeElemen(settings) {
     el.innerText = appName;
   });
 
-  // 11. Sinkronisasi Konfigurasi Jadwal Ronda (Pola & Hari Mingguan)
+  // 14. Pola Ronda
   const elPola = document.getElementById('seting_pola_ronda');
   const boxHari = document.getElementById('box-hari-ronda-mingguan');
   const pola = (settings['pola_ronda'] || 'harian').toString().toLowerCase().trim();
@@ -18771,7 +18832,7 @@ function terapkanPengaturanKeElemen(settings) {
     }
   }
 
-  // 12. Sinkronisasi Form WhatsApp Gateway & Kontak Darurat / Petugas
+  // 15. WhatsApp Gateway
   setVal('api_wa_url', settings['api_wa_url']);
   setVal('set_wa_group_jid', settings['wa_group_jid']);
   setVal('set_wa_group_pengurus_jid', settings['wa_group_pengurus_jid']);
@@ -18780,9 +18841,9 @@ function terapkanPengaturanKeElemen(settings) {
   setVal('set_wa_kebersihan', settings['wa_kebersihan']);
   setVal('set_wa_medis', settings['wa_medis']);
 
-  // 13. Sinkronisasi Pengaturan Vendor Kebersihan / Pengelola Sampah (SUDAH DIPISAH)
+  // 16. Pengelola Sampah
   setVal('set_sampah_nama', settings['sampah_vendor_nama'] || 'Pengelola Sampah Swakelola');
-  setVal('set_sampah_wa', settings['sampah_vendor_wa'] || ''); // <-- HANYA BACA sampah_vendor_wa
+  setVal('set_sampah_wa', settings['sampah_vendor_wa'] || '');
   setVal('set_sampah_reminder_time', settings['sampah_reminder_time'] || '07:00');
   
   const defaultTemplateSampah = 'Halo {nama_vendor}, mengingatkan jadwal rutin penjemputan sampah warga di {nama_komplek} untuk hari ini ({hari}, {tanggal}). Mohon dapat diangkut sesuai kesepakatan bersama. Terima kasih!';
@@ -18908,11 +18969,16 @@ function saveIdentitasAplikasi(e) {
     'show_umkm':   getSwitchYaTidak('seting-show-umkm'),
     'show_kta':    getSwitchYaTidak('seting-show-kta'),
     'show_sos':    getSwitchYaTidak('seting-show-sos'),
-    'show_ebook':  getSwitchYaTidak('seting-show-ebook'), // Menambahkan toggle E-Book
-    'show_reg_nik': getSwitchYaTidak('seting-show-reg-nik'),
-    'show_reg_kk': getSwitchYaTidak('seting-show-reg-kk'),
+    'show_ebook':  getSwitchYaTidak('seting-show-ebook'),
+
+    // Visibilitas Modul Bursa Loker (Diselaraskan menggunakan ya / tidak)
+    'show_loker':  getSwitchYaTidak('seting-show-loker'),
+
+    // Kolom identitas registrasi warga (ya / tidak)
+    'show_reg_nik':      getSwitchYaTidak('seting-show-reg-nik'),
+    'show_reg_kk':       getSwitchYaTidak('seting-show-reg-kk'),
     'show_reg_foto_ktp': getSwitchYaTidak('seting-show-reg-foto-ktp'),
-    'show_reg_foto_kk': getSwitchYaTidak('seting-show-reg-foto-kk')
+    'show_reg_foto_kk':  getSwitchYaTidak('seting-show-reg-foto-kk')
   };
 
   const btnSave = document.getElementById('btn-save-identitas');
@@ -18937,9 +19003,13 @@ function saveIdentitasAplikasi(e) {
           showConfirmButton: false
         });
 
-        Object.assign(appSettings, p);
-        localStorage.setItem('sigas_app_settings', JSON.stringify(appSettings));
-        terapkanPengaturanKeElemen(appSettings);
+        if (typeof appSettings !== 'undefined') {
+          Object.assign(appSettings, p);
+        } else {
+          window.appSettings = Object.assign({}, p);
+        }
+        localStorage.setItem('sigas_app_settings', JSON.stringify(window.appSettings || p));
+        terapkanPengaturanKeElemen(window.appSettings || p);
       } else {
         Swal.fire('Gagal', res ? res.message : 'Terjadi kesalahan sistem.', 'error');
       }
@@ -18949,7 +19019,7 @@ function saveIdentitasAplikasi(e) {
         btnSave.disabled = false;
         btnSave.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Semua Pengaturan';
       }
-      Swal.fire('Error Koneksi', String(err), 'error');
+      Swal.fire('Error Koneksi', String(err.message || err), 'error');
     })
     .updateAppSettingsBulk(token, p);
 }
