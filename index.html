@@ -933,38 +933,37 @@
           </div>
         </div>
 
-        <!-- KOLOM KANAN: BURSA LOWONGAN KERJA -->
-        <div class="col-12 col-lg-6" id="section-public-loker">
-          <div class="card card-custom p-4 h-100 border-0 shadow-sm rounded-4 bg-white d-flex flex-column">
-            
-            <!-- Header Kartu Loker -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div class="d-flex align-items-center">
-                <div class="p-2 bg-success bg-opacity-10 rounded-3 text-success me-2">
-                  <i class="fas fa-briefcase fa-lg"></i>
-                </div>
-                <div>
-                  <h5 class="fw-bold text-success mb-0">Bursa Lowongan Kerja</h5>
-                  <small class="text-muted" style="font-size: 11px;">Peluang Karir & Info Kerja Terkini (Online)</small>
-                </div>
-              </div>
-              <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="muatDataLokerOnline(true)" title="Segarkan Info">
-                <i class="fas fa-sync-alt me-1"></i>Segarkan
-              </button>
-            </div>
-
-            <!-- Wadah Isi Lowongan Kerja (Tampil Langsung) -->
-            <div id="wadahListLoker" class="flex-grow-1 overflow-auto pe-1" style="max-height: 420px;">
-              <div class="text-center py-5 text-muted">
-                <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
-                <span class="small fw-semibold">Menghubungkan ke info lowongan kerja...</span>
-              </div>
-            </div>
-
-          </div>
+        <!-- KOLOM KANAN: BURSA LOWONGAN KERJA (OTOMATIS FULL-WIDTH JIKA E-VOTING KOSONG) -->
+<div class="col-12 col-lg-6 transition-all" id="section-public-loker">
+  <div class="card card-custom p-4 h-100 border-0 shadow-sm rounded-4 bg-white d-flex flex-column" style="min-height: 380px;">
+    
+    <!-- Header Kartu Loker -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
+      <div class="d-flex align-items-center">
+        <div class="rounded-3 d-flex align-items-center justify-content-center me-2" 
+             style="width: 38px; height: 38px; min-width: 38px; background-color: #e8f5e9 !important; color: #198754 !important;">
+          <i class="fas fa-briefcase fa-lg"></i>
         </div>
-
+        <div>
+          <h5 class="fw-bold text-success mb-0" style="font-size: 1.15rem;">Bursa Lowongan Kerja</h5>
+          <small class="text-muted" style="font-size: 11px;">Peluang Karir & Info Kerja Terkini (Online)</small>
+        </div>
       </div>
+      <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="muatDataLokerOnline(true)" title="Segarkan Info">
+        <i class="fas fa-sync-alt me-1"></i>Segarkan
+      </button>
+    </div>
+
+    <!-- Wadah Isi Lowongan Kerja (Memiliki batas tinggi aman agar tidak gepeng saat sendirian) -->
+    <div id="wadahListLoker" class="overflow-auto pe-1 flex-grow-1" style="min-height: 280px; max-height: 520px;">
+      <div class="text-center py-5 text-muted">
+        <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+        <span class="small fw-semibold">Menghubungkan ke info lowongan kerja...</span>
+      </div>
+    </div>
+
+  </div>
+</div>
 
       <!-- FOOTER -->
       <footer class="text-center text-muted small mt-5 mb-4">
@@ -4360,6 +4359,28 @@
                             <small class="text-muted" style="font-size: 0.72rem;">Wajibkan kolom No KK</small>
                           </div>
                         </div>
+						
+						<!-- SUB-BAGIAN 2 (BARU): KARTU MODUL DASHBOARD WARGA -->
+						<div class="d-flex align-items-center justify-content-between mb-3">
+							<span class="fw-bold small text-secondary text-uppercase tracking-wider">
+							<i class="fas fa-th-large text-success me-1"></i> Modul Kartu Beranda Warga
+							</span>
+							<small class="text-muted d-none d-sm-inline">Tampilkan / sembunyikan modul kartu di beranda publik</small>
+						</div>
+
+						<div class="row g-3 mb-4">
+						<!-- Toggle Bursa Lowongan Kerja -->
+						<div class="col-12 col-md-6">
+							<div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+								<div class="d-flex align-items-center justify-content-between mb-2">
+								<span class="small fw-bold"><i class="fas fa-briefcase text-success me-1"></i> Bursa Lowongan Kerja</span>
+							<div class="form-check form-switch m-0">
+							<input class="form-check-input" type="checkbox" id="seting-show-loker" checked>
+							</div>
+							</div>
+							<small class="text-muted" style="font-size: 0.72rem;">Aktifkan tampilan kartu lowongan kerja online di dashboard warga</small>
+						</div>
+						</div>
 
                         <!-- Switch Upload KTP -->
                         <div class="col-6 col-md-3">
@@ -4389,7 +4410,7 @@
                       </div>
                     </div>
                   </div>
-
+					
                   <!-- SATU TOMBOL SIMPAN UTAMA -->
                   <div class="d-flex justify-content-end mb-4">
                     <button type="submit" class="btn btn-danger btn-lg px-4 py-2 rounded-pill fw-bold shadow" id="btn-save-identitas">
@@ -23006,9 +23027,6 @@ function bukaModalLokerWarga() {
   }
 }
 
-    </script>
-
-<script>
 // ============================================================================
 // MODUL BURSA LOWONGAN KERJA DASHBOARD WARGA
 // ============================================================================
@@ -23098,8 +23116,45 @@ function muatDataLokerOnline(isForceReload) {
 document.addEventListener('DOMContentLoaded', function() {
   muatDataLokerOnline(false);
 });
-</script>
 
+// ============================================================================
+// LOGIKA RESPONSIF: BURSA LOKER MENYESUAIKAN E-VOTING
+// ============================================================================
+function sesuaikanLebarLokerOtomatis() {
+  const voteCol = document.getElementById('section-public-voting');
+  const lokerCol = document.getElementById('section-public-loker');
+  
+  if (!lokerCol) return;
+
+  // Cek apakah kolom E-Voting tersembunyi (kosong)
+  const isVotingHidden = !voteCol || 
+                         voteCol.style.display === 'none' || 
+                         voteCol.classList.contains('d-none') || 
+                         window.getComputedStyle(voteCol).display === 'none';
+
+  if (isVotingHidden) {
+    // E-Voting kosong: Lebarkan kartu Loker ke 100% (Full Width)
+    lokerCol.classList.remove('col-lg-6');
+    lokerCol.classList.add('col-12');
+  } else {
+    // E-Voting aktif: Kembalikan berdampingan 50% - 50%
+    lokerCol.classList.remove('col-12');
+    lokerCol.classList.add('col-lg-6');
+  }
+}
+
+// Pantau perubahan status E-Voting secara real-time
+document.addEventListener('DOMContentLoaded', function() {
+  sesuaikanLebarLokerOtomatis();
+
+  const voteEl = document.getElementById('section-public-voting');
+  if (voteEl) {
+    const observer = new MutationObserver(sesuaikanLebarLokerOtomatis);
+    observer.observe(voteEl, { attributes: true, attributeFilter: ['style', 'class'] });
+  }
+});
+
+</script>
 <!-- Audio Player Adzan Global -->
 <audio id="audio-adzan" preload="auto">
   <source src="https://cdn.aladhan.com/audio/adhans/makkah.mp3" type="audio/mpeg">
