@@ -23507,12 +23507,104 @@ function resetTampilanMic() {
   if (icon) icon.className = 'fas fa-microphone fa-lg';
 }
 
+// ============================================================================
+// MODUL ASISTEN SUARA & AI (VERSI TERPADU & CEPAT)
+// ============================================================================
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let voiceRecognizer = null;
+let isListening = false;
+let transcriptSementara = '';
+let transcriptFinal = '';
+
+// 1. INISIALISASI WEB SPEECH API
+if (SpeechRecognition) {
+  voiceRecognizer = new SpeechRecognition();
+  voiceRecognizer.lang = 'id-ID';       // Deteksi Bahasa Indonesia
+  voiceRecognizer.continuous = false;    // Selesai otomatis setelah kalimat tuntas
+  voiceRecognizer.interimResults = true; // WAJIB TRUE: Agar kata langsung muncul di layar detik itu juga
+
+  // Saat Mic Mulai Aktif
+  voiceRecognizer.onstart = function() {
+    isListening = true;
+    transcriptSementara = '';
+    transcriptFinal = '';
+
+    const btn = document.getElementById('btn-trigger-voice');
+    const icon = document.getElementById('icon-voice');
+    if (btn) btn.classList.replace('btn-primary', 'btn-danger');
+    if (icon) icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
+
+    // Popup interaktif: Menampilkan kata secara real-time saat Anda bicara
+    Swal.fire({
+      title: 'Mendengarkan...',
+      html: `
+        <div class="py-2 text-center">
+          <i class="fas fa-microphone fa-bounce fa-3x text-danger mb-3"></i>
+          <p id="teks-suara-live" class="fw-bold text-primary fs-5 mb-0" style="min-height: 45px;">
+            <span class="text-muted fst-italic">Bicaralah sekarang...</span>
+          </p>
+        </div>
+      `,
+      showConfirmButton: false,
+      allowOutsideClick: true,
+      didClose: () => {
+        if (isListening) voiceRecognizer.stop();
+      }
+    });
+  };
+
+  // Saat Kata Demi Kata Tertangkap (Real-time feedback)
+  voiceRecognizer.onresult = function(event) {
+    transcriptSementara = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        transcriptFinal += event.results[i][0].transcript;
+      } else {
+        transcriptSementara += event.results[i][0].transcript;
+      }
+    }
+
+    const liveEl = document.getElementById('teks-suara-live');
+    const teksTampil = (transcriptFinal || transcriptSementara).trim();
+    if (liveEl && teksTampil) {
+      liveEl.innerText = `"${teksTampil}"`;
+    }
+  };
+
+  // Saat Selesai Bicara
+  voiceRecognizer.onend = function() {
+    resetTampilanMic();
+    const ucapanBersih = (transcriptFinal || transcriptSementara).trim();
+    if (ucapanBersih) {
+      eksekusiPerintahSuara(ucapanBersih);
+    }
+  };
+
+  // Penanganan Error / Hening
+  voiceRecognizer.onerror = function(event) {
+    resetTampilanMic();
+    if (event.error === 'no-speech') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Suara Tidak Terdengar',
+        text: 'Dekatkan HP dan silakan bicara segera setelah ikon mic memantul.',
+        timer: 2500,
+        showConfirmButton: false
+      });
+    } else if (event.error === 'not-allowed') {
+      Swal.fire('Izin Mic Ditolak', 'Harap izinkan akses mic di pengaturan Chrome HP Anda.', 'warning');
+    }
+  };
+}
+
+// 2. TRIGGER TOMBOL MIC
 function toggleVoiceCommand() {
   if (!voiceRecognizer) {
     return Swal.fire({
       icon: 'warning',
       title: 'Peramban Tidak Didukung',
-      text: 'Gunakan Google Chrome di Android atau Desktop untuk fitur suara.'
+      text: 'Gunakan Google Chrome atau Microsoft Edge untuk menggunakan fitur suara.'
     });
   }
 
@@ -23524,70 +23616,6 @@ function toggleVoiceCommand() {
     } catch (e) {
       voiceRecognizer.stop();
     }
-  }
-}
-
-// ============================================================================
-// EKSEKUSI PERINTAH & KOMUNIKASI KE AI
-// ============================================================================
-function eksekusiPerintahSuara(teks) {
-  // Notifikasi bahwa ucapan berhasil diterima dan sedang diproses
-  Swal.fire({
-    title: 'Memproses...',
-    html: `
-      <div class="py-2">
-        <i class="fas fa-robot fa-spin fa-2x text-primary mb-2"></i>
-        <div class="small fw-bold text-dark">"${teks}"</div>
-      </div>
-    `,
-    showConfirmButton: false,
-    allowOutsideClick: false
-  });
-
-  // A. Navigasi Cepat (Tanpa perlu menunggu balasan AI)
-  if (teks.includes('kegiatan') || teks.includes('acara')) {
-    Swal.close();
-    const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-    bicara("Membuka agenda kegiatan warga.");
-    return;
-  }
-  if (teks.includes('ronda')) {
-    Swal.close();
-    const el = document.getElementById('kolom-jadwal-ronda');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-    bicara("Membuka jadwal ronda lingkungan.");
-    return;
-  }
-
-  // B. Pertanyaan Bebas -> Kirim ke Backend Apps Script
-  // Pastikan google.script.run tersedia jika dijalankan di Apps Script
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run
-      .withSuccessHandler(res => {
-        Swal.close();
-        const jawaban = res.text || "Tidak ada jawaban.";
-        Swal.fire({
-          icon: 'info',
-          title: 'Asisten Warga',
-          text: jawaban,
-          confirmButtonColor: '#0d6efd'
-        });
-        bicara(jawaban);
-      })
-      .withFailureHandler(err => {
-        Swal.close();
-        Swal.fire('Kendala Server', err.message || err, 'error');
-      })
-      .tanyaAsistenAI(teks);
-  } else {
-    // Jika aplikasi di-host di GitHub Pages (memerlukan URL Web App exec)
-    Swal.close();
-    Swal.fire({
-      icon: 'warning',
-      title: 'Akses Backend',
-      text: 'Aplikasi sedang berjalan di luar Apps Script. Gunakan endpoint Web App URL (fetch) untuk memanggil fungsi AI.'
-    });
   }
 }
 
@@ -23599,23 +23627,79 @@ function resetTampilanMic() {
   if (icon) icon.className = 'fas fa-microphone fa-lg';
 }
 
-function toggleVoiceCommand() {
-  if (!voiceRecognizer) {
-    return Swal.fire({
-      icon: 'warning',
-      title: 'Browser Belum Mendukung',
-      text: 'Gunakan Google Chrome atau Microsoft Edge untuk menggunakan perintah suara.'
-    });
+// 3. TEXT-TO-SPEECH (BALASAN SUARA)
+function bicara(teks) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel(); // Matikan antrean suara sebelumnya agar tidak tertunda
+
+  const ucapan = new SpeechSynthesisUtterance(teks);
+  ucapan.lang = 'id-ID';
+  ucapan.rate = 1.0;
+  
+  const voices = window.speechSynthesis.getVoices();
+  const indoVoice = voices.find(v => v.lang.includes('id'));
+  if (indoVoice) ucapan.voice = indoVoice;
+
+  window.speechSynthesis.speak(ucapan);
+}
+
+// 4. EKSEKUSI PERINTAH & HUBUNGKAN KE BACKEND
+function eksekusiPerintahSuara(teks) {
+  const teksBersih = teks.toLowerCase().trim();
+
+  // A. Navigasi Cepat Lokal (Langsung Eksekusi tanpa AI)
+  if (teksBersih.includes('kegiatan') || teksBersih.includes('acara')) {
+    Swal.close();
+    const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    bicara("Membuka agenda kegiatan warga.");
+    return;
+  }
+  if (teksBersih.includes('ronda')) {
+    Swal.close();
+    const el = document.getElementById('kolom-jadwal-ronda');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    bicara("Membuka jadwal ronda lingkungan.");
+    return;
   }
 
-  if (isListening) {
-    voiceRecognizer.stop();
+  // B. Pertanyaan Umum Bebas -> Kirim ke Asisten AI
+  Swal.fire({
+    title: 'Menjawab...',
+    html: `
+      <div class="py-2 text-center">
+        <i class="fas fa-robot fa-spin fa-2x text-primary mb-2"></i>
+        <div class="small fw-bold text-dark mt-2">"${teks}"</div>
+      </div>
+    `,
+    showConfirmButton: false,
+    allowOutsideClick: false
+  });
+
+  // Panggil Backend Apps Script
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(res => {
+        Swal.close();
+        const jawaban = res.text || "Tidak ada jawaban.";
+        Swal.fire({
+          icon: 'info',
+          title: 'Asisten Warga',
+          text: jawaban,
+          confirmButtonColor: '#0d6efd',
+          confirmButtonText: 'Tutup'
+        });
+        bicara(jawaban);
+      })
+      .withFailureHandler(err => {
+        Swal.close();
+        Swal.fire('Kendala Server', err.message || err, 'error');
+      })
+      .tanyaAsistenAI(teks);
   } else {
-    try {
-      voiceRecognizer.start();
-    } catch (e) {
-      voiceRecognizer.stop();
-    }
+    // Jalur jika dipanggil dari file luar yang memakai endpoint Web App exec
+    Swal.close();
+    Swal.fire('Koneksi', 'Layanan backend tidak terdeteksi.', 'warning');
   }
 }
 
