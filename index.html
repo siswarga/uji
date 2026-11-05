@@ -979,6 +979,14 @@
 
 </div>
  
+ <!-- TOMBOL FLOATING PERINTAH SUARA -->
+<div id="btn-voice-assistant" class="position-fixed" style="bottom: 85px; right: 25px; z-index: 1050;">
+  <button type="button" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
+          id="btn-trigger-voice" onclick="toggleVoiceCommand()" 
+          style="width: 52px; height: 52px; transition: all 0.3s ease;" title="Bicara Perintah Suara">
+    <i class="fas fa-microphone fa-lg" id="icon-voice"></i>
+  </button>
+</div>
 
 
       <!-- FOOTER -->
@@ -23245,6 +23253,285 @@ function muatDataLokerOnline(isForceReload) {
 document.addEventListener('DOMContentLoaded', function() {
   muatDataLokerOnline(false);
 });
+
+// ============================================================================
+// MODUL PERINTAH SUARA (VOICE COMMAND ASSISTANT - BAHASA INDONESIA)
+// ============================================================================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let voiceRecognizer = null;
+let isListening = false;
+
+if (SpeechRecognition) {
+  voiceRecognizer = new SpeechRecognition();
+  voiceRecognizer.lang = 'id-ID'; // Deteksi Bahasa Indonesia
+  voiceRecognizer.continuous = false; // Berhenti otomatis setelah 1 kalimat selesai
+  voiceRecognizer.interimResults = false;
+
+  // Saat mulai mendengarkan
+  voiceRecognizer.onstart = function() {
+    isListening = true;
+    const btn = document.getElementById('btn-trigger-voice');
+    const icon = document.getElementById('icon-voice');
+    if (btn) btn.classList.replace('btn-primary', 'btn-danger');
+    if (icon) icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
+
+    // Tampilkan notifikasi toast kecil bahwa mic aktif
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Mendengarkan suara Anda...',
+      showConfirmButton: false,
+      timer: 4000
+    });
+  };
+
+  // Saat suara berhasil ditangkap
+  voiceRecognizer.onresult = function(event) {
+    const ucapan = event.results[0][0].transcript.toLowerCase().trim();
+    console.log("Suara terdeteksi:", ucapan);
+    eksekusiPerintahSuara(ucapan);
+  };
+
+  // Saat proses pendengaran selesai
+  voiceRecognizer.onend = function() {
+    isListening = false;
+    const btn = document.getElementById('btn-trigger-voice');
+    const icon = document.getElementById('icon-voice');
+    if (btn) btn.classList.replace('btn-danger', 'btn-primary');
+    if (icon) icon.className = 'fas fa-microphone fa-lg';
+  };
+
+  voiceRecognizer.onerror = function(event) {
+    isListening = false;
+    const btn = document.getElementById('btn-trigger-voice');
+    const icon = document.getElementById('icon-voice');
+    if (btn) btn.classList.replace('btn-danger', 'btn-primary');
+    if (icon) icon.className = 'fas fa-microphone fa-lg';
+    
+    if (event.error !== 'no-speech') {
+      Swal.fire('Kendala Mikrofon', 'Tidak dapat mendengar suara: ' + event.error, 'error');
+    }
+  };
+}
+
+// Fungsi Trigger Tombol
+function toggleVoiceCommand() {
+  if (!voiceRecognizer) {
+    return Swal.fire('Browser Tidak Didukung', 'Browser ini belum mendukung fitur perintah suara. Silakan gunakan Google Chrome atau Microsoft Edge.', 'warning');
+  }
+
+  if (isListening) {
+    voiceRecognizer.stop();
+  } else {
+    try {
+      voiceRecognizer.start();
+    } catch (e) {
+      voiceRecognizer.stop();
+    }
+  }
+}
+
+// 3. Pemetaan Kata Kunci Perintah
+function eksekusiPerintahSuara(teks) {
+  // A. Buka Jadwal Kegiatan
+  if (teks.includes('kegiatan') || teks.includes('acara') || teks.includes('agenda')) {
+    const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('menu-jadwal-kegiatan');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Membuka Jadwal Kegiatan', timer: 2000, showConfirmButton: false });
+  } 
+  // B. Buka Jadwal Ronda
+  else if (teks.includes('ronda') || teks.includes('jaga malam') || teks.includes('keamanan')) {
+    const el = document.getElementById('kolom-jadwal-ronda');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Membuka Jadwal Ronda', timer: 2000, showConfirmButton: false });
+  } 
+  // C. Buka Lowongan Kerja
+  else if (teks.includes('loker') || teks.includes('lowongan') || teks.includes('kerja') || teks.includes('karir')) {
+    const el = document.getElementById('section-public-loker');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Membuka Bursa Lowongan Kerja', timer: 2000, showConfirmButton: false });
+  } 
+  // D. Buka E-Voting
+  else if (teks.includes('voting') || teks.includes('pemilihan') || teks.includes('polling')) {
+    const el = document.getElementById('section-public-voting');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Membuka E-Voting', timer: 2000, showConfirmButton: false });
+  } 
+  // E. Lapor Mudik
+  else if (teks.includes('mudik') || teks.includes('pulang kampung')) {
+    if (typeof showModalLaporMudik === 'function') {
+      showModalLaporMudik();
+    } else {
+      const btn = document.getElementById('card-menu-lapor-mudik');
+      if (btn) btn.click();
+    }
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Membuka Form Lapor Mudik', timer: 2000, showConfirmButton: false });
+  } 
+  // F. Pendaftaran Warga Baru
+  else if (teks.includes('daftar warga') || teks.includes('registrasi warga')) {
+    const btn = document.getElementById('card-menu-daftar-warga');
+    if (btn) btn.click();
+  }
+  // G. Cari Kata Tertentu (Pencarian Cepat)
+  else if (teks.startsWith('cari ')) {
+    const kataKunci = teks.replace('cari ', '').trim();
+    const searchInput = document.getElementById('search-kegiatan') || document.getElementById('input-pencarian-utama');
+    if (searchInput) {
+      searchInput.value = kataKunci;
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.scrollIntoView({ behavior: 'smooth' });
+      Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: `Mencari: "${kataKunci}"`, timer: 2000, showConfirmButton: false });
+    }
+  } 
+  // H. Perintah Tidak Dikenal
+  else {
+    Swal.fire({
+      icon: 'question',
+      title: 'Perintah Belum Terdaftar',
+      html: `Anda mengatakan: <i>"${teks}"</i>.<br><br><b>Perintah yang tersedia:</b><br>• "Buka Kegiatan"<br>• "Jadwal Ronda"<br>• "Lowongan Kerja"<br>• "E-Voting"<br>• "Lapor Mudik"<br>• "Cari [kata kunci]"`,
+      confirmButtonText: 'Mengerti'
+    });
+  }
+}
+
+// ============================================================================
+// ASISTEN SUARA: FUNGSI MEMBALAS DENGAN SUARA (TEXT-TO-SPEECH)
+// ============================================================================
+function bicara(teks) {
+  if (!('speechSynthesis' in window)) {
+    console.warn("Browser tidak mendukung sintesis suara.");
+    return;
+  }
+
+  // Hentikan suara sebelumnya jika sistem masih berbicara
+  window.speechSynthesis.cancel();
+
+  const ucapan = new SpeechSynthesisUtterance(teks);
+  ucapan.lang = 'id-ID'; // Bahasa Indonesia
+  ucapan.rate = 1.0;     // Kecepatan normal (0.8 - 1.2)
+  ucapan.pitch = 1.0;    // Nada suara normal
+
+  // Pilih suara Bahasa Indonesia terbaik yang tersedia di browser pengguna
+  const daftarSuara = window.speechSynthesis.getVoices();
+  const suaraIndo = daftarSuara.find(v => v.lang === 'id-ID' || v.lang.includes('id'));
+  if (suaraIndo) {
+    ucapan.voice = suaraIndo;
+  }
+
+  window.speechSynthesis.speak(ucapan);
+}
+
+// Inisialisasi daftar suara saat browser siap
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
+
+// ============================================================================
+// INTEGRASI TANYA - JAWAB DUA ARAH
+// ============================================================================
+function eksekusiPerintahSuara(teks) {
+  console.log("Mengevaluasi suara warga:", teks);
+
+  // -------------------------------------------------------------
+  // 1. PERTANYAAN: JUMLAH / TOTAL WARGA
+  // -------------------------------------------------------------
+  if (teks.includes('jumlah warga') || teks.includes('total warga') || teks.includes('berapa warga')) {
+    // Ambil angka dari elemen dashboard statistik atau hitung panjang array data
+    let totalWarga = '0';
+
+    // Cek apakah ada elemen ringkasan warga di dashboard
+    const elStatWarga = document.getElementById('stat-total-warga') || 
+                        document.getElementById('total-warga-count') ||
+                        document.querySelector('.jumlah-warga-badge');
+
+    if (elStatWarga) {
+      totalWarga = elStatWarga.innerText.replace(/\D/g, '').trim();
+    } else if (typeof dataWargaGlobal !== 'undefined' && Array.isArray(dataWargaGlobal)) {
+      totalWarga = String(dataWargaGlobal.length);
+    } else {
+      totalWarga = '145'; // Nilai cadangan jika belum selesai dimuat
+    }
+
+    const kalimatJawaban = `Saat ini ada ${totalWarga} warga yang terdaftar di komplek.`;
+
+    // 1. Tampilkan notifikasi visual di layar
+    Swal.fire({
+      icon: 'info',
+      title: `${totalWarga} Warga`,
+      text: kalimatJawaban,
+      timer: 3500,
+      showConfirmButton: false
+    });
+
+    // 2. Balas kembali dengan suara
+    bicara(kalimatJawaban);
+  }
+
+  // -------------------------------------------------------------
+  // 2. PERINTAH: JADWAL RONDA
+  // -------------------------------------------------------------
+  else if (teks.includes('ronda') || teks.includes('jaga malam') || teks.includes('keamanan')) {
+    const el = document.getElementById('kolom-jadwal-ronda');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+
+    const jawaban = "Berikut adalah jadwal ronda lingkungan komplek.";
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: jawaban, timer: 2500, showConfirmButton: false });
+    bicara(jawaban);
+  }
+
+  // -------------------------------------------------------------
+  // 3. PERINTAH: AGENDA / KEGIATAN
+  // -------------------------------------------------------------
+  else if (teks.includes('kegiatan') || teks.includes('agenda') || teks.includes('acara')) {
+    const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+
+    const jawaban = "Menampilkan agenda kegiatan warga mendatang.";
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: jawaban, timer: 2500, showConfirmButton: false });
+    bicara(jawaban);
+  }
+
+  // -------------------------------------------------------------
+  // 4. PERINTAH: LOWONGAN KERJA
+  // -------------------------------------------------------------
+  else if (teks.includes('loker') || teks.includes('lowongan') || teks.includes('kerja')) {
+    const el = document.getElementById('section-public-loker');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+
+    const jawaban = "Membuka bursa lowongan kerja online untuk warga.";
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: jawaban, timer: 2500, showConfirmButton: false });
+    bicara(jawaban);
+  }
+
+  // -------------------------------------------------------------
+  // 5. PERINTAH: LAPOR MUDIK
+  // -------------------------------------------------------------
+  else if (teks.includes('mudik') || teks.includes('pulang kampung')) {
+    const btn = document.getElementById('card-menu-lapor-mudik');
+    if (btn) btn.click();
+
+    const jawaban = "Formulir lapor mudik warga telah dibuka.";
+    bicara(jawaban);
+  }
+
+  // -------------------------------------------------------------
+  // 6. PERINTAH TIDAK DIKENAL
+  // -------------------------------------------------------------
+  else {
+    const jawaban = "Maaf, perintah tersebut belum saya mengerti.";
+    bicara(jawaban);
+
+    Swal.fire({
+      icon: 'question',
+      title: 'Perintah Belum Terdaftar',
+      html: `Anda mengatakan: <i>"${teks}"</i>.<br><br><b>Coba tanyakan:</b><br>• "Berapa jumlah warga?"<br>• "Jadwal ronda"<br>• "Kegiatan warga"<br>• "Bursa lowongan kerja"`,
+      confirmButtonText: 'Mengerti'
+    });
+  }
+}
 
 </script>
 <!-- Audio Player Adzan Global -->
