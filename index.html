@@ -23247,6 +23247,182 @@ function eksekusiPerintahSuara(teks) {
   }
 }
 
+// Deteksi perintah navigasi lokal instan
+function periksaDanBukaFiturLokal(teks) {
+  // A. PINJAM ASET
+  if (teks.includes('pinjam') || teks.includes('aset') || teks.includes('barang')) {
+    if (eksekusiKlikFitur('Pinjam Aset', 'btn-pinjam-aset')) {
+      bicara("Membuka formulir pinjam aset.");
+      return true;
+    }
+  }
+
+  // B. LAYANAN WARGA / SURAT
+  if (teks.includes('layanan') || teks.includes('surat') || teks.includes('pengantar') || teks.includes('administrasi')) {
+    if (eksekusiKlikFitur('Layanan Warga', 'btn-layanan-warga')) {
+      bicara("Membuka layanan warga dan surat pengantar.");
+      return true;
+    }
+  }
+
+  // C. TOMBOL DARURAT / SOS
+  if (teks.includes('sos') || teks.includes('darurat') || teks.includes('bahaya') || teks.includes('bantuan')) {
+    if (eksekusiKlikFitur('SOS', 'btn-sos')) {
+      bicara("Membuka menu darurat.");
+      return true;
+    }
+  }
+
+  // D. CCTV
+  if (teks.includes('cctv') || teks.includes('kamera') || teks.includes('pantau')) {
+    if (eksekusiKlikFitur('CCTV', 'btn-cctv')) {
+      bicara("Membuka pantauan CCTV.");
+      return true;
+    }
+  }
+
+  // E. RONDA MALAM
+  if (teks.includes('ronda') || teks.includes('jaga malam')) {
+    const el = document.getElementById('kolom-jadwal-ronda') || document.getElementById('jadwal-ronda');
+    if (el) {
+      Swal.close();
+      el.scrollIntoView({ behavior: 'smooth' });
+      bicara("Menampilkan jadwal ronda malam.");
+      return true;
+    }
+  }
+
+  // F. AGENDA / KEGIATAN
+  if (teks.includes('kegiatan') || teks.includes('acara') || teks.includes('agenda')) {
+    const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
+    if (el) {
+      Swal.close();
+      el.scrollIntoView({ behavior: 'smooth' });
+      bicara("Menampilkan agenda kegiatan warga.");
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// ============================================================================
+// 3. KIRIM PERTANYAAN BEBAS KE GEMINI AI (JIKA BUKAN NAVIGASI)
+// ============================================================================
+function kirimKeAsistenAI(teks) {
+  Swal.fire({
+    title: 'Menjawab...',
+    html: `
+      <div class="py-2 text-center">
+        <i class="fas fa-robot fa-spin fa-2x text-primary mb-2"></i>
+        <div class="small fw-bold text-dark mt-2">"${teks}"</div>
+      </div>
+    `,
+    showConfirmButton: false,
+    allowOutsideClick: false
+  });
+
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(res => {
+        Swal.close();
+        const jawaban = res.text || "Tidak ada jawaban.";
+        Swal.fire({
+          icon: 'info',
+          title: 'Asisten Warga',
+          text: jawaban,
+          confirmButtonColor: '#0d6efd',
+          confirmButtonText: 'Tutup'
+        });
+        bicara(jawaban);
+      })
+      .withFailureHandler(err => {
+        Swal.close();
+        Swal.fire('Kendala Server', err.message || err, 'error');
+      })
+      .tanyaAsistenAI(teks);
+  }
+}
+
+function resetTampilanMic() {
+  isListening = false;
+  const btn = document.getElementById('btn-trigger-voice');
+  const icon = document.getElementById('icon-voice');
+  if (btn) btn.classList.replace('btn-danger', 'btn-primary');
+  if (icon) icon.className = 'fas fa-microphone fa-lg';
+}
+
+function bicara(teks) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const ucapan = new SpeechSynthesisUtterance(teks);
+  ucapan.lang = 'id-ID';
+  ucapan.rate = 1.0;
+  window.speechSynthesis.speak(ucapan);
+}
+
+// ============================================================================
+// 4. KONEKSI DRAG & CLICK TOMBOL MIC
+// ============================================================================
+(function hubungkanTombolMic() {
+  const container = document.getElementById('btn-voice-assistant');
+  const btn = document.getElementById('btn-trigger-voice');
+  if (!container || !btn) return;
+
+  let isDragging = false;
+  let hasMoved = false;
+  let startX = 0, startY = 0;
+  let initLeft = 0, initTop = 0;
+
+  const start = (e) => {
+    isDragging = true;
+    hasMoved = false;
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    startX = cx;
+    startY = cy;
+    const rect = container.getBoundingClientRect();
+    initLeft = rect.left;
+    initTop = rect.top;
+  };
+
+  const move = (e) => {
+    if (!isDragging) return;
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    const dx = cx - startX;
+    const dy = cy - startY;
+
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+      hasMoved = true;
+      if (e.cancelable) e.preventDefault();
+      container.style.left = `${Math.max(10, Math.min(initLeft + dx, window.innerWidth - 70))}px`;
+      container.style.top = `${Math.max(10, Math.min(initTop + dy, window.innerHeight - 70))}px`;
+      container.style.right = 'auto';
+      container.style.bottom = 'auto';
+    }
+  };
+
+  const stop = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    if (!hasMoved) {
+      if (voiceRecognizer) {
+        if (isListening) voiceRecognizer.stop();
+        else voiceRecognizer.start();
+      }
+    }
+  };
+
+  container.addEventListener('touchstart', start, { passive: true });
+  window.addEventListener('touchmove', move, { passive: false });
+  window.addEventListener('touchend', stop);
+
+  container.addEventListener('mousedown', start);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', stop);
+})();
+
 
 </script>
 <!-- Audio Player Adzan Global -->
