@@ -979,14 +979,14 @@
 
 </div>
  
- <!-- TOMBOL FLOATING MIKROFON (BISA DIGESER & RESPONSIF) -->
+ <!-- TOMBOL FLOATING MIKROFON (BISA DIGESER & DIKLIK) -->
 <div id="btn-voice-assistant" 
-     style="position: fixed; bottom: 85px; right: 25px; z-index: 99999; touch-action: none; user-select: none;">
+     style="position: fixed; bottom: 85px; right: 25px; z-index: 999999; touch-action: none; user-select: none;">
   <button type="button" 
-          class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
           id="btn-trigger-voice" 
-          style="width: 56px; height: 56px; cursor: grab; border: 2px solid #ffffff; transition: transform 0.15s ease;" 
-          title="Tahan untuk geser, ketuk untuk bicara">
+          class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
+          style="width: 58px; height: 58px; border: 2px solid #ffffff; cursor: pointer; outline: none; transition: transform 0.1s ease;" 
+          title="Ketuk untuk bicara, tahan untuk geser">
     <i class="fas fa-microphone fa-lg" id="icon-voice"></i>
   </button>
 </div>
@@ -23141,23 +23141,21 @@ function bukaModalLokerWarga() {
 }
 
 // ============================================================================
-// MODUL ASISTEN SUARA & AI (VERSI TERPADU & CEPAT)
+// 1. PENGATUR SUARA (SPEECH RECOGNITION & TEXT-TO-SPEECH)
 // ============================================================================
-
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognizer = null;
 let isListening = false;
 let transcriptSementara = '';
 let transcriptFinal = '';
 
-// 1. INISIALISASI WEB SPEECH API
 if (SpeechRecognition) {
   voiceRecognizer = new SpeechRecognition();
-  voiceRecognizer.lang = 'id-ID';       // Deteksi Bahasa Indonesia
-  voiceRecognizer.continuous = false;    // Selesai otomatis setelah kalimat tuntas
-  voiceRecognizer.interimResults = true; // WAJIB TRUE: Agar kata langsung muncul di layar detik itu juga
+  voiceRecognizer.lang = 'id-ID';
+  voiceRecognizer.continuous = false;
+  voiceRecognizer.interimResults = true; // Kata langsung muncul di layar saat diucapkan
 
-  // Saat Mic Mulai Aktif
+  // Saat Mic Mulai Mendengarkan
   voiceRecognizer.onstart = function() {
     isListening = true;
     transcriptSementara = '';
@@ -23168,7 +23166,7 @@ if (SpeechRecognition) {
     if (btn) btn.classList.replace('btn-primary', 'btn-danger');
     if (icon) icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
 
-    // Popup interaktif: Menampilkan kata secara real-time saat Anda bicara
+    // Tampilkan popup animasi suara
     Swal.fire({
       title: 'Mendengarkan...',
       html: `
@@ -23187,7 +23185,7 @@ if (SpeechRecognition) {
     });
   };
 
-  // Saat Kata Demi Kata Tertangkap (Real-time feedback)
+  // Umpan Balik Teks Berjalan Real-time
   voiceRecognizer.onresult = function(event) {
     transcriptSementara = '';
     for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -23205,7 +23203,7 @@ if (SpeechRecognition) {
     }
   };
 
-  // Saat Selesai Bicara
+  // Saat Mic Berhenti
   voiceRecognizer.onend = function() {
     resetTampilanMic();
     const ucapanBersih = (transcriptFinal || transcriptSementara).trim();
@@ -23214,30 +23212,37 @@ if (SpeechRecognition) {
     }
   };
 
-  // Penanganan Error / Hening
+  // Penanganan Jika Suara Hening / Error
   voiceRecognizer.onerror = function(event) {
     resetTampilanMic();
     if (event.error === 'no-speech') {
       Swal.fire({
         icon: 'info',
         title: 'Suara Tidak Terdengar',
-        text: 'Dekatkan HP dan silakan bicara segera setelah ikon mic memantul.',
+        text: 'Silakan ketuk tombol mic lagi dan langsung bicara.',
         timer: 2500,
         showConfirmButton: false
       });
     } else if (event.error === 'not-allowed') {
-      Swal.fire('Izin Mic Ditolak', 'Harap izinkan akses mic di pengaturan Chrome HP Anda.', 'warning');
+      Swal.fire('Izin Ditolak', 'Beri izin mikrofon pada peramban HP Anda.', 'warning');
     }
   };
 }
 
-// 2. TRIGGER TOMBOL MIC
+function resetTampilanMic() {
+  isListening = false;
+  const btn = document.getElementById('btn-trigger-voice');
+  const icon = document.getElementById('icon-voice');
+  if (btn) btn.classList.replace('btn-danger', 'btn-primary');
+  if (icon) icon.className = 'fas fa-microphone fa-lg';
+}
+
 function toggleVoiceCommand() {
   if (!voiceRecognizer) {
     return Swal.fire({
       icon: 'warning',
-      title: 'Peramban Tidak Didukung',
-      text: 'Gunakan Google Chrome atau Microsoft Edge untuk menggunakan fitur suara.'
+      title: 'Peramban Belum Mendukung',
+      text: 'Gunakan Google Chrome di Android atau Desktop.'
     });
   }
 
@@ -23252,23 +23257,14 @@ function toggleVoiceCommand() {
   }
 }
 
-function resetTampilanMic() {
-  isListening = false;
-  const btn = document.getElementById('btn-trigger-voice');
-  const icon = document.getElementById('icon-voice');
-  if (btn) btn.classList.replace('btn-danger', 'btn-primary');
-  if (icon) icon.className = 'fas fa-microphone fa-lg';
-}
-
-// 3. TEXT-TO-SPEECH (BALASAN SUARA)
 function bicara(teks) {
   if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel(); // Matikan antrean suara sebelumnya agar tidak tertunda
+  window.speechSynthesis.cancel();
 
   const ucapan = new SpeechSynthesisUtterance(teks);
   ucapan.lang = 'id-ID';
   ucapan.rate = 1.0;
-  
+
   const voices = window.speechSynthesis.getVoices();
   const indoVoice = voices.find(v => v.lang.includes('id'));
   if (indoVoice) ucapan.voice = indoVoice;
@@ -23276,11 +23272,97 @@ function bicara(teks) {
   window.speechSynthesis.speak(ucapan);
 }
 
-// 4. EKSEKUSI PERINTAH & HUBUNGKAN KE BACKEND
+// ============================================================================
+// 2. LOGIKA GABUNGAN: BISA DIGESER (DRAG) & BISA DIKLIK (TAP/CLICK)
+// ============================================================================
+(function hubungkanAksiTombolMic() {
+  const container = document.getElementById('btn-voice-assistant');
+  const btn = document.getElementById('btn-trigger-voice');
+  if (!container || !btn) return;
+
+  let isDragging = false;
+  let hasMoved = false;
+  let startX = 0, startY = 0;
+  let initialLeft = 0, initialTop = 0;
+
+  // Awal Sentuh / Klik
+  const startDrag = (e) => {
+    isDragging = true;
+    hasMoved = false;
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    startX = clientX;
+    startY = clientY;
+
+    const rect = container.getBoundingClientRect();
+    initialLeft = rect.left;
+    initialTop = rect.top;
+  };
+
+  // Saat Digeser
+  const onDrag = (e) => {
+    if (!isDragging) return;
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    const deltaX = clientX - startX;
+    const deltaY = clientY - startY;
+
+    // Jika geser lebih dari 8 piksel, anggap drag (bukan klik)
+    if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+      hasMoved = true;
+      if (e.cancelable) e.preventDefault();
+
+      let newLeft = initialLeft + deltaX;
+      let newTop = initialTop + deltaY;
+
+      // Kunci di batas layar
+      const pad = 10;
+      const maxLeft = window.innerWidth - container.offsetWidth - pad;
+      const maxTop = window.innerHeight - container.offsetHeight - pad;
+
+      newLeft = Math.max(pad, Math.min(newLeft, maxLeft));
+      newTop = Math.max(pad, Math.min(newTop, maxTop));
+
+      container.style.left = `${newLeft}px`;
+      container.style.top = `${newTop}px`;
+      container.style.right = 'auto';
+      container.style.bottom = 'auto';
+    }
+  };
+
+  // Lepas Sentuh / Selesai
+  const stopDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+
+    // Jika tombol hanya diketuk/klik (bukan digeser), nyalakan perintah suara
+    if (!hasMoved) {
+      toggleVoiceCommand();
+    }
+  };
+
+  // Pasang Listener Touch untuk Layar HP Android
+  container.addEventListener('touchstart', startDrag, { passive: true });
+  window.addEventListener('touchmove', onDrag, { passive: false });
+  window.addEventListener('touchend', stopDrag);
+
+  // Pasang Listener Mouse untuk Laptop / PC
+  container.addEventListener('mousedown', startDrag);
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('mouseup', stopDrag);
+})();
+
+// ============================================================================
+// 3. EKSEKUSI JAWABAN (BACKEND GEMINI AI)
+// ============================================================================
 function eksekusiPerintahSuara(teks) {
   const teksBersih = teks.toLowerCase().trim();
 
-  // A. Navigasi Cepat Lokal (Langsung Eksekusi tanpa AI)
+  // Pintasan Navigasi Langsung
   if (teksBersih.includes('kegiatan') || teksBersih.includes('acara')) {
     Swal.close();
     const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
@@ -23296,7 +23378,7 @@ function eksekusiPerintahSuara(teks) {
     return;
   }
 
-  // B. Pertanyaan Umum Bebas -> Kirim ke Asisten AI
+  // Pertanyaan Bebas ke Gemini AI
   Swal.fire({
     title: 'Menjawab...',
     html: `
@@ -23309,7 +23391,6 @@ function eksekusiPerintahSuara(teks) {
     allowOutsideClick: false
   });
 
-  // Panggil Backend Apps Script
   if (typeof google !== 'undefined' && google.script && google.script.run) {
     google.script.run
       .withSuccessHandler(res => {
@@ -23330,9 +23411,8 @@ function eksekusiPerintahSuara(teks) {
       })
       .tanyaAsistenAI(teks);
   } else {
-    // Jalur jika dipanggil dari file luar yang memakai endpoint Web App exec
     Swal.close();
-    Swal.fire('Koneksi', 'Layanan backend tidak terdeteksi.', 'warning');
+    Swal.fire('Peringatan', 'Koneksi backend Google Apps Script tidak terdeteksi.', 'warning');
   }
 }
 
