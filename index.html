@@ -23357,28 +23357,110 @@ function bicara(teks) {
 })();
 
 // ============================================================================
-// 3. EKSEKUSI JAWABAN (BACKEND GEMINI AI)
+// NAVIGATOR SUARA PINTAR & PEMETA FITUR APLIKASI
 // ============================================================================
+
+// Fungsi bantu: Mencari dan mengklik tombol/elemen berdasarkan ID atau Teks Label
+function picuKlikFitur(idElemen, teksAlternatif) {
+  let el = document.getElementById(idElemen);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.click();
+    return true;
+  }
+
+  // Jika ID tidak cocok, cari tombol/kartu berdasarkan teks di dalamnya
+  const tombols = Array.from(document.querySelectorAll('button, a, .card, .btn'));
+  const target = tombols.find(b => b.innerText && b.innerText.toLowerCase().includes(teksAlternatif.toLowerCase()));
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    target.click();
+    return true;
+  }
+  return false;
+}
+
 function eksekusiPerintahSuara(teks) {
   const teksBersih = teks.toLowerCase().trim();
 
-  // Pintasan Navigasi Langsung
-  if (teksBersih.includes('kegiatan') || teksBersih.includes('acara')) {
-    Swal.close();
-    const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-    bicara("Membuka agenda kegiatan warga.");
-    return;
+  // -------------------------------------------------------------
+  // A. PINTASAN NAVIGASI LANGSUNG (RESPONS INSTAN TANPA AI)
+  // -------------------------------------------------------------
+
+  // 1. PINJAM ASET / INVENTARIS
+  if (teksBersih.includes('pinjam') || teksBersih.includes('aset') || teksBersih.includes('barang') || teksBersih.includes('tenda')) {
+    if (picuKlikFitur('btn-pinjam-aset', 'Pinjam Aset')) {
+      bicara("Membuka layanan pinjam aset warga.");
+      return;
+    }
   }
-  if (teksBersih.includes('ronda')) {
-    Swal.close();
-    const el = document.getElementById('kolom-jadwal-ronda');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-    bicara("Membuka jadwal ronda lingkungan.");
+
+  // 2. LAYANAN WARGA / SURAT PENGANTAR / ADMINISTRASI
+  if (teksBersih.includes('layanan') || teksBersih.includes('surat') || teksBersih.includes('pengantar') || teksBersih.includes('administrasi')) {
+    if (picuKlikFitur('btn-layanan-warga', 'Layanan Warga')) {
+      bicara("Membuka menu layanan dan surat pengantar warga.");
+      return;
+    }
+  }
+
+  // 3. TOMBOL DARURAT / SOS
+  if (teksBersih.includes('sos') || teksBersih.includes('darurat') || teksBersih.includes('bahaya') || teksBersih.includes('bantuan')) {
+    if (picuKlikFitur('btn-sos', 'SOS')) {
+      bicara("Membuka menu darurat SOS.");
+      return;
+    }
+  }
+
+  // 4. CCTV / KAMERA LINGKUNGAN
+  if (teksBersih.includes('cctv') || teksBersih.includes('kamera') || teksBersih.includes('pantau')) {
+    if (picuKlikFitur('btn-cctv', 'CCTV') || picuKlikFitur('link-cctv', 'Kamera')) {
+      bicara("Membuka pantauan CCTV lingkungan.");
+      return;
+    }
+  }
+
+  // 5. IURAN / KAS / PEMBAYARAN
+  if (teksBersih.includes('iuran') || teksBersih.includes('kas') || teksBersih.includes('bayar') || teksBersih.includes('keuangan')) {
+    if (picuKlikFitur('btn-iuran', 'Iuran') || picuKlikFitur('kolom-iuran', 'Kas')) {
+      bicara("Menampilkan data iuran dan keuangan warga.");
+      return;
+    }
+  }
+
+  // 6. AGENDA / KEGIATAN WARGA
+  if (teksBersih.includes('kegiatan') || teksBersih.includes('acara') || teksBersih.includes('agenda')) {
+    if (picuKlikFitur('kolom-pemberitahuan-kegiatan', 'Kegiatan') || picuKlikFitur('pub-tb-kegiatan', 'Agenda')) {
+      bicara("Menampilkan agenda kegiatan warga.");
+      return;
+    }
+  }
+
+  // 7. JADWAL RONDA MALAM
+  if (teksBersih.includes('ronda') || teksBersih.includes('jaga malam') || teksBersih.includes('patroli')) {
+    if (picuKlikFitur('kolom-jadwal-ronda', 'Ronda')) {
+      bicara("Membuka jadwal ronda malam.");
+      return;
+    }
+  }
+
+  // 8. E-VOTING / PEMILIHAN
+  if (teksBersih.includes('voting') || teksBersih.includes('pemilihan') || teksBersih.includes('polling') || teksBersih.includes('suara')) {
+    if (picuKlikFitur('section-public-voting', 'Voting') || picuKlikFitur('btn-voting', 'Pemilihan')) {
+      bicara("Membuka menu voting pemilihan warga.");
+      return;
+    }
+  }
+
+  // 9. KEMBALI KE ATAS / BERANDA
+  if (teksBersih.includes('ke atas') || teksBersih.includes('atas') || teksBersih.includes('beranda') || teksBersih.includes('home')) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    bicara("Kembali ke bagian atas portal.");
     return;
   }
 
-  // Pertanyaan Bebas ke Gemini AI
+  // -------------------------------------------------------------
+  // B. PERTANYAAN BEBAS TENTANG APLIKASI (KIRIM KE GEMINI AI)
+  // -------------------------------------------------------------
   Swal.fire({
     title: 'Menjawab...',
     html: `
@@ -23395,24 +23477,37 @@ function eksekusiPerintahSuara(teks) {
     google.script.run
       .withSuccessHandler(res => {
         Swal.close();
-        const jawaban = res.text || "Tidak ada jawaban.";
+        let teksJawaban = res.text || "Saya tidak menemukan informasi terkait hal tersebut.";
+
+        // Periksa apakah AI menyertakan perintah aksi buka fitur otomatis
+        if (teksJawaban.includes('[AKSI:PINJAM_ASET]')) {
+          picuKlikFitur('btn-pinjam-aset', 'Pinjam Aset');
+          teksJawaban = teksJawaban.replace('[AKSI:PINJAM_ASET]', '').trim();
+        } else if (teksJawaban.includes('[AKSI:LAYANAN]')) {
+          picuKlikFitur('btn-layanan-warga', 'Layanan Warga');
+          teksJawaban = teksJawaban.replace('[AKSI:LAYANAN]', '').trim();
+        } else if (teksJawaban.includes('[AKSI:SOS]')) {
+          picuKlikFitur('btn-sos', 'SOS');
+          teksJawaban = teksJawaban.replace('[AKSI:SOS]', '').trim();
+        } else if (teksJawaban.includes('[AKSI:CCTV]')) {
+          picuKlikFitur('btn-cctv', 'CCTV');
+          teksJawaban = teksJawaban.replace('[AKSI:CCTV]', '').trim();
+        }
+
         Swal.fire({
           icon: 'info',
           title: 'Asisten Warga',
-          text: jawaban,
+          text: teksJawaban,
           confirmButtonColor: '#0d6efd',
           confirmButtonText: 'Tutup'
         });
-        bicara(jawaban);
+        bicara(teksJawaban);
       })
       .withFailureHandler(err => {
         Swal.close();
         Swal.fire('Kendala Server', err.message || err, 'error');
       })
       .tanyaAsistenAI(teks);
-  } else {
-    Swal.close();
-    Swal.fire('Peringatan', 'Koneksi backend Google Apps Script tidak terdeteksi.', 'warning');
   }
 }
 
