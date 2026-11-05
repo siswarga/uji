@@ -23420,7 +23420,7 @@ function eksekusiPerintahSuara(teks) {
 })();
 
 // ============================================================================
-// 2. LOGIKA AKTIVASI SUARA (WEB SPEECH API)
+// ASISTEN SUARA RESPONSIF DENGAN STATUS VISUAL JELAS
 // ============================================================================
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognizer = null;
@@ -23432,6 +23432,7 @@ if (SpeechRecognition) {
   voiceRecognizer.continuous = false;
   voiceRecognizer.interimResults = false;
 
+  // 1. Saat Mic Mulai Mendengarkan
   voiceRecognizer.onstart = function() {
     isListening = true;
     const btn = document.getElementById('btn-trigger-voice');
@@ -23439,34 +23440,155 @@ if (SpeechRecognition) {
     if (btn) btn.classList.replace('btn-primary', 'btn-danger');
     if (icon) icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
 
+    // Tampilkan popup aktif agar pengguna tahu sistem siap mendengar
     Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'info',
-      title: 'Mendengarkan suara...',
+      title: 'Mendengarkan...',
+      html: `
+        <div class="py-3 text-center">
+          <i class="fas fa-microphone fa-bounce fa-3x text-danger mb-3"></i>
+          <p class="text-muted mb-0">Silakan bicara sekarang di dekat mikrofon HP...</p>
+        </div>
+      `,
       showConfirmButton: false,
-      timer: 3000
+      allowOutsideClick: true,
+      didClose: () => {
+        if (isListening) voiceRecognizer.stop();
+      }
     });
   };
 
+  // 2. Saat Suara Berhasil Ditangkap
   voiceRecognizer.onresult = function(event) {
     const ucapan = event.results[0][0].transcript.toLowerCase().trim();
-    console.log("Suara terbaca:", ucapan);
+    console.log("Suara tertangkap:", ucapan);
+    resetTampilanMic();
     eksekusiPerintahSuara(ucapan);
   };
 
+  // 3. Saat Mic Selesai
   voiceRecognizer.onend = function() {
     resetTampilanMic();
   };
 
+  // 4. Penanganan Jika Suara Tidak Terdengar / Error
   voiceRecognizer.onerror = function(event) {
     resetTampilanMic();
-    if (event.error === 'not-allowed') {
-      Swal.fire('Izin Mikrofon Ditolak', 'Izinkan akses mikrofon di pengaturan browser Anda agar fitur suara bisa digunakan.', 'warning');
-    } else if (event.error !== 'no-speech') {
-      Swal.fire('Kendala Mic', 'Error: ' + event.error, 'error');
+    console.warn("Kendala suara:", event.error);
+
+    if (event.error === 'no-speech') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Suara Tidak Terdengar',
+        text: 'Suara belum sempat tertangkap. Silakan ketuk tombol mic lagi dan langsung bicara.',
+        timer: 3000,
+        showConfirmButton: false
+      });
+    } else if (event.error === 'not-allowed') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Izin Mic Ditolak',
+        text: 'Harap izinkan akses mikrofon di setelan browser atau ikon gembok pada URL.'
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Kendala Suara',
+        text: 'Terjadi kesalahan: ' + event.error
+      });
     }
   };
+}
+
+function resetTampilanMic() {
+  isListening = false;
+  const btn = document.getElementById('btn-trigger-voice');
+  const icon = document.getElementById('icon-voice');
+  if (btn) btn.classList.replace('btn-danger', 'btn-primary');
+  if (icon) icon.className = 'fas fa-microphone fa-lg';
+}
+
+function toggleVoiceCommand() {
+  if (!voiceRecognizer) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Peramban Tidak Didukung',
+      text: 'Gunakan Google Chrome di Android atau Desktop untuk fitur suara.'
+    });
+  }
+
+  if (isListening) {
+    voiceRecognizer.stop();
+  } else {
+    try {
+      voiceRecognizer.start();
+    } catch (e) {
+      voiceRecognizer.stop();
+    }
+  }
+}
+
+// ============================================================================
+// EKSEKUSI PERINTAH & KOMUNIKASI KE AI
+// ============================================================================
+function eksekusiPerintahSuara(teks) {
+  // Notifikasi bahwa ucapan berhasil diterima dan sedang diproses
+  Swal.fire({
+    title: 'Memproses...',
+    html: `
+      <div class="py-2">
+        <i class="fas fa-robot fa-spin fa-2x text-primary mb-2"></i>
+        <div class="small fw-bold text-dark">"${teks}"</div>
+      </div>
+    `,
+    showConfirmButton: false,
+    allowOutsideClick: false
+  });
+
+  // A. Navigasi Cepat (Tanpa perlu menunggu balasan AI)
+  if (teks.includes('kegiatan') || teks.includes('acara')) {
+    Swal.close();
+    const el = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    bicara("Membuka agenda kegiatan warga.");
+    return;
+  }
+  if (teks.includes('ronda')) {
+    Swal.close();
+    const el = document.getElementById('kolom-jadwal-ronda');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    bicara("Membuka jadwal ronda lingkungan.");
+    return;
+  }
+
+  // B. Pertanyaan Bebas -> Kirim ke Backend Apps Script
+  // Pastikan google.script.run tersedia jika dijalankan di Apps Script
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(res => {
+        Swal.close();
+        const jawaban = res.text || "Tidak ada jawaban.";
+        Swal.fire({
+          icon: 'info',
+          title: 'Asisten Warga',
+          text: jawaban,
+          confirmButtonColor: '#0d6efd'
+        });
+        bicara(jawaban);
+      })
+      .withFailureHandler(err => {
+        Swal.close();
+        Swal.fire('Kendala Server', err.message || err, 'error');
+      })
+      .tanyaAsistenAI(teks);
+  } else {
+    // Jika aplikasi di-host di GitHub Pages (memerlukan URL Web App exec)
+    Swal.close();
+    Swal.fire({
+      icon: 'warning',
+      title: 'Akses Backend',
+      text: 'Aplikasi sedang berjalan di luar Apps Script. Gunakan endpoint Web App URL (fetch) untuk memanggil fungsi AI.'
+    });
+  }
 }
 
 function resetTampilanMic() {
