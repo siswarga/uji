@@ -23141,96 +23141,74 @@ function bukaModalLokerWarga() {
 }
 
 // ============================================================================
-// 1. PENGELOLA KLIK FITUR & MODAL APLIKASI (ROBUST & ANTI-MACET)
+// 1. ENGINE PEMICU KLIK FITUR (DEEP DOM SCANNER)
 // ============================================================================
+function eksekusiKlikElemenFitur(kataKunci) {
+  Swal.close(); // Tutup popup agar tidak menghalangi layer layar
 
-// Fungsi pencari dan penekan tombol/kartu di layar
-function klikTargetFitur(daftarId, kataKunciLabel) {
-  // A. Prioritas 1: Cari berdasarkan ID Elemen
-  for (let id of daftarId) {
-    const el = document.getElementById(id);
-    if (el) {
-      picuAksiElemen(el);
-      return true;
-    }
-  }
+  // Cari elemen terdalam di layar yang mengandung teks kata kunci
+  const kataKecil = kataKunci.toLowerCase();
+  const semuaElemen = Array.from(document.body.querySelectorAll('*'));
+  
+  // Urutkan dari elemen paling spesifik (daun terdalam) ke luar
+  const target = semuaElemen.reverse().find(el => {
+    if (el.id === 'btn-trigger-voice' || el.closest('#btn-voice-assistant')) return false;
+    const t = (el.innerText || el.textContent || '').trim().toLowerCase();
+    return t === kataKecil || (t.includes(kataKecil) && t.length < 30);
+  });
 
-  // B. Prioritas 2: Cari tombol, kartu, atau link berdasarkan teks label
-  const elemenSemua = document.querySelectorAll('button, a, div.card, div[onclick], .btn, [role="button"]');
-  for (let el of elemenSemua) {
-    if (el.id === 'btn-trigger-voice' || el.closest('#btn-voice-assistant')) continue;
-    const teks = (el.innerText || el.textContent || '').trim().toLowerCase();
-    
-    if (teks && (teks === kataKunciLabel.toLowerCase() || (teks.length < 35 && teks.includes(kataKunciLabel.toLowerCase())))) {
-      picuAksiElemen(el);
-      return true;
-    }
+  if (target) {
+    // Ambil elemen interaktif terdekat (button, card, div klik, atau target itu sendiri)
+    const wadahKlik = target.closest('button, a, div[onclick], div.card, div[class*="btn"], div[class*="menu"]') || target;
+    wadahKlik.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    setTimeout(() => {
+      // Picu rentetan event klik dan sentuh mobile lengkap
+      ['pointerdown', 'mousedown', 'touchstart', 'touchend', 'mouseup', 'click'].forEach(tipe => {
+        const evt = new MouseEvent(tipe, { bubbles: true, cancelable: true, view: window });
+        wadahKlik.dispatchEvent(evt);
+      });
+      if (typeof wadahKlik.click === 'function') wadahKlik.click();
+    }, 150);
+    return true;
   }
   return false;
 }
 
-// Fungsi bantu eksekusi klik dan dukungan Bootstrap Modal bawaan
-function picuAksiElemen(el) {
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-  // 1. Jika elemen memiliki target modal Bootstrap (data-bs-target)
-  const targetModalId = el.getAttribute('data-bs-target') || el.getAttribute('data-target') || el.getAttribute('href');
-  if (targetModalId && targetModalId.startsWith('#')) {
-    const modalEl = document.querySelector(targetModalId);
-    if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-      modalInstance.show();
-      return;
-    }
-  }
-
-  // 2. Klik langsung elemen
-  el.click();
-
-  // 3. Cadangan jika event klik menempel pada elemen ikon/teks di dalamnya
-  const anak = el.querySelector('i, span, p, h6');
-  if (anak) anak.click();
-}
-
-// Fungsi pembuka fitur berdasarkan kode aksi sistem
 function bukaFiturAplikasi(kodeAksi) {
-  // Tutup SweetAlert secara paksa dan bersihkan backdrop
-  Swal.close();
-
   setTimeout(() => {
     switch (kodeAksi) {
       case 'PINJAM_ASET':
-        klikTargetFitur(['btn-pinjam-aset', 'card-pinjam-aset'], 'Pinjam Aset');
+        eksekusiKlikElemenFitur('Pinjam Aset');
         break;
       case 'LAYANAN':
-        klikTargetFitur(['btn-layanan-warga', 'card-layanan-warga'], 'Layanan Warga');
+        eksekusiKlikElemenFitur('Layanan Warga');
         break;
       case 'SOS':
-        klikTargetFitur(['btn-sos', 'tombol-sos'], 'SOS');
+        eksekusiKlikElemenFitur('SOS');
         break;
       case 'CCTV':
-        klikTargetFitur(['btn-cctv', 'link-cctv'], 'CCTV');
+        eksekusiKlikElemenFitur('CCTV');
         break;
       case 'RONDA':
-        const elRonda = document.getElementById('kolom-jadwal-ronda') || document.getElementById('jadwal-ronda');
-        if (elRonda) elRonda.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const elR = document.getElementById('kolom-jadwal-ronda') || document.getElementById('jadwal-ronda');
+        if (elR) elR.scrollIntoView({ behavior: 'smooth', block: 'center' });
         break;
       case 'KEGIATAN':
-        const elKegiatan = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
-        if (elKegiatan) elKegiatan.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const elK = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
+        if (elK) elK.scrollIntoView({ behavior: 'smooth', block: 'center' });
         break;
     }
-  }, 180); // Waktu jeda agar transisi penutupan SweetAlert selesai sempurna
+  }, 200);
 }
 
 // ============================================================================
-// 2. LOGIKA PENGENAL SUARA (SPEECH RECOGNITION & TEXT-TO-SPEECH)
+// 2. SPEECH RECOGNITION ANTI-LOST TEXT (HP ANDROID & DESKTOP)
 // ============================================================================
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognizer = null;
 let isListening = false;
-let sudahTerpicuLokal = false;
-let transcriptFinal = '';
+let teksTertangkapTerakhir = '';
 
 if (SpeechRecognition) {
   voiceRecognizer = new SpeechRecognition();
@@ -23240,8 +23218,7 @@ if (SpeechRecognition) {
 
   voiceRecognizer.onstart = function() {
     isListening = true;
-    sudahTerpicuLokal = false;
-    transcriptFinal = '';
+    teksTertangkapTerakhir = '';
 
     const btn = document.getElementById('btn-trigger-voice');
     const icon = document.getElementById('icon-voice');
@@ -23253,8 +23230,8 @@ if (SpeechRecognition) {
       html: `
         <div class="py-2 text-center">
           <i class="fas fa-microphone fa-bounce fa-3x text-danger mb-3"></i>
-          <p id="teks-suara-live" class="fw-bold text-primary fs-5 mb-0" style="min-height: 40px;">
-            <span class="text-muted fst-italic">Katakan perintah Anda...</span>
+          <p id="teks-suara-live" class="fw-bold text-primary fs-5 mb-0" style="min-height: 45px;">
+            <span class="text-muted fst-italic">Bicaralah sekarang...</span>
           </p>
         </div>
       `,
@@ -23267,82 +23244,63 @@ if (SpeechRecognition) {
   };
 
   voiceRecognizer.onresult = function(event) {
-    let teksSementara = '';
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
-      if (event.results[i].isFinal) {
-        transcriptFinal += event.results[i][0].transcript;
-      } else {
-        teksSementara += event.results[i][0].transcript;
-      }
+    let transkrip = '';
+    for (let i = 0; i < event.results.length; ++i) {
+      transkrip += event.results[i][0].transcript;
     }
+    teksTertangkapTerakhir = transkrip.trim();
 
-    const teksLengkap = (transcriptFinal || teksSementara).toLowerCase().trim();
     const liveEl = document.getElementById('teks-suara-live');
-    if (liveEl && teksLengkap) {
-      liveEl.innerText = `"${teksLengkap}"`;
-    }
-
-    // INSTANT TRIGGER: Jika perintah membuka menu terdeteksi, buka langsung tanpa jeda
-    if (!sudahTerpicuLokal && periksaDanBukaFiturLokal(teksLengkap)) {
-      sudahTerpicuLokal = true;
-      voiceRecognizer.stop();
+    if (liveEl && teksTertangkapTerakhir) {
+      liveEl.innerText = `"${teksTertangkapTerakhir}"`;
     }
   };
 
   voiceRecognizer.onend = function() {
     resetTampilanMic();
-    const teksBersih = transcriptFinal.trim();
 
-    // Jika belum dieksekusi oleh perintah lokal, kirim ke backend Gemini AI
-    if (!sudahTerpicuLokal && teksBersih) {
-      prosesPertanyaanKeAI(teksBersih);
+    // Ambil teks dari input suara atau pembacaan visual jika event onend menutup duluan
+    const liveEl = document.getElementById('teks-suara-live');
+    const teksFinal = teksTertangkapTerakhir || (liveEl ? liveEl.innerText.replace(/"/g, '').trim() : '');
+
+    if (teksFinal && !teksFinal.includes('Bicaralah sekarang')) {
+      prosesKeAsistenAI(teksFinal);
     }
   };
 
-  voiceRecognizer.onerror = function(event) {
+  voiceRecognizer.onerror = function() {
     resetTampilanMic();
   };
 }
 
-// Navigasi lokal instan (0.1 detik)
-function periksaDanBukaFiturLokal(teks) {
-  if (teks.includes('pinjam') || teks.includes('aset') || teks.includes('barang')) {
+// ============================================================================
+// 3. PENGIRIM KE BACKEND DENGAN RESPON AKSI
+// ============================================================================
+function prosesKeAsistenAI(teks) {
+  // A. PINTASAN LOKAL INSTAN (Jika bicara langsung buka fitur)
+  const tk = teks.toLowerCase();
+  if (tk.includes('pinjam') || tk.includes('aset') || tk.includes('barang')) {
     bukaFiturAplikasi('PINJAM_ASET');
     bicara("Membuka formulir pinjam aset.");
-    return true;
+    return;
   }
-  if (teks.includes('layanan') || teks.includes('surat') || teks.includes('pengantar') || teks.includes('administrasi')) {
+  if (tk.includes('layanan') || tk.includes('surat') || tk.includes('pengantar') || tk.includes('administrasi')) {
     bukaFiturAplikasi('LAYANAN');
     bicara("Membuka menu layanan warga.");
-    return true;
+    return;
   }
-  if (teks.includes('sos') || teks.includes('darurat') || teks.includes('bahaya')) {
+  if (tk.includes('sos') || tk.includes('darurat') || tk.includes('bahaya')) {
     bukaFiturAplikasi('SOS');
     bicara("Membuka menu darurat.");
-    return true;
+    return;
   }
-  if (teks.includes('cctv') || teks.includes('kamera') || teks.includes('pantau')) {
+  if (tk.includes('cctv') || tk.includes('kamera') || tk.includes('pantau')) {
     bukaFiturAplikasi('CCTV');
-    bicara("Membuka pantauan kamera CCTV.");
-    return true;
+    bicara("Membuka kamera lingkungan.");
+    return;
   }
-  if (teks.includes('ronda') || teks.includes('jaga malam')) {
-    bukaFiturAplikasi('RONDA');
-    bicara("Menampilkan jadwal ronda malam.");
-    return true;
-  }
-  if (teks.includes('kegiatan') || teks.includes('acara') || teks.includes('agenda')) {
-    bukaFiturAplikasi('KEGIATAN');
-    bicara("Menampilkan agenda kegiatan.");
-    return true;
-  }
-  return false;
-}
 
-// ============================================================================
-// 3. KOMUNIKASI TERPADU KE BACKEND GEMINI AI (DENGAN EKSEKUSI AKSI)
-// ============================================================================
-function prosesPertanyaanKeAI(teks) {
+  // B. PERTANYAAN BEBAS (KIRIM KE AI)
   Swal.fire({
     title: 'Menjawab...',
     html: `
@@ -23359,11 +23317,10 @@ function prosesPertanyaanKeAI(teks) {
     google.script.run
       .withSuccessHandler(res => {
         if (!res.success) {
-          Swal.fire('Kendala', res.text, 'info');
+          Swal.fire('Info', res.text, 'info');
           return;
         }
 
-        // 1. Jika AI menyertakan perintah aksi buka menu
         if (res.aksi) {
           bukaFiturAplikasi(res.aksi);
         } else {
@@ -23376,8 +23333,6 @@ function prosesPertanyaanKeAI(teks) {
             confirmButtonText: 'Tutup'
           });
         }
-
-        // 2. Bacakan jawaban suara ke pengguna
         bicara(res.text);
       })
       .withFailureHandler(err => {
@@ -23385,9 +23340,6 @@ function prosesPertanyaanKeAI(teks) {
         Swal.fire('Kendala Server', err.message || err, 'error');
       })
       .tanyaAsistenAI(teks);
-  } else {
-    Swal.close();
-    Swal.fire('Koneksi Gagal', 'Backend Google Apps Script tidak terdeteksi.', 'warning');
   }
 }
 
@@ -23409,9 +23361,9 @@ function bicara(teks) {
 }
 
 // ============================================================================
-// 4. LOGIKA DRAGGABLE & KLIK PADA TOMBOL MIC
+// 4. KONTROL GESTUR DRAG & KLIK TOMBOL MIC
 // ============================================================================
-(function hubungkanTombolMic() {
+(function hubungkanAksiTombolMic() {
   const container = document.getElementById('btn-voice-assistant');
   const btn = document.getElementById('btn-trigger-voice');
   if (!container || !btn) return;
@@ -23469,6 +23421,7 @@ function bicara(teks) {
   window.addEventListener('mousemove', move);
   window.addEventListener('mouseup', stop);
 })();
+
 </script>
 <!-- Audio Player Adzan Global -->
 <audio id="audio-adzan" preload="auto">
