@@ -23349,7 +23349,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================================
-// TEMAN NGOBROL SUARA (RINGAN & TANPA PERINTAH SISTEM)
+// ASISTEN SUARA MURNI (TANPA TEKS, TANPA POP-UP, TANPA MODAL LOADING)
 // ============================================================================
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -23361,114 +23361,123 @@ if (SpeechRecognition) {
   voiceRecognizer = new SpeechRecognition();
   voiceRecognizer.lang = 'id-ID';
   voiceRecognizer.continuous = false;
-  voiceRecognizer.interimResults = true;
+  voiceRecognizer.interimResults = false; // Mematikan transkrip berjalan di layar
 
+  // 1. Saat Mic Mulai Mendengar
   voiceRecognizer.onstart = function() {
     isListening = true;
     ucapanWarga = '';
-
-    const btn = document.getElementById('btn-trigger-voice');
-    const icon = document.getElementById('icon-voice');
-    if (btn) btn.classList.replace('btn-primary', 'btn-danger');
-    if (icon) icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
-
-    Swal.fire({
-      title: 'Lagi dengerin...',
-      html: `
-        <div class="py-2 text-center">
-          <i class="fas fa-comment-dots fa-bounce fa-3x text-primary mb-3"></i>
-          <p id="teks-ngobrol-live" class="fw-bold text-dark fs-5 mb-0" style="min-height: 40px;">
-            <span class="text-muted fst-italic">Cerita apa aja, yuk...</span>
-          </p>
-        </div>
-      `,
-      showConfirmButton: false,
-      allowOutsideClick: true,
-      didClose: () => {
-        if (isListening) voiceRecognizer.stop();
-      }
-    });
+    ubahIndikatorTombol('mendengarkan');
   };
 
+  // 2. Menangkap Ucapan Secara Senyap (Tanpa Menampilkan Teks)
   voiceRecognizer.onresult = function(event) {
-    let teks = '';
-    for (let i = 0; i < event.results.length; ++i) {
-      teks += event.results[i][0].transcript;
-    }
-    ucapanWarga = teks.trim();
-
-    const el = document.getElementById('teks-ngobrol-live');
-    if (el && ucapanWarga) {
-      el.innerText = `"${ucapanWarga}"`;
+    if (event.results && event.results[0] && event.results[0][0]) {
+      ucapanWarga = event.results[0][0].transcript;
     }
   };
 
+  // 3. Saat Selesai Berbicara
   voiceRecognizer.onend = function() {
-    resetTampilanMic();
-    if (ucapanWarga) {
-      kirimObrolanKeTemanAI(ucapanWarga);
+    isListening = false;
+    const teksFinal = ucapanWarga.trim();
+
+    if (teksFinal) {
+      // Ubah status tombol jadi memproses di latar belakang (tanpa modal)
+      ubahIndikatorTombol('memproses');
+      kirimObrolanSenyap(teksFinal);
+    } else {
+      ubahIndikatorTombol('standby');
     }
   };
 
+  // 4. Tangani Error Senyap
   voiceRecognizer.onerror = function() {
-    resetTampilanMic();
+    isListening = false;
+    ubahIndikatorTombol('standby');
   };
 }
 
-// Kirim teks obrolan ke backend Apps Script
-function kirimObrolanKeTemanAI(teks) {
-  Swal.fire({
-    title: 'Mikir bentar...',
-    html: `
-      <div class="py-2 text-center">
-        <i class="fas fa-smile-wink fa-spin fa-2x text-warning mb-2"></i>
-        <div class="small text-muted mt-2">"${teks}"</div>
-      </div>
-    `,
-    showConfirmButton: false,
-    allowOutsideClick: false
-  });
-
+// Pengiriman ke Backend Tanpa Dialog Loading
+function kirimObrolanSenyap(teks) {
   if (typeof google !== 'undefined' && google.script && google.script.run) {
     google.script.run
       .withSuccessHandler(res => {
-        const balasan = res.text || "Halo tetangga!";
-        Swal.fire({
-          icon: 'success',
-          title: 'Teman Warga',
-          text: balasan,
-          confirmButtonText: 'Asyik',
-          confirmButtonColor: '#198754'
-        });
-        bicara(balasan);
+        if (res && res.text) {
+          // AI langsung membalas lewat suara audio
+          bicara(res.text);
+        } else {
+          ubahIndikatorTombol('standby');
+        }
       })
-      .withFailureHandler(err => {
-        Swal.close();
-        Swal.fire('Koneksi Ngadat', 'Lagi susah nyambung ke server nih.', 'error');
+      .withFailureHandler(() => {
+        bicara("Waduh, koneksinya lagi putus.");
       })
       .tanyaAsistenAI(teks);
+  } else {
+    ubahIndikatorTombol('standby');
   }
 }
 
-function resetTampilanMic() {
-  isListening = false;
-  const btn = document.getElementById('btn-trigger-voice');
-  const icon = document.getElementById('icon-voice');
-  if (btn) btn.classList.replace('btn-danger', 'btn-primary');
-  if (icon) icon.className = 'fas fa-microphone fa-lg';
-}
-
+// Text-to-Speech (Murni Balasan Suara)
 function bicara(teks) {
-  if (!('speechSynthesis' in window)) return;
+  if (!('speechSynthesis' in window)) {
+    ubahIndikatorTombol('standby');
+    return;
+  }
+
   window.speechSynthesis.cancel();
   const ucapan = new SpeechSynthesisUtterance(teks);
   ucapan.lang = 'id-ID';
   ucapan.rate = 1.0;
+
+  // Ubah status tombol jadi hijau saat AI berbicara
+  ucapan.onstart = function() {
+    ubahIndikatorTombol('berbicara');
+  };
+
+  // Kembalikan tombol ke biru saat AI selesai berbicara
+  ucapan.onend = function() {
+    ubahIndikatorTombol('standby');
+  };
+
+  ucapan.onerror = function() {
+    ubahIndikatorTombol('standby');
+  };
+
   window.speechSynthesis.speak(ucapan);
 }
 
-// Tombol Mic Draggable & Klik Sederhana
-(function aktifkanTombolMicSantai() {
+// Indikator Status Halus pada Tombol Fisik (Menggantikan Pop-up Teks)
+function ubahIndikatorTombol(status) {
+  const btn = document.getElementById('btn-trigger-voice');
+  const icon = document.getElementById('icon-voice');
+  if (!btn || !icon) return;
+
+  btn.className = 'btn rounded-circle shadow-lg d-flex align-items-center justify-content-center';
+
+  switch (status) {
+    case 'mendengarkan':
+      btn.classList.add('btn-danger');
+      icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
+      break;
+    case 'memproses':
+      btn.classList.add('btn-warning');
+      icon.className = 'fas fa-spinner fa-spin fa-lg text-white';
+      break;
+    case 'berbicara':
+      btn.classList.add('btn-success');
+      icon.className = 'fas fa-volume-high fa-beat-fade fa-lg';
+      break;
+    default: // standby
+      btn.classList.add('btn-primary');
+      icon.className = 'fas fa-microphone fa-lg';
+      break;
+  }
+}
+
+// Logika Drag dan Klik Tombol Floating
+(function hubungkanTombolSuaraMurni() {
   const container = document.getElementById('btn-voice-assistant');
   const btn = document.getElementById('btn-trigger-voice');
   if (!container || !btn) return;
@@ -23509,8 +23518,16 @@ function bicara(teks) {
     if (!isDragging) return;
     isDragging = false;
     if (!hasMoved && voiceRecognizer) {
-      if (isListening) voiceRecognizer.stop();
-      else voiceRecognizer.start();
+      if (isListening) {
+        voiceRecognizer.stop();
+      } else {
+        try {
+          window.speechSynthesis.cancel(); // Matikan audio sebelumnya jika ada
+          voiceRecognizer.start();
+        } catch (e) {
+          voiceRecognizer.stop();
+        }
+      }
     }
   };
 
