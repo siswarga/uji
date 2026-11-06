@@ -23412,59 +23412,50 @@ if (SpeechRecognition) {
   };
 }
 
-// Pengiriman Data ke Backend
 function kirimObrolanSenyap(teks) {
-  // A. Jika di dalam lingkungan Google Apps Script
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run
-      .withSuccessHandler(res => {
-        clearTimeout(timeoutPengaman);
-        if (res && res.text) {
-          bicara(res.text);
-        } else {
-          ubahIndikatorTombol('standby');
-        }
-      })
-      .withFailureHandler(() => {
-        clearTimeout(timeoutPengaman);
-        bicara("Koneksi server terputus.");
-      })
-      .tanyaAsistenAI(teks);
-    return;
-  }
-
-  // B. Jika di GitHub Pages (Menggunakan URL Web App Apps Script)
   const endpoint = window.SCRIPT_URL || window.GAS_URL || window.URL_WEB_APP || (typeof URL_GAS_EXEC !== 'undefined' ? URL_GAS_EXEC : '');
   
+  // Batalkan otomatis jika server AI tidak menjawab dalam 10 detik
+  const controller = new AbortController();
+  const timerBatal = setTimeout(() => {
+    controller.abort();
+    ubahIndikatorTombol('standby');
+    bicara("Server Google sedang antre panjang. Coba sapa sekali lagi ya.");
+  }, 10000);
+
   if (endpoint && endpoint.startsWith('http')) {
-    fetch(`${endpoint}?action=tanyaAI&q=${encodeURIComponent(teks)}`)
+    fetch(`${endpoint}?action=tanyaAI&q=${encodeURIComponent(teks)}`, { signal: controller.signal })
       .then(r => r.json())
       .then(res => {
-        clearTimeout(timeoutPengaman);
+        clearTimeout(timerBatal);
         if (res && res.text) {
           bicara(res.text);
         } else {
           ubahIndikatorTombol('standby');
         }
       })
-      .catch(() => {
-        clearTimeout(timeoutPengaman);
-        bicara("Gagal terhubung ke server.");
+      .catch(err => {
+        clearTimeout(timerBatal);
+        ubahIndikatorTombol('standby');
+        if (err.name !== 'AbortError') {
+          bicara("Koneksi ke server terputus.");
+        }
       });
   } else {
-    clearTimeout(timeoutPengaman);
+    clearTimeout(timerBatal);
     ubahIndikatorTombol('standby');
   }
 }
 
-// Mesin Text-to-Speech Khusus Android
+// ============================================================================
+// TEXT-TO-SPEECH DENGAN PENGAMAN TIMER (ANTI-MACET DI WARNA KUNING)
+// ============================================================================
 function bicara(teks) {
   if (!('speechSynthesis' in window)) {
     ubahIndikatorTombol('standby');
     return;
   }
 
-  // Bangunkan mesin audio Android
   window.speechSynthesis.cancel();
   window.speechSynthesis.resume();
 
@@ -23472,22 +23463,29 @@ function bicara(teks) {
   ucapan.lang = 'id-ID';
   ucapan.rate = 1.0;
 
-  // Pilih suara Bahasa Indonesia jika tersedia di perangkat
   const voices = window.speechSynthesis.getVoices();
   const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
   if (idVoice) ucapan.voice = idVoice;
+
+  let sudahReset = false;
+  const kembalikanKeNormal = () => {
+    if (!sudahReset) {
+      sudahReset = true;
+      ubahIndikatorTombol('standby'); // Wajib kembali biru
+    }
+  };
 
   ucapan.onstart = function() {
     ubahIndikatorTombol('berbicara'); // Hijau
   };
 
-  ucapan.onend = function() {
-    ubahIndikatorTombol('standby'); // Kembali Biru
-  };
+  ucapan.onend = kembalikanKeNormal;
+  ucapan.onerror = kembalikanKeNormal;
 
-  ucapan.onerror = function() {
-    ubahIndikatorTombol('standby');
-  };
+  // PENGAMAN ANDROID: Jika Chrome memblokir audio secara diam-diam,
+  // tombol dipaksa kembali biru setelah waktu durasi kalimat selesai.
+  const estimasiDurasi = Math.max(2500, (teks.length * 75) + 1000);
+  setTimeout(kembalikanKeNormal, estimasiDurasi);
 
   window.speechSynthesis.speak(ucapan);
 }
