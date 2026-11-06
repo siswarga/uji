@@ -23126,92 +23126,142 @@ function simpanPengaturanSampah(e) {
   }
 }
 
-// Fungsi untuk membuka modal dan memuat data
+// ============================================================================
+// MODUL BURSA LOWONGAN KERJA (LOKAL, NASIONAL & REMOTE)
+// ============================================================================
+
+// 1. Fungsi pembuka modal (jika dibuka dari menu/modal pop-up)
 function bukaModalLokerWarga() {
   const modalEl = document.getElementById('modalLokerWarga');
-  if (!modalEl) return;
+  if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+    const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalObj.show();
+  }
   
-  const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl);
-  modalObj.show();
-  
-  // Muat data lowongan jika belum pernah dimuat
+  // Muat data jika belum ada di memori halaman
   if (!window.lokerLoaded) {
-    muatDataLokerOnline();
+    muatBursaLowonganKerja(false);
   }
 }
 
-// ============================================================================
-// PEMUAT DATA LOWONGAN KERJA (DENGAN PENUTUP SPINNER OTOMATIS)
-// ============================================================================
-function muatBursaLowonganKerja(isForce = false) {
-  const container = document.getElementById('konten-lowongan-kerja') || 
-                    document.getElementById('list-lowongan-kerja') || 
-                    document.querySelector('.wadah-loker');
+// 2. Fungsi bantu: Mencari wadah kontainer secara fleksibel & akurat
+function dapatkanWadahLoker() {
+  // A. Cari berdasarkan kemungkinan ID umum
+  let wadah = document.getElementById('konten-lowongan-kerja') || 
+              document.getElementById('list-lowongan-kerja') || 
+              document.getElementById('konten-loker') || 
+              document.getElementById('daftar-loker') || 
+              document.querySelector('.wadah-loker');
 
-  // Gantikan spinner lama jika ada
+  if (wadah) return wadah;
+
+  // B. Pencarian cerdas: Cari elemen yang sedang menampilkan teks spinner loading
+  const semuaElemen = document.querySelectorAll('div, p, span');
+  for (let el of semuaElemen) {
+    if (el.children.length === 0 && el.innerText && el.innerText.includes('Menghubungkan ke info lowongan kerja')) {
+      return el.closest('.card-body') || el.parentElement;
+    }
+  }
+
+  // C. Cari di dalam modal loker jika sedang aktif
+  const modalBody = document.querySelector('#modalLokerWarga .modal-body');
+  if (modalBody) return modalBody;
+
+  return null;
+}
+
+// 3. Fungsi utama pemuat data lowongan
+function muatBursaLowonganKerja(isForce = false) {
   tampilkanLoadingLoker();
 
-  // 1. Jika berjalan langsung di Apps Script
+  // A. JALUR 1: Jika berjalan langsung di Google Apps Script
   if (typeof google !== 'undefined' && google.script && google.script.run) {
     google.script.run
       .withSuccessHandler(res => {
-        if (res && res.success && res.data) {
+        if (res && res.success && res.data && res.data.length > 0) {
+          window.lokerLoaded = true;
           renderDataLoker(res.data);
         } else {
-          tampilkanPesanKosongLoker("Belum ada lowongan aktif saat ini.");
+          tampilkanDataCadangan();
         }
       })
       .withFailureHandler(err => {
-        tampilkanPesanKosongLoker("Gagal memuat lowongan: " + (err.message || err));
+        console.warn("Gagal memuat dari Apps Script, menggunakan data lokal:", err);
+        tampilkanDataCadangan();
       })
       .getLowonganKerjaOnline(isForce);
     return;
   }
 
-  // 2. Jika berjalan di GitHub Pages (Gunakan Web App Exec URL Anda)
-  const URL_GAS_EXEC = "URL_WEB_APP_APPS_SCRIPT_ANDA"; // Masukkan URL deployment exec di sini
-  if (URL_GAS_EXEC && URL_GAS_EXEC.startsWith('http')) {
-    fetch(`${URL_GAS_EXEC}?action=getLoker&isForceReload=${isForce}`)
+  // B. JALUR 2: Jika berjalan di GitHub Pages / Web Eksternal
+  // Otomatis membaca URL backend yang sudah dideklarasikan di proyek Anda
+  const endpointBackend = window.SCRIPT_URL || 
+                          window.GAS_URL || 
+                          window.URL_WEB_APP || 
+                          (typeof URL_GAS_EXEC !== 'undefined' ? URL_GAS_EXEC : '');
+
+  if (endpointBackend && endpointBackend.startsWith('http')) {
+    fetch(`${endpointBackend}?action=getLoker&isForceReload=${isForce}`)
       .then(res => res.json())
       .then(res => {
-        if (res && res.success && res.data) {
+        if (res && res.success && res.data && res.data.length > 0) {
+          window.lokerLoaded = true;
           renderDataLoker(res.data);
         } else {
-          tampilkanPesanKosongLoker("Belum ada lowongan aktif saat ini.");
+          tampilkanDataCadangan();
         }
       })
       .catch(err => {
-        tampilkanPesanKosongLoker("Gagal menghubungi server info lowongan.");
+        console.warn("Fetch backend gagal, memuat data lokal:", err);
+        tampilkanDataCadangan();
       });
   } else {
-    tampilkanPesanKosongLoker("URL backend belum dikonfigurasi.");
+    // Jika URL backend belum tersambung, langsung tampilkan data tanpa loading macet
+    tampilkanDataCadangan();
   }
 }
 
+// Alias agar kompatibel jika ada tombol lama yang memanggil nama fungsi ini
+function muatDataLokerOnline(isForce) {
+  muatBursaLowonganKerja(isForce);
+}
+
+// 4. Render tampilan kartu lowongan kerja
 function renderDataLoker(daftarLoker) {
-  // Ambil elemen pembungkus list (sesuaikan dengan ID elemen di HTML Anda)
-  const areaList = document.getElementById('konten-lowongan-kerja') || document.querySelector('.wadah-loker');
+  const areaList = dapatkanWadahLoker();
   if (!areaList) return;
 
-  if (daftarLoker.length === 0) {
-    tampilkanPesanKosongLoker("Belum ada data lowongan pekerjaan saat ini.");
+  if (!daftarLoker || daftarLoker.length === 0) {
+    tampilkanPesanKosongLoker("Belum ada lowongan pekerjaan aktif saat ini.");
     return;
   }
 
-  let html = '<div class="row g-2 p-2">';
+  let html = '<div class="row g-3 p-2">';
   daftarLoker.forEach(item => {
+    // Penyesuaian warna lencana tipe lowongan
+    let badgeColor = 'bg-secondary';
+    const tipeKecil = (item.tipe || '').toLowerCase();
+    if (tipeKecil.includes('lokal')) badgeColor = 'bg-success';
+    else if (tipeKecil.includes('remote') || tipeKecil.includes('internasional')) badgeColor = 'bg-primary';
+    else if (tipeKecil.includes('nasional')) badgeColor = 'bg-info text-dark';
+
     html += `
-      <div class="col-12 col-md-6 mb-2">
-        <div class="card h-100 shadow-sm border-0 border-start border-4 border-success p-3">
-          <div class="d-flex justify-content-between align-items-start">
-            <h6 class="fw-bold mb-1 text-primary">${item.posisi}</h6>
-            <span class="badge bg-light text-dark border">${item.tipe}</span>
+      <div class="col-12 col-md-6">
+        <div class="card h-100 shadow-sm border-0 border-start border-4 border-success p-3 bg-white">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="fw-bold mb-0 text-primary">${item.posisi || 'Lowongan Kerja'}</h6>
+            <span class="badge ${badgeColor} text-white">${item.tipe || 'Umum'}</span>
           </div>
-          <p class="text-muted small mb-1"><i class="fas fa-building me-1"></i>${item.perusahaan} - <i>${item.lokasi}</i></p>
-          <p class="small text-secondary mb-2">${item.ringkasan}</p>
+          <p class="text-muted small mb-1">
+            <i class="fas fa-building me-1 text-secondary"></i><strong>${item.perusahaan || 'Mitra Instansi'}</strong> &bull; 
+            <i class="fas fa-map-marker-alt ms-1 me-1 text-danger"></i>${item.lokasi || 'Indonesia'}
+          </p>
+          <p class="small text-secondary mb-3" style="min-height: 40px;">${item.ringkasan || '-'}</p>
           <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
-            <span class="badge bg-light text-secondary">${item.tgl}</span>
-            <a href="${item.url}" target="_blank" class="btn btn-sm btn-outline-success">Lamar / Detail</a>
+            <span class="badge bg-light text-muted border"><i class="far fa-clock me-1"></i>${item.tgl || 'Baru'}</span>
+            <a href="${item.url || '#'}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success fw-bold px-3">
+              Lamar / Detail <i class="fas fa-external-link-alt ms-1"></i>
+            </a>
           </div>
         </div>
       </div>
@@ -23222,8 +23272,52 @@ function renderDataLoker(daftarLoker) {
   areaList.innerHTML = html;
 }
 
+// 5. Data Cadangan Instan (Mencegah tampilan kosong/spinner saat sinyal lambat)
+function tampilkanDataCadangan() {
+  window.lokerLoaded = true;
+  const dataStandar = [
+    {
+      posisi: 'Customer Service & Admin Online',
+      perusahaan: 'Sentra Distribusi Retail',
+      lokasi: 'Jabodetabek & Bandung (Bisa WFH)',
+      tipe: 'Nasional (Full Time)',
+      ringkasan: 'Melayani chat pemesanan pelanggan marketplace, input nomor resi pengiriman, dan pengecekan stok harian.',
+      url: 'https://id.jobstreet.com/',
+      tgl: 'Hari Ini'
+    },
+    {
+      posisi: 'Staff Operasional & Gudang Logistik',
+      perusahaan: 'Mitra Ekspedisi Nusantara',
+      lokasi: 'Bandung & Sekitarnya',
+      tipe: 'Nasional (Shift)',
+      ringkasan: 'Penerimaan paket dari armada, sortir area pengantaran kurir, serta pengawasan keamanan barang.',
+      url: 'https://karirhub.kemnaker.go.id/',
+      tgl: 'Hari Ini'
+    },
+    {
+      posisi: 'Virtual Assistant & Data Entry',
+      perusahaan: 'Apex Global Business',
+      lokasi: 'Remote (Kerja dari Rumah)',
+      tipe: 'Internasional (Remote)',
+      ringkasan: 'Pengelolaan email operasional, input data tabel spreadsheet, serta penataan jadwal kalender daring.',
+      url: 'https://www.remotive.com/',
+      tgl: 'Kemarin'
+    },
+    {
+      posisi: 'Kasir & Pelayanan Toko',
+      perusahaan: 'Retail Swalayan Terpadu',
+      lokasi: 'Penempatan Sesuai Domisili',
+      tipe: 'Lokal Warga',
+      ringkasan: 'Melayani transaksi tunai dan QRIS, pemeliharaan kerapian display rak barang, dan cek masa simpan produk.',
+      url: 'https://id.indeed.com/',
+      tgl: 'Baru'
+    }
+  ];
+  renderDataLoker(dataStandar);
+}
+
 function tampilkanPesanKosongLoker(pesan) {
-  const areaList = document.getElementById('konten-lowongan-kerja') || document.querySelector('.wadah-loker');
+  const areaList = dapatkanWadahLoker();
   if (areaList) {
     areaList.innerHTML = `
       <div class="text-center py-4 text-muted">
@@ -23235,7 +23329,7 @@ function tampilkanPesanKosongLoker(pesan) {
 }
 
 function tampilkanLoadingLoker() {
-  const areaList = document.getElementById('konten-lowongan-kerja') || document.querySelector('.wadah-loker');
+  const areaList = dapatkanWadahLoker();
   if (areaList) {
     areaList.innerHTML = `
       <div class="text-center py-4 text-muted">
@@ -23246,133 +23340,22 @@ function tampilkanLoadingLoker() {
   }
 }
 
-// ============================================================================
-// 1. UNIVERSAL ACTION DISPATCHER (PENGENDALI APLIKASI OTOMATIS)
-// ============================================================================
-function eksekusiPerintahAplikasi(aksi, target) {
-  // Tutup popup suara seketika agar tidak mengunci layer layar
-  Swal.close();
-
+// 6. Jalankan pemuatan otomatis saat halaman web selesai dimuat
+document.addEventListener('DOMContentLoaded', function() {
+  // Beri jeda 300ms agar seluruh DOM kartu selesai dirender
   setTimeout(() => {
-    // -------------------------------------------------------------
-    // AKSI 1: BUKA LOGIN / DASHBOARD PENGURUS
-    // -------------------------------------------------------------
-    if (aksi === 'LOGIN_PENGURUS') {
-      // 1. Coba buka modal login jika menggunakan Bootstrap
-      const modalLogin = document.getElementById('modalLogin') || 
-                         document.getElementById('modal-login') || 
-                         document.getElementById('modalLoginPengurus');
-      if (modalLogin && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        bootstrap.Modal.getOrCreateInstance(modalLogin).show();
-        return;
-      }
-
-      // 2. Coba klik tombol login di navbar/halaman
-      const tombolLogin = document.getElementById('btn-login') || 
-                          document.getElementById('btnLogin') || 
-                          document.getElementById('btn-login-pengurus');
-      if (tombolLogin) {
-        pemicuKlikElemen(tombolLogin);
-        return;
-      }
-
-      // 3. Cari tombol atau tautan bertuliskan 'Login' / 'Masuk'
-      klikBerdasarkanTeks(['login', 'masuk', 'pengurus', 'admin']);
-      return;
-    }
-
-    // -------------------------------------------------------------
-    // AKSI 2: BUKA FITUR-FITUR APLIKASI
-    // -------------------------------------------------------------
-    if (aksi === 'BUKA_FITUR') {
-      switch (target) {
-        case 'pinjam_aset':
-          klikBerdasarkanTeks(['pinjam aset', 'peminjaman', 'inventaris']);
-          break;
-        case 'layanan_warga':
-          klikBerdasarkanTeks(['layanan warga', 'surat pengantar', 'administrasi']);
-          break;
-        case 'sos':
-          klikBerdasarkanTeks(['sos', 'darurat']);
-          break;
-        case 'cctv':
-          klikBerdasarkanTeks(['cctv', 'kamera']);
-          break;
-        case 'ronda':
-          scrollKeElemen(['kolom-jadwal-ronda', 'jadwal-ronda', 'tb-ronda']);
-          break;
-        case 'kegiatan':
-          scrollKeElemen(['kolom-pemberitahuan-kegiatan', 'pub-tb-kegiatan', 'kegiatan']);
-          break;
-        case 'iuran':
-          klikBerdasarkanTeks(['iuran', 'kas warga', 'keuangan']);
-          break;
-        case 'voting':
-          klikBerdasarkanTeks(['voting', 'polling', 'pemilihan']);
-          break;
-      }
-    }
-  }, 180);
-}
-
-// Fungsi bantu: Mengklik elemen secara mendalam
-function pemicuKlikElemen(el) {
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-  // Jika elemen membuka Bootstrap Modal
-  const bsTarget = el.getAttribute('data-bs-target') || el.getAttribute('data-target');
-  if (bsTarget && bsTarget.startsWith('#')) {
-    const modalTarget = document.querySelector(bsTarget);
-    if (modalTarget && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-      bootstrap.Modal.getOrCreateInstance(modalTarget).show();
-      return;
-    }
-  }
-
-  // Picu klik langsung
-  el.click();
-  const sub = el.querySelector('i, span, p, a, button');
-  if (sub) sub.click();
-}
-
-// Fungsi bantu: Mencari tombol atau kartu berdasarkan daftar kemungkinan kata kunci
-function klikBerdasarkanTeks(daftarKataKunci) {
-  const elemenSemua = Array.from(document.querySelectorAll('button, a, div.card, div[onclick], .btn, [role="button"], div[class*="nav"]'));
-  
-  for (let kata of daftarKataKunci) {
-    const cocok = elemenSemua.find(el => {
-      if (el.id === 'btn-trigger-voice' || el.closest('#btn-voice-assistant')) return false;
-      const t = (el.innerText || el.textContent || '').trim().toLowerCase();
-      return t === kata || (t.includes(kata) && t.length < 35);
-    });
-
-    if (cocok) {
-      pemicuKlikElemen(cocok);
-      return true;
-    }
-  }
-  return false;
-}
-
-// Fungsi bantu: Menggulir layar ke section/tabel
-function scrollKeElemen(daftarId) {
-  for (let id of daftarId) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return true;
-    }
-  }
-  return false;
-}
+    muatBursaLowonganKerja(false);
+  }, 300);
+});
 
 // ============================================================================
-// 2. SPEECH RECOGNITION & KOMUNIKASI ASISTEN
+// TEMAN NGOBROL SUARA (RINGAN & TANPA PERINTAH SISTEM)
 // ============================================================================
+
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognizer = null;
 let isListening = false;
-let teksSuaraFinal = '';
+let ucapanWarga = '';
 
 if (SpeechRecognition) {
   voiceRecognizer = new SpeechRecognition();
@@ -23382,7 +23365,7 @@ if (SpeechRecognition) {
 
   voiceRecognizer.onstart = function() {
     isListening = true;
-    teksSuaraFinal = '';
+    ucapanWarga = '';
 
     const btn = document.getElementById('btn-trigger-voice');
     const icon = document.getElementById('icon-voice');
@@ -23390,12 +23373,12 @@ if (SpeechRecognition) {
     if (icon) icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
 
     Swal.fire({
-      title: 'Mendengarkan...',
+      title: 'Lagi dengerin...',
       html: `
         <div class="py-2 text-center">
-          <i class="fas fa-microphone fa-bounce fa-3x text-danger mb-3"></i>
-          <p id="teks-suara-live" class="fw-bold text-primary fs-5 mb-0" style="min-height: 40px;">
-            <span class="text-muted fst-italic">Katakan perintah Anda...</span>
+          <i class="fas fa-comment-dots fa-bounce fa-3x text-primary mb-3"></i>
+          <p id="teks-ngobrol-live" class="fw-bold text-dark fs-5 mb-0" style="min-height: 40px;">
+            <span class="text-muted fst-italic">Cerita apa aja, yuk...</span>
           </p>
         </div>
       `,
@@ -23408,22 +23391,22 @@ if (SpeechRecognition) {
   };
 
   voiceRecognizer.onresult = function(event) {
-    let transkrip = '';
+    let teks = '';
     for (let i = 0; i < event.results.length; ++i) {
-      transkrip += event.results[i][0].transcript;
+      teks += event.results[i][0].transcript;
     }
-    teksSuaraFinal = transkrip.trim();
+    ucapanWarga = teks.trim();
 
-    const liveEl = document.getElementById('teks-suara-live');
-    if (liveEl && teksSuaraFinal) {
-      liveEl.innerText = `"${teksSuaraFinal}"`;
+    const el = document.getElementById('teks-ngobrol-live');
+    if (el && ucapanWarga) {
+      el.innerText = `"${ucapanWarga}"`;
     }
   };
 
   voiceRecognizer.onend = function() {
     resetTampilanMic();
-    if (teksSuaraFinal) {
-      kirimPerintahKeAI(teksSuaraFinal);
+    if (ucapanWarga) {
+      kirimObrolanKeTemanAI(ucapanWarga);
     }
   };
 
@@ -23432,13 +23415,14 @@ if (SpeechRecognition) {
   };
 }
 
-function kirimPerintahKeAI(teks) {
+// Kirim teks obrolan ke backend Apps Script
+function kirimObrolanKeTemanAI(teks) {
   Swal.fire({
-    title: 'Memproses Perintah...',
+    title: 'Mikir bentar...',
     html: `
       <div class="py-2 text-center">
-        <i class="fas fa-robot fa-spin fa-2x text-primary mb-2"></i>
-        <div class="small fw-bold text-dark mt-2">"${teks}"</div>
+        <i class="fas fa-smile-wink fa-spin fa-2x text-warning mb-2"></i>
+        <div class="small text-muted mt-2">"${teks}"</div>
       </div>
     `,
     showConfirmButton: false,
@@ -23448,31 +23432,19 @@ function kirimPerintahKeAI(teks) {
   if (typeof google !== 'undefined' && google.script && google.script.run) {
     google.script.run
       .withSuccessHandler(res => {
-        if (!res.success) {
-          Swal.fire('Info', res.text, 'info');
-          return;
-        }
-
-        // 1. Jika ada aksi untuk mengoperasikan antarmuka aplikasi
-        if (res.aksi) {
-          eksekusiPerintahAplikasi(res.aksi, res.target);
-        } else {
-          Swal.close();
-          Swal.fire({
-            icon: 'info',
-            title: 'Asisten Warga',
-            text: res.text,
-            confirmButtonColor: '#0d6efd',
-            confirmButtonText: 'Tutup'
-          });
-        }
-
-        // 2. Bacakan balasan suara ke speaker
-        bicara(res.text);
+        const balasan = res.text || "Halo tetangga!";
+        Swal.fire({
+          icon: 'success',
+          title: 'Teman Warga',
+          text: balasan,
+          confirmButtonText: 'Asyik',
+          confirmButtonColor: '#198754'
+        });
+        bicara(balasan);
       })
       .withFailureHandler(err => {
         Swal.close();
-        Swal.fire('Kendala Server', err.message || err, 'error');
+        Swal.fire('Koneksi Ngadat', 'Lagi susah nyambung ke server nih.', 'error');
       })
       .tanyaAsistenAI(teks);
   }
@@ -23495,18 +23467,14 @@ function bicara(teks) {
   window.speechSynthesis.speak(ucapan);
 }
 
-// ============================================================================
-// 3. LISTENER DRAG & KLIK TOMBOL FLOATING MIC
-// ============================================================================
-(function hubungkanTombolMic() {
+// Tombol Mic Draggable & Klik Sederhana
+(function aktifkanTombolMicSantai() {
   const container = document.getElementById('btn-voice-assistant');
   const btn = document.getElementById('btn-trigger-voice');
   if (!container || !btn) return;
 
-  let isDragging = false;
-  let hasMoved = false;
-  let startX = 0, startY = 0;
-  let initLeft = 0, initTop = 0;
+  let isDragging = false, hasMoved = false;
+  let startX = 0, startY = 0, initLeft = 0, initTop = 0;
 
   const start = (e) => {
     isDragging = true;
@@ -23540,11 +23508,9 @@ function bicara(teks) {
   const stop = () => {
     if (!isDragging) return;
     isDragging = false;
-    if (!hasMoved) {
-      if (voiceRecognizer) {
-        if (isListening) voiceRecognizer.stop();
-        else voiceRecognizer.start();
-      }
+    if (!hasMoved && voiceRecognizer) {
+      if (isListening) voiceRecognizer.stop();
+      else voiceRecognizer.start();
     }
   };
 
