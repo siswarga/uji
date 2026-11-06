@@ -23349,79 +23349,102 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================================
-// ASISTEN SUARA MURNI ANTI-MACET (OPTIMAL UNTUK CHROME ANDROID)
+// ASISTEN SUARA ANDROID (ANTI-MUTE & RESPON CEPAT)
 // ============================================================================
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognizer = null;
 let isListening = false;
 let ucapanWarga = '';
-let timeoutPengaman = null;
-
-// Pancing izin audio peramban saat pertama kali layar disentuh/diklik
-function pancingAudioAndroid() {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.resume();
-    // Kirim ucapan kosong tanpa desibel untuk membuka blokir autoplay Android
-    const pancingan = new SpeechSynthesisUtterance('');
-    pancingan.volume = 0;
-    window.speechSynthesis.speak(pancingan);
-  }
-}
+let timerOtomatisSelesai = null;
+let timerMaksimalMerekam = null;
 
 if (SpeechRecognition) {
   voiceRecognizer = new SpeechRecognition();
   voiceRecognizer.lang = 'id-ID';
   voiceRecognizer.continuous = false;
-  voiceRecognizer.interimResults = false;
+  voiceRecognizer.interimResults = true; // Wajib true di Android agar suara tidak hilang
 
+  // 1. Saat Mic Mulai Mendengarkan
   voiceRecognizer.onstart = function() {
     isListening = true;
     ucapanWarga = '';
-    ubahIndikatorTombol('mendengarkan'); // Merah
+    ubahIndikatorTombol('mendengarkan'); // Merah berkedip
+
+    // Batas maksimal merekam 7 detik jika pengguna lupa mengetuk stop
+    clearTimeout(timerMaksimalMerekam);
+    timerMaksimalMerekam = setTimeout(() => {
+      if (isListening) {
+        hentikanDanProses();
+      }
+    }, 7000);
   };
 
+  // 2. Menangkap Ucapan Secara Senyap & Real-Time
   voiceRecognizer.onresult = function(event) {
-    if (event.results && event.results[0] && event.results[0][0]) {
-      ucapanWarga = event.results[0][0].transcript;
+    let teksSementara = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      teksSementara += event.results[i][0].transcript;
+    }
+
+    if (teksSementara.trim()) {
+      ucapanWarga = teksSementara.trim();
+
+      // Deteksi jeda hening: Jika warga berhenti bicara selama 1.3 detik, otomatis kirim
+      clearTimeout(timerOtomatisSelesai);
+      timerOtomatisSelesai = setTimeout(() => {
+        hentikanDanProses();
+      }, 1300);
     }
   };
 
+  // 3. Saat Selesai Merekam
   voiceRecognizer.onend = function() {
+    clearTimeout(timerMaksimalMerekam);
+    clearTimeout(timerOtomatisSelesai);
     isListening = false;
-    const teksFinal = ucapanWarga.trim();
 
+    const teksFinal = ucapanWarga.trim();
     if (teksFinal) {
       ubahIndikatorTombol('memproses'); // Kuning
-
-      // Pasang batas waktu 8 detik: Jika server macet, tombol otomatis kembali normal
-      clearTimeout(timeoutPengaman);
-      timeoutPengaman = setTimeout(() => {
-        ubahIndikatorTombol('standby');
-      }, 8000);
-
       kirimObrolanSenyap(teksFinal);
     } else {
-      ubahIndikatorTombol('standby'); // Biru
+      ubahIndikatorTombol('standby'); // Biru normal
     }
   };
 
+  // 4. Tangani Error
   voiceRecognizer.onerror = function() {
+    clearTimeout(timerMaksimalMerekam);
+    clearTimeout(timerOtomatisSelesai);
     isListening = false;
     ubahIndikatorTombol('standby');
   };
 }
 
+// Fungsi bantu menghentikan mic secara aman
+function hentikanDanProses() {
+  if (voiceRecognizer && isListening) {
+    try {
+      voiceRecognizer.stop();
+    } catch (e) {
+      try { voiceRecognizer.abort(); } catch (err) {}
+      ubahIndikatorTombol('standby');
+    }
+  }
+}
+
+// Pengiriman Data ke Backend Apps Script
 function kirimObrolanSenyap(teks) {
   const endpoint = window.SCRIPT_URL || window.GAS_URL || window.URL_WEB_APP || (typeof URL_GAS_EXEC !== 'undefined' ? URL_GAS_EXEC : '');
   
-  // Batalkan otomatis jika server AI tidak menjawab dalam 10 detik
+  // Batas waktu tunggu server 12 detik
   const controller = new AbortController();
   const timerBatal = setTimeout(() => {
     controller.abort();
     ubahIndikatorTombol('standby');
-    bicara("Server Google sedang antre panjang. Coba sapa sekali lagi ya.");
-  }, 10000);
+    bicara("Koneksi server sedang padat. Coba sapa sekali lagi ya.");
+  }, 12000);
 
   if (endpoint && endpoint.startsWith('http')) {
     fetch(`${endpoint}?action=tanyaAI&q=${encodeURIComponent(teks)}`, { signal: controller.signal })
@@ -23438,7 +23461,7 @@ function kirimObrolanSenyap(teks) {
         clearTimeout(timerBatal);
         ubahIndikatorTombol('standby');
         if (err.name !== 'AbortError') {
-          bicara("Koneksi ke server terputus.");
+          bicara("Gagal terhubung ke server.");
         }
       });
   } else {
@@ -23447,9 +23470,7 @@ function kirimObrolanSenyap(teks) {
   }
 }
 
-// ============================================================================
-// TEXT-TO-SPEECH DENGAN PENGAMAN TIMER (ANTI-MACET DI WARNA KUNING)
-// ============================================================================
+// Mesin Text-to-Speech Khusus Android
 function bicara(teks) {
   if (!('speechSynthesis' in window)) {
     ubahIndikatorTombol('standby');
@@ -23467,11 +23488,11 @@ function bicara(teks) {
   const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
   if (idVoice) ucapan.voice = idVoice;
 
-  let sudahReset = false;
-  const kembalikanKeNormal = () => {
-    if (!sudahReset) {
-      sudahReset = true;
-      ubahIndikatorTombol('standby'); // Wajib kembali biru
+  let resetSudah = false;
+  const resetKeBiru = () => {
+    if (!resetSudah) {
+      resetSudah = true;
+      ubahIndikatorTombol('standby');
     }
   };
 
@@ -23479,18 +23500,17 @@ function bicara(teks) {
     ubahIndikatorTombol('berbicara'); // Hijau
   };
 
-  ucapan.onend = kembalikanKeNormal;
-  ucapan.onerror = kembalikanKeNormal;
+  ucapan.onend = resetKeBiru;
+  ucapan.onerror = resetKeBiru;
 
-  // PENGAMAN ANDROID: Jika Chrome memblokir audio secara diam-diam,
-  // tombol dipaksa kembali biru setelah waktu durasi kalimat selesai.
-  const estimasiDurasi = Math.max(2500, (teks.length * 75) + 1000);
-  setTimeout(kembalikanKeNormal, estimasiDurasi);
+  // Failsafe timer jika event audio Android diblokir diam-diam
+  const batasDurasi = Math.max(3000, (teks.length * 80) + 1000);
+  setTimeout(resetKeBiru, batasDurasi);
 
   window.speechSynthesis.speak(ucapan);
 }
 
-// Indikator Warna Tombol
+// Indikator Warna Tombol Mic
 function ubahIndikatorTombol(status) {
   const btn = document.getElementById('btn-trigger-voice');
   const icon = document.getElementById('icon-voice');
@@ -23518,8 +23538,8 @@ function ubahIndikatorTombol(status) {
   }
 }
 
-// Event Klik & Drag Tombol Floating
-(function pasangTombolSuaraMurni() {
+// Logika Klik & Drag Tombol Floating
+(function hubungkanTombolSuaraFinal() {
   const container = document.getElementById('btn-voice-assistant');
   const btn = document.getElementById('btn-trigger-voice');
   if (!container || !btn) return;
@@ -23559,17 +23579,22 @@ function ubahIndikatorTombol(status) {
   const stop = () => {
     if (!isDragging) return;
     isDragging = false;
+
     if (!hasMoved && voiceRecognizer) {
-      // Buka kunci audio Android tepat pada event ketuk jari pengguna
-      pancingAudioAndroid();
+      // Buka kunci audio TTS tanpa memicu pemutaran suara kosong
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.resume();
+      }
 
       if (isListening) {
-        voiceRecognizer.stop();
+        // Jika sedang merah dan diketuk lagi, langsung paksa kirim suara
+        hentikanDanProses();
       } else {
         try {
+          window.speechSynthesis.cancel();
           voiceRecognizer.start();
         } catch (e) {
-          voiceRecognizer.stop();
+          hentikanDanProses();
         }
       }
     }
