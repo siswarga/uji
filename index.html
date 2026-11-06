@@ -23141,74 +23141,132 @@ function bukaModalLokerWarga() {
 }
 
 // ============================================================================
-// 1. ENGINE PEMICU KLIK FITUR (DEEP DOM SCANNER)
+// 1. UNIVERSAL ACTION DISPATCHER (PENGENDALI APLIKASI OTOMATIS)
 // ============================================================================
-function eksekusiKlikElemenFitur(kataKunci) {
-  Swal.close(); // Tutup popup agar tidak menghalangi layer layar
+function eksekusiPerintahAplikasi(aksi, target) {
+  // Tutup popup suara seketika agar tidak mengunci layer layar
+  Swal.close();
 
-  // Cari elemen terdalam di layar yang mengandung teks kata kunci
-  const kataKecil = kataKunci.toLowerCase();
-  const semuaElemen = Array.from(document.body.querySelectorAll('*'));
+  setTimeout(() => {
+    // -------------------------------------------------------------
+    // AKSI 1: BUKA LOGIN / DASHBOARD PENGURUS
+    // -------------------------------------------------------------
+    if (aksi === 'LOGIN_PENGURUS') {
+      // 1. Coba buka modal login jika menggunakan Bootstrap
+      const modalLogin = document.getElementById('modalLogin') || 
+                         document.getElementById('modal-login') || 
+                         document.getElementById('modalLoginPengurus');
+      if (modalLogin && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modalLogin).show();
+        return;
+      }
+
+      // 2. Coba klik tombol login di navbar/halaman
+      const tombolLogin = document.getElementById('btn-login') || 
+                          document.getElementById('btnLogin') || 
+                          document.getElementById('btn-login-pengurus');
+      if (tombolLogin) {
+        pemicuKlikElemen(tombolLogin);
+        return;
+      }
+
+      // 3. Cari tombol atau tautan bertuliskan 'Login' / 'Masuk'
+      klikBerdasarkanTeks(['login', 'masuk', 'pengurus', 'admin']);
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // AKSI 2: BUKA FITUR-FITUR APLIKASI
+    // -------------------------------------------------------------
+    if (aksi === 'BUKA_FITUR') {
+      switch (target) {
+        case 'pinjam_aset':
+          klikBerdasarkanTeks(['pinjam aset', 'peminjaman', 'inventaris']);
+          break;
+        case 'layanan_warga':
+          klikBerdasarkanTeks(['layanan warga', 'surat pengantar', 'administrasi']);
+          break;
+        case 'sos':
+          klikBerdasarkanTeks(['sos', 'darurat']);
+          break;
+        case 'cctv':
+          klikBerdasarkanTeks(['cctv', 'kamera']);
+          break;
+        case 'ronda':
+          scrollKeElemen(['kolom-jadwal-ronda', 'jadwal-ronda', 'tb-ronda']);
+          break;
+        case 'kegiatan':
+          scrollKeElemen(['kolom-pemberitahuan-kegiatan', 'pub-tb-kegiatan', 'kegiatan']);
+          break;
+        case 'iuran':
+          klikBerdasarkanTeks(['iuran', 'kas warga', 'keuangan']);
+          break;
+        case 'voting':
+          klikBerdasarkanTeks(['voting', 'polling', 'pemilihan']);
+          break;
+      }
+    }
+  }, 180);
+}
+
+// Fungsi bantu: Mengklik elemen secara mendalam
+function pemicuKlikElemen(el) {
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Jika elemen membuka Bootstrap Modal
+  const bsTarget = el.getAttribute('data-bs-target') || el.getAttribute('data-target');
+  if (bsTarget && bsTarget.startsWith('#')) {
+    const modalTarget = document.querySelector(bsTarget);
+    if (modalTarget && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+      bootstrap.Modal.getOrCreateInstance(modalTarget).show();
+      return;
+    }
+  }
+
+  // Picu klik langsung
+  el.click();
+  const sub = el.querySelector('i, span, p, a, button');
+  if (sub) sub.click();
+}
+
+// Fungsi bantu: Mencari tombol atau kartu berdasarkan daftar kemungkinan kata kunci
+function klikBerdasarkanTeks(daftarKataKunci) {
+  const elemenSemua = Array.from(document.querySelectorAll('button, a, div.card, div[onclick], .btn, [role="button"], div[class*="nav"]'));
   
-  // Urutkan dari elemen paling spesifik (daun terdalam) ke luar
-  const target = semuaElemen.reverse().find(el => {
-    if (el.id === 'btn-trigger-voice' || el.closest('#btn-voice-assistant')) return false;
-    const t = (el.innerText || el.textContent || '').trim().toLowerCase();
-    return t === kataKecil || (t.includes(kataKecil) && t.length < 30);
-  });
+  for (let kata of daftarKataKunci) {
+    const cocok = elemenSemua.find(el => {
+      if (el.id === 'btn-trigger-voice' || el.closest('#btn-voice-assistant')) return false;
+      const t = (el.innerText || el.textContent || '').trim().toLowerCase();
+      return t === kata || (t.includes(kata) && t.length < 35);
+    });
 
-  if (target) {
-    // Ambil elemen interaktif terdekat (button, card, div klik, atau target itu sendiri)
-    const wadahKlik = target.closest('button, a, div[onclick], div.card, div[class*="btn"], div[class*="menu"]') || target;
-    wadahKlik.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    setTimeout(() => {
-      // Picu rentetan event klik dan sentuh mobile lengkap
-      ['pointerdown', 'mousedown', 'touchstart', 'touchend', 'mouseup', 'click'].forEach(tipe => {
-        const evt = new MouseEvent(tipe, { bubbles: true, cancelable: true, view: window });
-        wadahKlik.dispatchEvent(evt);
-      });
-      if (typeof wadahKlik.click === 'function') wadahKlik.click();
-    }, 150);
-    return true;
+    if (cocok) {
+      pemicuKlikElemen(cocok);
+      return true;
+    }
   }
   return false;
 }
 
-function bukaFiturAplikasi(kodeAksi) {
-  setTimeout(() => {
-    switch (kodeAksi) {
-      case 'PINJAM_ASET':
-        eksekusiKlikElemenFitur('Pinjam Aset');
-        break;
-      case 'LAYANAN':
-        eksekusiKlikElemenFitur('Layanan Warga');
-        break;
-      case 'SOS':
-        eksekusiKlikElemenFitur('SOS');
-        break;
-      case 'CCTV':
-        eksekusiKlikElemenFitur('CCTV');
-        break;
-      case 'RONDA':
-        const elR = document.getElementById('kolom-jadwal-ronda') || document.getElementById('jadwal-ronda');
-        if (elR) elR.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        break;
-      case 'KEGIATAN':
-        const elK = document.getElementById('kolom-pemberitahuan-kegiatan') || document.getElementById('pub-tb-kegiatan');
-        if (elK) elK.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        break;
+// Fungsi bantu: Menggulir layar ke section/tabel
+function scrollKeElemen(daftarId) {
+  for (let id of daftarId) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return true;
     }
-  }, 200);
+  }
+  return false;
 }
 
 // ============================================================================
-// 2. SPEECH RECOGNITION ANTI-LOST TEXT (HP ANDROID & DESKTOP)
+// 2. SPEECH RECOGNITION & KOMUNIKASI ASISTEN
 // ============================================================================
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognizer = null;
 let isListening = false;
-let teksTertangkapTerakhir = '';
+let teksSuaraFinal = '';
 
 if (SpeechRecognition) {
   voiceRecognizer = new SpeechRecognition();
@@ -23218,7 +23276,7 @@ if (SpeechRecognition) {
 
   voiceRecognizer.onstart = function() {
     isListening = true;
-    teksTertangkapTerakhir = '';
+    teksSuaraFinal = '';
 
     const btn = document.getElementById('btn-trigger-voice');
     const icon = document.getElementById('icon-voice');
@@ -23230,8 +23288,8 @@ if (SpeechRecognition) {
       html: `
         <div class="py-2 text-center">
           <i class="fas fa-microphone fa-bounce fa-3x text-danger mb-3"></i>
-          <p id="teks-suara-live" class="fw-bold text-primary fs-5 mb-0" style="min-height: 45px;">
-            <span class="text-muted fst-italic">Bicaralah sekarang...</span>
+          <p id="teks-suara-live" class="fw-bold text-primary fs-5 mb-0" style="min-height: 40px;">
+            <span class="text-muted fst-italic">Katakan perintah Anda...</span>
           </p>
         </div>
       `,
@@ -23248,23 +23306,18 @@ if (SpeechRecognition) {
     for (let i = 0; i < event.results.length; ++i) {
       transkrip += event.results[i][0].transcript;
     }
-    teksTertangkapTerakhir = transkrip.trim();
+    teksSuaraFinal = transkrip.trim();
 
     const liveEl = document.getElementById('teks-suara-live');
-    if (liveEl && teksTertangkapTerakhir) {
-      liveEl.innerText = `"${teksTertangkapTerakhir}"`;
+    if (liveEl && teksSuaraFinal) {
+      liveEl.innerText = `"${teksSuaraFinal}"`;
     }
   };
 
   voiceRecognizer.onend = function() {
     resetTampilanMic();
-
-    // Ambil teks dari input suara atau pembacaan visual jika event onend menutup duluan
-    const liveEl = document.getElementById('teks-suara-live');
-    const teksFinal = teksTertangkapTerakhir || (liveEl ? liveEl.innerText.replace(/"/g, '').trim() : '');
-
-    if (teksFinal && !teksFinal.includes('Bicaralah sekarang')) {
-      prosesKeAsistenAI(teksFinal);
+    if (teksSuaraFinal) {
+      kirimPerintahKeAI(teksSuaraFinal);
     }
   };
 
@@ -23273,36 +23326,9 @@ if (SpeechRecognition) {
   };
 }
 
-// ============================================================================
-// 3. PENGIRIM KE BACKEND DENGAN RESPON AKSI
-// ============================================================================
-function prosesKeAsistenAI(teks) {
-  // A. PINTASAN LOKAL INSTAN (Jika bicara langsung buka fitur)
-  const tk = teks.toLowerCase();
-  if (tk.includes('pinjam') || tk.includes('aset') || tk.includes('barang')) {
-    bukaFiturAplikasi('PINJAM_ASET');
-    bicara("Membuka formulir pinjam aset.");
-    return;
-  }
-  if (tk.includes('layanan') || tk.includes('surat') || tk.includes('pengantar') || tk.includes('administrasi')) {
-    bukaFiturAplikasi('LAYANAN');
-    bicara("Membuka menu layanan warga.");
-    return;
-  }
-  if (tk.includes('sos') || tk.includes('darurat') || tk.includes('bahaya')) {
-    bukaFiturAplikasi('SOS');
-    bicara("Membuka menu darurat.");
-    return;
-  }
-  if (tk.includes('cctv') || tk.includes('kamera') || tk.includes('pantau')) {
-    bukaFiturAplikasi('CCTV');
-    bicara("Membuka kamera lingkungan.");
-    return;
-  }
-
-  // B. PERTANYAAN BEBAS (KIRIM KE AI)
+function kirimPerintahKeAI(teks) {
   Swal.fire({
-    title: 'Menjawab...',
+    title: 'Memproses Perintah...',
     html: `
       <div class="py-2 text-center">
         <i class="fas fa-robot fa-spin fa-2x text-primary mb-2"></i>
@@ -23321,8 +23347,9 @@ function prosesKeAsistenAI(teks) {
           return;
         }
 
+        // 1. Jika ada aksi untuk mengoperasikan antarmuka aplikasi
         if (res.aksi) {
-          bukaFiturAplikasi(res.aksi);
+          eksekusiPerintahAplikasi(res.aksi, res.target);
         } else {
           Swal.close();
           Swal.fire({
@@ -23333,6 +23360,8 @@ function prosesKeAsistenAI(teks) {
             confirmButtonText: 'Tutup'
           });
         }
+
+        // 2. Bacakan balasan suara ke speaker
         bicara(res.text);
       })
       .withFailureHandler(err => {
@@ -23361,9 +23390,9 @@ function bicara(teks) {
 }
 
 // ============================================================================
-// 4. KONTROL GESTUR DRAG & KLIK TOMBOL MIC
+// 3. LISTENER DRAG & KLIK TOMBOL FLOATING MIC
 // ============================================================================
-(function hubungkanAksiTombolMic() {
+(function hubungkanTombolMic() {
   const container = document.getElementById('btn-voice-assistant');
   const btn = document.getElementById('btn-trigger-voice');
   if (!container || !btn) return;
