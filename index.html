@@ -23349,96 +23349,140 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================================
-// ASISTEN SUARA MURNI (TANPA TEKS, TANPA POP-UP, TANPA MODAL LOADING)
+// ASISTEN SUARA MURNI ANTI-MACET (OPTIMAL UNTUK CHROME ANDROID)
 // ============================================================================
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let voiceRecognizer = null;
 let isListening = false;
 let ucapanWarga = '';
+let timeoutPengaman = null;
+
+// Pancing izin audio peramban saat pertama kali layar disentuh/diklik
+function pancingAudioAndroid() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.resume();
+    // Kirim ucapan kosong tanpa desibel untuk membuka blokir autoplay Android
+    const pancingan = new SpeechSynthesisUtterance('');
+    pancingan.volume = 0;
+    window.speechSynthesis.speak(pancingan);
+  }
+}
 
 if (SpeechRecognition) {
   voiceRecognizer = new SpeechRecognition();
   voiceRecognizer.lang = 'id-ID';
   voiceRecognizer.continuous = false;
-  voiceRecognizer.interimResults = false; // Mematikan transkrip berjalan di layar
+  voiceRecognizer.interimResults = false;
 
-  // 1. Saat Mic Mulai Mendengar
   voiceRecognizer.onstart = function() {
     isListening = true;
     ucapanWarga = '';
-    ubahIndikatorTombol('mendengarkan');
+    ubahIndikatorTombol('mendengarkan'); // Merah
   };
 
-  // 2. Menangkap Ucapan Secara Senyap (Tanpa Menampilkan Teks)
   voiceRecognizer.onresult = function(event) {
     if (event.results && event.results[0] && event.results[0][0]) {
       ucapanWarga = event.results[0][0].transcript;
     }
   };
 
-  // 3. Saat Selesai Berbicara
   voiceRecognizer.onend = function() {
     isListening = false;
     const teksFinal = ucapanWarga.trim();
 
     if (teksFinal) {
-      // Ubah status tombol jadi memproses di latar belakang (tanpa modal)
-      ubahIndikatorTombol('memproses');
+      ubahIndikatorTombol('memproses'); // Kuning
+
+      // Pasang batas waktu 8 detik: Jika server macet, tombol otomatis kembali normal
+      clearTimeout(timeoutPengaman);
+      timeoutPengaman = setTimeout(() => {
+        ubahIndikatorTombol('standby');
+      }, 8000);
+
       kirimObrolanSenyap(teksFinal);
     } else {
-      ubahIndikatorTombol('standby');
+      ubahIndikatorTombol('standby'); // Biru
     }
   };
 
-  // 4. Tangani Error Senyap
   voiceRecognizer.onerror = function() {
     isListening = false;
     ubahIndikatorTombol('standby');
   };
 }
 
-// Pengiriman ke Backend Tanpa Dialog Loading
+// Pengiriman Data ke Backend
 function kirimObrolanSenyap(teks) {
+  // A. Jika di dalam lingkungan Google Apps Script
   if (typeof google !== 'undefined' && google.script && google.script.run) {
     google.script.run
       .withSuccessHandler(res => {
+        clearTimeout(timeoutPengaman);
         if (res && res.text) {
-          // AI langsung membalas lewat suara audio
           bicara(res.text);
         } else {
           ubahIndikatorTombol('standby');
         }
       })
       .withFailureHandler(() => {
-        bicara("Waduh, koneksinya lagi putus.");
+        clearTimeout(timeoutPengaman);
+        bicara("Koneksi server terputus.");
       })
       .tanyaAsistenAI(teks);
+    return;
+  }
+
+  // B. Jika di GitHub Pages (Menggunakan URL Web App Apps Script)
+  const endpoint = window.SCRIPT_URL || window.GAS_URL || window.URL_WEB_APP || (typeof URL_GAS_EXEC !== 'undefined' ? URL_GAS_EXEC : '');
+  
+  if (endpoint && endpoint.startsWith('http')) {
+    fetch(`${endpoint}?action=tanyaAI&q=${encodeURIComponent(teks)}`)
+      .then(r => r.json())
+      .then(res => {
+        clearTimeout(timeoutPengaman);
+        if (res && res.text) {
+          bicara(res.text);
+        } else {
+          ubahIndikatorTombol('standby');
+        }
+      })
+      .catch(() => {
+        clearTimeout(timeoutPengaman);
+        bicara("Gagal terhubung ke server.");
+      });
   } else {
+    clearTimeout(timeoutPengaman);
     ubahIndikatorTombol('standby');
   }
 }
 
-// Text-to-Speech (Murni Balasan Suara)
+// Mesin Text-to-Speech Khusus Android
 function bicara(teks) {
   if (!('speechSynthesis' in window)) {
     ubahIndikatorTombol('standby');
     return;
   }
 
+  // Bangunkan mesin audio Android
   window.speechSynthesis.cancel();
+  window.speechSynthesis.resume();
+
   const ucapan = new SpeechSynthesisUtterance(teks);
   ucapan.lang = 'id-ID';
   ucapan.rate = 1.0;
 
-  // Ubah status tombol jadi hijau saat AI berbicara
+  // Pilih suara Bahasa Indonesia jika tersedia di perangkat
+  const voices = window.speechSynthesis.getVoices();
+  const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
+  if (idVoice) ucapan.voice = idVoice;
+
   ucapan.onstart = function() {
-    ubahIndikatorTombol('berbicara');
+    ubahIndikatorTombol('berbicara'); // Hijau
   };
 
-  // Kembalikan tombol ke biru saat AI selesai berbicara
   ucapan.onend = function() {
-    ubahIndikatorTombol('standby');
+    ubahIndikatorTombol('standby'); // Kembali Biru
   };
 
   ucapan.onerror = function() {
@@ -23448,7 +23492,7 @@ function bicara(teks) {
   window.speechSynthesis.speak(ucapan);
 }
 
-// Indikator Status Halus pada Tombol Fisik (Menggantikan Pop-up Teks)
+// Indikator Warna Tombol
 function ubahIndikatorTombol(status) {
   const btn = document.getElementById('btn-trigger-voice');
   const icon = document.getElementById('icon-voice');
@@ -23459,7 +23503,7 @@ function ubahIndikatorTombol(status) {
   switch (status) {
     case 'mendengarkan':
       btn.classList.add('btn-danger');
-      icon.className = 'fas fa-microphone-lines fa-fade fa-lg';
+      icon.className = 'fas fa-microphone-lines fa-fade fa-lg text-white';
       break;
     case 'memproses':
       btn.classList.add('btn-warning');
@@ -23467,17 +23511,17 @@ function ubahIndikatorTombol(status) {
       break;
     case 'berbicara':
       btn.classList.add('btn-success');
-      icon.className = 'fas fa-volume-high fa-beat-fade fa-lg';
+      icon.className = 'fas fa-volume-high fa-beat-fade fa-lg text-white';
       break;
-    default: // standby
+    default:
       btn.classList.add('btn-primary');
-      icon.className = 'fas fa-microphone fa-lg';
+      icon.className = 'fas fa-microphone fa-lg text-white';
       break;
   }
 }
 
-// Logika Drag dan Klik Tombol Floating
-(function hubungkanTombolSuaraMurni() {
+// Event Klik & Drag Tombol Floating
+(function pasangTombolSuaraMurni() {
   const container = document.getElementById('btn-voice-assistant');
   const btn = document.getElementById('btn-trigger-voice');
   if (!container || !btn) return;
@@ -23518,11 +23562,13 @@ function ubahIndikatorTombol(status) {
     if (!isDragging) return;
     isDragging = false;
     if (!hasMoved && voiceRecognizer) {
+      // Buka kunci audio Android tepat pada event ketuk jari pengguna
+      pancingAudioAndroid();
+
       if (isListening) {
         voiceRecognizer.stop();
       } else {
         try {
-          window.speechSynthesis.cancel(); // Matikan audio sebelumnya jika ada
           voiceRecognizer.start();
         } catch (e) {
           voiceRecognizer.stop();
