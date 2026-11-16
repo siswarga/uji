@@ -1479,14 +1479,14 @@
                 </select>
               </div>
 
-              <!-- 3. Foto KK (Sudah ada ID div_reg_foto_kk) -->
+              <!-- 3. Foto KK -->
               <div class="col-md-6" id="div_reg_foto_kk">
                 <label class="form-label fw-bold small text-primary">Foto Kartu Keluarga (Opsional)</label>
                 <input type="file" class="form-control bg-light" id="reg_file_kk" accept="image/*" onchange="previewWargaDoc(this, 'reg_kk')">
                 <input type="hidden" id="reg_foto_kk_base64">
               </div>
 
-              <!-- 4. Foto KTP (Sudah ada ID div_reg_foto_ktp) -->
+              <!-- 4. Foto KTP -->
               <div class="col-md-6" id="div_reg_foto_ktp">
                 <label class="form-label fw-bold small text-success">Foto KTP (Opsional)</label>
                 <input type="file" class="form-control bg-light" id="reg_file_ktp" accept="image/*" onchange="previewWargaDoc(this, 'reg_ktp')">
@@ -1505,7 +1505,25 @@
                 <label class="form-label fw-bold small">Alamat Tinggal / Domisili*</label>
                 <textarea class="form-control bg-light" id="reg_alamatTinggal" rows="2" required></textarea>
               </div>
+
+              <!-- 5. Titik Koordinat Rumah Warga -->
+              <div class="col-md-12">
+                <label class="form-label fw-bold small text-success">
+                  <i class="fas fa-map-marker-alt me-1"></i>Titik Koordinat Rumah (Untuk Pengantaran Pasar UMKM)
+                </label>
+                <div class="input-group">
+                  <input type="text" class="form-control bg-light" id="reg_koordinat" placeholder="Contoh: -6.966712, 107.766734" readonly>
+                  <button type="button" class="btn btn-success text-white fw-bold" onclick="ambilKoordinatGPS('reg_koordinat', 'map_reg_warga', 'status_gps_warga')">
+                    <i class="fas fa-crosshairs me-1"></i> Ambil Lokasi GPS
+                  </button>
+                </div>
+                <small id="status_gps_warga" class="text-muted d-block mt-1" style="font-size: 11px;">
+                  Klik tombol di samping untuk mendeteksi titik lokasi rumah Anda secara otomatis.
+                </small>
+                <div id="map_reg_warga" class="mt-2 border shadow-sm" style="height: 210px; border-radius: 12px; display: none; z-index: 1;"></div>
+              </div>
             </div>
+
             <button type="submit" class="btn btn-success w-100 fw-bold py-3 shadow mt-4" id="btn-submit-pendaftaran">Kirim & Simpan Data Warga</button>
           </form>
         </div>
@@ -6273,14 +6291,14 @@
               </select>
             </div>
 
-            <!-- 3. Foto KK (Sudah ada ID div_warga_foto_kk) -->
+            <!-- 3. Foto KK -->
             <div class="col-md-6" id="div_warga_foto_kk">
               <label class="form-label fw-bold small text-primary">Foto Kartu Keluarga (Opsional)</label>
               <input type="file" class="form-control bg-light" id="warga_file_kk" accept="image/*" onchange="previewWargaDoc(this, 'warga_kk')">
               <input type="hidden" id="warga_foto_kk_base64">
             </div>
 
-            <!-- 4. Foto KTP (Sudah ada ID div_warga_foto_ktp) -->
+            <!-- 4. Foto KTP -->
             <div class="col-md-6" id="div_warga_foto_ktp">
               <label class="form-label fw-bold small text-success">Foto KTP (Opsional)</label>
               <input type="file" class="form-control bg-light" id="warga_file_ktp" accept="image/*" onchange="previewWargaDoc(this, 'warga_ktp')">
@@ -6298,6 +6316,23 @@
               </div>
               <label class="form-label fw-bold small">Alamat Tinggal / Domisili*</label>
               <textarea class="form-control" id="warga_alamatTinggal" rows="2" required></textarea>
+            </div>
+
+            <!-- 5. Titik Koordinat Rumah Warga (Admin) -->
+            <div class="col-md-12">
+              <label class="form-label fw-bold small text-success">
+                <i class="fas fa-map-marker-alt me-1"></i>Titik Koordinat Rumah (Opsional)
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control bg-light" id="warga_koordinat" placeholder="Contoh: -6.966712, 107.766734">
+                <button type="button" class="btn btn-success text-white fw-bold" onclick="ambilKoordinatGPS('warga_koordinat', 'map_admin_warga', 'status_gps_admin_warga')">
+                  <i class="fas fa-crosshairs me-1"></i> Ambil Lokasi GPS
+                </button>
+              </div>
+              <small id="status_gps_admin_warga" class="text-muted d-block mt-1" style="font-size: 11px;">
+                Klik tombol di samping untuk mendeteksi titik lokasi atau tempel koordinat dari Google Maps.
+              </small>
+              <div id="map_admin_warga" class="mt-2 border shadow-sm" style="height: 190px; border-radius: 12px; display: none; z-index: 1;"></div>
             </div>
 
             <div class="col-md-4 d-none" id="div_tglKeluar">
@@ -7518,13 +7553,13 @@
     </div>
   </div>
 
-  <!-- MODAL DAFTAR UMKM -->
+!-- MODAL DAFTAR UMKM (UMUM & WARGA) -->
   <div id="modalRegUMKM" style="display:none; position:fixed !important; top:0; left:0; width:100vw; height:100vh; background-color:rgba(0,0,0,0.7) !important; z-index:999999 !important; justify-content:center; align-items:center;">
-    <div style="background:#fff; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; border-radius:16px; padding:24px; box-shadow:0 15px 35px rgba(0,0,0,0.3); position:relative; z-index:1000000;">
+    <div style="background:#fff; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; border-radius:16px; padding:24px; box-shadow:0 15px 35px rgba(0,0,0,0.3); position:relative; z-index:1000000;">
 
       <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
         <h5 class="fw-bold text-success mb-0">
-          <i class="fas fa-store me-2"></i>Daftar Lapak UMKM Warga
+          <i class="fas fa-store me-2"></i>Daftar Lapak UMKM
         </h5>
         <button type="button" class="btn btn-sm btn-light rounded-circle" onclick="tutupModalUMKM()">
           <i class="fas fa-times"></i>
@@ -7532,14 +7567,35 @@
       </div>
 
       <form id="formRegUMKM" onsubmit="handleRegistrasiUMKM(event)">
+        <!-- Kode Unik Warga (Opsional - Auto Isi Data Warga) -->
+        <div class="mb-3 p-2 bg-light rounded-3 border">
+          <label class="form-label small fw-bold text-primary mb-1">
+            <i class="fas fa-id-card me-1"></i>Kode Unik Warga (Opsional)
+          </label>
+          <div class="input-group input-group-sm">
+            <input type="text" id="regUmkmKodeWarga" class="form-control text-uppercase fw-bold" placeholder="Isi 6 karakter jika warga..." maxlength="6" oninput="this.value = this.value.toUpperCase()">
+            <button type="button" id="btnCekKodeUmkm" class="btn btn-outline-primary fw-bold" onclick="cekKodeWargaUntukUMKM()">
+              <i class="fas fa-search me-1"></i> Cek Data
+            </button>
+          </div>
+          <small id="status_kode_umkm" class="text-muted d-block mt-1" style="font-size: 11px;">
+            Kosongkan jika pendaftar umum. Jika Anda warga terdaftar, klik <b>Cek Data</b> untuk isi otomatis.
+          </small>
+        </div>
+
         <div class="mb-3">
-          <label class="form-label small fw-bold">Kode Unik Warga (ID Warga)*</label>
-          <input type="text" id="regUmkmKodeWarga" class="form-control" placeholder="Cth: WRG001" required>
+          <label class="form-label small fw-bold">Nama Pemilik*</label>
+          <input type="text" id="regUmkmNamaPemilik" class="form-control" placeholder="Nama lengkap pemilik usaha" required>
         </div>
 
         <div class="mb-3">
           <label class="form-label small fw-bold">Nama Toko / Lapak*</label>
           <input type="text" id="regUmkmNamaLapak" class="form-control" placeholder="Cth: Warungku" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold">Alamat Warung / Lapak*</label>
+          <textarea id="regUmkmAlamat" class="form-control" rows="2" placeholder="Alamat lengkap lokasi jualan..." required></textarea>
         </div>
 
         <div class="mb-3">
@@ -7556,6 +7612,23 @@
             <label class="form-label small fw-bold">Password Login*</label>
             <input type="password" id="regUmkmPassword" class="form-control" placeholder="Password lapak" required>
           </div>
+        </div>
+
+        <!-- Titik Koordinat Warung / Lapak -->
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-success">
+            <i class="fas fa-map-marker-alt me-1"></i>Titik Koordinat Warung / Lapak*
+          </label>
+          <div class="input-group input-group-sm">
+            <input type="text" id="regUmkmKoordinat" class="form-control bg-light" placeholder="-6.xxxxxx, 107.xxxxxx" readonly required>
+            <button type="button" class="btn btn-success text-white fw-bold" onclick="ambilKoordinatGPS('regUmkmKoordinat', 'map_reg_umkm', 'status_gps_umkm')">
+              <i class="fas fa-crosshairs me-1"></i> Ambil Lokasi GPS
+            </button>
+          </div>
+          <small id="status_gps_umkm" class="text-muted d-block mt-1" style="font-size: 11px;">
+            Klik tombol untuk menandai titik warung Anda (pin di peta bisa digeser).
+          </small>
+          <div id="map_reg_umkm" class="mt-2 border shadow-sm" style="height: 185px; border-radius: 12px; display: none; z-index: 1;"></div>
         </div>
 
         <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
@@ -9125,7 +9198,123 @@ function syncRegAlamat() {
 }
               
 // =====================================================
-// SIMPAN / UPDATE DATA WARGA OLEH ADMIN (DENGAN NOTIFIKASI WA)
+// MESIN GPS & PETA MINI INTERAKTIF (LEAFLET + OPENSTREETMAP)
+// =====================================================
+window._leafletMapsCache = window._leafletMapsCache || {};
+
+function muatLibraryPeta(callback) {
+  if (window.L) {
+    callback();
+    return;
+  }
+  if (!document.getElementById('leaflet-css')) {
+    const link = document.createElement('link');
+    link.id = 'leaflet-css';
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+  }
+  if (!document.getElementById('leaflet-js')) {
+    const script = document.createElement('script');
+    script.id = 'leaflet-js';
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = callback;
+    document.head.appendChild(script);
+  } else {
+    const tunggu = setInterval(() => {
+      if (window.L) {
+        clearInterval(tunggu);
+        callback();
+      }
+    }, 100);
+  }
+}
+
+function tampilkanPetaPilihTitik(inputId, mapDivId, statusId, lat, lng) {
+  muatLibraryPeta(() => {
+    const mapEl = document.getElementById(mapDivId);
+    const inpEl = document.getElementById(inputId);
+    const stEl = document.getElementById(statusId);
+    if (!mapEl || !inpEl) return;
+
+    mapEl.style.display = 'block';
+    const formatCoord = (la, ln) => `${Number(la).toFixed(6)}, ${Number(ln).toFixed(6)}`;
+    inpEl.value = formatCoord(lat, lng);
+
+    if (stEl) {
+      stEl.innerHTML = '<i class="fas fa-hand-pointer text-success me-1"></i>Geser pin biru atau ketuk peta untuk menyesuaikan titik koordinat Anda.';
+    }
+
+    if (window._leafletMapsCache[mapDivId]) {
+      const cache = window._leafletMapsCache[mapDivId];
+      cache.map.setView([lat, lng], 18);
+      cache.marker.setLatLng([lat, lng]);
+      setTimeout(() => cache.map.invalidateSize(), 200);
+      return;
+    }
+
+    const map = L.map(mapDivId).setView([lat, lng], 18);
+
+    const petaSatelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxNativeZoom: 18,
+      maxZoom: 21,
+      attribution: '&copy; Esri'
+    });
+
+    const petaJalan = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxNativeZoom: 17,
+      maxZoom: 21,
+      attribution: '&copy; Esri'
+    });
+
+    petaSatelit.addTo(map);
+    L.control.layers({ 'Satelit (Rumah)': petaSatelit, 'Peta Jalan': petaJalan }).addTo(map);
+
+    const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+    marker.on('dragend', function () {
+      const pos = marker.getLatLng();
+      inpEl.value = formatCoord(pos.lat, pos.lng);
+    });
+
+    map.on('click', function (e) {
+      marker.setLatLng(e.latlng);
+      inpEl.value = formatCoord(e.latlng.lat, e.latlng.lng);
+    });
+
+    window._leafletMapsCache[mapDivId] = { map, marker };
+    setTimeout(() => map.invalidateSize(), 250);
+  });
+}
+
+function ambilKoordinatGPS(inputId, mapDivId, statusId) {
+  const stEl = document.getElementById(statusId);
+  if (!navigator.geolocation) {
+    if (stEl) stEl.innerHTML = '<span class="text-danger">Browser tidak mendukung GPS. Silakan pilih titik langsung di peta:</span>';
+    tampilkanPetaPilihTitik(inputId, mapDivId, statusId, -6.917500, 107.619100);
+    return;
+  }
+
+  if (stEl) {
+    stEl.innerHTML = '<i class="fas fa-spinner fa-spin text-success me-1"></i>Mencari sinyal satelit GPS akurat...';
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      tampilkanPetaPilihTitik(inputId, mapDivId, statusId, pos.coords.latitude, pos.coords.longitude);
+    },
+    (err) => {
+      if (stEl) {
+        stEl.innerHTML = '<span class="text-warning fw-semibold">Izin GPS ditolak/lemah. Silakan geser pin di peta secara manual:</span>';
+      }
+      tampilkanPetaPilihTitik(inputId, mapDivId, statusId, -6.917500, 107.619100);
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+// =====================================================
+// SIMPAN / UPDATE DATA WARGA OLEH ADMIN (DENGAN KOORDINAT & NOTIFIKASI WA)
 // =====================================================
 function saveWargaData(e) {
   e.preventDefault();
@@ -9144,7 +9333,7 @@ function saveWargaData(e) {
   let blokVal = document.getElementById('warga_blok') ? document.getElementById('warga_blok').value.trim().toUpperCase() : '';
   let hpVal   = document.getElementById('warga_hp') ? document.getElementById('warga_hp').value.replace(/[^0-9]/g, '') : '';
 
-  // 2. Validasi Nomor KK: Lewati jika kolom tersembunyi
+  // 2. Validasi Nomor KK
   if (!isKKSembunyi) {
     if (kkVal.length !== 16 || !/^\d+$/.test(kkVal)) {
       return Swal.fire('Peringatan', 'Nomor KK harus persis 16 digit angka!', 'warning');
@@ -9153,7 +9342,7 @@ function saveWargaData(e) {
     kkVal = '-';
   }
 
-  // 3. Validasi NIK: Lewati jika kolom tersembunyi
+  // 3. Validasi NIK
   if (!isNikSembunyi) {
     if (nikVal.length !== 16 || !/^\d+$/.test(nikVal)) {
       return Swal.fire('Peringatan', 'NIK harus persis 16 digit angka!', 'warning');
@@ -9173,9 +9362,7 @@ function saveWargaData(e) {
       const rowId = Array.isArray(w) ? String(w[0]).trim() : String(w.id || '').trim();
       const rowBlok = Array.isArray(w) ? String(w[17]).trim().toUpperCase() : String(w.blok || '').trim().toUpperCase();
 
-      // Lewati baris data milik warga itu sendiri jika sedang mode edit
       if (id && rowId === String(id).trim()) return false;
-
       return rowBlok === blokVal;
     });
 
@@ -9191,7 +9378,7 @@ function saveWargaData(e) {
     b.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
   }
 
-  // 7. Susun Payload Data
+  // 7. Susun Payload Data (Termasuk Koordinat Rumah)
   const p = {
     nama: document.getElementById('warga_nama')?.value.trim() || '',
     kk: kkVal,
@@ -9210,6 +9397,7 @@ function saveWargaData(e) {
     statusKeluarga: document.getElementById('warga_statusKeluarga')?.value || 'Kepala Keluarga',
     alamatKtp: document.getElementById('warga_alamatKtp')?.value.trim() || '',
     alamatTinggal: document.getElementById('warga_alamatTinggal')?.value.trim() || '',
+    koordinat: document.getElementById('warga_koordinat')?.value.trim() || '',
     statusAktif: document.getElementById('warga_aktif')?.value || 'Aktif',
     keterangan: document.getElementById('warga_ket')?.value.trim() || '',
     fotoKk: document.getElementById('warga_foto_kk_base64')?.value || '',
@@ -9223,6 +9411,9 @@ function saveWargaData(e) {
     const modalEl = document.getElementById('modalWarga');
     if (modalEl) bootstrap.Modal.getInstance(modalEl)?.hide();
 
+    const mapAdmin = document.getElementById('map_admin_warga');
+    if (mapAdmin) mapAdmin.style.display = 'none';
+
     const inputBlok = document.getElementById('warga_blok');
     if (inputBlok) inputBlok.type = 'password';
 
@@ -9235,7 +9426,6 @@ function saveWargaData(e) {
 
   // 8. Kirim ke Server
   if (id === '') {
-    // Mode Tambah Warga Baru
     google.script.run
       .withSuccessHandler(r => {
         if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
@@ -9265,7 +9455,6 @@ function saveWargaData(e) {
       .saveWarga(token, p);
 
   } else {
-    // Mode Perbarui (Update) Data Warga
     google.script.run
       .withSuccessHandler(r => {
         if (b) { b.disabled = false; b.innerHTML = 'Simpan'; }
@@ -9297,7 +9486,7 @@ function saveWargaData(e) {
 }
 
 // =====================================================
-// PENDAFTARAN MANDIRI (DENGAN NOTIFIKASI WA & RESET FORM)
+// PENDAFTARAN MANDIRI (DENGAN KOORDINAT RUMAH & NOTIFIKASI WA)
 // =====================================================
 function submitPendaftaranWarga(e) {
   e.preventDefault();
@@ -9315,7 +9504,6 @@ function submitPendaftaranWarga(e) {
   let valBlok = (document.getElementById('reg_blok')?.value.trim() || '').toUpperCase();
   let valHp   = (document.getElementById('reg_hp')?.value.trim() || '').replace(/[^0-9]/g, '');
 
-  // 1. Validasi Nomor WhatsApp (Wajib untuk menerima Kode Unik & Rincian)
   if (!valHp || valHp.length < 10) {
     return Swal.fire({
       icon: 'warning',
@@ -9325,7 +9513,6 @@ function submitPendaftaranWarga(e) {
     });
   }
 
-  // 2. Validasi Nomor KK
   if (!isKKSembunyi) {
     if (valKK.length !== 16 || !/^\d+$/.test(valKK)) {
       return Swal.fire('Peringatan', 'Nomor KK harus persis 16 digit angka!', 'warning');
@@ -9334,7 +9521,6 @@ function submitPendaftaranWarga(e) {
     valKK = '-';
   }
 
-  // 3. Validasi NIK
   if (!isNikSembunyi) {
     if (valNIK.length !== 16 || !/^\d+$/.test(valNIK)) {
       return Swal.fire('Peringatan', 'NIK harus persis 16 digit angka!', 'warning');
@@ -9343,7 +9529,6 @@ function submitPendaftaranWarga(e) {
     valNIK = '-';
   }
 
-  // 4. Validasi Kode Unik Warga
   if (valBlok.length !== 6) {
     return Swal.fire('Peringatan', 'Kode Unik Warga harus persis 6 karakter!', 'warning');
   }
@@ -9365,6 +9550,7 @@ function submitPendaftaranWarga(e) {
     statusKeluarga: document.getElementById('reg_statusKeluarga')?.value || 'Kepala Keluarga',
     alamatKtp: document.getElementById('reg_alamatKtp')?.value.trim() || '',
     alamatTinggal: document.getElementById('reg_alamatTinggal')?.value.trim() || '',
+    koordinat: document.getElementById('reg_koordinat')?.value.trim() || '',
     fotoKk: document.getElementById('reg_foto_kk_base64')?.value || '',
     fotoKtp: document.getElementById('reg_foto_ktp_base64')?.value || ''
   };
@@ -9391,16 +9577,14 @@ function submitPendaftaranWarga(e) {
           confirmButtonText: 'Selesai',
           confirmButtonColor: '#198754'
         }).then(() => {
-          // Bersihkan form
           if (formEl && typeof formEl.reset === 'function') formEl.reset();
-          
-          // Kosongkan penampung base64 foto jika ada
           const fotoKkInp = document.getElementById('reg_foto_kk_base64');
           const fotoKtpInp = document.getElementById('reg_foto_ktp_base64');
+          const mapWarga = document.getElementById('map_reg_warga');
           if (fotoKkInp) fotoKkInp.value = '';
           if (fotoKtpInp) fotoKtpInp.value = '';
+          if (mapWarga) mapWarga.style.display = 'none';
 
-          // Tutup container pendaftaran & refresh data publik
           const halDaftar = document.getElementById('halaman-pendaftaran-warga');
           if (halDaftar) halDaftar.style.display = 'none';
           if (typeof loadPublicData === 'function') loadPublicData();
@@ -10759,11 +10943,81 @@ function renderMenu() {
               function toggleAlamatSama() { const chk = document.getElementById('check_alamat_sama'); const ktp = document.getElementById('warga_alamatKtp'); const tinggal = document.getElementById('warga_alamatTinggal'); if (chk.checked) { tinggal.value = ktp.value; tinggal.readOnly = true; tinggal.classList.add('bg-light'); } else { tinggal.readOnly = false; tinggal.classList.remove('bg-light'); } }
               function syncAlamat() { const chk = document.getElementById('check_alamat_sama'); if (chk.checked) { document.getElementById('warga_alamatTinggal').value = document.getElementById('warga_alamatKtp').value; } }
               
-              	function openModalWarga(){ document.getElementById('formWarga').reset(); document.getElementById('warga_id').value=''; document.getElementById('check_alamat_sama').checked = false; document.getElementById('warga_alamatTinggal').readOnly = false; document.getElementById('warga_alamatTinggal').classList.remove('bg-light'); document.getElementById('modalWargaTitle').innerText='Tambah Data Warga'; updateWargaFieldVisibility(); new bootstrap.Modal(document.getElementById('modalWarga')).show(); }
+function openModalWarga() {
+  document.getElementById('formWarga').reset();
+  document.getElementById('warga_id').value = '';
+  document.getElementById('warga_koordinat').value = '';
+  const mapAdmin = document.getElementById('map_admin_warga');
+  if (mapAdmin) mapAdmin.style.display = 'none';
+  const statusAdmin = document.getElementById('status_gps_admin_warga');
+  if (statusAdmin) statusAdmin.innerHTML = 'Klik tombol di samping untuk mendeteksi titik lokasi atau tempel koordinat dari Google Maps.';
+
+  document.getElementById('check_alamat_sama').checked = false;
+  document.getElementById('warga_alamatTinggal').readOnly = false;
+  document.getElementById('warga_alamatTinggal').classList.remove('bg-light');
+  document.getElementById('modalWargaTitle').innerText = 'Tambah Data Warga';
+  updateWargaFieldVisibility();
+  new bootstrap.Modal(document.getElementById('modalWarga')).show();
+}
               
               	function requestEditWarga(id){ document.getElementById('verify_password').value=''; document.getElementById('verify_idWarga').value=id; new bootstrap.Modal(document.getElementById('modalVerify')).show(); }
+				
               function executeVerification(){ const p = document.getElementById('verify_password').value; const id = document.getElementById('verify_idWarga').value; if(!p) return alert('Masukkan password admin!'); const b = document.querySelector('#modalVerify .btn-warning'); b.disabled = true; google.script.run.withSuccessHandler(r => { b.disabled = false; if(r.success) { bootstrap.Modal.getInstance(document.getElementById('modalVerify')).hide(); openModalEditWithData(r.data.find(x => x.id === id)); } else { Swal.fire('Gagal', r.message || 'Password salah', 'error'); } }).getWargaUnmasked(localStorage.getItem('sigas_token'), p, id); }
-              function openModalEditWithData(d){ if(!d) return; document.getElementById('modalWargaTitle').innerText='Edit Data Warga'; document.getElementById('warga_id').value=d.id; document.getElementById('warga_nama').value=d.nama; document.getElementById('warga_kk').value=d.kk; document.getElementById('warga_nik').value=d.nik; document.getElementById('warga_hp').value=d.noHp; document.getElementById('warga_jk').value=d.jk; document.getElementById('warga_gol').value=d.golDarah; document.getElementById('warga_agama').value=d.agama; document.getElementById('warga_blok').value=d.blok || ''; document.getElementById('warga_tempatLahir').value=d.tempatLahir; document.getElementById('warga_tglLahir').value=d.tglLahir; document.getElementById('warga_statusTinggal').value=d.statusTinggal; document.getElementById('warga_nikah').value=d.statusPernikahan; document.getElementById('warga_statusKeluarga').value=d.statusKeluarga; document.getElementById('warga_alamatKtp').value=d.alamatKtp; document.getElementById('warga_alamatTinggal').value=d.alamatTinggal; document.getElementById('warga_aktif').value=d.statusAktif; document.getElementById('warga_ket').value=d.keterangan; document.getElementById('check_alamat_sama').checked = (d.alamatKtp === d.alamatTinggal); toggleAlamatSama(); updateWargaFieldVisibility(); new bootstrap.Modal(document.getElementById('modalWarga')).show(); }
+			  
+function openModalEditWithData(d) {
+  if (!d) return;
+  document.getElementById('modalWargaTitle').innerText = 'Edit Data Warga';
+  document.getElementById('warga_id').value = d.id;
+  document.getElementById('warga_nama').value = d.nama;
+  document.getElementById('warga_kk').value = d.kk;
+  document.getElementById('warga_nik').value = d.nik;
+  document.getElementById('warga_hp').value = d.noHp;
+  document.getElementById('warga_jk').value = d.jk;
+  document.getElementById('warga_gol').value = d.golDarah;
+  document.getElementById('warga_agama').value = d.agama;
+  document.getElementById('warga_blok').value = d.blok || '';
+  document.getElementById('warga_tempatLahir').value = d.tempatLahir;
+  document.getElementById('warga_tglLahir').value = d.tglLahir;
+  document.getElementById('warga_statusTinggal').value = d.statusTinggal;
+  document.getElementById('warga_nikah').value = d.statusPernikahan;
+  document.getElementById('warga_statusKeluarga').value = d.statusKeluarga;
+  document.getElementById('warga_alamatKtp').value = d.alamatKtp;
+  document.getElementById('warga_alamatTinggal').value = d.alamatTinggal;
+  document.getElementById('warga_aktif').value = d.statusAktif;
+  document.getElementById('warga_ket').value = d.keterangan;
+
+  // Isi titik koordinat rumah jika sudah tersimpan di database
+  const rawKoord = (d.koordinat && d.koordinat !== '-') ? String(d.koordinat).trim() : '';
+  const inpKoord = document.getElementById('warga_koordinat');
+  const mapAdmin = document.getElementById('map_admin_warga');
+  const statusAdmin = document.getElementById('status_gps_admin_warga');
+
+  if (inpKoord) inpKoord.value = rawKoord;
+  if (mapAdmin) mapAdmin.style.display = 'none';
+  if (statusAdmin) {
+    statusAdmin.innerHTML = 'Klik tombol di samping untuk mendeteksi titik lokasi atau tempel koordinat dari Google Maps.';
+  }
+
+  document.getElementById('check_alamat_sama').checked = (d.alamatKtp === d.alamatTinggal);
+  toggleAlamatSama();
+  updateWargaFieldVisibility();
+
+  const modalEl = document.getElementById('modalWarga');
+  const matchKoord = rawKoord.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (matchKoord && typeof tampilkanPetaPilihTitik === 'function') {
+    modalEl.addEventListener('shown.bs.modal', function () {
+      tampilkanPetaPilihTitik(
+        'warga_koordinat',
+        'map_admin_warga',
+        'status_gps_admin_warga',
+        parseFloat(matchKoord[1]),
+        parseFloat(matchKoord[2])
+      );
+    }, { once: true });
+  }
+
+  new bootstrap.Modal(modalEl).show();
+}
               
               function deleteWarga(id){ Swal.fire({title:'Hapus Data Warga?', icon:'warning', showCancelButton:true}).then(r=>{if(r.isConfirmed){showLoading();google.script.run.withSuccessHandler(res=>{hideLoading();if(res.success){Swal.fire({icon:'success', title:'Terhapus', timer:1000, showConfirmButton:false});loadDataWarga();}}).deleteWarga(localStorage.getItem('sigas_token'), id);}}); }
               
@@ -21685,28 +21939,121 @@ function tutupModalUMKM() {
   }
 }
 
-// Handler submit pendaftaran UMKM
+// =====================================================
+// CEK KODE WARGA OPSIONAL UNTUK AUTO-ISI FORM UMKM
+// =====================================================
+function cekKodeWargaUntukUMKM() {
+  const inpKode = document.getElementById('regUmkmKodeWarga');
+  const statusEl = document.getElementById('status_kode_umkm');
+  const btnCek = document.getElementById('btnCekKodeUmkm');
+  const kode = (inpKode?.value || '').trim().toUpperCase();
+
+  if (!kode) {
+    if (statusEl) {
+      statusEl.innerHTML = '<span class="text-warning fw-semibold">Masukkan 6 karakter Kode Unik Warga terlebih dahulu, atau biarkan kosong jika pendaftar umum.</span>';
+    }
+    return;
+  }
+
+  if (btnCek) {
+    btnCek.disabled = true;
+    btnCek.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  }
+  if (statusEl) {
+    statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-primary me-1"></i>Mencari data warga...';
+  }
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (btnCek) {
+        btnCek.disabled = false;
+        btnCek.innerHTML = '<i class="fas fa-search me-1"></i> Cek Data';
+      }
+
+      if (res && res.success && res.data) {
+        const inpNama = document.getElementById('regUmkmNamaPemilik');
+        const inpAlamat = document.getElementById('regUmkmAlamat');
+        const inpWa = document.getElementById('regUmkmNoWa');
+        const inpKoord = document.getElementById('regUmkmKoordinat');
+
+        if (inpNama && res.data.nama) inpNama.value = res.data.nama;
+        if (inpAlamat && res.data.alamat) inpAlamat.value = res.data.alamat;
+        if (inpWa && res.data.no_wa) inpWa.value = res.data.no_wa;
+
+        // Jika warga sudah punya titik koordinat rumah, otomatis tampilkan di peta
+        if (res.data.koordinat && inpKoord) {
+          inpKoord.value = res.data.koordinat;
+          const parts = String(res.data.koordinat).split(',');
+          if (parts.length === 2 && typeof tampilkanPetaPilihTitik === 'function') {
+            tampilkanPetaPilihTitik(
+              'regUmkmKoordinat',
+              'map_reg_umkm',
+              'status_gps_umkm',
+              parseFloat(parts[0].trim()),
+              parseFloat(parts[1].trim())
+            );
+          }
+        }
+
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="text-success fw-semibold"><i class="fas fa-check-circle me-1"></i>Data warga <b>${res.data.nama}</b> ditemukan & terisi otomatis!</span>`;
+        }
+      } else {
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="text-danger fw-semibold"><i class="fas fa-exclamation-circle me-1"></i>${res?.message || 'Kode warga tidak ditemukan.'} Anda tetap bisa mendaftar sebagai umum.</span>`;
+        }
+      }
+    })
+    .withFailureHandler(function(err) {
+      if (btnCek) {
+        btnCek.disabled = false;
+        btnCek.innerHTML = '<i class="fas fa-search me-1"></i> Cek Data';
+      }
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="text-danger">Gagal memeriksa kode: ${err.message || err}</span>`;
+      }
+    })
+    .getDetailWargaByKode(kode);
+}
+
+// =====================================================
+// HANDLER SUBMIT PENDAFTARAN UMKM (UMUM & WARGA)
+// =====================================================
 function handleRegistrasiUMKM(e) {
   e.preventDefault();
 
+  const koordinatVal = document.getElementById('regUmkmKoordinat')?.value.trim() || '';
+  if (!koordinatVal) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Titik Lokasi Belum Ditandai',
+      text: 'Silakan klik tombol "Ambil Lokasi GPS" untuk menandai titik warung/lapak Anda di peta.',
+      confirmButtonColor: '#198754'
+    });
+    return;
+  }
+
   const payload = {
-    kode_warga: document.getElementById('regUmkmKodeWarga').value.trim(),
-    nama_lapak: document.getElementById('regUmkmNamaLapak').value.trim(),
-    no_wa: document.getElementById('regUmkmNoWa').value.trim(),
-    username: document.getElementById('regUmkmUsername').value.trim(),
-    password: document.getElementById('regUmkmPassword').value.trim()
+    kode_warga: (document.getElementById('regUmkmKodeWarga')?.value || '').trim().toUpperCase(),
+    nama_pemilik: (document.getElementById('regUmkmNamaPemilik')?.value || '').trim(),
+    nama_lapak: (document.getElementById('regUmkmNamaLapak')?.value || '').trim(),
+    alamat: (document.getElementById('regUmkmAlamat')?.value || '').trim(),
+    no_wa: (document.getElementById('regUmkmNoWa')?.value || '').trim(),
+    username: (document.getElementById('regUmkmUsername')?.value || '').trim(),
+    password: (document.getElementById('regUmkmPassword')?.value || '').trim(),
+    koordinat: koordinatVal
   };
 
   const btnSubmit = document.getElementById('btnSubmitRegUmkm');
   btnSubmit.disabled = true;
   btnSubmit.innerText = 'Memproses...';
 
-  // 1. LANGSUNG TUTUP FORM MODAL SEKETIKA DI AWAL
+  // 1. Langsung tutup modal form di awal
   tutupModalUMKM();
 
-  // 2. TAMPILKAN INDIKATOR LOADING POPUP
+  // 2. Tampilkan indikator loading
   Swal.fire({
-    title: 'Memvalidasi Data...',
+    title: 'Menyimpan Pengajuan Lapak...',
     text: 'Mohon tunggu sebentar',
     allowOutsideClick: false,
     didOpen: () => {
@@ -21714,15 +22061,20 @@ function handleRegistrasiUMKM(e) {
     }
   });
 
-  // 3. KIRIM KE SERVER GOOGLE APPS SCRIPT
+  // 3. Kirim ke server Google Apps Script
   google.script.run
     .withSuccessHandler(function(res) {
       btnSubmit.disabled = false;
       btnSubmit.innerText = 'Kirim Pengajuan Lapak';
 
       if (res && res.success) {
-        // FORM BERHASIL: KOSONGKAN FORM & TAMPILKAN STATUS MENUNGGU PERSETUJUAN
         document.getElementById('formRegUMKM').reset();
+        const mapUmkm = document.getElementById('map_reg_umkm');
+        if (mapUmkm) mapUmkm.style.display = 'none';
+        const statusKode = document.getElementById('status_kode_umkm');
+        if (statusKode) {
+          statusKode.innerHTML = 'Kosongkan jika pendaftar umum. Jika Anda warga terdaftar, klik <b>Cek Data</b> untuk isi otomatis.';
+        }
 
         Swal.fire({
           icon: 'success',
@@ -21737,11 +22089,8 @@ function handleRegistrasiUMKM(e) {
           confirmButtonColor: '#198754',
           confirmButtonText: 'OK, Mengerti'
         });
-
       } else {
-        // FORM GAGAL: KODE WARGA TIDAK COCOK DENGAN DATABASE
-        const pesanGagal = (res && res.message) ? res.message : 'Kode Unik Warga tidak terdaftar di database kependudukan!';
-
+        const pesanGagal = (res && res.message) ? res.message : 'Gagal memproses pendaftaran lapak.';
         Swal.fire({
           icon: 'warning',
           title: 'Pendaftaran Gagal',
@@ -21749,7 +22098,6 @@ function handleRegistrasiUMKM(e) {
           confirmButtonColor: '#dc3545',
           confirmButtonText: 'Perbaiki Data'
         }).then(() => {
-          // Buka form kembali agar warga dapat mengoreksi kodenya
           tampilModalUMKM();
         });
       }
@@ -21767,8 +22115,6 @@ function handleRegistrasiUMKM(e) {
     })
     .daftarLapakUMKM(payload);
 }
-
-
   // 1. Membuka modal verifikasi UMKM
   function bukaModalVerifikasiUMKM() {
     const modalEl = document.getElementById('modalKelolaUMKM');
@@ -22220,33 +22566,6 @@ function logoutUMKM() {
 
 let cacheKatalogUMKM = [];
 
-// Memuat data katalog dari server
-function muatKatalogPublik() {
-  const grid = document.getElementById('gridKatalogPublik');
-  if (!grid) return;
-
-  grid.innerHTML = `
-    <div class="col-12 text-center py-5 text-muted">
-      <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
-      Menyiapkan etalase UMKM warga...
-    </div>
-  `;
-
-  google.script.run
-    .withSuccessHandler(function(res) {
-      if (res && res.success && Array.isArray(res.data)) {
-        cacheKatalogUMKM = res.data;
-        renderKatalogKeGrid(cacheKatalogUMKM);
-      } else {
-        grid.innerHTML = `<div class="col-12 text-center py-5 text-danger">Gagal memuat produk: ${res ? res.message : 'Respon kosong'}</div>`;
-      }
-    })
-    .withFailureHandler(function(err) {
-      grid.innerHTML = `<div class="col-12 text-center py-5 text-danger">Gangguan koneksi: ${err.message || err}</div>`;
-    })
-    .getKatalogPublikUMKM();
-}
-
 // Render kartu-kartu produk ke layar
 function renderKatalogKeGrid(listProduk) {
   const grid = document.getElementById('gridKatalogPublik');
@@ -22420,11 +22739,11 @@ function bukaModalKatalogPublik() {
   });
 }
 
-// 3. Verifikasi Menggunakan Proxy V3 (Otomatis Baca BACKEND_URL di config.js)
+// 3. Verifikasi Menggunakan Proxy V3 (Menyimpan Biodata + Koordinat Rumah)
 function verifikasiDataWargaViaProxy(kodeInput) {
   Swal.fire({
     title: 'Memeriksa Data Warga...',
-    text: 'Mengambil biodata Anda dari sistem lingkungan',
+    text: 'Mengambil biodata & titik lokasi pengantaran Anda',
     allowOutsideClick: false,
     didOpen: () => { Swal.showLoading(); }
   });
@@ -22447,7 +22766,8 @@ function verifikasiDataWargaViaProxy(kodeInput) {
       window.profilWargaAktif = {
         nama: resWarga.data.nama,
         alamat: resWarga.data.alamat,
-        no_wa: resWarga.data.no_wa
+        no_wa: resWarga.data.no_wa,
+        koordinat: resWarga.data.koordinat || ''
       };
       sessionStorage.setItem('PROFIL_WARGA_BELANJA', JSON.stringify(window.profilWargaAktif));
 
@@ -22801,37 +23121,203 @@ function renderIsiModalKeranjang() {
   }
 }
 
-// 10. Checkout Multi Lapak Terpadu
+// ============================================================================
+// HELPER JARAK HAVERSINE (METER / KILOMETER)
+// ============================================================================
+function parseKoordinatGPS(str) {
+  if (!str) return null;
+  const parts = String(str).split(',');
+  if (parts.length !== 2) return null;
+  const lat = parseFloat(parts[0].trim());
+  const lng = parseFloat(parts[1].trim());
+  if (isNaN(lat) || isNaN(lng)) return null;
+  return { lat, lng };
+}
+
+function hitungJarakHaversine(coordPembeli, coordPenjual) {
+  const p1 = parseKoordinatGPS(coordPembeli);
+  const p2 = parseKoordinatGPS(coordPenjual);
+  if (!p1 || !p2) return null;
+
+  const R = 6371000; // Radius bumi dalam meter
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(p2.lat - p1.lat);
+  const dLng = toRad(p2.lng - p1.lng);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(p1.lat)) * Math.cos(toRad(p2.lat)) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const meter = Math.round(R * c);
+
+  const teks = meter < 1000
+    ? `± ${meter} m`
+    : `± ${(meter / 1000).toFixed(1).replace('.', ',')} km`;
+
+  return { meter, teks };
+}
+
+// ============================================================================
+// MEMUAT DATA KATALOG DARI SERVER
+// ============================================================================
+function muatKatalogPublik() {
+  const grid = document.getElementById('gridKatalogPublik');
+  if (!grid) return;
+
+  grid.innerHTML = `
+    <div class="col-12 text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+      Menyiapkan etalase UMKM warga...
+    </div>
+  `;
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (res && res.success && Array.isArray(res.data)) {
+        window.cacheKatalogProduk = res.data;
+        if (typeof cacheKatalogUMKM !== 'undefined') {
+          cacheKatalogUMKM = res.data;
+        }
+        renderKatalogKeGrid(res.data);
+      } else {
+        grid.innerHTML = `<div class="col-12 text-center py-5 text-danger">Gagal memuat produk: ${res ? res.message : 'Respon kosong'}</div>`;
+      }
+    })
+    .withFailureHandler(function(err) {
+      grid.innerHTML = `<div class="col-12 text-center py-5 text-danger">Gangguan koneksi: ${err.message || err}</div>`;
+    })
+    .getKatalogPublikUMKM();
+}
+
+// ============================================================================
+// 4. RENDER KARTU PRODUK DENGAN LENCANA JARAK & TOMBOL "+ KERANJANG"
+// ============================================================================
+function renderKatalogKeGrid(listProduk) {
+  const grid = document.getElementById('gridKatalogPublik');
+  if (!grid) return;
+
+  window.cacheKatalogProduk = listProduk || [];
+
+  if (listProduk.length === 0) {
+    grid.innerHTML = `
+      <div class="col-12 text-center py-5 text-muted">
+        <i class="fas fa-box-open fa-3x mb-3 text-secondary"></i>
+        <h6>Belum ada produk yang tersedia saat ini.</h6>
+      </div>
+    `;
+    return;
+  }
+
+  // Ambil koordinat pembeli dari sesi aktif
+  const profilCache = window.profilWargaAktif || JSON.parse(sessionStorage.getItem('PROFIL_WARGA_BELANJA') || '{}');
+  const coordPembeli = profilCache.koordinat || '';
+
+  let html = '';
+  listProduk.forEach(item => {
+    const hargaFormatted = 'Rp ' + Number(item.harga).toLocaleString('id-ID');
+    const fotoSrc = item.foto ? item.foto : 'https://placehold.co/400x300?text=Produk+Warga';
+    const isHabis = item.status_stok === 'Habis';
+    const namaToko = (item.toko && item.toko.nama_lapak) ? item.toko.nama_lapak : (item.nama_lapak || 'Lapak Warga');
+    const coordToko = (item.toko && item.toko.koordinat) ? item.toko.koordinat : '';
+
+    // Hitung jarak dari rumah pemesan ke warung penjual
+    const infoJarak = hitungJarakHaversine(coordPembeli, coordToko);
+    const badgeJarakHtml = infoJarak
+      ? `<span class="badge rounded-pill px-2 py-1 flex-shrink-0" style="background-color:#e7f1ff; color:#0d6efd; border:1px solid #b6d4fe; font-size:10.5px;" title="Estimasi jarak dari rumah Anda">
+           <i class="fas fa-map-marker-alt me-1"></i>${infoJarak.teks}
+         </span>`
+      : '';
+
+    html += `
+      <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+          ${isHabis ? '<span class="badge bg-secondary position-absolute top-0 end-0 m-3 px-2 py-1 shadow-sm">Habis</span>' : ''}
+          
+          <img src="${fotoSrc}" referrerpolicy="no-referrer" class="card-img-top" style="height: 180px; object-fit: cover;" onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=Produk+Warga'">
+          
+          <div class="card-body p-3 d-flex flex-column justify-content-between">
+            <div>
+              <div class="text-muted small mb-1 d-flex align-items-center justify-content-between gap-1" style="font-size: 12px;">
+                <div class="d-flex align-items-center gap-1 text-truncate">
+                  <i class="fas fa-store text-success"></i>
+                  <span class="fw-semibold text-truncate" title="${namaToko}">${namaToko}</span>
+                </div>
+                ${badgeJarakHtml}
+              </div>
+
+              <div class="mb-2">
+                <span class="badge bg-success text-white small px-2 py-1 shadow-sm" style="font-size: 11px;">${item.kategori}</span>
+              </div>
+
+              <h6 class="fw-bold text-dark mb-1 text-truncate" title="${item.nama_produk}">${item.nama_produk}</h6>
+              <p class="text-muted small mb-2" style="font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                ${item.deskripsi || 'Tidak ada keterangan khusus.'}
+              </p>
+            </div>
+
+            <div class="pt-2 border-top mt-2">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted small">Harga:</span>
+                <span class="fw-bold text-success fs-6">${hargaFormatted}</span>
+              </div>
+              
+              <button type="button" 
+                      onclick="tambahKeKeranjang('${item.id_produk}', this)" 
+                      class="btn btn-sm ${isHabis ? 'btn-secondary' : 'btn-success'} w-100 fw-bold rounded-pill shadow-sm py-2" 
+                      ${isHabis ? 'disabled' : ''}>
+                <i class="fas fa-cart-plus me-1"></i> ${isHabis ? 'Stok Habis' : '+ Keranjang'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html;
+  if (typeof perbaruiBadgeKeranjang === 'function') perbaruiBadgeKeranjang();
+}
+
+// ============================================================================
+// 10. CHECKOUT MULTI LAPAK TERPADU (DENGAN JARAK & TITIK MAPS PEMESAN)
+// ============================================================================
 function prosesCheckoutSemuaLapak() {
   if (!keranjangBelanja || keranjangBelanja.length === 0) {
     Swal.fire('Keranjang Kosong', 'Silakan pilih produk terlebih dahulu.', 'warning');
     return;
   }
 
+  const sesiBelanja = JSON.parse(sessionStorage.getItem('PROFIL_WARGA_BELANJA') || '{}');
   const sesiWarga = JSON.parse(sessionStorage.getItem('sesi_warga_umkm') || '{}');
   const profil = window.profilWargaAktif || {
-    nama: sesiWarga.nama || 'Warga',
-    alamat: sesiWarga.alamat || 'Komplek Warga',
-    no_wa: sesiWarga.hp || sesiWarga.no_wa || '-'
+    nama: sesiBelanja.nama || sesiWarga.nama || 'Warga',
+    alamat: sesiBelanja.alamat || sesiWarga.alamat || 'Komplek Warga',
+    no_wa: sesiBelanja.no_wa || sesiWarga.hp || sesiWarga.no_wa || '-',
+    koordinat: sesiBelanja.koordinat || sesiWarga.koordinat || ''
   };
 
   // KELOMPOKKAN PRODUK BERDASARKAN NAMA LAPAK
   const perToko = {};
   keranjangBelanja.forEach(item => {
-    const namaToko = (item.toko && item.toko.nama_lapak) 
-                  || item.nama_lapak 
-                  || item.namaLapak 
+    const namaToko = (item.toko && item.toko.nama_lapak)
+                  || item.nama_lapak
+                  || item.namaLapak
                   || "Lapak Warga";
 
-    const noWaToko = (item.toko && item.toko.no_wa) 
-                  || item.no_wa 
-                  || item.noWa 
+    const noWaToko = (item.toko && item.toko.no_wa)
+                  || item.no_wa
+                  || item.noWa
                   || "";
+
+    const coordToko = (item.toko && item.toko.koordinat) ? item.toko.koordinat : "";
 
     if (!perToko[namaToko]) {
       perToko[namaToko] = {
         namaLapak: namaToko,
         noWa: String(noWaToko || ''),
+        koordinat: coordToko,
         items: [],
         subtotal: 0
       };
@@ -22842,15 +23328,18 @@ function prosesCheckoutSemuaLapak() {
 
   const daftarLapak = Object.values(perToko);
 
-  // Tutup sementara modal keranjang agar textarea bisa diketik
-  const modalKeranjangEl = document.getElementById('modalKeranjangBelanja') || 
-                           document.getElementById('modalKeranjang') || 
+  const modalKeranjangEl = document.getElementById('modalKeranjangBelanja') ||
+                           document.getElementById('modalKeranjang') ||
                            document.querySelector('.modal.show');
   let bsModalKeranjang = null;
   if (modalKeranjangEl && typeof bootstrap !== 'undefined') {
     bsModalKeranjang = bootstrap.Modal.getInstance(modalKeranjangEl);
     if (bsModalKeranjang) bsModalKeranjang.hide();
   }
+
+  const infoGpsPemesanHtml = parseKoordinatGPS(profil.koordinat)
+    ? `<div class="text-primary mt-1" style="font-size:11px;"><i class="fas fa-map-marker-alt me-1"></i>Titik GPS rumah Anda terlampir otomatis</div>`
+    : '';
 
   Swal.fire({
     title: `<span class="fs-6 fw-bold text-success"><i class="fas fa-truck me-2"></i>Konfirmasi Pesanan Belanja</span>`,
@@ -22860,6 +23349,7 @@ function prosesCheckoutSemuaLapak() {
         <div><b>Alamat:</b> ${profil.alamat}</div>
         <div><b>No. Kontak:</b> ${profil.no_wa || '-'}</div>
         <div class="text-success mt-1 fw-bold"><b>Total Lapak:</b> ${daftarLapak.length} Penjual Berbeda</div>
+        ${infoGpsPemesanHtml}
       </div>
       <div class="text-start">
         <label class="form-label small fw-bold mb-1">Metode Pengiriman</label>
@@ -22891,7 +23381,6 @@ function prosesCheckoutSemuaLapak() {
     const paketKirim = [];
 
     for (let toko of daftarLapak) {
-      // 1. FORMAT NOMOR WA SECARA KETAT (Mendukung 08xx, 8xx, dan 62xx)
       let noClean = String(toko.noWa || '').replace(/[^0-9]/g, '');
       if (noClean.startsWith('0')) {
         noClean = '62' + noClean.slice(1);
@@ -22899,7 +23388,6 @@ function prosesCheckoutSemuaLapak() {
         noClean = '62' + noClean;
       }
 
-      // Validasi nomor WhatsApp
       if (!noClean || noClean.length < 9) {
         Swal.fire({
           icon: 'warning',
@@ -22915,7 +23403,15 @@ function prosesCheckoutSemuaLapak() {
         rincianBarang += `${idx + 1}. *${it.nama_produk}* (${it.qty}x) = Rp ${(it.harga * it.qty).toLocaleString('id-ID')}\n`;
       });
 
-      const teksWA = 
+      // Hitung estimasi jarak & tautan Maps rumah pemesan
+      const infoJarak = hitungJarakHaversine(profil.koordinat, toko.koordinat);
+      const barisJarak = infoJarak ? `- *Estimasi Jarak:* ${infoJarak.teks} dari lapak\n` : '';
+      const coordClean = parseKoordinatGPS(profil.koordinat);
+      const barisMaps = coordClean
+        ? `- *Titik Lokasi:* https://maps.google.com/?q=${coordClean.lat},${coordClean.lng}\n`
+        : '';
+
+      const teksWA =
 `*PESANAN BELANJA WARGA - ${toko.namaLapak.toUpperCase()}*
 ---------------------------------------
 Halo ${toko.namaLapak}, saya ingin memesan produk berikut:
@@ -22927,7 +23423,7 @@ ${catatan ? `*Catatan:* ${catatan}\n` : ''}-------------------------------------
 *Data Pemesan:*
 - *Nama:* ${profil.nama}
 - *Alamat:* ${profil.alamat}
-- *Kontak:* ${profil.no_wa || '-'}
+${barisJarak}${barisMaps}- *Kontak:* ${profil.no_wa || '-'}
 - *Waktu Pesan:* ${new Date().toLocaleDateString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
 
 _Mohon konfirmasi ketersediaan barang dan cara pembayarannya. Terima kasih!_`;
@@ -22943,9 +23439,10 @@ _Mohon konfirmasi ketersediaan barang dan cara pembayarannya. Terima kasih!_`;
   });
 }
 
-// 11. Eksekusi Pengiriman WA Multi-Lapak
+// ============================================================================
+// 11. EKSEKUSI PENGIRIMAN WA MULTI-LAPAK (BERSIH TANPA DUPLIKAT)
+// ============================================================================
 function eksekusiKirimMultiLapak(paketKirim) {
-  // Fungsi pembersih keranjang
   const bersihkanKeranjang = () => {
     keranjangBelanja = [];
     localStorage.setItem('KERANJANG_UMKM_WARGA', JSON.stringify([]));
@@ -22954,14 +23451,10 @@ function eksekusiKirimMultiLapak(paketKirim) {
     else if (typeof renderIsiModalKeranjangBaru === 'function') renderIsiModalKeranjangBaru();
   };
 
-  // 1. DETEKSI SAKLAR SUPER KETAT DARI DATABASE
   let rawMode = typeof appSettings !== 'undefined' ? appSettings['wa_mode_otomatis'] : false;
   let valString = String(rawMode).toLowerCase().trim();
   let isGatewayAktif = (valString === 'true' || valString === 'ya' || valString === 'on' || valString === '1' || valString === 'aktif');
 
-  console.log("Status Saklar Gateway:", valString, "| Gateway Aktif?", isGatewayAktif);
-
-  // 2. JIKA GATEWAY OTOMATIS AKTIF (Kirim via Apps Script sendWhatsAppMessage)
   if (isGatewayAktif) {
     Swal.fire({
       title: 'Mengirim Pesanan...',
@@ -22973,7 +23466,6 @@ function eksekusiKirimMultiLapak(paketKirim) {
     let index = 0;
     let suksesCount = 0;
 
-    // Kirim berurutan secara antrean agar Apps Script tidak overload
     function kirimAntreanLapak() {
       if (index >= paketKirim.length) {
         bersihkanKeranjang();
@@ -22988,8 +23480,6 @@ function eksekusiKirimMultiLapak(paketKirim) {
       }
 
       const item = paketKirim[index];
-
-      // Format Nomor WA persis standar sistem
       let num = String(item.noWa).replace(/\D/g, '');
       if (num.startsWith('0')) num = '62' + num.substring(1);
       else if (num.startsWith('8')) num = '62' + num;
@@ -23008,14 +23498,13 @@ function eksekusiKirimMultiLapak(paketKirim) {
           index++;
           kirimAntreanLapak();
         })
-        .sendWhatsAppMessage(num, item.pesan, null); // Panggil fungsi Apps Script Anda
+        .sendWhatsAppMessage(num, item.pesan, null);
     }
 
     kirimAntreanLapak();
     return;
   }
 
-  // 3. JIKA SAKLAR OTOMATIS MATI / MODE MANUAL
   if (paketKirim.length === 1) {
     const item = paketKirim[0];
     let num = String(item.noWa).replace(/\D/g, '');
@@ -23029,7 +23518,6 @@ function eksekusiKirimMultiLapak(paketKirim) {
     return;
   }
 
-  // Jika lebih dari 1 lapak manual (Buka tombol per lapak)
   let tombolHtml = '<p class="small text-muted mb-3">Pesanan Anda terbagi ke beberapa lapak. Silakan klik tombol untuk mengirim ke masing-masing:</p><div class="d-grid gap-2">';
   paketKirim.forEach((pkt) => {
     let num = String(pkt.noWa).replace(/\D/g, '');
@@ -23052,76 +23540,6 @@ function eksekusiKirimMultiLapak(paketKirim) {
     html: tombolHtml,
     showConfirmButton: true,
     confirmButtonText: 'Selesai & Bersihkan Keranjang',
-    confirmButtonColor: '#198754',
-    showCancelButton: true,
-    cancelButtonText: 'Tutup'
-  }).then((r) => {
-    if (r.isConfirmed) {
-      bersihkanKeranjang();
-    }
-  });
-}
-
-// 11. Eksekusi Pengiriman WA Multi-Lapak
-function eksekusiKirimMultiLapak(paketKirim) {
-  // Fungsi pembantu untuk mengosongkan keranjang setelah selesai transaksi
-  const bersihkanKeranjang = () => {
-    keranjangBelanja = [];
-    localStorage.setItem('KERANJANG_UMKM_WARGA', JSON.stringify([]));
-    if (typeof perbaruiBadgeKeranjang === 'function') perbaruiBadgeKeranjang();
-    if (typeof renderIsiModalKeranjang === 'function') renderIsiModalKeranjang();
-  };
-
-  const settings = typeof appSettings !== 'undefined' ? appSettings : {};
-  let rawMode = settings['wa_mode_otomatis'] || settings['wa_gateway_mode'] || settings['api_wa_status'] || false;
-  let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'true';
-
-  // JIKA MENGGUNAKAN WA GATEWAY BOT OTOMATIS
-  if (isGatewayAktif && typeof kirimPesanWhatsAppUniversal === 'function') {
-    let index = 0;
-    function kirimAntrean() {
-      if (index >= paketKirim.length) {
-        Swal.fire('Selesai!', 'Semua pesanan telah berhasil diteruskan ke masing-masing lapak penjual.', 'success');
-        bersihkanKeranjang();
-        return;
-      }
-      const data = paketKirim[index];
-      kirimPesanWhatsAppUniversal(data.noWa, data.pesan, `Pesanan ke ${data.namaLapak}`, () => {
-        index++;
-        kirimAntrean();
-      });
-    }
-    kirimAntrean();
-    return;
-  }
-
-  // JIKA HANYA ADA 1 LAPAK (Buka WhatsApp langsung dan kosongkan keranjang)
-  if (paketKirim.length === 1) {
-    const url = `https://wa.me/${paketKirim[0].noWa}?text=${encodeURIComponent(paketKirim[0].pesan)}`;
-    window.open(url, '_blank');
-    bersihkanKeranjang();
-    return;
-  }
-
-  // JIKA MULTI LAPAK (Tampilkan tombol per lapak)
-  let tombolHtml = '<p class="small text-muted mb-3">Pesanan Anda telah dibagi sesuai penjualnya. Ketuk tombol lapak di bawah ini untuk mengirim ke WhatsApp masing-masing penjual:</p><div class="d-grid gap-2">';
-  
-  paketKirim.forEach((pkt) => {
-    const urlWa = `https://wa.me/${pkt.noWa}?text=${encodeURIComponent(pkt.pesan)}`;
-    tombolHtml += `
-      <a href="${urlWa}" target="_blank" class="btn btn-outline-success fw-bold text-start p-2 d-flex align-items-center justify-content-between shadow-sm">
-        <span><i class="fab fa-whatsapp text-success me-2 fs-5"></i> Kirim ke ${pkt.namaLapak}</span>
-        <i class="fas fa-chevron-right small text-muted"></i>
-      </a>
-    `;
-  });
-  tombolHtml += '</div>';
-
-  Swal.fire({
-    title: '<span class="fs-6 fw-bold text-success">Kirim ke Multi Lapak</span>',
-    html: tombolHtml,
-    showConfirmButton: true,
-    confirmButtonText: '<i class="fas fa-check me-1"></i> Selesai & Bersihkan Keranjang',
     confirmButtonColor: '#198754',
     showCancelButton: true,
     cancelButtonText: 'Tutup'
