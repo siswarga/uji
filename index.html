@@ -5088,8 +5088,8 @@
     </div> <!-- End wrapper -->
   </div> <!-- End app-layout -->
   
- <!-- ================================================================= -->
-<!-- DASHBOARD KHUSUS LAPAK UMKM (LETAKKAN SEJAJAR DI BAWAH <body>)   -->
+<!-- ================================================================= -->
+<!-- DASHBOARD KHUSUS LAPAK UMKM (LETAKKAN SEJAJAR DI BAWAH <body>)     -->
 <!-- ================================================================= -->
 <div id="panel-umkm-dashboard" style="display: none; min-height: 100vh; background-color: #f8fafc; padding-bottom: 60px;">
 
@@ -5131,11 +5131,90 @@
         </div>
       </div>
       
-      <div class="col-sm-6 col-md-8 d-flex justify-content-sm-end gap-2">
-        <button type="button" class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2" onclick="bukaModalProdukBaru()">
+      <div class="col-sm-6 col-md-8 d-flex justify-content-sm-end flex-wrap gap-2">
+        <button type="button" class="btn btn-light border fw-bold px-3 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2" data-bs-toggle="collapse" data-bs-target="#collapseOngkirLapak" aria-expanded="false">
+          <i class="fas fa-motorcycle text-success"></i>
+          <span>Atur Ongkir & Lokasi Lapak</span>
+        </button>
+        <button type="button" class="btn btn-success text-white fw-bold px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2" onclick="bukaModalProdukBaru()">
           <i class="fas fa-plus-circle fa-lg"></i>
           <span>Tambah Produk Jualan</span>
         </button>
+      </div>
+    </div>
+
+    <!-- Kartu Pengaturan Ongkir & Lokasi Lapak (Collapsible) -->
+    <div class="collapse show mb-4" id="collapseOngkirLapak">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-4">
+          <form id="formPengaturanOngkirLapak" onsubmit="simpanPengaturanOngkirLapak(event)">
+            <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold text-dark m-0">
+                  <i class="fas fa-motorcycle text-success me-2"></i>Pengaturan Ongkir & Titik GPS Lapak Anda
+                </h6>
+                <small class="text-muted">Atur tarif pengantaran pesanan sesuai kebijakan lapak Anda.</small>
+              </div>
+              <div class="form-check form-switch m-0">
+                <input class="form-check-input fs-5" type="checkbox" role="switch" id="lapak_ongkir_aktif" checked>
+                <label class="form-check-label small fw-bold text-success ms-1" for="lapak_ongkir_aktif">Hitung Ongkir Otomatis</label>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold small text-success">Gratis Ongkir s.d. Jarak</label>
+                <div class="input-group input-group-sm shadow-sm">
+                  <input type="number" min="0" step="50" class="form-control fw-bold" id="lapak_gratis_meter" value="300" required>
+                  <span class="input-group-text bg-light fw-bold">Meter</span>
+                </div>
+                <div class="form-text text-muted" style="font-size: 11px;">Jarak di bawah batas ini otomatis Gratis (Rp 0).</div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold small text-primary">Tarif per Kilometer</label>
+                <div class="input-group input-group-sm shadow-sm">
+                  <span class="input-group-text bg-primary text-white fw-bold">Rp</span>
+                  <input type="number" min="0" step="500" class="form-control fw-bold" id="lapak_tarif_km" value="2000" required>
+                  <span class="input-group-text bg-light fw-bold">/ km</span>
+                </div>
+                <div class="form-text text-muted" style="font-size: 11px;">Dihitung proporsional & dibulatkan ke kelipatan Rp 500.</div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold small text-dark">Min. Belanja Gratis Ongkir</label>
+                <div class="input-group input-group-sm shadow-sm">
+                  <span class="input-group-text bg-success text-white fw-bold">Rp</span>
+                  <input type="number" min="0" step="5000" class="form-control fw-bold" id="lapak_min_gratis" value="0" required>
+                </div>
+                <div class="form-text text-muted" style="font-size: 11px;">Isi <b>0</b> jika tidak ada syarat minimal belanja.</div>
+              </div>
+
+              <!-- Titik GPS Lapak (Bisa diperbarui pedagang kapan saja) -->
+              <div class="col-12 mt-2">
+                <label class="form-label fw-bold small text-dark mb-1">
+                  <i class="fas fa-map-marker-alt text-danger me-1"></i>Titik Koordinat Warung / Lapak
+                </label>
+                <div class="input-group input-group-sm">
+                  <input type="text" id="lapak_koordinat_gps" class="form-control bg-light" placeholder="-6.xxxxxx, 107.xxxxxx" readonly>
+                  <button type="button" class="btn btn-success text-white fw-bold" onclick="ambilKoordinatGPS('lapak_koordinat_gps', 'map_dashboard_umkm', 'status_gps_dashboard_umkm')">
+                    <i class="fas fa-crosshairs me-1"></i> Perbarui Titik GPS
+                  </button>
+                </div>
+                <small id="status_gps_dashboard_umkm" class="text-muted d-block mt-1" style="font-size: 11px;">
+                  Pastikan titik GPS terisi agar jarak & estimasi ongkir ke rumah pembeli terhitung akurat.
+                </small>
+                <div id="map_dashboard_umkm" class="mt-2 border shadow-sm" style="height: 180px; border-radius: 12px; display: none; z-index: 1;"></div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end pt-2 border-top">
+              <button type="submit" id="btnSimpanOngkirLapak" class="btn btn-success text-white btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm">
+                <i class="fas fa-save me-1"></i> Simpan Pengaturan Ongkir & Lokasi
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -7692,11 +7771,12 @@
     </div>
   </div>
 
+  <!-- MODAL KATALOG PASAR & UMKM WARGA -->
   <div class="modal fade" id="modalKatalogUMKM" aria-hidden="true" style="z-index: 1060;">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
-        <!-- Header Modal (Sudah Ditambahkan Tombol Keranjang) -->
+        <!-- Header Modal -->
         <div class="modal-header bg-success text-white py-3 px-4 d-flex justify-content-between align-items-center">
           <div>
             <h5 class="modal-title fw-bold mb-0">
@@ -7707,40 +7787,53 @@
 
           <!-- Wadah Tombol Keranjang & Tombol Silang -->
           <div class="d-flex align-items-center gap-2">
-            <!-- TOMBOL KERANJANG DI HEADER (SUDAH DITAMBAHKAN DATA-BS-TARGET) -->
-<button type="button" 
-        data-bs-toggle="modal" 
-        data-bs-target="#modalKeranjangBelanja"
-        onclick="bukaModalKeranjang()" 
-        class="btn btn-light text-success fw-bold rounded-pill px-3 py-1 shadow-sm d-flex align-items-center gap-2">
-  <i class="fas fa-shopping-cart"></i>
-  <span class="d-none d-sm-inline">Keranjang</span>
-  <span id="badgeJumlahKeranjangHeader" class="badge rounded-pill bg-danger text-white">0</span>
-</button>
+            <button type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalKeranjangBelanja"
+                    onclick="bukaModalKeranjang()"
+                    class="btn btn-light text-success fw-bold rounded-pill px-3 py-1 shadow-sm d-flex align-items-center gap-2">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="d-none d-sm-inline">Keranjang</span>
+              <span id="badgeJumlahKeranjangHeader" class="badge rounded-pill bg-danger text-white">0</span>
+            </button>
 
-            <!-- Tombol Tutup Silang -->
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
         </div>
 
         <!-- Isi Etalase -->
         <div class="modal-body p-4 bg-light">
+
           <!-- Pencarian & Filter -->
           <div class="row g-2 mb-4">
-            <div class="col-md-8">
+            <div class="col-md-4">
               <div class="input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                <input type="text" id="filter-cari-produk" class="form-control border-start-0" placeholder="Cari nama makanan, sembako, jasa..." oninput="terapkanFilterKatalog()">
+                <input type="search" id="filter-cari-produk" class="form-control border-start-0" placeholder="Cari produk, warung..." oninput="terapkanFilterKatalog()" onkeyup="terapkanFilterKatalog()">
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-6 col-md-3">
               <select id="filter-kategori-produk" class="form-select" onchange="terapkanFilterKatalog()">
-                <option value="">Semua Kategori</option>
+                <option value="" selected>Semua Kategori</option>
                 <option value="Makanan & Minuman">Makanan & Minuman</option>
                 <option value="Sembako">Sembako</option>
                 <option value="Pakaian / Fashion">Pakaian / Fashion</option>
                 <option value="Jasa">Jasa</option>
                 <option value="Kerajinan / Lainnya">Kerajinan / Lainnya</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <select id="filter-lapak-produk" class="form-select" onchange="terapkanFilterKatalog()">
+                <option value="" selected>Semua Lapak</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select id="filter-urutkan-produk" class="form-select border-success-subtle fw-semibold text-dark" onchange="terapkanFilterKatalog()">
+                <option value="jarak_terdekat" selected>📍 Urutkan: Jarak Terdekat</option>
+                <option value="harga_terendah">💰 Harga Terendah</option>
+                <option value="harga_tertinggi">💎 Harga Tertinggi</option>
+                <option value="gratis_ongkir">🛵 Khusus Gratis Ongkir</option>
+                <option value="nama_az">🔤 Nama Produk (A - Z)</option>
               </select>
             </div>
           </div>
@@ -7752,6 +7845,7 @@
               Menyiapkan etalase pasar warga...
             </div>
           </div>
+
         </div>
 
         <!-- Footer Modal -->
@@ -22270,14 +22364,16 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Membuka Halaman Utama Lapak UMKM setelah Login Berhasil
+// ============================================================================
+// MEMBUKA HALAMAN UTAMA LAPAK UMKM + MUAT PENGATURAN ONGKIR & GPS LAPAK
+// ============================================================================
 function bukaPanelDashboardUMKM() {
   // 1. Ambil data sesi lapak
   if (!window.sessionUMKM) {
     const saved = localStorage.getItem('session_umkm') || sessionStorage.getItem('session_umkm');
     if (saved) {
-      try { 
-        window.sessionUMKM = JSON.parse(saved); 
+      try {
+        window.sessionUMKM = JSON.parse(saved);
         sessionUMKM = window.sessionUMKM;
       } catch (e) {
         console.error("Gagal parse session:", e);
@@ -22298,7 +22394,7 @@ function bukaPanelDashboardUMKM() {
     return;
   }
 
-  // 3. Sembunyikan halaman Landing, Login, dan Layout Pengurus (Navbar Putih)
+  // 3. Sembunyikan halaman Landing, Login, dan Layout Pengurus
   const pubPage = document.getElementById('public-page');
   if (pubPage) pubPage.style.cssText = 'display: none !important;';
 
@@ -22307,12 +22403,9 @@ function bukaPanelDashboardUMKM() {
 
   const appLayout = document.getElementById('app-layout');
   if (appLayout) {
-    // PENGAMAN: Jika panel UMKM tidak sengaja diletakkan di dalam app-layout,
-    // pindahkan otomatis langsung ke <body> agar tidak ikut tersembunyi
     if (appLayout.contains(panel)) {
       document.body.appendChild(panel);
     }
-    // Sembunyikan navbar putih dan layout admin pengurus
     appLayout.style.cssText = 'display: none !important;';
   }
 
@@ -22328,10 +22421,106 @@ function bukaPanelDashboardUMKM() {
   // 5. Tampilkan Panel UMKM secara tegas
   panel.style.cssText = 'display: block !important; min-height: 100vh; background-color: #f8fafc;';
 
-  // 6. Muat daftar produk jualan
+  // 6. Isi Form Pengaturan Ongkir & Titik GPS Lapak Milik Pedagang
+  const cfgOngkir = window.sessionUMKM.ongkir || {};
+  const elAktif = document.getElementById('lapak_ongkir_aktif');
+  const elGratisMeter = document.getElementById('lapak_gratis_meter');
+  const elTarifKm = document.getElementById('lapak_tarif_km');
+  const elMinGratis = document.getElementById('lapak_min_gratis');
+  const elKoord = document.getElementById('lapak_koordinat_gps');
+
+  if (elAktif) elAktif.checked = (cfgOngkir.aktif !== false);
+  if (elGratisMeter) elGratisMeter.value = (cfgOngkir.gratis_meter !== undefined) ? cfgOngkir.gratis_meter : 300;
+  if (elTarifKm) elTarifKm.value = (cfgOngkir.tarif_km !== undefined) ? cfgOngkir.tarif_km : 2000;
+  if (elMinGratis) elMinGratis.value = (cfgOngkir.min_gratis !== undefined) ? cfgOngkir.min_gratis : 0;
+
+  const rawKoord = (window.sessionUMKM.koordinat && window.sessionUMKM.koordinat !== '-')
+    ? String(window.sessionUMKM.koordinat).trim()
+    : '';
+  if (elKoord) elKoord.value = rawKoord;
+
+  const matchKoord = rawKoord.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (matchKoord && typeof tampilkanPetaPilihTitik === 'function') {
+    setTimeout(() => {
+      tampilkanPetaPilihTitik(
+        'lapak_koordinat_gps',
+        'map_dashboard_umkm',
+        'status_gps_dashboard_umkm',
+        parseFloat(matchKoord[1]),
+        parseFloat(matchKoord[2])
+      );
+    }, 150);
+  }
+
+  // 7. Muat daftar produk jualan
   if (typeof muatDataProdukUMKM === 'function') {
     muatDataProdukUMKM();
   }
+}
+
+// ============================================================================
+// SIMPAN PENGATURAN ONGKIR & TITIK GPS LAPAK OLEH PEDAGANG
+// ============================================================================
+function simpanPengaturanOngkirLapak(e) {
+  e.preventDefault();
+
+  if (!window.sessionUMKM || !window.sessionUMKM.username) {
+    Swal.fire('Sesi Berakhir', 'Silakan login ulang ke lapak Anda.', 'warning');
+    return;
+  }
+
+  const ongkirObj = {
+    aktif: document.getElementById('lapak_ongkir_aktif')?.checked ?? true,
+    gratis_meter: Math.max(0, Number(document.getElementById('lapak_gratis_meter')?.value || 0)),
+    tarif_km: Math.max(0, Number(document.getElementById('lapak_tarif_km')?.value || 0)),
+    min_gratis: Math.max(0, Number(document.getElementById('lapak_min_gratis')?.value || 0))
+  };
+
+  const koordinatBaru = (document.getElementById('lapak_koordinat_gps')?.value || '').trim();
+  const btn = document.getElementById('btnSimpanOngkirLapak');
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
+  }
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Pengaturan Ongkir & Lokasi';
+      }
+
+      if (res && res.success) {
+        window.sessionUMKM.ongkir = ongkirObj;
+        if (koordinatBaru) window.sessionUMKM.koordinat = koordinatBaru;
+        sessionUMKM = window.sessionUMKM;
+        sessionStorage.setItem('session_umkm', JSON.stringify(window.sessionUMKM));
+        localStorage.setItem('session_umkm', JSON.stringify(window.sessionUMKM));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Pengaturan Tersimpan!',
+          text: 'Aturan ongkir & titik lokasi lapak Anda berhasil diperbarui.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      } else {
+        Swal.fire('Gagal Menyimpan', res?.message || 'Terjadi kesalahan saat menyimpan.', 'error');
+      }
+    })
+    .withFailureHandler(function(err) {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Pengaturan Ongkir & Lokasi';
+      }
+      Swal.fire('Error Server', err.message || String(err), 'error');
+    })
+    .simpanPengaturanOngkirLapak({
+      username: window.sessionUMKM.username,
+      ongkir: ongkirObj,
+      koordinat: koordinatBaru
+    });
 }
 
 function muatDataProdukUMKM() {
@@ -22566,55 +22755,186 @@ function logoutUMKM() {
 
 let cacheKatalogUMKM = [];
 
-// Render kartu-kartu produk ke layar
-function renderKatalogKeGrid(listProduk) {
+// ============================================================================
+// POPULATE DROPDOWN NAMA LAPAK OTOMATIS DARI KATALOG
+// ============================================================================
+function isiDropdownLapakKatalog(daftarProduk) {
+  const selLapak = document.getElementById('filter-lapak-produk');
+  if (!selLapak) return;
+
+  const nilaiSebelumnya = selLapak.value;
+  const setLapak = new Set();
+
+  (daftarProduk || []).forEach(p => {
+    const nama = (p.toko && p.toko.nama_lapak)
+      ? String(p.toko.nama_lapak).trim()
+      : String(p.nama_lapak || '').trim();
+    if (nama) setLapak.add(nama);
+  });
+
+  let optHtml = '<option value="">Semua Lapak</option>';
+  Array.from(setLapak).sort((a, b) => a.localeCompare(b, 'id')).forEach(nama => {
+    optHtml += `<option value="${nama.replace(/"/g, '&quot;')}">${nama}</option>`;
+  });
+
+  selLapak.innerHTML = optHtml;
+  if (nilaiSebelumnya && setLapak.has(nilaiSebelumnya)) {
+    selLapak.value = nilaiSebelumnya;
+  }
+}
+
+// ============================================================================
+// FILTER & PENGURUTAN KATALOG (DEFAULT: JARAK TERDEKAT)
+// ============================================================================
+function terapkanFilterKatalog() {
+  const sumberData = window.cacheKatalogProduk || [];
+  isiDropdownLapakKatalog(sumberData);
+
+  const keyword = (document.getElementById('filter-cari-produk')?.value || '').trim().toLowerCase();
+  const kategori = (document.getElementById('filter-kategori-produk')?.value || '').trim();
+  const lapak = (document.getElementById('filter-lapak-produk')?.value || '').trim();
+  const modeUrut = (document.getElementById('filter-urutkan-produk')?.value || 'jarak_terdekat').trim();
+
+  const profilCache = window.profilWargaAktif || JSON.parse(sessionStorage.getItem('PROFIL_WARGA_BELANJA') || '{}');
+  const coordPembeli = profilCache.koordinat || '';
+
+  let hasil = sumberData.map(item => {
+    const coordToko = (item.toko && item.toko.koordinat) ? item.toko.koordinat : '';
+    const infoJarak = (typeof hitungJarakHaversine === 'function')
+      ? hitungJarakHaversine(coordPembeli, coordToko)
+      : null;
+
+    const estOngkir = (typeof hitungEstimasiOngkirToko === 'function')
+      ? hitungEstimasiOngkirToko(Number(item.harga) || 0, infoJarak, item.toko?.ongkir)
+      : { gratis: false };
+
+    return Object.assign({}, item, {
+      _infoJarak: infoJarak,
+      _jarakMeter: (infoJarak && typeof infoJarak.meter === 'number') ? infoJarak.meter : Infinity,
+      _gratisOngkir: Boolean(estOngkir.gratis)
+    });
+  });
+
+  if (keyword) {
+    hasil = hasil.filter(p => {
+      const namaProd = String(p.nama_produk || '').toLowerCase();
+      const desk = String(p.deskripsi || '').toLowerCase();
+      const namaToko = String(p.toko?.nama_lapak || p.nama_lapak || '').toLowerCase();
+      const komplek = String(p.toko?.asal_komplek || '').toLowerCase();
+      return namaProd.includes(keyword) || desk.includes(keyword) || namaToko.includes(keyword) || komplek.includes(keyword);
+    });
+  }
+
+  if (kategori) {
+    hasil = hasil.filter(p => String(p.kategori || '').trim().toLowerCase() === kategori.toLowerCase());
+  }
+
+  if (lapak) {
+    hasil = hasil.filter(p => String(p.toko?.nama_lapak || p.nama_lapak || '').trim().toLowerCase() === lapak.toLowerCase());
+  }
+
+  if (modeUrut === 'gratis_ongkir') {
+    hasil = hasil.filter(p => p._gratisOngkir);
+  }
+
+  hasil.sort((a, b) => {
+    if (modeUrut === 'harga_terendah') {
+      return (Number(a.harga) || 0) - (Number(b.harga) || 0);
+    }
+    if (modeUrut === 'harga_tertinggi') {
+      return (Number(b.harga) || 0) - (Number(a.harga) || 0);
+    }
+    if (modeUrut === 'nama_az') {
+      return String(a.nama_produk || '').localeCompare(String(b.nama_produk || ''), 'id');
+    }
+    // Default ('jarak_terdekat' & 'gratis_ongkir'): urutkan dari meter terdekat
+    if (a._jarakMeter !== b._jarakMeter) {
+      return a._jarakMeter - b._jarakMeter;
+    }
+    return (Number(a.harga) || 0) - (Number(b.harga) || 0);
+  });
+
+  renderKatalogKeGrid(hasil, true);
+}
+
+// ============================================================================
+// 4. RENDER KARTU PRODUK DENGAN JARAK, ASAL KOMPLEK & TOMBOL "+ KERANJANG"
+// ============================================================================
+function renderKatalogKeGrid(listProduk, sudahDifilter) {
   const grid = document.getElementById('gridKatalogPublik');
   if (!grid) return;
 
-  if (listProduk.length === 0) {
+  // Jika dipanggil pertama kali dari server (belum difilter), simpan master cache & jalankan filter/urut default
+  if (!sudahDifilter) {
+    window.cacheKatalogProduk = Array.isArray(listProduk) ? listProduk : [];
+    terapkanFilterKatalog();
+    return;
+  }
+
+  if (!listProduk || listProduk.length === 0) {
     grid.innerHTML = `
       <div class="col-12 text-center py-5 text-muted">
         <i class="fas fa-box-open fa-3x mb-3 text-secondary"></i>
-        <h6>Belum ada produk yang tersedia saat ini.</h6>
+        <h6>Tidak ada produk yang sesuai dengan filter saat ini.</h6>
       </div>
     `;
     return;
   }
+
+  const profilCache = window.profilWargaAktif || JSON.parse(sessionStorage.getItem('PROFIL_WARGA_BELANJA') || '{}');
+  const coordPembeli = profilCache.koordinat || '';
 
   let html = '';
   listProduk.forEach(item => {
     const hargaFormatted = 'Rp ' + Number(item.harga).toLocaleString('id-ID');
     const fotoSrc = item.foto ? item.foto : 'https://placehold.co/400x300?text=Produk+Warga';
     const isHabis = item.status_stok === 'Habis';
+    const namaToko = (item.toko && item.toko.nama_lapak) ? item.toko.nama_lapak : (item.nama_lapak || 'Lapak Warga');
+    const asalKomplek = (item.toko && item.toko.asal_komplek && item.toko.asal_komplek !== '-') ? item.toko.asal_komplek : '';
+
+    const infoJarak = item._infoJarak || ((typeof hitungJarakHaversine === 'function')
+      ? hitungJarakHaversine(coordPembeli, item.toko?.koordinat || '')
+      : null);
+
+    const badgeJarakHtml = infoJarak
+      ? `<span class="badge bg-white text-primary border border-primary-subtle position-absolute top-0 start-0 m-2 px-2 py-1 shadow-sm" style="font-size: 11px;">
+           <i class="fas fa-map-marker-alt me-1 text-danger"></i>${infoJarak.teks}
+         </span>`
+      : '';
+
+    const badgeGratisOngkirHtml = item._gratisOngkir
+      ? `<span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size: 10px;">Gratis Ongkir</span>`
+      : '';
 
     html += `
       <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
         <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-          ${isHabis ? '<span class="badge bg-secondary position-absolute top-0 end-0 m-3 px-2 py-1 shadow-sm">Habis</span>' : ''}
+          ${badgeJarakHtml}
+          ${isHabis ? '<span class="badge bg-secondary position-absolute top-0 end-0 m-2 px-2 py-1 shadow-sm">Habis</span>' : ''}
           
           <img src="${fotoSrc}" referrerpolicy="no-referrer" class="card-img-top" style="height: 180px; object-fit: cover;" onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=Produk+Warga'">
           
           <div class="card-body p-3 d-flex flex-column justify-content-between">
             <div>
-              <!-- 1. Nama Toko di Atas -->
-              <div class="text-muted small mb-1 d-flex align-items-center gap-1" style="font-size: 12px;">
-                <i class="fas fa-store text-success"></i>
-                <span class="fw-semibold text-truncate" title="${item.toko.nama_lapak}">${item.toko.nama_lapak}</span>
+              <div class="text-muted small mb-1 d-flex align-items-center justify-content-between gap-1" style="font-size: 12px;">
+                <div class="d-flex align-items-center gap-1 text-truncate">
+                  <i class="fas fa-store text-success flex-shrink-0"></i>
+                  <span class="fw-semibold text-truncate" title="${namaToko}">${namaToko}</span>
+                </div>
+                ${asalKomplek ? `<span class="badge bg-light text-secondary border text-truncate" style="font-size: 10px; max-width: 95px;" title="${asalKomplek}">${asalKomplek}</span>` : ''}
               </div>
 
-              <!-- 2. Badge Kategori -->
               <div class="mb-2">
                 <span class="badge bg-success text-white small px-2 py-1 shadow-sm" style="font-size: 11px;">${item.kategori}</span>
+                ${badgeGratisOngkirHtml}
               </div>
 
-              <!-- 3. Judul & Deskripsi Produk -->
               <h6 class="fw-bold text-dark mb-1 text-truncate" title="${item.nama_produk}">${item.nama_produk}</h6>
               <p class="text-muted small mb-2" style="font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                 ${item.deskripsi || 'Tidak ada keterangan khusus.'}
               </p>
             </div>
 
-            <!-- 4. Harga & Tombol Pesan -->
             <div class="pt-2 border-top mt-2">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-muted small">Harga:</span>
@@ -22622,10 +22942,10 @@ function renderKatalogKeGrid(listProduk) {
               </div>
               
               <button type="button" 
-                      onclick="pesanProdukOtomatis('${item.id_produk}')" 
-                      class="btn btn-sm ${isHabis ? 'btn-secondary' : 'btn-success'} w-100 fw-bold rounded-pill shadow-sm" 
+                      onclick="tambahKeKeranjang('${item.id_produk}', this)" 
+                      class="btn btn-sm ${isHabis ? 'btn-secondary' : 'btn-success'} w-100 fw-bold rounded-pill shadow-sm py-2" 
                       ${isHabis ? 'disabled' : ''}>
-                <i class="fab fa-whatsapp me-1"></i> ${isHabis ? 'Stok Habis' : 'Pesan via WA'}
+                <i class="fas fa-cart-plus me-1"></i> ${isHabis ? 'Stok Habis' : '+ Keranjang'}
               </button>
             </div>
           </div>
@@ -22635,20 +22955,7 @@ function renderKatalogKeGrid(listProduk) {
   });
 
   grid.innerHTML = html;
-}
-
-// Fitur Filter dan Pencarian Cepat
-function terapkanFilterKatalog() {
-  const query = (document.getElementById('filter-cari-produk').value || '').toLowerCase();
-  const kategori = document.getElementById('filter-kategori-produk').value;
-
-  const hasilFilter = cacheKatalogUMKM.filter(item => {
-    const cocokNama = item.nama_produk.toLowerCase().includes(query) || (item.deskripsi || '').toLowerCase().includes(query) || item.toko.nama_lapak.toLowerCase().includes(query);
-    const cocokKategori = !kategori || item.kategori === kategori;
-    return cocokNama && cocokKategori;
-  });
-
-  renderKatalogKeGrid(hasilFilter);
+  perbaruiBadgeKeranjang();
 }
 
 // ============================================================================
@@ -22799,77 +23106,6 @@ function tampilkanModalKatalog() {
   }
 }
 
-// 4. Render Kartu Produk dengan Tombol "+ Keranjang"
-function renderKatalogKeGrid(listProduk) {
-  const grid = document.getElementById('gridKatalogPublik');
-  if (!grid) return;
-
-  window.cacheKatalogProduk = listProduk || [];
-
-  if (listProduk.length === 0) {
-    grid.innerHTML = `
-      <div class="col-12 text-center py-5 text-muted">
-        <i class="fas fa-box-open fa-3x mb-3 text-secondary"></i>
-        <h6>Belum ada produk yang tersedia saat ini.</h6>
-      </div>
-    `;
-    return;
-  }
-
-  let html = '';
-  listProduk.forEach(item => {
-    const hargaFormatted = 'Rp ' + Number(item.harga).toLocaleString('id-ID');
-    const fotoSrc = item.foto ? item.foto : 'https://placehold.co/400x300?text=Produk+Warga';
-    const isHabis = item.status_stok === 'Habis';
-    const namaToko = (item.toko && item.toko.nama_lapak) ? item.toko.nama_lapak : (item.nama_lapak || 'Lapak Warga');
-
-    html += `
-      <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
-        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-          ${isHabis ? '<span class="badge bg-secondary position-absolute top-0 end-0 m-3 px-2 py-1 shadow-sm">Habis</span>' : ''}
-          
-          <img src="${fotoSrc}" referrerpolicy="no-referrer" class="card-img-top" style="height: 180px; object-fit: cover;" onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=Produk+Warga'">
-          
-          <div class="card-body p-3 d-flex flex-column justify-content-between">
-            <div>
-              <div class="text-muted small mb-1 d-flex align-items-center gap-1" style="font-size: 12px;">
-                <i class="fas fa-store text-success"></i>
-                <span class="fw-semibold text-truncate" title="${namaToko}">${namaToko}</span>
-              </div>
-
-              <div class="mb-2">
-                <span class="badge bg-success text-white small px-2 py-1 shadow-sm" style="font-size: 11px;">${item.kategori}</span>
-              </div>
-
-              <h6 class="fw-bold text-dark mb-1 text-truncate" title="${item.nama_produk}">${item.nama_produk}</h6>
-              <p class="text-muted small mb-2" style="font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                ${item.deskripsi || 'Tidak ada keterangan khusus.'}
-              </p>
-            </div>
-
-            <div class="pt-2 border-top mt-2">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted small">Harga:</span>
-                <span class="fw-bold text-success fs-6">${hargaFormatted}</span>
-              </div>
-              
-              <button type="button" 
-                      onclick="tambahKeKeranjang('${item.id_produk}', this)" 
-                      class="btn btn-sm ${isHabis ? 'btn-secondary' : 'btn-success'} w-100 fw-bold rounded-pill shadow-sm py-2" 
-                      ${isHabis ? 'disabled' : ''}>
-                <i class="fas fa-cart-plus me-1"></i> ${isHabis ? 'Stok Habis' : '+ Keranjang'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-
-  grid.innerHTML = html;
-  perbaruiBadgeKeranjang();
-}
-
 // 5. Tambah Produk ke Keranjang
 function tambahKeKeranjang(idProduk, btnEl) {
   const produk = (window.cacheKatalogProduk || []).find(p => String(p.id_produk) === String(idProduk));
@@ -23010,117 +23246,6 @@ function kosongkanKeranjang() {
   });
 }
 
-// 9. Tampilan Isi Keranjang (Tombol per lapak ditiadakan, lencana diperbaiki)
-function renderIsiModalKeranjang() {
-  const container = document.getElementById('isiKeranjangBelanja');
-  const footerArea = document.getElementById('footerKeranjangBelanja');
-  if (!container) return;
-
-  perbaruiBadgeKeranjang();
-
-  if (keranjangBelanja.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-5 text-muted">
-        <i class="fas fa-shopping-basket fa-3x mb-3 text-secondary opacity-50"></i>
-        <h6>Keranjang belanja masih kosong.</h6>
-        <p class="small">Silakan pilih produk warga di etalase pasar.</p>
-      </div>
-    `;
-    if (footerArea) footerArea.innerHTML = '';
-    return;
-  }
-
-  const perToko = {};
-  keranjangBelanja.forEach(item => {
-    const namaToko = (item.toko && item.toko.nama_lapak) ? item.toko.nama_lapak : "Lapak Warga";
-    if (!perToko[namaToko]) {
-      perToko[namaToko] = {
-        infoToko: item.toko || {},
-        items: []
-      };
-    }
-    perToko[namaToko].items.push(item);
-  });
-
-  let html = '';
-  let grandTotalSemua = 0;
-  const jumlahLapak = Object.keys(perToko).length;
-
-  for (let namaToko in perToko) {
-    const dataToko = perToko[namaToko];
-    let subtotalToko = 0;
-
-    html += `
-      <div class="card mb-3 border border-light-subtle rounded-3 shadow-none overflow-hidden">
-        <div class="card-header bg-light py-2 px-3 d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-2">
-            <i class="fas fa-store text-success"></i>
-            <strong class="text-dark small">${namaToko}</strong>
-          </div>
-          <span class="badge fw-semibold px-2 py-1" style="background-color: #e8f5e9; color: #198754; border: 1px solid #c8e6c9; font-size: 11px;">
-            Penjual
-          </span>
-        </div>
-
-        <div class="card-body p-3">
-    `;
-
-    dataToko.items.forEach(it => {
-      const sub = it.harga * it.qty;
-      subtotalToko += sub;
-      grandTotalSemua += sub;
-
-      html += `
-        <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-          <div class="me-2" style="max-width: 55%;">
-            <strong class="d-block small text-truncate text-dark">${it.nama_produk}</strong>
-            <span class="text-muted" style="font-size: 11px;">Rp ${it.harga.toLocaleString('id-ID')} x ${it.qty}</span>
-            <div class="fw-bold text-success" style="font-size: 12px;">Rp ${sub.toLocaleString('id-ID')}</div>
-          </div>
-          <div class="d-flex align-items-center gap-1">
-            <button class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0" onclick="ubahQtyItemKeranjang('${it.id_produk}', -1)">-</button>
-            <span class="fw-bold px-2 small">${it.qty}</span>
-            <button class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0" onclick="ubahQtyItemKeranjang('${it.id_produk}', 1)">+</button>
-          </div>
-        </div>
-      `;
-    });
-
-    html += `
-          <div class="d-flex justify-content-between align-items-center pt-2">
-            <span class="small text-muted">Subtotal:</span>
-            <strong class="text-dark">Rp ${subtotalToko.toLocaleString('id-ID')}</strong>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  container.innerHTML = html;
-
-  if (footerArea) {
-    footerArea.innerHTML = `
-      <div class="w-100">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <div>
-            <small class="text-muted d-block" style="font-size: 11px;">Total Keseluruhan (${jumlahLapak} Lapak)</small>
-            <strong class="fs-5 text-success">Rp ${grandTotalSemua.toLocaleString('id-ID')}</strong>
-          </div>
-          <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="kosongkanKeranjang()">
-            <i class="fas fa-trash-alt me-1"></i> Kosongkan
-          </button>
-        </div>
-
-        <button class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 py-2" 
-                onclick="prosesCheckoutSemuaLapak()">
-          <i class="fab fa-whatsapp fs-5"></i>
-          <span>Pesan Sekarang (${jumlahLapak} Lapak)</span>
-        </button>
-      </div>
-    `;
-  }
-}
-
 // ============================================================================
 // HELPER JARAK HAVERSINE (METER / KILOMETER)
 // ============================================================================
@@ -23191,97 +23316,367 @@ function muatKatalogPublik() {
     .getKatalogPublikUMKM();
 }
 
-// ============================================================================
-// 4. RENDER KARTU PRODUK DENGAN LENCANA JARAK & TOMBOL "+ KERANJANG"
-// ============================================================================
-function renderKatalogKeGrid(listProduk) {
-  const grid = document.getElementById('gridKatalogPublik');
-  if (!grid) return;
+function resetSemuaFilterKatalog() {
+  const elCari = document.getElementById('filter-cari-produk');
+  const elKat = document.getElementById('filter-kategori-produk');
+  const elLapak = document.getElementById('filter-lapak-produk');
+  const elUrut = document.getElementById('filter-urutkan-produk');
 
-  window.cacheKatalogProduk = listProduk || [];
+  if (elCari) elCari.value = '';
+  if (elKat) elKat.value = '';
+  if (elLapak) elLapak.value = '';
+  if (elUrut) elUrut.value = 'jarak_terdekat';
 
-  if (listProduk.length === 0) {
-    grid.innerHTML = `
-      <div class="col-12 text-center py-5 text-muted">
-        <i class="fas fa-box-open fa-3x mb-3 text-secondary"></i>
-        <h6>Belum ada produk yang tersedia saat ini.</h6>
-      </div>
-    `;
+  terapkanFilterKatalog();
+}
+
+// ============================================================================
+// HELPER KALKULASI ESTIMASI ONGKIR PER LAPAK
+// ============================================================================
+function ambilInfoTokoTerbaru(item) {
+  const baseToko = item.toko || {};
+  const katalog = window.cacheKatalogProduk || (typeof cacheKatalogUMKM !== 'undefined' ? cacheKatalogUMKM : []);
+  const prodMatch = katalog.find(p => String(p.id_produk) === String(item.id_produk));
+  if (prodMatch && prodMatch.toko) {
+    return Object.assign({}, baseToko, prodMatch.toko);
+  }
+  return baseToko;
+}
+
+function hitungEstimasiOngkirToko(subtotalBelanja, infoJarak, aturanOngkir) {
+  const cfg = Object.assign({
+    aktif: true,
+    gratis_meter: 300,
+    tarif_km: 2000,
+    min_gratis: 0
+  }, aturanOngkir || {});
+
+  // 1. Jika pedagang menonaktifkan hitung ongkir otomatis
+  if (cfg.aktif === false) {
+    return {
+      aktif: false,
+      nominal: 0,
+      label: 'Konfirmasi via WA',
+      keterangan: 'Ongkir ditentukan penjual saat konfirmasi'
+    };
+  }
+
+  // 2. Cek syarat minimal belanja gratis ongkir
+  if (Number(cfg.min_gratis) > 0 && subtotalBelanja >= Number(cfg.min_gratis)) {
+    return {
+      aktif: true,
+      nominal: 0,
+      gratis: true,
+      label: 'Gratis Ongkir',
+      keterangan: `Bebas ongkir (min. belanja Rp ${Number(cfg.min_gratis).toLocaleString('id-ID')})`
+    };
+  }
+
+  // 3. Cek ketersediaan titik GPS pembeli & warung
+  if (!infoJarak || typeof infoJarak.meter !== 'number') {
+    return {
+      aktif: true,
+      nominal: 0,
+      belumAdaGps: true,
+      label: 'Konfirmasi via WA',
+      keterangan: 'Titik GPS rumah/warung belum lengkap'
+    };
+  }
+
+  // 4. Cek batas radius gratis ongkir (meter)
+  if (infoJarak.meter <= Number(cfg.gratis_meter)) {
+    return {
+      aktif: true,
+      nominal: 0,
+      gratis: true,
+      label: 'Gratis Ongkir',
+      keterangan: `Jarak ${infoJarak.teks} (dalam radius gratis ≤ ${cfg.gratis_meter} m)`
+    };
+  }
+
+  // 5. Hitung tarif proporsional per km, dibulatkan ke kelipatan Rp 500
+  const tarifPerKm = Math.max(0, Number(cfg.tarif_km) || 0);
+  if (tarifPerKm === 0) {
+    return {
+      aktif: true,
+      nominal: 0,
+      gratis: true,
+      label: 'Gratis Ongkir',
+      keterangan: `Jarak ${infoJarak.teks} (Gratis ongkir dari lapak)`
+    };
+  }
+
+  const rawOngkir = (infoJarak.meter / 1000) * tarifPerKm;
+  let ongkirBulat = Math.round(rawOngkir / 500) * 500;
+  if (ongkirBulat < 500) ongkirBulat = 500;
+
+  return {
+    aktif: true,
+    nominal: ongkirBulat,
+    gratis: false,
+    label: 'Rp ' + ongkirBulat.toLocaleString('id-ID'),
+    keterangan: `Jarak ${infoJarak.teks} • Tarif Rp ${tarifPerKm.toLocaleString('id-ID')}/km`
+  };
+}
+
+// ============================================================================
+// DETEKSI GPS & SIMPAN PERMANEN KE SHEET WARGA (KOLOM AA)
+// ============================================================================
+function deteksiGpsPembeliDiKeranjang() {
+  if (!navigator.geolocation) {
+    Swal.fire('Tidak Didukung', 'Browser Anda tidak mendukung fitur GPS.', 'warning');
     return;
   }
 
-  // Ambil koordinat pembeli dari sesi aktif
+  Swal.fire({
+    title: 'Mendeteksi Lokasi Anda...',
+    text: 'Mohon izinkan akses lokasi pada browser',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      const coordStr = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+
+      const sesiBelanja = JSON.parse(sessionStorage.getItem('PROFIL_WARGA_BELANJA') || '{}');
+      const sesiWarga = JSON.parse(sessionStorage.getItem('sesi_warga_umkm') || '{}');
+      const profilCache = window.profilWargaAktif || sesiBelanja;
+
+      // Perbarui langsung di memori & sessionStorage agar ongkir segera terhitung
+      profilCache.koordinat = coordStr;
+      window.profilWargaAktif = profilCache;
+      sessionStorage.setItem('PROFIL_WARGA_BELANJA', JSON.stringify(profilCache));
+
+      if (sesiWarga && Object.keys(sesiWarga).length > 0) {
+        sesiWarga.koordinat = coordStr;
+        sessionStorage.setItem('sesi_warga_umkm', JSON.stringify(sesiWarga));
+      }
+
+      // Render ulang keranjang & etalase produk
+      renderIsiModalKeranjang();
+      if (typeof renderEtalasePublikUMKM === 'function' && window.cacheKatalogProduk) {
+        renderEtalasePublikUMKM(window.cacheKatalogProduk);
+      }
+
+      // Kirim ke backend agar tersimpan permanen di Kolom AA sheet warga
+      const kodeWarga = profilCache.kode_warga || profilCache.kode_unik || profilCache.id_warga || sesiWarga.kode_warga || sesiWarga.kode_unik || '';
+      const namaWarga = profilCache.nama || sesiWarga.nama || '';
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          Swal.close();
+          if (res && res.success) {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Titik GPS rumah disimpan permanen!',
+              showConfirmButton: false,
+              timer: 2000
+            });
+          }
+        })
+        .withFailureHandler(function() {
+          Swal.close();
+        })
+        .simpanKoordinatWargaBelanja({
+          kode_warga: kodeWarga,
+          nama: namaWarga,
+          koordinat: coordStr
+        });
+    },
+    function() {
+      Swal.fire('Gagal Deteksi GPS', 'Pastikan izin lokasi/GPS pada perangkat Anda aktif lalu coba lagi.', 'warning');
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+// ============================================================================
+// 9. TAMPILAN ISI KERANJANG (DENGAN ESTIMASI ONGKIR PER LAPAK & TOMBOL GPS)
+// ============================================================================
+function renderIsiModalKeranjang() {
+  const container = document.getElementById('isiKeranjangBelanja');
+  const footerArea = document.getElementById('footerKeranjangBelanja');
+  if (!container) return;
+
+  perbaruiBadgeKeranjang();
+
+  if (keranjangBelanja.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-shopping-basket fa-3x mb-3 text-secondary opacity-50"></i>
+        <h6>Keranjang belanja masih kosong.</h6>
+        <p class="small">Silakan pilih produk warga di etalase pasar.</p>
+      </div>
+    `;
+    if (footerArea) footerArea.innerHTML = '';
+    return;
+  }
+
   const profilCache = window.profilWargaAktif || JSON.parse(sessionStorage.getItem('PROFIL_WARGA_BELANJA') || '{}');
   const coordPembeli = profilCache.koordinat || '';
+  const hasCoordPembeli = Boolean(parseKoordinatGPS(coordPembeli));
+
+  const perToko = {};
+  keranjangBelanja.forEach(item => {
+    const infoToko = ambilInfoTokoTerbaru(item);
+    const namaToko = infoToko.nama_lapak || item.nama_lapak || "Lapak Warga";
+    if (!perToko[namaToko]) {
+      perToko[namaToko] = {
+        infoToko: infoToko,
+        items: []
+      };
+    }
+    perToko[namaToko].items.push(item);
+  });
 
   let html = '';
-  listProduk.forEach(item => {
-    const hargaFormatted = 'Rp ' + Number(item.harga).toLocaleString('id-ID');
-    const fotoSrc = item.foto ? item.foto : 'https://placehold.co/400x300?text=Produk+Warga';
-    const isHabis = item.status_stok === 'Habis';
-    const namaToko = (item.toko && item.toko.nama_lapak) ? item.toko.nama_lapak : (item.nama_lapak || 'Lapak Warga');
-    const coordToko = (item.toko && item.toko.koordinat) ? item.toko.koordinat : '';
 
-    // Hitung jarak dari rumah pemesan ke warung penjual
+  if (!hasCoordPembeli) {
+    html += `
+      <div class="alert alert-warning border-warning-subtle py-2 px-3 mb-3 d-flex align-items-center justify-content-between gap-2 rounded-3 small">
+        <div>
+          <i class="fas fa-map-marker-alt text-danger me-1"></i>
+          <span>Titik GPS rumah Anda belum terbaca.</span>
+        </div>
+        <button type="button" class="btn btn-warning btn-sm fw-bold rounded-pill px-3 flex-shrink-0" onclick="deteksiGpsPembeliDiKeranjang()">
+          <i class="fas fa-crosshairs me-1"></i> Pakai GPS
+        </button>
+      </div>
+    `;
+  }
+
+  let grandTotalProduk = 0;
+  let grandTotalOngkir = 0;
+  const jumlahLapak = Object.keys(perToko).length;
+
+  for (let namaToko in perToko) {
+    const dataToko = perToko[namaToko];
+    let subtotalToko = 0;
+
+    dataToko.items.forEach(it => {
+      subtotalToko += (Number(it.harga) * Number(it.qty));
+    });
+    grandTotalProduk += subtotalToko;
+
+    const coordToko = dataToko.infoToko.koordinat || '';
+    const hasCoordToko = Boolean(parseKoordinatGPS(coordToko));
     const infoJarak = hitungJarakHaversine(coordPembeli, coordToko);
-    const badgeJarakHtml = infoJarak
-      ? `<span class="badge rounded-pill px-2 py-1 flex-shrink-0" style="background-color:#e7f1ff; color:#0d6efd; border:1px solid #b6d4fe; font-size:10.5px;" title="Estimasi jarak dari rumah Anda">
+    const estOngkir = hitungEstimasiOngkirToko(subtotalToko, infoJarak, dataToko.infoToko.ongkir);
+
+    if (estOngkir.belumAdaGps) {
+      if (!hasCoordPembeli) {
+        estOngkir.keterangan = 'Titik GPS rumah pembeli belum diatur';
+      } else if (!hasCoordToko) {
+        estOngkir.keterangan = 'Titik GPS warung belum diatur penjual';
+      }
+    }
+
+    grandTotalOngkir += estOngkir.nominal;
+
+    const totalTokoDenganOngkir = subtotalToko + estOngkir.nominal;
+
+    const badgeJarakHeader = infoJarak
+      ? `<span class="badge rounded-pill px-2 py-1" style="background-color:#e7f1ff; color:#0d6efd; border:1px solid #b6d4fe; font-size:11px;">
            <i class="fas fa-map-marker-alt me-1"></i>${infoJarak.teks}
          </span>`
-      : '';
+      : `<span class="badge fw-semibold px-2 py-1" style="background-color:#e8f5e9; color:#198754; border:1px solid #c8e6c9; font-size:11px;">
+           Penjual
+         </span>`;
+
+    const badgeNilaiOngkir = estOngkir.gratis
+      ? `<span class="badge bg-success-subtle text-success border border-success-subtle">Gratis Ongkir</span>`
+      : `<strong class="${estOngkir.nominal > 0 ? 'text-primary' : 'text-muted'}">${estOngkir.label}</strong>`;
 
     html += `
-      <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
-        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-          ${isHabis ? '<span class="badge bg-secondary position-absolute top-0 end-0 m-3 px-2 py-1 shadow-sm">Habis</span>' : ''}
-          
-          <img src="${fotoSrc}" referrerpolicy="no-referrer" class="card-img-top" style="height: 180px; object-fit: cover;" onerror="this.onerror=null; this.src='https://placehold.co/400x300?text=Produk+Warga'">
-          
-          <div class="card-body p-3 d-flex flex-column justify-content-between">
-            <div>
-              <div class="text-muted small mb-1 d-flex align-items-center justify-content-between gap-1" style="font-size: 12px;">
-                <div class="d-flex align-items-center gap-1 text-truncate">
-                  <i class="fas fa-store text-success"></i>
-                  <span class="fw-semibold text-truncate" title="${namaToko}">${namaToko}</span>
-                </div>
-                ${badgeJarakHtml}
-              </div>
+      <div class="card mb-3 border border-light-subtle rounded-3 shadow-none overflow-hidden">
+        <div class="card-header bg-light py-2 px-3 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2 text-truncate">
+            <i class="fas fa-store text-success"></i>
+            <strong class="text-dark small text-truncate">${namaToko}</strong>
+          </div>
+          ${badgeJarakHeader}
+        </div>
 
-              <div class="mb-2">
-                <span class="badge bg-success text-white small px-2 py-1 shadow-sm" style="font-size: 11px;">${item.kategori}</span>
-              </div>
+        <div class="card-body p-3">
+    `;
 
-              <h6 class="fw-bold text-dark mb-1 text-truncate" title="${item.nama_produk}">${item.nama_produk}</h6>
-              <p class="text-muted small mb-2" style="font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                ${item.deskripsi || 'Tidak ada keterangan khusus.'}
-              </p>
+    dataToko.items.forEach(it => {
+      const sub = Number(it.harga) * Number(it.qty);
+
+      html += `
+        <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+          <div class="me-2" style="max-width: 55%;">
+            <strong class="d-block small text-truncate text-dark">${it.nama_produk}</strong>
+            <span class="text-muted" style="font-size: 11px;">Rp ${Number(it.harga).toLocaleString('id-ID')} x ${it.qty}</span>
+            <div class="fw-bold text-success" style="font-size: 12px;">Rp ${sub.toLocaleString('id-ID')}</div>
+          </div>
+          <div class="d-flex align-items-center gap-1">
+            <button class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0" onclick="ubahQtyItemKeranjang('${it.id_produk}', -1)">-</button>
+            <span class="fw-bold px-2 small">${it.qty}</span>
+            <button class="btn btn-outline-secondary btn-sm rounded-circle px-2 py-0" onclick="ubahQtyItemKeranjang('${it.id_produk}', 1)">+</button>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+          <div class="pt-2 small">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-muted">Subtotal Produk:</span>
+              <span class="fw-semibold text-dark">Rp ${subtotalToko.toLocaleString('id-ID')}</span>
             </div>
-
-            <div class="pt-2 border-top mt-2">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted small">Harga:</span>
-                <span class="fw-bold text-success fs-6">${hargaFormatted}</span>
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div>
+                <span class="text-muted"><i class="fas fa-motorcycle text-success me-1"></i>Estimasi Ongkir:</span>
+                <div class="text-muted" style="font-size: 10.5px;">${estOngkir.keterangan}</div>
               </div>
-              
-              <button type="button" 
-                      onclick="tambahKeKeranjang('${item.id_produk}', this)" 
-                      class="btn btn-sm ${isHabis ? 'btn-secondary' : 'btn-success'} w-100 fw-bold rounded-pill shadow-sm py-2" 
-                      ${isHabis ? 'disabled' : ''}>
-                <i class="fas fa-cart-plus me-1"></i> ${isHabis ? 'Stok Habis' : '+ Keranjang'}
-              </button>
+              <div class="text-end">${badgeNilaiOngkir}</div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 mt-1 border-top">
+              <span class="fw-bold text-dark">Estimasi Total Lapak:</span>
+              <strong class="text-success">Rp ${totalTokoDenganOngkir.toLocaleString('id-ID')}</strong>
             </div>
           </div>
         </div>
       </div>
     `;
-  });
+  }
 
-  grid.innerHTML = html;
-  if (typeof perbaruiBadgeKeranjang === 'function') perbaruiBadgeKeranjang();
+  container.innerHTML = html;
+
+  const grandTotalSemua = grandTotalProduk + grandTotalOngkir;
+
+  if (footerArea) {
+    footerArea.innerHTML = `
+      <div class="w-100">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <small class="text-muted d-block" style="font-size: 11px;">
+              Estimasi Total (${jumlahLapak} Lapak${grandTotalOngkir > 0 ? ' + Ongkir Antar' : ''})
+            </small>
+            <strong class="fs-5 text-success">Rp ${grandTotalSemua.toLocaleString('id-ID')}</strong>
+            <div class="text-muted" style="font-size: 10.5px;">*Ongkir Rp 0 jika pilih Ambil Sendiri ke Lapak</div>
+          </div>
+          <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="kosongkanKeranjang()">
+            <i class="fas fa-trash-alt me-1"></i> Kosongkan
+          </button>
+        </div>
+
+        <button class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 py-2" 
+                onclick="prosesCheckoutSemuaLapak()">
+          <i class="fab fa-whatsapp fs-5"></i>
+          <span>Pesan Sekarang (${jumlahLapak} Lapak)</span>
+        </button>
+      </div>
+    `;
+  }
 }
 
 // ============================================================================
-// 10. CHECKOUT MULTI LAPAK TERPADU (DENGAN JARAK & TITIK MAPS PEMESAN)
+// 10. CHECKOUT MULTI LAPAK TERPADU (DENGAN ONGKIR DINAMIS PER LAPAK)
 // ============================================================================
 function prosesCheckoutSemuaLapak() {
   if (!keranjangBelanja || keranjangBelanja.length === 0) {
@@ -23301,23 +23696,16 @@ function prosesCheckoutSemuaLapak() {
   // KELOMPOKKAN PRODUK BERDASARKAN NAMA LAPAK
   const perToko = {};
   keranjangBelanja.forEach(item => {
-    const namaToko = (item.toko && item.toko.nama_lapak)
-                  || item.nama_lapak
-                  || item.namaLapak
-                  || "Lapak Warga";
-
-    const noWaToko = (item.toko && item.toko.no_wa)
-                  || item.no_wa
-                  || item.noWa
-                  || "";
-
-    const coordToko = (item.toko && item.toko.koordinat) ? item.toko.koordinat : "";
+    const infoToko = ambilInfoTokoTerbaru(item);
+    const namaToko = infoToko.nama_lapak || item.nama_lapak || item.namaLapak || "Lapak Warga";
+    const noWaToko = infoToko.no_wa || item.no_wa || item.noWa || "";
 
     if (!perToko[namaToko]) {
       perToko[namaToko] = {
         namaLapak: namaToko,
         noWa: String(noWaToko || ''),
-        koordinat: coordToko,
+        koordinat: infoToko.koordinat || '',
+        aturanOngkir: infoToko.ongkir || {},
         items: [],
         subtotal: 0
       };
@@ -23327,6 +23715,17 @@ function prosesCheckoutSemuaLapak() {
   });
 
   const daftarLapak = Object.values(perToko);
+
+  // Hitung ringkasan produk & estimasi ongkir antar
+  let totalProdukSemua = 0;
+  let totalOngkirAntar = 0;
+
+  daftarLapak.forEach(tk => {
+    totalProdukSemua += tk.subtotal;
+    tk.infoJarak = hitungJarakHaversine(profil.koordinat, tk.koordinat);
+    tk.estOngkir = hitungEstimasiOngkirToko(tk.subtotal, tk.infoJarak, tk.aturanOngkir);
+    totalOngkirAntar += tk.estOngkir.nominal;
+  });
 
   const modalKeranjangEl = document.getElementById('modalKeranjangBelanja') ||
                            document.getElementById('modalKeranjang') ||
@@ -23355,10 +23754,13 @@ function prosesCheckoutSemuaLapak() {
         <label class="form-label small fw-bold mb-1">Metode Pengiriman</label>
         <select id="checkout_metode_multi" class="form-select form-select-sm mb-2 shadow-none">
           <option value="Minta Diantar ke Rumah">🛵 Minta Diantar ke Rumah</option>
-          <option value="Ambil Sendiri ke Lapak">🏪 Ambil Sendiri ke Lapak</option>
+          <option value="Ambil Sendiri ke Lapak">🏪 Ambil Sendiri ke Lapak (Ongkir Rp 0)</option>
         </select>
+
+        <div id="ringkasan_biaya_checkout" class="p-2 mb-2 rounded border bg-white small"></div>
+
         <label class="form-label small fw-bold mb-1">Catatan Tambahan (Opsional)</label>
-        <textarea id="checkout_catatan_multi" class="form-control form-control-sm shadow-none" rows="3" placeholder="Contoh: Titip di pos satpam / antar sore ya..."></textarea>
+        <textarea id="checkout_catatan_multi" class="form-control form-control-sm shadow-none" rows="2" placeholder="Contoh: Titip di pos satpam / antar sore ya..."></textarea>
       </div>
     `,
     showCancelButton: true,
@@ -23366,6 +23768,36 @@ function prosesCheckoutSemuaLapak() {
     confirmButtonColor: '#198754',
     cancelButtonText: 'Batal',
     didOpen: () => {
+      const selMetode = document.getElementById('checkout_metode_multi');
+      const boxRingkasan = document.getElementById('ringkasan_biaya_checkout');
+
+      const updateRingkasanBiaya = () => {
+        if (!boxRingkasan || !selMetode) return;
+        const isDiantar = selMetode.value === 'Minta Diantar ke Rumah';
+        const ongkirAktif = isDiantar ? totalOngkirAntar : 0;
+        const grandTotal = totalProdukSemua + ongkirAktif;
+
+        boxRingkasan.innerHTML = `
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Subtotal Produk:</span>
+            <span class="fw-semibold">Rp ${totalProdukSemua.toLocaleString('id-ID')}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Estimasi Ongkir:</span>
+            <span class="fw-semibold ${isDiantar ? 'text-primary' : 'text-success'}">
+              ${isDiantar ? ('Rp ' + ongkirAktif.toLocaleString('id-ID')) : 'Rp 0 (Ambil Sendiri)'}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between border-top pt-1 mt-1">
+            <span class="fw-bold text-dark">Estimasi Total Bayar:</span>
+            <span class="fw-bold text-success">Rp ${grandTotal.toLocaleString('id-ID')}</span>
+          </div>
+        `;
+      };
+
+      updateRingkasanBiaya();
+      if (selMetode) selMetode.addEventListener('change', updateRingkasanBiaya);
+
       const txt = document.getElementById('checkout_catatan_multi');
       if (txt) txt.focus();
     }
@@ -23377,6 +23809,7 @@ function prosesCheckoutSemuaLapak() {
 
     const metode = document.getElementById('checkout_metode_multi').value;
     const catatan = document.getElementById('checkout_catatan_multi').value.trim();
+    const isDiantar = (metode === 'Minta Diantar ke Rumah');
 
     const paketKirim = [];
 
@@ -23403,9 +23836,21 @@ function prosesCheckoutSemuaLapak() {
         rincianBarang += `${idx + 1}. *${it.nama_produk}* (${it.qty}x) = Rp ${(it.harga * it.qty).toLocaleString('id-ID')}\n`;
       });
 
-      // Hitung estimasi jarak & tautan Maps rumah pemesan
-      const infoJarak = hitungJarakHaversine(profil.koordinat, toko.koordinat);
-      const barisJarak = infoJarak ? `- *Estimasi Jarak:* ${infoJarak.teks} dari lapak\n` : '';
+      const ongkirToko = isDiantar ? toko.estOngkir.nominal : 0;
+      const totalAkhirToko = toko.subtotal + ongkirToko;
+
+      let labelOngkirWA = '';
+      if (!isDiantar) {
+        labelOngkirWA = 'Rp 0 (Ambil Sendiri ke Lapak)';
+      } else if (toko.estOngkir.gratis) {
+        labelOngkirWA = `Rp 0 - Gratis Ongkir (${toko.estOngkir.keterangan})`;
+      } else if (toko.estOngkir.nominal > 0) {
+        labelOngkirWA = `Rp ${toko.estOngkir.nominal.toLocaleString('id-ID')} (${toko.estOngkir.keterangan})`;
+      } else {
+        labelOngkirWA = `Konfirmasi Penjual (${toko.estOngkir.keterangan})`;
+      }
+
+      const barisJarak = toko.infoJarak ? `- *Estimasi Jarak:* ${toko.infoJarak.teks} dari lapak\n` : '';
       const coordClean = parseKoordinatGPS(profil.koordinat);
       const barisMaps = coordClean
         ? `- *Titik Lokasi:* https://maps.google.com/?q=${coordClean.lat},${coordClean.lng}\n`
@@ -23417,7 +23862,9 @@ function prosesCheckoutSemuaLapak() {
 Halo ${toko.namaLapak}, saya ingin memesan produk berikut:
 
 ${rincianBarang}
-*Total Belanja:* *Rp ${toko.subtotal.toLocaleString('id-ID')}*
+*Subtotal Produk:* Rp ${toko.subtotal.toLocaleString('id-ID')}
+*Estimasi Ongkir:* ${labelOngkirWA}
+*Estimasi Total Bayar:* *Rp ${totalAkhirToko.toLocaleString('id-ID')}*
 *Metode:* ${metode}
 ${catatan ? `*Catatan:* ${catatan}\n` : ''}---------------------------------------
 *Data Pemesan:*
@@ -23426,7 +23873,7 @@ ${catatan ? `*Catatan:* ${catatan}\n` : ''}-------------------------------------
 ${barisJarak}${barisMaps}- *Kontak:* ${profil.no_wa || '-'}
 - *Waktu Pesan:* ${new Date().toLocaleDateString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
 
-_Mohon konfirmasi ketersediaan barang dan cara pembayarannya. Terima kasih!_`;
+_Mohon konfirmasi ketersediaan barang, total akhir, dan cara pembayarannya. Terima kasih!_`;
 
       paketKirim.push({
         namaLapak: toko.namaLapak,
