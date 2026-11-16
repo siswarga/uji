@@ -1575,10 +1575,20 @@
     </div>
   </div>
 
-  <!-- TOMBOL AI GEMINI KHUSUS SUPERADMIN (TEXT PROMPT) -->
-  <button id="btn-ai-prompt" class="btn btn-warning text-dark border-2 border-dark rounded-circle shadow-lg" style="position: fixed; bottom: 30px; right: 30px; width: 45px; height: 45px; display: none; z-index: 9999;" onclick="openGeminiPrompt()" title="AI Gemini Assistant">
-    <i class="fas fa-magic fa-2x mt-1"></i>
-  </button>
+ <!-- TOMBOL AI GEMINI KHUSUS SUPERADMIN (TEXT PROMPT) -->
+<button id="btn-ai-prompt"
+  class="btn text-white rounded-circle shadow-lg"
+  style="position: fixed; bottom: 28px; right: 28px; width: 50px; height: 50px; padding: 0; display: none; z-index: 9999; background: linear-gradient(135deg, #1a73e8 0%, #6f42c1 100%); border: 2px solid rgba(255, 255, 255, 0.85);"
+  onclick="openGeminiPrompt()"
+  title="AI Gemini Assistant">
+  <span class="d-flex align-items-center justify-content-center w-100 h-100">
+    <!-- Ikon Sparkle Gemini -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C12.3 7.2 16.8 11.7 22 12C16.8 12.3 12.3 16.8 12 22C11.7 16.8 7.2 12.3 2 12C7.2 11.7 11.7 7.2 12 2Z"/>
+      <path d="M5 2C5.15 4.2 6.8 5.85 9 6C6.8 6.15 5.15 7.8 5 10C4.85 7.8 3.2 6.15 1 6C3.2 5.85 4.85 4.2 5 2Z" opacity="0.85"/>
+    </svg>
+  </span>
+</button>
 
   <!-- HALAMAN LOGIN ADMIN / UMKM -->
   <div id="login-page" style="display:none;">
@@ -2887,33 +2897,33 @@
 
           </div>
 
-          <!-- PAGE LAYANAN, PERMOHONAN & SURAT -->
-          <div id="page-pengaduan" class="page-view" style="display: none;">
-            <!-- Header Judul Utama -->
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-              <h3 class="text-success fw-bold m-0">
-                <i class="fas fa-concierge-bell me-2"></i>Layanan & Administrasi Warga
-              </h3>
-            </div>
+         <!-- PAGE LAYANAN, PERMOHONAN & SURAT -->
+<div id="page-pengaduan" class="page-view" style="display: none;">
+  <!-- Header Judul Utama -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h3 class="text-success fw-bold m-0">
+      <i class="fas fa-concierge-bell me-2"></i>Layanan & Administrasi Warga
+    </h3>
+  </div>
 
-            <!-- Nav Tabs Layanan (3 Tab Terpadu) -->
-            <ul class="nav nav-tabs mb-3" id="layananTab" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active fw-bold text-danger" id="tab-aduan-btn" data-bs-toggle="tab" data-bs-target="#tab-pengaduan" type="button" role="tab" onclick="if(typeof renderTablePengaduan === 'function') renderTablePengaduan();">
-                  <i class="fas fa-exclamation-circle me-1"></i> Pengaduan Warga
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-primary" id="tab-mohon-btn" data-bs-toggle="tab" data-bs-target="#tab-permohonan" type="button" role="tab" onclick="if(typeof renderTablePermohonan === 'function') renderTablePermohonan();">
-                  <i class="fas fa-file-signature me-1"></i> Permohonan Administrasi
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-success" id="tab-surat-btn" data-bs-toggle="tab" data-bs-target="#tab-surat" type="button" role="tab" onclick="if(typeof loadRiwayatSurat === 'function') loadRiwayatSurat();">
-                  <i class="fas fa-envelope-open-text me-1"></i> Layanan Surat
-                </button>
-              </li>
-            </ul>
+  <!-- Nav Tabs Layanan (3 Tab Terpadu) -->
+  <ul class="nav nav-tabs mb-3" id="layananTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active fw-bold text-danger" id="tab-aduan-btn" data-bs-toggle="tab" data-bs-target="#tab-pengaduan" type="button" role="tab" onclick="if(typeof renderTablePengaduan === 'function') renderTablePengaduan();">
+        <i class="fas fa-exclamation-circle me-1"></i> Pengaduan Warga
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link fw-bold text-primary" id="tab-mohon-btn" data-bs-toggle="tab" data-bs-target="#tab-permohonan" type="button" role="tab" onclick="if(typeof renderTablePermohonan === 'function') renderTablePermohonan();">
+        <i class="fas fa-file-signature me-1"></i> Permohonan Administrasi
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link fw-bold text-success" id="tab-surat-btn" data-bs-toggle="tab" data-bs-target="#tab-surat" type="button" role="tab" onclick="if(typeof loadDataSurat === 'function') loadDataSurat();">
+        <i class="fas fa-envelope-open-text me-1"></i> Layanan Surat
+      </button>
+    </li>
+  </ul>
 
             <div class="tab-content" id="layananTabContent">
 
@@ -9794,12 +9804,48 @@ function checkSession() {
           
           let sessionUMKM = null;
 
-function handleLogin(e) { 
-  e.preventDefault(); 
+// Pembantu Deteksi IP Publik, OS, dan Browser Pengguna
+async function ambilInfoPerangkatLogin() {
+  const ua = navigator.userAgent || '';
+
+  let os = 'Perangkat Lain';
+  if (/android/i.test(ua)) os = 'Android';
+  else if (/iPad|iPhone|iPod/.test(ua)) os = 'iOS / iPhone';
+  else if (/Windows NT 10\.0/.test(ua)) os = 'Windows 10/11';
+  else if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Mac OS X/.test(ua)) os = 'macOS';
+  else if (/Linux/.test(ua)) os = 'Linux';
+
+  let browser = 'Browser';
+  if (/Edg\//.test(ua)) browser = 'Edge';
+  else if (/OPR\/|Opera/.test(ua)) browser = 'Opera';
+  else if (/Chrome\//.test(ua) && !/Edg\//.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//.test(ua)) browser = 'Firefox';
+  else if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) browser = 'Safari';
+
+  let ipPublik = 'IP tidak terdeteksi';
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.ip) ipPublik = data.ip;
+    }
+  } catch (e) {
+    // Tetap lanjutkan login jika pengecekan IP timeout/offline
+  }
+
+  return `IP: ${ipPublik} | ${os} (${browser})`;
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
   const u = document.getElementById('username');
   const p = document.getElementById('password');
   const btn = document.querySelector('#form-login button[type="submit"]');
-  
+
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa...';
 
@@ -9822,13 +9868,12 @@ function handleLogin(e) {
           p.value = '';
 
           Swal.fire({
-            icon: 'success', 
-            title: 'Login Berhasil', 
+            icon: 'success',
+            title: 'Login Berhasil',
             text: `Selamat datang di lapak ${res.data.nama_lapak}`,
-            timer: 1200, 
+            timer: 1200,
             showConfirmButton: false
           }).then(() => {
-            // Jalankan perpindahan halaman setelah notifikasi sukses tertutup
             bukaPanelDashboardUMKM();
           });
 
@@ -9851,8 +9896,10 @@ function handleLogin(e) {
   }
 
   // ============================================================
-  // JALUR 2: LOGIN PENGURUS
+  // JALUR 2: LOGIN PENGURUS (DENGAN DETEKSI IP & PERANGKAT)
   // ============================================================
+  const infoPerangkat = await ambilInfoPerangkatLogin();
+
   google.script.run
     .withSuccessHandler(res => {
       btn.innerHTML = 'Masuk Panel';
@@ -9867,33 +9914,33 @@ function handleLogin(e) {
         u.value = '';
         p.value = '';
 
-        Swal.fire({icon:'success', title:'Login Berhasil', timer:1000, showConfirmButton:false});
-        
+        Swal.fire({ icon: 'success', title: 'Login Berhasil', timer: 1000, showConfirmButton: false });
+
         let loginPage = document.getElementById('login-page');
-        if (loginPage) loginPage.style.cssText = 'display: none !important;'; 
-        
+        if (loginPage) loginPage.style.cssText = 'display: none !important;';
+
         let publicPage = document.getElementById('public-page');
         if (publicPage) publicPage.style.display = 'none';
-        
+
         let appLayout = document.getElementById('app-layout');
         if (appLayout) appLayout.style.cssText = 'display: flex !important; width: 100%; min-height: 100vh;';
 
         showApp();
-        
-      } else { 
+
+      } else {
         if (res.isBlocked && res.remainingSecs > 0) {
           startLoginCountdown(res.remainingSecs);
         } else {
-          Swal.fire('Gagal', res.message || 'Username/Password salah', 'error'); 
+          Swal.fire('Gagal', res.message || 'Username/Password salah', 'error');
         }
       }
     })
-    .withFailureHandler(err => { 
+    .withFailureHandler(err => {
       btn.innerHTML = 'Masuk Panel';
       btn.disabled = false;
-      Swal.fire('Error Koneksi', String(err), 'error'); 
+      Swal.fire('Error Koneksi', String(err), 'error');
     })
-    .login(u.value, p.value); 
+    .login(u.value, p.value, infoPerangkat);
 }
           
 function switchMenu(mId, el) {
@@ -10070,26 +10117,48 @@ function aktifkanTabPermohonan() {
             }).withFailureHandler(() => { hideLoading(); }).getDashboardData(localStorage.getItem('sigas_token')); 
           }
           
-function handleLogout() { 
+function handleLogout() {
   Swal.fire({
-    title: 'Logout dari Sistem?', 
+    title: 'Logout dari Sistem?',
     text: 'Sesi Anda akan diakhiri dan halaman akan dimuat ulang.',
-    icon: 'warning', 
-    showCancelButton: true, 
-    confirmButtonColor: '#dc3545', 
+    icon: 'warning',
+    width: '320px',
+    padding: '1.1rem',
+    showCancelButton: true,
     confirmButtonText: 'Ya, Keluar',
-    cancelButtonText: 'Batal'
+    cancelButtonText: 'Batal',
+    buttonsStyling: false,
+    customClass: {
+      popup: 'rounded-4 shadow',
+      title: 'fs-6 fw-bold pt-1',
+      htmlContainer: 'small text-muted my-1',
+      actions: 'mt-3',
+      confirmButton: 'btn btn-danger btn-sm px-3 rounded-pill me-2',
+      cancelButton: 'btn btn-secondary btn-sm px-3 rounded-pill'
+    },
+    didOpen: (popup) => {
+      const icon = popup.querySelector('.swal2-icon');
+      if (icon) {
+        icon.style.width = '3.2em';
+        icon.style.height = '3.2em';
+        icon.style.margin = '0.2rem auto 0.4rem';
+      }
+      const iconContent = popup.querySelector('.swal2-icon-content');
+      if (iconContent) {
+        iconContent.style.fontSize = '2.2em';
+      }
+    }
   }).then(r => {
     if (r.isConfirmed) {
-      showLoading(); 
+      showLoading();
       const token = localStorage.getItem('sigas_token');
 
       // Fungsi pembersih sesi & pemuat ulang halaman
       const prosesBersihDanReload = () => {
-        localStorage.removeItem('sigas_token'); 
+        localStorage.removeItem('sigas_token');
         localStorage.removeItem('sigas_active_menu'); // Bersihkan riwayat menu
-        currentUser = null; 
-        
+        currentUser = null;
+
         // Muat ulang halaman secara penuh agar seluruh data dan tampilan ter-refresh bersih
         window.location.reload();
       };
@@ -10103,7 +10172,7 @@ function handleLogout() {
         })
         .logout(token);
     }
-  }); 
+  });
 }
           	
               	// FUNGSI UNTUK MEMUNCULKAN / MENYEMBUNYIKAN SIDEBAR DI HP
@@ -14376,44 +14445,82 @@ function cetakPDF(judulLaporan, headers, rows, dicetakOleh = 'Pengurus', kalimat
               }
                 });
               }
-              // =====================================================
-              // SCRIPT LAYANAN SURAT OTOMATIS
-              // =====================================================
-              let listWargaSuratGlobal = [];
-              
-              function loadDataSurat() {
-                showLoading();
-                // 1. Ambil List Warga untuk Dropdown
-                google.script.run.withSuccessHandler(res => {
-              if(res.success) {
-                listWargaSuratGlobal = res.data;
-                const sw = document.getElementById('surat_warga');
-                sw.innerHTML = '<option value="">-- Cari & Pilih Nama Warga --</option>';
-                res.data.forEach(w => { sw.innerHTML += `<option value="${w.nik}">${w.nama} (NIK: ${w.nik})</option>`; });
-              }
-                }).getWargaForSurat(localStorage.getItem('sigas_token'));
-              
-                // 2. Ambil Riwayat Surat untuk Tabel
-                google.script.run.withSuccessHandler(res => {
-              hideLoading();
-              if(res.success) {
-                const tb = document.getElementById('tbody-surat');
-                tb.innerHTML = '';
-                if(res.data.length === 0) {
-                  tb.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Belum ada riwayat surat</td></tr>';
-                } else {
-                  res.data.forEach(s => {
-                    tb.innerHTML += `<tr>
-                      <td><small class="text-muted">${s.tanggal}</small><br><span class="badge bg-light text-dark border"><i class="fas fa-user-edit"></i> ${s.user}</span></td>
-                      <td><b>${s.nama}</b><br><small class="text-secondary">NIK: ${s.nik}</small></td>
-                      <td><span class="badge bg-success">${s.jenis}</span><br><small class="text-muted">No: ${s.nomor}</small></td>
-                      <td>${s.keperluan}</td>
-                    </tr>`;
-                  });
-                }
-              }
-                }).getRiwayatSurat(localStorage.getItem('sigas_token'));
-              }
+
+// =====================================================
+// SCRIPT LAYANAN SURAT OTOMATIS (DENGAN PENANGANAN ERROR)
+// =====================================================
+let listWargaSuratGlobal = [];
+
+function loadDataSurat() {
+  const sw = document.getElementById('surat_warga');
+  const tb = document.getElementById('tbody-surat');
+  const token = localStorage.getItem('sigas_token');
+
+  if (sw) sw.innerHTML = '<option value="">-- Memuat Data Warga... --</option>';
+  if (typeof showLoading === 'function') showLoading();
+
+  // 1. Ambil List Warga untuk Dropdown
+  google.script.run
+    .withSuccessHandler(res => {
+      if (res && res.success && Array.isArray(res.data)) {
+        listWargaSuratGlobal = res.data;
+        if (sw) {
+          sw.innerHTML = '<option value="">-- Cari & Pilih Nama Warga --</option>';
+          res.data.forEach(w => {
+            sw.innerHTML += `<option value="${w.nik}">${w.nama} (NIK: ${w.nik})</option>`;
+          });
+        }
+      } else {
+        // Fallback jika dataWargaGlobal sudah sempat dimuat di menu Data Warga
+        if (typeof dataWargaGlobal !== 'undefined' && Array.isArray(dataWargaGlobal) && dataWargaGlobal.length > 0) {
+          listWargaSuratGlobal = dataWargaGlobal;
+          if (sw) {
+            sw.innerHTML = '<option value="">-- Cari & Pilih Nama Warga --</option>';
+            dataWargaGlobal.forEach(w => {
+              sw.innerHTML += `<option value="${w.nik}">${w.nama} (NIK: ${w.nik})</option>`;
+            });
+          }
+        } else if (sw) {
+          sw.innerHTML = `<option value="">-- Gagal memuat (${res && res.message ? res.message : 'Sesi habis / Tidak ada akses'}) --</option>`;
+        }
+      }
+    })
+    .withFailureHandler(err => {
+      console.error('Error getWargaForSurat:', err);
+      if (sw) sw.innerHTML = '<option value="">-- Error server saat memuat warga --</option>';
+    })
+    .getWargaForSurat(token);
+
+  // 2. Ambil Riwayat Surat untuk Tabel
+  google.script.run
+    .withSuccessHandler(res => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (!tb) return;
+
+      if (res && res.success && Array.isArray(res.data)) {
+        tb.innerHTML = '';
+        if (res.data.length === 0) {
+          tb.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Belum ada riwayat surat</td></tr>';
+        } else {
+          res.data.forEach(s => {
+            tb.innerHTML += `<tr>
+              <td><small class="text-muted">${s.tanggal}</small><br><span class="badge bg-light text-dark border"><i class="fas fa-user-edit"></i> ${s.user}</span></td>
+              <td><b>${s.nama}</b><br><small class="text-secondary">NIK: ${s.nik}</small></td>
+              <td><span class="badge bg-success">${s.jenis}</span><br><small class="text-muted">No: ${s.nomor}</small></td>
+              <td>${s.keperluan}</td>
+            </tr>`;
+          });
+        }
+      } else {
+        tb.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-3">${res && res.message ? res.message : 'Sesi login habis atau akses ditolak. Silakan logout & login ulang.'}</td></tr>`;
+      }
+    })
+    .withFailureHandler(err => {
+      if (typeof hideLoading === 'function') hideLoading();
+      if (tb) tb.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-3">Error server: ${err.message || err}</td></tr>`;
+    })
+    .getRiwayatSurat(token);
+}
               
               function toggleFormSurat() {
                 const val = document.getElementById('surat_jenis').value;
@@ -25134,6 +25241,45 @@ _Arsip lengkap & dokumentasi dapat dilihat melalui Aplikasi Portal Warga._`;
 
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`, '_blank');
 };
+
+// Mendeteksi Jenis Perangkat, OS, Browser, dan IP Publik Pengguna
+async function ambilInfoPerangkatLogin() {
+  const ua = navigator.userAgent || '';
+
+  // 1. Deteksi Sistem Operasi / Tipe Perangkat
+  let os = 'Perangkat Lain';
+  if (/android/i.test(ua)) os = 'Android';
+  else if (/iPad|iPhone|iPod/.test(ua)) os = 'iOS / iPhone';
+  else if (/Windows NT 10\.0/.test(ua)) os = 'Windows 10/11';
+  else if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Mac OS X/.test(ua)) os = 'macOS';
+  else if (/Linux/.test(ua)) os = 'Linux';
+
+  // 2. Deteksi Browser
+  let browser = 'Browser';
+  if (/Edg\//.test(ua)) browser = 'Edge';
+  else if (/OPR\/|Opera/.test(ua)) browser = 'Opera';
+  else if (/Chrome\//.test(ua) && !/Edg\//.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//.test(ua)) browser = 'Firefox';
+  else if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) browser = 'Safari';
+
+  // 3. Ambil IP Publik (dengan timeout 2.5 detik agar tidak menghambat login)
+  let ipPublik = 'IP tidak terdeteksi';
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.ip) ipPublik = data.ip;
+    }
+  } catch (e) {
+    // Abaikan jika gagal/offline, tetap lanjutkan login
+  }
+
+  return `IP: ${ipPublik} | ${os} (${browser})`;
+}
 
 </script>
 <!-- Audio Player Adzan Global -->
