@@ -1899,6 +1899,65 @@
             </div>
           </div>
 
+			<!-- ========================================================================= -->
+<!-- HALAMAN DASHBOARD: NOTULEN RAPAT WARGA (#page-notulen)                    -->
+<!-- ========================================================================= -->
+<div id="page-notulen" class="page-view" style="display: none;">
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+      
+      <!-- Header Halaman & Tombol Aksi -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+          <h4 class="fw-bold text-primary mb-1"><i class="fas fa-file-signature me-2"></i>Notulen Rapat Warga</h4>
+          <p class="text-muted small mb-0">Arsip catatan musyawarah, keputusan rapat, dan dokumentasi kegiatan lingkungan</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="loadDataNotulen(true)">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+          </button>
+          <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm" onclick="bukaFormNotulen()">
+            <i class="fas fa-plus me-1"></i> Catat Notulen Baru
+          </button>
+        </div>
+      </div>
+
+      <!-- Bar Pencarian -->
+      <div class="row g-2 mb-3">
+        <div class="col-md-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="searchNotulenAdmin" class="form-control bg-light border-start-0 shadow-none" placeholder="Cari agenda, tempat, pimpinan, atau keputusan..." onkeyup="renderTableNotulen()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel Data Notulen -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle border-top">
+          <thead class="table-light small text-uppercase text-muted">
+            <tr>
+              <th width="5%" class="text-center">No</th>
+              <th width="16%">Tanggal & Waktu</th>
+              <th width="25%">Agenda & Tempat</th>
+              <th width="34%">Keputusan Rapat</th>
+              <th width="20%" class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyNotulenRapat" class="small">
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">
+                <div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data notulen...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
           <!-- PAGE KOPERASI WARGA -->
           <div id="page-koperasi" class="page-view" style="display: none;">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
@@ -4374,11 +4433,9 @@
             </div>
           </div>
 
-          <!-- ========================================== -->
+         <!-- ========================================== -->
           <!-- PAGE SUPERADMIN (TERPISAH DI LUAR PENGATURAN) -->
           <!-- ========================================== -->
-
-          <!-- PAGE SUPERADMIN -->
           <div id="page-superadmin" class="page-view" style="display: none;">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
               <h3 class="text-danger fw-bold m-0"><i class="fas fa-user-shield me-2"></i>Panel Superadmin</h3>
@@ -4493,7 +4550,7 @@
                     </div>
                   </div>
 
-                  <!-- KARTU PENGATURAN VISIBILITAS FITUR & AKSES PORTAL -->
+                  <!-- KARTU 3: PENGATURAN VISIBILITAS FITUR & AKSES PORTAL -->
                   <div class="card shadow-sm border-0 rounded-3 mb-4">
                     <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                       <h6 class="fw-bold mb-0 text-success">
@@ -4630,30 +4687,33 @@
                       </div>
 
                       <hr class="my-4 text-muted opacity-25">
-						
-						<!-- SUB-BAGIAN 2 (BARU): KARTU MODUL DASHBOARD WARGA -->
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <span class="fw-bold small text-secondary text-uppercase tracking-wider">
-        <i class="fas fa-th-large text-success me-1"></i> Modul Kartu Beranda Warga
-      </span>
-      <small class="text-muted d-none d-sm-inline">Tampilkan / sembunyikan modul kartu di beranda publik</small>
-    </div>
 
-    <div class="row g-3 mb-4">
-      <!-- Toggle Bursa Lowongan Kerja -->
-      <div class="col-12 col-md-6">
-        <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="small fw-bold"><i class="fas fa-briefcase text-success me-1"></i> Bursa Lowongan Kerja</span>
-            <div class="form-check form-switch m-0">
-              <input class="form-check-input" type="checkbox" id="seting-show-loker" checked>
-            </div>
-          </div>
-          <small class="text-muted" style="font-size: 0.72rem;">Aktifkan tampilan kartu lowongan kerja online di dashboard warga</small>
-        </div>
-      </div>
-						
-                      <!-- SUB-BAGIAN 3: PENGATURAN KOLOM IDENTITAS REGISTRASI -->
+                      <!-- SUB-BAGIAN 3: KARTU MODUL DASHBOARD WARGA -->
+                      <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="fw-bold small text-secondary text-uppercase tracking-wider">
+                          <i class="fas fa-th-large text-success me-1"></i> Modul Kartu Beranda Warga
+                        </span>
+                        <small class="text-muted d-none d-sm-inline">Tampilkan / sembunyikan modul kartu di beranda publik</small>
+                      </div>
+
+                      <div class="row g-3 mb-4">
+                        <!-- Toggle Bursa Lowongan Kerja -->
+                        <div class="col-12 col-md-6">
+                          <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                              <span class="small fw-bold"><i class="fas fa-briefcase text-success me-1"></i> Bursa Lowongan Kerja</span>
+                              <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" id="seting-show-loker" checked>
+                              </div>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.72rem;">Aktifkan tampilan kartu lowongan kerja online di dashboard warga</small>
+                          </div>
+                        </div>
+                      </div>
+
+                      <hr class="my-4 text-muted opacity-25">
+
+                      <!-- SUB-BAGIAN 4: PENGATURAN KOLOM IDENTITAS REGISTRASI -->
                       <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="fw-bold small text-secondary text-uppercase tracking-wider">
                           <i class="fas fa-id-card-alt text-success me-1"></i> Kolom Identitas Pendaftaran Warga
@@ -4736,8 +4796,7 @@
                     </button>
                   </div>
                 </div>
-
-              </div>
+              </div> <!-- Tutup tab-identitas -->
 
               <!-- 2. TAB HAK AKSES -->
               <div class="tab-pane fade" id="tab-hak-akses" role="tabpanel">
@@ -4787,7 +4846,7 @@
                 </div>
               </div> <!-- Tutup tab-history -->
 
-            </div> <!-- TUTUP TAB-CONTENT (Sekarang menutup ketiga tab dengan benar) -->
+            </div> <!-- TUTUP TAB-CONTENT -->
           </div> <!-- TUTUP PAGE-SUPERADMIN -->
 
           <!-- PAGE CCTV LINGKUNGAN -->
@@ -5145,11 +5204,25 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label small fw-bold">Link Foto Produk (URL Google Drive / Gambar)</label>
-            <input type="url" class="form-control rounded-3" id="prd_foto" placeholder="https://drive.google.com/... atau https://...">
-            <small class="text-muted" style="font-size: 11px;">Bisa menggunakan link foto Google Drive publik atau link gambar lainnya.</small>
-          </div>
+         <!-- Upload Foto Produk + Preview Gambar -->
+<div class="mb-3">
+  <label class="form-label small fw-bold">Foto Produk</label>
+  <input type="file" class="form-control rounded-3" id="prd_foto_file" accept="image/*" onchange="handlePilihFoto(event)">
+  
+  <!-- Hidden input untuk menampung data foto (Base64 atau URL lama saat edit) -->
+  <input type="hidden" id="prd_foto" value="">
+
+  <!-- Pratinjau (Preview) Foto yang Dipilih -->
+  <div id="wrapper_preview_foto" class="mt-2 text-center" style="display: none;">
+    <div class="position-relative d-inline-block">
+      <img id="img_preview_foto" src="" class="rounded-3 border shadow-sm" style="max-height: 120px; max-width: 100%; object-fit: contain;">
+      <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle py-0 px-1 m-1" onclick="hapusPilihanFoto()" title="Hapus Foto">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <small class="text-muted d-block mt-1" style="font-size: 11px;">Pilih foto dari galeri HP atau komputer (format JPG, PNG, WEBP).</small>
+</div>
 
           <div class="mb-2">
             <label class="form-label small fw-bold">Deskripsi / Keterangan Singkat</label>
@@ -6294,7 +6367,7 @@
             <div class="col-md-12">
               <label class="form-label fw-bold text-success border-bottom pb-2 mb-2 w-100">Pilih Akses Menu</label>
 
-              <!-- Dashboard (Wajib) -->
+             <!-- Dashboard (Wajib) -->
               <div class="row g-2 mb-2">
                 <div class="col-12">
                   <div class="form-check">
@@ -6304,7 +6377,7 @@
                 </div>
               </div>
 
-              <!-- SECTION: MENU KHUSUS (WARNA BIRU) -->
+              <!-- SECTION: MENU KHUSUS (WARNA BIRU - 10 MENU / 5 BARIS x 2 KOLOM RAPI) -->
               <div class="mt-2 mb-2">
                 <span class="badge bg-primary text-uppercase fw-bold px-2 py-1" style="font-size: 0.65rem;">==== Menu Khusus ====</span>
               </div>
@@ -6313,6 +6386,12 @@
                   <div class="form-check">
                     <input class="form-check-input chk-akses" type="checkbox" value="menu-warga" id="akses_warga">
                     <label class="form-check-label small text-primary fw-bold" for="akses_warga">Data Warga</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input chk-akses" type="checkbox" value="menu-notulen" id="akses_notulen">
+                    <label class="form-check-label small text-primary fw-bold" for="akses_notulen">Notulen Rapat</label>
                   </div>
                 </div>
                 <div class="col-6">
@@ -7942,6 +8021,99 @@
   </div>
 </div>
 	
+<!-- MODAL BACA DETAIL NOTULEN RAPAT -->
+<div class="modal fade" id="modalDetailNotulen" aria-hidden="true" style="z-index: 1065;">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-white border-bottom py-3 px-4">
+        <h5 class="modal-title fw-bold text-success fs-6"><i class="fas fa-book-open me-2"></i>Detail Hasil Rapat</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4" id="detailNotulenBody"></div>
+      <div class="modal-footer bg-light border-0 py-3 px-4 d-flex justify-content-between">
+        <button type="button" id="btnShareNotulenWA" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm">
+          <i class="fab fa-whatsapp me-1"></i> Bagikan ke Grup WA
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORM TAMBAH / EDIT NOTULEN -->
+<div class="modal fade" id="modalFormNotulen" aria-hidden="true" style="z-index: 1070;">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-success text-white border-0 py-3 px-4">
+        <h5 class="modal-title fw-bold fs-6" id="modalFormNotulenTitle"><i class="fas fa-edit me-2"></i>Catat Notulen Rapat Baru</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="formNotulenRapat" onsubmit="simpanFormNotulen(event)">
+        <div class="modal-body p-4">
+          <input type="hidden" id="ntl_id" value="">
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Tanggal Rapat <span class="text-danger">*</span></label>
+              <input type="date" class="form-control rounded-3 shadow-none" id="ntl_tanggal" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Waktu <span class="text-danger">*</span></label>
+              <input type="text" class="form-control rounded-3 shadow-none" id="ntl_waktu" placeholder="Contoh: 19.30 WIB - Selesai" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Tempat Rapat <span class="text-danger">*</span></label>
+              <input type="text" class="form-control rounded-3 shadow-none" id="ntl_tempat" placeholder="Contoh: Balai Warga / Pos Ronda" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label class="form-label small fw-bold">Judul / Agenda Rapat <span class="text-danger">*</span></label>
+              <input type="text" class="form-control rounded-3 shadow-none" id="ntl_agenda" placeholder="Contoh: Rapat Koordinasi Kerja Bakti & Keamanan" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Pimpinan Rapat <span class="text-danger">*</span></label>
+              <input type="text" class="form-control rounded-3 shadow-none" id="ntl_pimpinan" placeholder="Contoh: Ketua RT / Ketua RW" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Ringkasan Pembahasan / Jalannya Rapat <span class="text-danger">*</span></label>
+            <textarea class="form-control rounded-3 shadow-none" id="ntl_pembahasan" rows="4" placeholder="Tuliskan poin-poin usulan warga dan jalannya diskusi..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-success">Keputusan / Kesepakatan Rapat <span class="text-danger">*</span></label>
+            <textarea class="form-control rounded-3 border-success shadow-none" id="ntl_keputusan" rows="3" placeholder="Tuliskan hasil akhir atau keputusan yang disepakati bersama..." required></textarea>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small fw-bold">Foto Dokumentasi / Daftar Hadir (Opsional)</label>
+            <input type="file" class="form-control rounded-3 shadow-none" id="ntl_foto_file" accept="image/*" onchange="handlePilihFotoNotulen(event)">
+            <input type="hidden" id="ntl_foto" value="">
+
+            <div id="wrapper_preview_ntl" class="mt-2 text-center" style="display: none;">
+              <div class="position-relative d-inline-block">
+                <img id="img_preview_ntl" src="" class="rounded-3 border shadow-sm" style="max-height: 140px; max-width: 100%; object-fit: contain;">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle py-0 px-1 m-1" onclick="hapusFotoNotulen()" title="Hapus Foto">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0 py-3 px-4">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm">
+            <i class="fas fa-save me-1"></i> Simpan Notulen
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- ================================================================= -->
 <!-- Pastikan pustaka SweetAlert2 dan Bootstrap dimuat terlebih dahulu -->
 <!-- ================================================================= -->
@@ -9793,6 +9965,9 @@ function lanjutBukaMenu(mId, el) {
   // Routing pemanggilan data
   if (mId === 'menu-dashboard') loadDashboard(); 
   else if (mId === 'menu-warga') { if (typeof dataWargaGlobal !== 'undefined' && dataWargaGlobal.length === 0) loadDataWarga(); else renderTableWarga(); } 
+  else if (mId === 'menu-notulen') { if (!window.dataNotulenGlobal || window.dataNotulenGlobal.length === 0) { loadDataNotulen(); } else {renderTableNotulen(); 
+  }
+}
   else if (mId === 'menu-struktur-pengurus') { if (typeof dataPengurusGlobal !== 'undefined' && dataPengurusGlobal.length === 0) loadDataPengurus(); else renderTablePengurus(); }
   else if (mId === 'menu-kas-warga') { if (typeof dataKasGlobal !== 'undefined' && dataKasGlobal.length === 0) loadDataKas(); else renderTableKas(); } 
   else if (mId === 'menu-kas-masjid') { if (typeof dataKasMasjidGlobal !== 'undefined' && dataKasMasjidGlobal.length === 0) loadDataKasMasjid(); else renderTableMasjid(dataKasMasjidGlobal); } 
@@ -10176,70 +10351,71 @@ if (tk) {
         }).getPublicDashboardData();
       }
               
-            function renderMenu() {
-            const mc = document.getElementById('sidebar-menu'); 
-            mc.innerHTML = ''; 
-            const r = currentUser.role;
-            const akses = currentUser.aksesMenu || '';
-            const isAdmin = (r === 'Superadmin' || r === 'Admin');
-            // Atur tampilan ikon notifikasi header atas sesuai hak akses
-			const topIcons = {
-			kegiatan: document.querySelector('button[onclick*="menu-kegiatan"]'),
-			pengaduan: document.querySelector('button[onclick*="menu-pengaduan"]'),
-			voting: document.querySelector('button[onclick*="menu-voting"]')
-			};
+function renderMenu() {
+  const mc = document.getElementById('sidebar-menu');
+  mc.innerHTML = '';
+  const r = currentUser.role;
+  const akses = currentUser.aksesMenu || '';
+  const isAdmin = (r === 'Superadmin' || r === 'Admin');
 
-			if (topIcons.kegiatan) {
-			topIcons.kegiatan.style.display = (isAdmin || akses.includes('menu-kegiatan')) ? 'inline-flex' : 'none';
-			}
-			if (topIcons.pengaduan) {
-			topIcons.pengaduan.style.display = (isAdmin || akses.includes('menu-pengaduan')) ? 'inline-flex' : 'none';
-			}
-			if (topIcons.voting) {
-			topIcons.voting.style.display = (isAdmin || akses.includes('menu-kegiatan') || akses.includes('menu-voting')) ? 'inline-flex' : 'none';
-			}
+  // Atur tampilan ikon notifikasi header atas sesuai hak akses
+  const topIcons = {
+    kegiatan: document.querySelector('button[onclick*="menu-kegiatan"]'),
+    pengaduan: document.querySelector('button[onclick*="menu-pengaduan"]'),
+    voting: document.querySelector('button[onclick*="menu-voting"]')
+  };
 
-			
-              let ms = [
-			{ name: 'Dashboard', icon: 'fas fa-tachometer-alt', id: 'menu-dashboard', show: true },
-			{ name: 'Struktur Pengurus', icon: 'fas fa-sitemap', id: 'menu-struktur-pengurus', show: isAdmin || akses.includes('menu-struktur-pengurus') },
-			{ name: 'Data Warga', icon: 'fas fa-users', id: 'menu-warga', show: isAdmin || akses.includes('menu-warga') },
-			{ name: 'Koperasi Warga', icon: 'fas fa-store', id: 'menu-koperasi', show: isAdmin || akses.includes('menu-koperasi') },
-			{ name: 'Kas Warga', icon: 'fas fa-wallet', id: 'menu-kas-warga', show: isAdmin || akses.includes('menu-kas-warga') },
-			{ name: 'Kas Masjid', icon: 'fas fa-mosque', id: 'menu-kas-masjid', show: isAdmin || akses.includes('menu-kas-masjid') },
-			{ name: 'Dewan Masjid', icon: 'fas fa-kaaba', id: 'menu-dewan-masjid', show: isAdmin || akses.includes('menu-dewan-masjid') },
-			{ name: 'Karang Taruna', icon: 'fas fa-user-group', id: 'menu-karang-taruna', show: isAdmin || akses.includes('menu-karang-taruna') },
-			{ name: 'Posyandu', icon: 'fas fa-baby', id: 'menu-posyandu', show: isAdmin || akses.includes('menu-posyandu') },
-			{ name: 'Ibu-Ibu PKK', icon: 'fas fa-female', id: 'menu-pkk', show: isAdmin || akses.includes('menu-pkk') },
-			{ name: 'Menu Satpam', icon: 'fas fa-shield-alt', id: 'menu-satpam', show: isAdmin || r === 'Satpam' || akses.includes('menu-satpam') },
-			{ name: 'Aset / Inventaris', icon: 'fas fa-boxes', id: 'menu-aset', show: isAdmin || akses.includes('menu-aset') },
-			{ name: 'Jadwal Ronda', icon: 'fas fa-moon', id: 'menu-ronda', show: isAdmin || akses.includes('menu-ronda') || akses.includes('menu-blacklist') },
-			{ name: 'Kegiatan', icon: 'fas fa-calendar-alt', id: 'menu-kegiatan', show: isAdmin || akses.includes('menu-kegiatan') || akses.includes('menu-voting') },
-			{ name: 'Layanan Terpadu', icon: 'fas fa-concierge-bell', id: 'menu-pengaduan', show: isAdmin || akses.includes('menu-pengaduan') || akses.includes('menu-permohonan') || akses.includes('menu-surat') },
-			{ name: 'Buku Tamu', icon: 'fas fa-id-badge', id: 'menu-buku-tamu', show: isAdmin || akses.includes('menu-buku-tamu') },
-			{ name: 'CCTV Lingkungan', icon: 'fas fa-video', id: 'menu-cctv', show: isAdmin || akses.includes('menu-cctv') },
-			{ name: 'Pengaturan', icon: 'fas fa-cog', id: 'menu-pengaturan', show: isAdmin || akses.includes('menu-pengaturan') },
-			{ name: 'Superadmin', icon: 'fas fa-user-shield', id: 'menu-superadmin', show: r === 'Superadmin' || akses.includes('menu-superadmin') }
-			];
-              
-              ms.forEach(m => { 
-                  if(m.show) { 
-                      let customStyle = ''; 
-                      
-                      if (m.id === 'menu-superadmin') {
-                          customStyle = 'color: #dc3545 !important; font-weight: bold;'; 
-                      } 
-                      
-                     const menuUtama = ['menu-warga', 'menu-koperasi', 'menu-kas-warga', 'menu-kas-masjid', 'menu-dewan-masjid', 'menu-karang-taruna', 'menu-satpam', 'menu-posyandu', 'menu-pkk'];
-                      if (menuUtama.includes(m.id)) {
-                          // Ubah warna tulisan khusus menu utama agar menjadi patokan utama
-                          customStyle = 'color: #0d6efd !important; font-weight: 600;'; 
-                      }
-                    
-                      mc.innerHTML += `<li><a href="javascript:void(0)" onclick="switchMenu('${m.id}', this)" style="${customStyle}"><i class="${m.icon} me-2"></i> ${m.name}</a></li>`; 
-                  } 
-              });
-              } 
+  if (topIcons.kegiatan) {
+    topIcons.kegiatan.style.display = (isAdmin || akses.includes('menu-kegiatan')) ? 'inline-flex' : 'none';
+  }
+  if (topIcons.pengaduan) {
+    topIcons.pengaduan.style.display = (isAdmin || akses.includes('menu-pengaduan')) ? 'inline-flex' : 'none';
+  }
+  if (topIcons.voting) {
+    topIcons.voting.style.display = (isAdmin || akses.includes('menu-kegiatan') || akses.includes('menu-voting')) ? 'inline-flex' : 'none';
+  }
+
+  let ms = [
+    { name: 'Dashboard', icon: 'fas fa-tachometer-alt', id: 'menu-dashboard', show: true },
+    { name: 'Struktur Pengurus', icon: 'fas fa-sitemap', id: 'menu-struktur-pengurus', show: isAdmin || akses.includes('menu-struktur-pengurus') },
+    { name: 'Data Warga', icon: 'fas fa-users', id: 'menu-warga', show: isAdmin || akses.includes('menu-warga') },
+    { name: 'Notulen Rapat', icon: 'fas fa-file-signature', id: 'menu-notulen', show: isAdmin || akses.includes('menu-notulen') },
+    { name: 'Koperasi Warga', icon: 'fas fa-store', id: 'menu-koperasi', show: isAdmin || akses.includes('menu-koperasi') },
+    { name: 'Kas Warga', icon: 'fas fa-wallet', id: 'menu-kas-warga', show: isAdmin || akses.includes('menu-kas-warga') },
+    { name: 'Kas Masjid', icon: 'fas fa-mosque', id: 'menu-kas-masjid', show: isAdmin || akses.includes('menu-kas-masjid') },
+    { name: 'Dewan Masjid', icon: 'fas fa-kaaba', id: 'menu-dewan-masjid', show: isAdmin || akses.includes('menu-dewan-masjid') },
+    { name: 'Karang Taruna', icon: 'fas fa-user-group', id: 'menu-karang-taruna', show: isAdmin || akses.includes('menu-karang-taruna') },
+    { name: 'Posyandu', icon: 'fas fa-baby', id: 'menu-posyandu', show: isAdmin || akses.includes('menu-posyandu') },
+    { name: 'Ibu-Ibu PKK', icon: 'fas fa-female', id: 'menu-pkk', show: isAdmin || akses.includes('menu-pkk') },
+    { name: 'Menu Satpam', icon: 'fas fa-shield-alt', id: 'menu-satpam', show: isAdmin || r === 'Satpam' || akses.includes('menu-satpam') },
+    { name: 'Aset / Inventaris', icon: 'fas fa-boxes', id: 'menu-aset', show: isAdmin || akses.includes('menu-aset') },
+    { name: 'Jadwal Ronda', icon: 'fas fa-moon', id: 'menu-ronda', show: isAdmin || akses.includes('menu-ronda') || akses.includes('menu-blacklist') },
+    { name: 'Kegiatan', icon: 'fas fa-calendar-alt', id: 'menu-kegiatan', show: isAdmin || akses.includes('menu-kegiatan') || akses.includes('menu-voting') },
+    { name: 'Layanan Terpadu', icon: 'fas fa-concierge-bell', id: 'menu-pengaduan', show: isAdmin || akses.includes('menu-pengaduan') || akses.includes('menu-permohonan') || akses.includes('menu-surat') },
+    { name: 'Buku Tamu', icon: 'fas fa-id-badge', id: 'menu-buku-tamu', show: isAdmin || akses.includes('menu-buku-tamu') },
+    { name: 'CCTV Lingkungan', icon: 'fas fa-video', id: 'menu-cctv', show: isAdmin || akses.includes('menu-cctv') },
+    { name: 'Pengaturan', icon: 'fas fa-cog', id: 'menu-pengaturan', show: isAdmin || akses.includes('menu-pengaturan') },
+    { name: 'Superadmin', icon: 'fas fa-user-shield', id: 'menu-superadmin', show: r === 'Superadmin' || akses.includes('menu-superadmin') }
+  ];
+
+  ms.forEach(m => {
+    if (m.show) {
+      let customStyle = '';
+
+      if (m.id === 'menu-superadmin') {
+        customStyle = 'color: #dc3545 !important; font-weight: bold;';
+      }
+
+      const menuUtama = ['menu-warga', 'menu-notulen', 'menu-koperasi', 'menu-kas-warga', 'menu-kas-masjid', 'menu-dewan-masjid', 'menu-karang-taruna', 'menu-satpam', 'menu-posyandu', 'menu-pkk'];
+      if (menuUtama.includes(m.id)) {
+        // Ubah warna tulisan khusus menu utama agar menjadi patokan utama
+        customStyle = 'color: #0d6efd !important; font-weight: 600;';
+      }
+
+      mc.innerHTML += `<li><a href="javascript:void(0)" onclick="switchMenu('${m.id}', this)" style="${customStyle}"><i class="${m.icon} me-2"></i> ${m.name}</a></li>`;
+    }
+  });
+}
               
              function renderCharts(w) { 
           if(chartJkInstance) chartJkInstance.destroy(); 
@@ -16609,12 +16785,7 @@ function executeExportKasMasjidPDF(tglMulaiStr, tglSelesaiStr) {
                   tb.innerHTML += `<tr><td><b>${p.urutan}</b></td><td><strong class="text-danger">${p.jabatan}</strong></td><td><b>${p.nama}</b></td><td>${formatWA(p.noWa)}</td><td><span class="badge bg-success">${p.status}</span></td><td><button class="btn btn-sm btn-outline-danger" onclick="deleteKtPengurus('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
               });
               }
-              
-              // =====================================================
-          // PEMBARUAN JAVASCRIPT KARANG TARUNA (CLIENT-SIDE)
-          // Ganti fungsi submitKtKegiatan dan deleteKtKegiatan di Index.html:
-          // =====================================================
-          
+                      
           function submitKtKegiatan(e) {
             e.preventDefault();
             let btn = document.getElementById('btn-save-ktg');
@@ -21845,6 +22016,62 @@ function handleSimpanProduk(e) {
     .simpanProdukUMKM(payload);
 }
 
+// Menangani saat pengguna memilih gambar dari perangkat
+function handlePilihFoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Batas ukuran awal 10MB
+  if (file.size > 10 * 1024 * 1024) {
+    Swal.fire('File Terlalu Besar', 'Maksimal ukuran foto adalah 10 MB', 'warning');
+    e.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      // Kompres ukuran foto (maksimal lebar/tinggi 800px) agar upload ke Google Drive super cepat
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      const maxDim = 800;
+
+      if (width > height && width > maxDim) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else if (height > maxDim) {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Konversi ke Base64 JPEG kualitas 80%
+      const base64Data = canvas.toDataURL('image/jpeg', 0.8);
+
+      // Masukkan ke hidden input dan tampilkan preview
+      document.getElementById('prd_foto').value = base64Data;
+      document.getElementById('img_preview_foto').src = base64Data;
+      document.getElementById('wrapper_preview_foto').style.display = 'block';
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Menghapus pilihan foto
+function hapusPilihanFoto() {
+  document.getElementById('prd_foto_file').value = '';
+  document.getElementById('prd_foto').value = '';
+  document.getElementById('img_preview_foto').src = '';
+  document.getElementById('wrapper_preview_foto').style.display = 'none';
+}
+
 // Hapus Produk
 function konfirmasiHapusProduk(idProduk, namaProduk) {
   Swal.fire({
@@ -22469,34 +22696,54 @@ function renderIsiModalKeranjang() {
 
 // 10. Checkout Multi Lapak Terpadu
 function prosesCheckoutSemuaLapak() {
-  if (keranjangBelanja.length === 0) {
+  if (!keranjangBelanja || keranjangBelanja.length === 0) {
     Swal.fire('Keranjang Kosong', 'Silakan pilih produk terlebih dahulu.', 'warning');
     return;
   }
 
-  if (!window.profilWargaAktif || !window.profilWargaAktif.nama) {
-    bukaModalKatalogPublik();
-    return;
-  }
+  const sesiWarga = JSON.parse(sessionStorage.getItem('sesi_warga_umkm') || '{}');
+  const profil = window.profilWargaAktif || {
+    nama: sesiWarga.nama || 'Warga',
+    alamat: sesiWarga.alamat || 'Komplek Warga',
+    no_wa: sesiWarga.hp || sesiWarga.no_wa || '-'
+  };
 
-  const profil = window.profilWargaAktif;
-
+  // KELOMPOKKAN PRODUK BERDASARKAN NAMA LAPAK
   const perToko = {};
   keranjangBelanja.forEach(item => {
-    const namaToko = (item.toko && item.toko.nama_lapak) ? item.toko.nama_lapak : "Lapak Warga";
+    const namaToko = (item.toko && item.toko.nama_lapak) 
+                  || item.nama_lapak 
+                  || item.namaLapak 
+                  || "Lapak Warga";
+
+    const noWaToko = (item.toko && item.toko.no_wa) 
+                  || item.no_wa 
+                  || item.noWa 
+                  || "";
+
     if (!perToko[namaToko]) {
       perToko[namaToko] = {
         namaLapak: namaToko,
-        noWa: (item.toko && item.toko.no_wa) ? String(item.toko.no_wa) : '',
+        noWa: String(noWaToko || ''),
         items: [],
         subtotal: 0
       };
     }
     perToko[namaToko].items.push(item);
-    perToko[namaToko].subtotal += (item.harga * item.qty);
+    perToko[namaToko].subtotal += (Number(item.harga) * Number(item.qty));
   });
 
   const daftarLapak = Object.values(perToko);
+
+  // Tutup sementara modal keranjang agar textarea bisa diketik
+  const modalKeranjangEl = document.getElementById('modalKeranjangBelanja') || 
+                           document.getElementById('modalKeranjang') || 
+                           document.querySelector('.modal.show');
+  let bsModalKeranjang = null;
+  if (modalKeranjangEl && typeof bootstrap !== 'undefined') {
+    bsModalKeranjang = bootstrap.Modal.getInstance(modalKeranjangEl);
+    if (bsModalKeranjang) bsModalKeranjang.hide();
+  }
 
   Swal.fire({
     title: `<span class="fs-6 fw-bold text-success"><i class="fas fa-truck me-2"></i>Konfirmasi Pesanan Belanja</span>`,
@@ -22505,29 +22752,57 @@ function prosesCheckoutSemuaLapak() {
         <div><b>Pemesan:</b> ${profil.nama}</div>
         <div><b>Alamat:</b> ${profil.alamat}</div>
         <div><b>No. Kontak:</b> ${profil.no_wa || '-'}</div>
-        <div class="text-success mt-1"><b>Total Lapak:</b> ${daftarLapak.length} Penjual Berbeda</div>
+        <div class="text-success mt-1 fw-bold"><b>Total Lapak:</b> ${daftarLapak.length} Penjual Berbeda</div>
       </div>
       <div class="text-start">
         <label class="form-label small fw-bold mb-1">Metode Pengiriman</label>
-        <select id="checkout_metode_multi" class="form-select form-select-sm mb-2">
-          <option value="Diantar ke Rumah">🛵 Minta Diantar ke Rumah</option>
+        <select id="checkout_metode_multi" class="form-select form-select-sm mb-2 shadow-none">
+          <option value="Minta Diantar ke Rumah">🛵 Minta Diantar ke Rumah</option>
           <option value="Ambil Sendiri ke Lapak">🏪 Ambil Sendiri ke Lapak</option>
         </select>
         <label class="form-label small fw-bold mb-1">Catatan Tambahan (Opsional)</label>
-        <textarea id="checkout_catatan_multi" class="form-control form-control-sm" rows="2" placeholder="Contoh: Titip di pos satpam / antar sore ya..."></textarea>
+        <textarea id="checkout_catatan_multi" class="form-control form-control-sm shadow-none" rows="3" placeholder="Contoh: Titip di pos satpam / antar sore ya..."></textarea>
       </div>
     `,
     showCancelButton: true,
     confirmButtonText: '<i class="fab fa-whatsapp me-1"></i> Kirim ke Semua Lapak',
     confirmButtonColor: '#198754',
-    cancelButtonText: 'Batal'
+    cancelButtonText: 'Batal',
+    didOpen: () => {
+      const txt = document.getElementById('checkout_catatan_multi');
+      if (txt) txt.focus();
+    }
   }).then((res) => {
-    if (!res.isConfirmed) return;
+    if (!res.isConfirmed) {
+      if (bsModalKeranjang) bsModalKeranjang.show();
+      return;
+    }
 
     const metode = document.getElementById('checkout_metode_multi').value;
     const catatan = document.getElementById('checkout_catatan_multi').value.trim();
 
-    const paketKirim = daftarLapak.map(toko => {
+    const paketKirim = [];
+
+    for (let toko of daftarLapak) {
+      // 1. FORMAT NOMOR WA SECARA KETAT (Mendukung 08xx, 8xx, dan 62xx)
+      let noClean = String(toko.noWa || '').replace(/[^0-9]/g, '');
+      if (noClean.startsWith('0')) {
+        noClean = '62' + noClean.slice(1);
+      } else if (noClean.startsWith('8')) {
+        noClean = '62' + noClean;
+      }
+
+      // Validasi nomor WhatsApp
+      if (!noClean || noClean.length < 9) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Nomor WA Belum Lengkap',
+          html: `Nomor WhatsApp untuk lapak <b>${toko.namaLapak}</b> tidak valid atau belum terisi di data produk.<br><br>Mohon lengkapi kolom nomor WA di database.`,
+          confirmButtonColor: '#dc3545'
+        });
+        return;
+      }
+
       let rincianBarang = "";
       toko.items.forEach((it, idx) => {
         rincianBarang += `${idx + 1}. *${it.nama_produk}* (${it.qty}x) = Rp ${(it.harga * it.qty).toLocaleString('id-ID')}\n`;
@@ -22550,15 +22825,12 @@ ${catatan ? `*Catatan:* ${catatan}\n` : ''}-------------------------------------
 
 _Mohon konfirmasi ketersediaan barang dan cara pembayarannya. Terima kasih!_`;
 
-      let noClean = toko.noWa.replace(/[^0-9]/g, '');
-      if (noClean.startsWith('0')) noClean = '62' + noClean.slice(1);
-
-      return {
+      paketKirim.push({
         namaLapak: toko.namaLapak,
         noWa: noClean,
         pesan: teksWA
-      };
-    });
+      });
+    }
 
     eksekusiKirimMultiLapak(paketKirim);
   });
@@ -22566,19 +22838,144 @@ _Mohon konfirmasi ketersediaan barang dan cara pembayarannya. Terima kasih!_`;
 
 // 11. Eksekusi Pengiriman WA Multi-Lapak
 function eksekusiKirimMultiLapak(paketKirim) {
+  // Fungsi pembersih keranjang
+  const bersihkanKeranjang = () => {
+    keranjangBelanja = [];
+    localStorage.setItem('KERANJANG_UMKM_WARGA', JSON.stringify([]));
+    if (typeof perbaruiBadgeKeranjang === 'function') perbaruiBadgeKeranjang();
+    if (typeof renderIsiModalKeranjang === 'function') renderIsiModalKeranjang();
+    else if (typeof renderIsiModalKeranjangBaru === 'function') renderIsiModalKeranjangBaru();
+  };
+
+  // 1. DETEKSI SAKLAR SUPER KETAT DARI DATABASE
+  let rawMode = typeof appSettings !== 'undefined' ? appSettings['wa_mode_otomatis'] : false;
+  let valString = String(rawMode).toLowerCase().trim();
+  let isGatewayAktif = (valString === 'true' || valString === 'ya' || valString === 'on' || valString === '1' || valString === 'aktif');
+
+  console.log("Status Saklar Gateway:", valString, "| Gateway Aktif?", isGatewayAktif);
+
+  // 2. JIKA GATEWAY OTOMATIS AKTIF (Kirim via Apps Script sendWhatsAppMessage)
+  if (isGatewayAktif) {
+    Swal.fire({
+      title: 'Mengirim Pesanan...',
+      html: `Meneruskan rincian pesanan ke <b>${paketKirim.length} lapak</b> di latar belakang...`,
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    let index = 0;
+    let suksesCount = 0;
+
+    // Kirim berurutan secara antrean agar Apps Script tidak overload
+    function kirimAntreanLapak() {
+      if (index >= paketKirim.length) {
+        bersihkanKeranjang();
+        Swal.fire({
+          icon: 'success',
+          title: 'Pesanan Terkirim!',
+          text: `Rincian pesanan berhasil dikirim ke ${suksesCount} lapak melalui WhatsApp.`,
+          timer: 2500,
+          showConfirmButton: false
+        });
+        return;
+      }
+
+      const item = paketKirim[index];
+
+      // Format Nomor WA persis standar sistem
+      let num = String(item.noWa).replace(/\D/g, '');
+      if (num.startsWith('0')) num = '62' + num.substring(1);
+      else if (num.startsWith('8')) num = '62' + num;
+      else if (!num.startsWith('62')) num = '62' + num;
+
+      google.script.run
+        .withSuccessHandler((res) => {
+          if (res && (res.success || res.status === 'success')) {
+            suksesCount++;
+          }
+          index++;
+          kirimAntreanLapak();
+        })
+        .withFailureHandler((err) => {
+          console.error("Gagal kirim ke " + item.namaLapak + ":", err);
+          index++;
+          kirimAntreanLapak();
+        })
+        .sendWhatsAppMessage(num, item.pesan, null); // Panggil fungsi Apps Script Anda
+    }
+
+    kirimAntreanLapak();
+    return;
+  }
+
+  // 3. JIKA SAKLAR OTOMATIS MATI / MODE MANUAL
+  if (paketKirim.length === 1) {
+    const item = paketKirim[0];
+    let num = String(item.noWa).replace(/\D/g, '');
+    if (num.startsWith('0')) num = '62' + num.substring(1);
+    else if (num.startsWith('8')) num = '62' + num;
+    else if (!num.startsWith('62')) num = '62' + num;
+
+    let waUrl = "https://api.whatsapp.com/send?phone=" + num + "&text=" + encodeURIComponent(item.pesan);
+    window.open(waUrl, '_blank');
+    bersihkanKeranjang();
+    return;
+  }
+
+  // Jika lebih dari 1 lapak manual (Buka tombol per lapak)
+  let tombolHtml = '<p class="small text-muted mb-3">Pesanan Anda terbagi ke beberapa lapak. Silakan klik tombol untuk mengirim ke masing-masing:</p><div class="d-grid gap-2">';
+  paketKirim.forEach((pkt) => {
+    let num = String(pkt.noWa).replace(/\D/g, '');
+    if (num.startsWith('0')) num = '62' + num.substring(1);
+    else if (num.startsWith('8')) num = '62' + num;
+    else if (!num.startsWith('62')) num = '62' + num;
+
+    const waUrl = "https://api.whatsapp.com/send?phone=" + num + "&text=" + encodeURIComponent(pkt.pesan);
+    tombolHtml += `
+      <a href="${waUrl}" target="_blank" class="btn btn-outline-success fw-bold text-start p-2 d-flex align-items-center justify-content-between shadow-sm">
+        <span><i class="fab fa-whatsapp text-success me-2 fs-5"></i> Kirim ke ${pkt.namaLapak}</span>
+        <i class="fas fa-chevron-right small text-muted"></i>
+      </a>
+    `;
+  });
+  tombolHtml += '</div>';
+
+  Swal.fire({
+    title: '<span class="fs-6 fw-bold text-success">Kirim ke Multi Lapak</span>',
+    html: tombolHtml,
+    showConfirmButton: true,
+    confirmButtonText: 'Selesai & Bersihkan Keranjang',
+    confirmButtonColor: '#198754',
+    showCancelButton: true,
+    cancelButtonText: 'Tutup'
+  }).then((r) => {
+    if (r.isConfirmed) {
+      bersihkanKeranjang();
+    }
+  });
+}
+
+// 11. Eksekusi Pengiriman WA Multi-Lapak
+function eksekusiKirimMultiLapak(paketKirim) {
+  // Fungsi pembantu untuk mengosongkan keranjang setelah selesai transaksi
+  const bersihkanKeranjang = () => {
+    keranjangBelanja = [];
+    localStorage.setItem('KERANJANG_UMKM_WARGA', JSON.stringify([]));
+    if (typeof perbaruiBadgeKeranjang === 'function') perbaruiBadgeKeranjang();
+    if (typeof renderIsiModalKeranjang === 'function') renderIsiModalKeranjang();
+  };
+
   const settings = typeof appSettings !== 'undefined' ? appSettings : {};
   let rawMode = settings['wa_mode_otomatis'] || settings['wa_gateway_mode'] || settings['api_wa_status'] || false;
   let isGatewayAktif = String(rawMode).toLowerCase().trim() === 'true';
 
+  // JIKA MENGGUNAKAN WA GATEWAY BOT OTOMATIS
   if (isGatewayAktif && typeof kirimPesanWhatsAppUniversal === 'function') {
     let index = 0;
     function kirimAntrean() {
       if (index >= paketKirim.length) {
         Swal.fire('Selesai!', 'Semua pesanan telah berhasil diteruskan ke masing-masing lapak penjual.', 'success');
-        keranjangBelanja = [];
-        localStorage.setItem('KERANJANG_UMKM_WARGA', JSON.stringify(keranjangBelanja));
-        perbaruiBadgeKeranjang();
-        renderIsiModalKeranjang();
+        bersihkanKeranjang();
         return;
       }
       const data = paketKirim[index];
@@ -22591,12 +22988,15 @@ function eksekusiKirimMultiLapak(paketKirim) {
     return;
   }
 
+  // JIKA HANYA ADA 1 LAPAK (Buka WhatsApp langsung dan kosongkan keranjang)
   if (paketKirim.length === 1) {
     const url = `https://wa.me/${paketKirim[0].noWa}?text=${encodeURIComponent(paketKirim[0].pesan)}`;
     window.open(url, '_blank');
+    bersihkanKeranjang();
     return;
   }
 
+  // JIKA MULTI LAPAK (Tampilkan tombol per lapak)
   let tombolHtml = '<p class="small text-muted mb-3">Pesanan Anda telah dibagi sesuai penjualnya. Ketuk tombol lapak di bawah ini untuk mengirim ke WhatsApp masing-masing penjual:</p><div class="d-grid gap-2">';
   
   paketKirim.forEach((pkt) => {
@@ -22613,9 +23013,15 @@ function eksekusiKirimMultiLapak(paketKirim) {
   Swal.fire({
     title: '<span class="fs-6 fw-bold text-success">Kirim ke Multi Lapak</span>',
     html: tombolHtml,
-    showConfirmButton: false,
+    showConfirmButton: true,
+    confirmButtonText: '<i class="fas fa-check me-1"></i> Selesai & Bersihkan Keranjang',
+    confirmButtonColor: '#198754',
     showCancelButton: true,
-    cancelButtonText: 'Selesai / Tutup'
+    cancelButtonText: 'Tutup'
+  }).then((r) => {
+    if (r.isConfirmed) {
+      bersihkanKeranjang();
+    }
   });
 }
 
@@ -24348,6 +24754,387 @@ function ubahIndikatorTombol(status) {
   window.addEventListener('mousemove', geserTombol);
   window.addEventListener('mouseup', lepasSentuh);
 })();
+
+// ============================================================================
+// MODUL LENGKAP NOTULEN RAPAT WARGA (GLOBAL SCOPE)
+// ============================================================================
+window.dataNotulenGlobal = window.dataNotulenGlobal || [];
+
+// 1. Pemuat Data Notulen dari Backend Code.gs
+window.loadDataNotulen = function(showNotif = false) {
+  const tbody = document.getElementById('tbodyNotulenRapat');
+  if (tbody) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-4 text-muted">
+          <div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data notulen rapat...
+        </td>
+      </tr>
+    `;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (!res || !res.success) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">${res ? res.message : 'Gagal memuat data'}</td></tr>`;
+        return;
+      }
+
+      window.dataNotulenGlobal = res.data || [];
+      window.renderTableNotulen();
+      if (typeof window.renderDaftarNotulen === 'function') window.renderDaftarNotulen();
+
+      if (showNotif && typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'success', title: 'Data Diperbarui', timer: 900, showConfirmButton: false });
+      }
+    })
+    .withFailureHandler(function(err) {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-3">Error: ${err.message || err}</td></tr>`;
+    })
+    .getNotulenRapat();
+};
+
+// 2. Render Tabel Notulen di Halaman #page-notulen
+window.renderTableNotulen = function() {
+  const tbody = document.getElementById('tbodyNotulenRapat');
+  if (!tbody) return;
+
+  const listData = Array.isArray(window.dataNotulenGlobal) ? window.dataNotulenGlobal : [];
+  const keyword = (document.getElementById('searchNotulenAdmin')?.value || '').toLowerCase().trim();
+
+  const filtered = listData.filter(item => {
+    const teks = `${item.agenda_rapat} ${item.tempat} ${item.pimpinan_rapat} ${item.keputusan_rapat} ${item.tanggal_rapat}`.toLowerCase();
+    return teks.includes(keyword);
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-5 text-muted">
+          <i class="fas fa-folder-open fs-3 d-block mb-2 opacity-50"></i>
+          Belum ada data notulen rapat. Klik <b>"+ Catat Notulen Baru"</b> untuk menambahkan.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach((item, idx) => {
+    let tglTampil = item.tanggal_rapat;
+    try {
+      if (item.tanggal_rapat) {
+        const d = new Date(item.tanggal_rapat + 'T00:00:00');
+        tglTampil = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+    } catch (e) {}
+
+    const safeAgenda = String(item.agenda_rapat || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+    html += `
+      <tr>
+        <td class="text-center fw-bold text-muted">${idx + 1}</td>
+        <td>
+          <div class="fw-bold text-dark">${tglTampil}</div>
+          <div class="text-muted" style="font-size: 11px;"><i class="far fa-clock me-1"></i>${item.waktu_rapat}</div>
+        </td>
+        <td>
+          <div class="fw-bold text-primary mb-1">${item.agenda_rapat}</div>
+          <div class="text-muted" style="font-size: 11px;">
+            <i class="fas fa-map-marker-alt text-danger me-1"></i>${item.tempat} • Pimpinan: ${item.pimpinan_rapat}
+          </div>
+        </td>
+        <td>
+          <div class="text-dark" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            ${item.keputusan_rapat}
+          </div>
+          ${item.foto_dokumentasi ? `<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 mt-1"><i class="fas fa-image me-1"></i>Ada Foto</span>` : ''}
+        </td>
+        <td class="text-center text-nowrap">
+          <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2" onclick="lihatDetailNotulen('${item.id_notulen}')" title="Baca Detail">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="bagikanNotulenWA('${item.id_notulen}')" title="Bagikan ke WA">
+            <i class="fab fa-whatsapp text-success"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2" onclick="bukaFormNotulen('${item.id_notulen}')" title="Edit">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="hapusNotulen('${item.id_notulen}', '${safeAgenda}')" title="Hapus">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+};
+
+// 3. Membuka Modal Form Tambah / Edit Notulen
+window.bukaFormNotulen = function(idNotulen = null) {
+  const modalFormEl = document.getElementById('modalFormNotulen');
+  if (!modalFormEl) {
+    alert("Elemen #modalFormNotulen belum dipasang di HTML!");
+    return;
+  }
+
+  document.getElementById('formNotulenRapat').reset();
+  document.getElementById('ntl_id').value = '';
+  document.getElementById('ntl_foto').value = '';
+  document.getElementById('ntl_foto_file').value = '';
+  document.getElementById('wrapper_preview_ntl').style.display = 'none';
+
+  if (idNotulen) {
+    const item = window.dataNotulenGlobal.find(n => n.id_notulen === idNotulen);
+    if (item) {
+      document.getElementById('modalFormNotulenTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Notulen Rapat';
+      document.getElementById('ntl_id').value = item.id_notulen;
+      document.getElementById('ntl_tanggal').value = item.tanggal_rapat;
+      document.getElementById('ntl_waktu').value = item.waktu_rapat;
+      document.getElementById('ntl_tempat').value = item.tempat;
+      document.getElementById('ntl_agenda').value = item.agenda_rapat;
+      document.getElementById('ntl_pimpinan').value = item.pimpinan_rapat;
+      document.getElementById('ntl_pembahasan').value = item.isi_pembahasan;
+      document.getElementById('ntl_keputusan').value = item.keputusan_rapat;
+      document.getElementById('ntl_foto').value = item.foto_dokumentasi || '';
+
+      if (item.foto_dokumentasi) {
+        document.getElementById('img_preview_ntl').src = item.foto_dokumentasi;
+        document.getElementById('wrapper_preview_ntl').style.display = 'block';
+      }
+    }
+  } else {
+    document.getElementById('modalFormNotulenTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Catat Notulen Rapat Baru';
+    document.getElementById('ntl_tanggal').value = new Date().toISOString().split('T')[0];
+  }
+
+  bootstrap.Modal.getOrCreateInstance(modalFormEl, { focus: false, backdrop: 'static' }).show();
+};
+
+// 4. Kompresi Foto Dokumentasi sebelum diunggah ke Drive
+window.handlePilihFotoNotulen = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 10 * 1024 * 1024) {
+    Swal.fire('File Terlalu Besar', 'Maksimal ukuran foto adalah 10 MB', 'warning');
+    e.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      const maxDim = 900;
+
+      if (width > height && width > maxDim) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else if (height > maxDim) {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+      const base64Data = canvas.toDataURL('image/jpeg', 0.8);
+      document.getElementById('ntl_foto').value = base64Data;
+      document.getElementById('img_preview_ntl').src = base64Data;
+      document.getElementById('wrapper_preview_ntl').style.display = 'block';
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.hapusFotoNotulen = function() {
+  document.getElementById('ntl_foto_file').value = '';
+  document.getElementById('ntl_foto').value = '';
+  document.getElementById('img_preview_ntl').src = '';
+  document.getElementById('wrapper_preview_ntl').style.display = 'none';
+};
+
+// 5. Simpan Form Notulen ke Google Sheets (Tercatat di History)
+window.simpanFormNotulen = function(e) {
+  e.preventDefault();
+
+  const pembuat = (typeof currentUser !== 'undefined' && (currentUser.nama || currentUser.username))
+                  ? (currentUser.nama || currentUser.username)
+                  : 'Pengurus';
+
+  const payload = {
+    id_notulen:       document.getElementById('ntl_id').value.trim(),
+    tanggal_rapat:    document.getElementById('ntl_tanggal').value,
+    waktu_rapat:      document.getElementById('ntl_waktu').value.trim(),
+    tempat:           document.getElementById('ntl_tempat').value.trim(),
+    agenda_rapat:     document.getElementById('ntl_agenda').value.trim(),
+    pimpinan_rapat:   document.getElementById('ntl_pimpinan').value.trim(),
+    isi_pembahasan:   document.getElementById('ntl_pembahasan').value.trim(),
+    keputusan_rapat:  document.getElementById('ntl_keputusan').value.trim(),
+    foto_dokumentasi: document.getElementById('ntl_foto').value,
+    dibuat_oleh:      pembuat
+  };
+
+  Swal.fire({
+    title: 'Menyimpan Notulen...',
+    text: 'Mohon tunggu sebentar',
+    allowOutsideClick: false,
+    didOpen: () => { Swal.showLoading(); }
+  });
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (res && res.success) {
+        const modalForm = bootstrap.Modal.getInstance(document.getElementById('modalFormNotulen'));
+        if (modalForm) modalForm.hide();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: res.message,
+          timer: 1500,
+          showConfirmButton: false
+        });
+        window.loadDataNotulen(false);
+      } else {
+        Swal.fire('Gagal Menyimpan', res ? res.message : 'Terjadi kesalahan', 'error');
+      }
+    })
+    .withFailureHandler(function(err) {
+      Swal.fire('Error Server', String(err), 'error');
+    })
+    .simpanNotulenRapat(payload);
+};
+
+// 6. Hapus Notulen Rapat (Mengirim Nama User ke History)
+window.hapusNotulen = function(idNotulen, judulAgenda) {
+  Swal.fire({
+    title: 'Hapus Notulen Ini?',
+    html: `Anda yakin ingin menghapus arsip rapat:<br><b>"${judulAgenda}"</b>?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    confirmButtonText: 'Ya, Hapus',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (!result.isConfirmed) return;
+
+    const penghapus = (typeof currentUser !== 'undefined' && (currentUser.nama || currentUser.username))
+                      ? (currentUser.nama || currentUser.username)
+                      : 'Pengurus';
+
+    Swal.fire({
+      title: 'Menghapus...',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res && res.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Terhapus',
+            text: res.message,
+            timer: 1200,
+            showConfirmButton: false
+          });
+          window.loadDataNotulen(false);
+        } else {
+          Swal.fire('Gagal', res ? res.message : 'Gagal menghapus data', 'error');
+        }
+      })
+      .withFailureHandler(function(err) {
+        Swal.fire('Error', String(err), 'error');
+      })
+      .hapusNotulenRapat(idNotulen, penghapus);
+  });
+};
+
+// 7. Membuka Modal Baca Detail Lengkap
+window.lihatDetailNotulen = function(idNotulen) {
+  const item = window.dataNotulenGlobal.find(n => n.id_notulen === idNotulen);
+  if (!item) return;
+
+  let tglTampil = item.tanggal_rapat;
+  try {
+    const d = new Date(item.tanggal_rapat + 'T00:00:00');
+    tglTampil = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  } catch (e) {}
+
+  const fotoHtml = item.foto_dokumentasi ? `
+    <div class="mt-3">
+      <label class="small fw-bold text-muted d-block mb-1">Dokumentasi / Daftar Hadir:</label>
+      <a href="${item.foto_dokumentasi}" target="_blank">
+        <img src="${item.foto_dokumentasi}" class="img-fluid rounded-3 border shadow-sm" style="max-height: 260px; object-fit: contain;">
+      </a>
+    </div>
+  ` : '';
+
+  document.getElementById('detailNotulenBody').innerHTML = `
+    <div class="mb-3 pb-3 border-bottom">
+      <h5 class="fw-bold text-dark mb-2">${item.agenda_rapat}</h5>
+      <div class="row g-2 small text-muted">
+        <div class="col-sm-6"><i class="far fa-calendar-alt text-success me-2"></i><b>Tanggal:</b> ${tglTampil}</div>
+        <div class="col-sm-6"><i class="far fa-clock text-success me-2"></i><b>Waktu:</b> ${item.waktu_rapat}</div>
+        <div class="col-sm-6"><i class="fas fa-map-marker-alt text-danger me-2"></i><b>Tempat:</b> ${item.tempat}</div>
+        <div class="col-sm-6"><i class="fas fa-user-tie text-primary me-2"></i><b>Pimpinan:</b> ${item.pimpinan_rapat}</div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <h6 class="fw-bold small text-uppercase text-secondary mb-2">Ringkasan Pembahasan:</h6>
+      <div class="p-3 bg-light rounded-3 small text-dark" style="white-space: pre-line; line-height: 1.6;">${item.isi_pembahasan}</div>
+    </div>
+
+    <div class="mb-2">
+      <h6 class="fw-bold small text-uppercase text-success mb-2"><i class="fas fa-check-circle me-1"></i>Keputusan & Kesepakatan Rapat:</h6>
+      <div class="p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3 small text-dark fw-medium" style="white-space: pre-line; line-height: 1.6;">${item.keputusan_rapat}</div>
+    </div>
+
+    ${fotoHtml}
+  `;
+
+  const btnShare = document.getElementById('btnShareNotulenWA');
+  if (btnShare) {
+    btnShare.onclick = () => window.bagikanNotulenWA(item.id_notulen);
+  }
+
+  const modalDetailEl = document.getElementById('modalDetailNotulen');
+  bootstrap.Modal.getOrCreateInstance(modalDetailEl, { focus: false }).show();
+};
+
+// 8. Bagikan Ringkasan Notulen ke WhatsApp
+window.bagikanNotulenWA = function(idNotulen) {
+  const item = window.dataNotulenGlobal.find(n => n.id_notulen === idNotulen);
+  if (!item) return;
+
+  const teksWA = 
+`*NOTULEN RAPAT WARGA*
+---------------------------------------
+📌 *Agenda:* ${item.agenda_rapat}
+📅 *Tanggal:* ${item.tanggal_rapat} (${item.waktu_rapat})
+📍 *Tempat:* ${item.tempat}
+👤 *Pimpinan:* ${item.pimpinan_rapat}
+---------------------------------------
+*Ringkasan Pembahasan:*
+${item.isi_pembahasan}
+
+*Keputusan / Kesepakatan:*
+${item.keputusan_rapat}
+---------------------------------------
+_Arsip lengkap & dokumentasi dapat dilihat melalui Aplikasi Portal Warga._`;
+
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(teksWA)}`, '_blank');
+};
+
 </script>
 <!-- Audio Player Adzan Global -->
 <audio id="audio-adzan" preload="auto">
